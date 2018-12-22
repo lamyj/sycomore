@@ -1,7 +1,7 @@
 #include "sycomore/magnetization.h"
 
-#include <complex>
 #include <eigen3/Eigen/Dense>
+#include "sycomore/sycomore.h"
 
 namespace sycomore
 {

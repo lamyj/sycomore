@@ -1,8 +1,8 @@
 #ifndef _84b1fab9_d85f_41d4_9251_3e1b61073ec5
 #define _84b1fab9_d85f_41d4_9251_3e1b61073ec5
 
-#include <complex>
 #include <eigen3/Eigen/Dense>
+#include "sycomore/sycomore.h"
 
 namespace sycomore
 {
