@@ -6,6 +6,11 @@
 BOOST_AUTO_TEST_CASE(WithoutOrigin)
 {
     sycomore::IndexGenerator generator({3,5});
+
+    BOOST_TEST(generator.origin() == sycomore::Index({0,0}));
+    BOOST_TEST(generator.shape() == sycomore::Shape({3,5}));
+    BOOST_TEST(generator.last() == sycomore::Index({3,5}));
+
     auto && iterator = generator.begin();
 
     for(int y=0; y<5; ++y)
@@ -27,6 +32,11 @@ BOOST_AUTO_TEST_CASE(WithoutOrigin)
 BOOST_AUTO_TEST_CASE(WithOrigin)
 {
     sycomore::IndexGenerator generator({-3,-5}, {13, 11});
+
+    BOOST_TEST(generator.origin() == sycomore::Index({-3,-5}));
+    BOOST_TEST(generator.shape() == sycomore::Shape({13,11}));
+    BOOST_TEST(generator.last() == sycomore::Index({10,6}));
+
     auto && iterator = generator.begin();
 
     for(int y=-5; y<=5; ++y)

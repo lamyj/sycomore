@@ -26,6 +26,27 @@ IndexGenerator
     this->_end[this->_end.size()-1] = this->_last[this->_end.size()-1];
 }
 
+Index const &
+IndexGenerator
+::origin() const
+{
+    return this->_origin;
+}
+
+Shape const &
+IndexGenerator
+::shape() const
+{
+    return this->_shape;
+}
+
+Index const &
+IndexGenerator
+::last() const
+{
+    return this->_last;
+}
+
 IndexGenerator::const_iterator
 IndexGenerator
 ::begin() const

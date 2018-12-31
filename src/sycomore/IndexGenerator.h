@@ -43,9 +43,15 @@ public:
         Index _index;
     };
 
-    const_iterator begin() const;
+    Index const & origin() const;
+    Shape const & shape() const;
 
+    /// @brief Return the one-past-the-end index on all axes.
+    Index const & last() const;
+
+    const_iterator begin() const;
     const_iterator end() const;
+
 private:
     Index _origin;
     Shape _shape;
