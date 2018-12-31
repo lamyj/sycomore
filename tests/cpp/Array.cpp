@@ -31,25 +31,6 @@ BOOST_AUTO_TEST_CASE(InitializedConstructor)
     }
 }
 
-BOOST_AUTO_TEST_CASE(IndexGenerator)
-{
-    sycomore::IndexGenerator generator({3,5});
-    auto && iterator = generator.begin();
-
-    for(unsigned int y=0; y<5; ++y)
-    {
-        for(unsigned int x=0; x<3; ++x)
-        {
-            BOOST_CHECK(iterator != generator.end());
-            auto && index = *iterator;
-            BOOST_CHECK(index == sycomore::Index({x,y}));
-            ++iterator;
-        }
-    }
-
-    BOOST_CHECK(iterator == generator.end());
-}
-
 BOOST_AUTO_TEST_CASE(Accessor)
 {
     sycomore::Array<float> array({5, 3}, 0);

@@ -3,48 +3,10 @@
 
 #include <vector>
 
+#include "sycomore/sycomore.h"
+
 namespace sycomore
 {
-
-using Shape = std::vector<unsigned int>;
-using Stride = Shape;
-using Index = Shape;
-
-class IndexGenerator
-{
-public:
-    IndexGenerator(Shape const & shape);
-
-    class const_iterator
-    {
-    public:
-        using value_type = Index;
-
-        const_iterator(Shape const & shape, bool is_end);
-
-        bool operator==(const_iterator const & other) const;
-
-        bool operator!=(const_iterator const & other) const;
-
-        const_iterator & operator++();
-
-        const_iterator & operator++(int);
-
-        value_type const & operator*();
-    private:
-        Shape _shape;
-        Index _index;
-        Index _end;
-
-        void _next(Index & index);
-    };
-
-    const_iterator begin() const;
-
-    const_iterator end() const;
-private:
-    Shape _shape;
-};
 
 /// @brief N-dimensional array.
 template<typename TScalar>
@@ -82,6 +44,7 @@ private:
     std::vector<TScalar> _data;
 
     static Stride _compute_stride(Shape const & shape);
+    void _reshape(Array<TScalar> & new_array);
 };
 
 }

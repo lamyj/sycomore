@@ -5,6 +5,9 @@
 #include <numeric>
 #include <vector>
 
+#include "sycomore/IndexGenerator.h"
+#include "sycomore/sycomore.h"
+
 namespace sycomore
 {
 
@@ -90,21 +93,7 @@ Array<TScalar>
     }
 
     Array<TScalar> new_array(shape);
-
-    Shape min_shape(this->dimension());
-    std::transform(
-        this->_shape.begin(), this->_shape.end(), shape.begin(),
-        min_shape.begin(), [](int x, int y) { return std::min(x, y); });
-
-    // NOTE: we could memcopy line-by-line
-    for(auto && index: IndexGenerator(min_shape))
-    {
-        new_array[index] = (*this)[index];
-    }
-
-    this->_shape = std::move(new_array._shape);
-    this->_stride = std::move(new_array._stride);
-    this->_data = std::move(new_array._data);
+    this->_reshape(new_array);
 }
 
 template<typename TScalar>
@@ -118,21 +107,7 @@ Array<TScalar>
     }
 
     Array<TScalar> new_array(shape, value);
-
-    Shape min_shape(this->dimension());
-    std::transform(
-        this->_shape.begin(), this->_shape.end(), shape.begin(),
-        min_shape.begin(), [](int x, int y) { return std::min(x, y); });
-
-    // NOTE: we could memcopy line-by-line
-    for(auto && index: IndexGenerator(min_shape))
-    {
-        new_array[index] = (*this)[index];
-    }
-
-    this->_shape = std::move(new_array._shape);
-    this->_stride = std::move(new_array._stride);
-    this->_data = std::move(new_array._data);
+    this->_reshape(new_array);
 }
 
 template<typename TScalar>
@@ -163,12 +138,33 @@ Array<TScalar>
 
     Stride stride(shape.size()+1);
     stride[0] = 1;
-    for(int i=0; i< shape.size(); ++i)
+    for(unsigned int i=0; i< shape.size(); ++i)
     {
         stride[i+1] = shape[i]*stride[i];
     }
 
     return stride;
+}
+
+template<typename TScalar>
+void
+Array<TScalar>
+::_reshape(Array<TScalar> & new_array)
+{
+    Shape min_shape(this->dimension());
+    std::transform(
+        this->_shape.begin(), this->_shape.end(), new_array.shape().begin(),
+        min_shape.begin(), [](int x, int y) { return std::min(x, y); });
+
+    // NOTE: we could memcopy line-by-line
+    for(auto && index: IndexGenerator(min_shape))
+    {
+        new_array[index] = (*this)[index];
+    }
+
+    this->_shape = std::move(new_array._shape);
+    this->_stride = std::move(new_array._stride);
+    this->_data = std::move(new_array._data);
 }
 
 }
