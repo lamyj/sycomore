@@ -19,7 +19,11 @@ public:
     class const_iterator
     {
     public:
+        using iterator_category = std::forward_iterator_tag;
         using value_type = Index;
+        using difference_type = std::ptrdiff_t;
+        using pointer = Index const *;
+        using reference = Index const &;
 
         const_iterator(
             Index const & origin, Shape const & shape,

@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(InitializedConstructor)
     BOOST_TEST(array.dimension() == 2);
     BOOST_TEST(array.shape() == sycomore::Shape({5,3}));
     BOOST_TEST(array.stride() == sycomore::Stride({1,5,15}));
-    for(int i=0; i<array.stride()[array.stride().size()-1]; ++i)
+    for(int i=0; i<array.stride()[array.dimension()]; ++i)
     {
         BOOST_TEST(array.data()[i] == 42);
     }
@@ -72,198 +72,146 @@ BOOST_AUTO_TEST_CASE(ScanOrder)
     }
 }
 
+template<typename TScalar>
+void compare_arrays(
+    sycomore::Array<TScalar> const & old_array,
+    sycomore::Array<TScalar> const & new_array,
+    bool is_initialized, TScalar const & value={})
+{
+    sycomore::IndexGenerator const generator_old(old_array.shape());
+    std::vector<sycomore::Index> const indices_old(
+        generator_old.begin(), generator_old.end());
+
+    sycomore::IndexGenerator generator_new(new_array.shape());
+    std::vector<sycomore::Index> const indices_new(
+        generator_new.begin(), generator_new.end());
+
+    std::vector<sycomore::Index> intersection;
+    std::vector<sycomore::Index> difference;
+    for(auto && index: indices_new)
+    {
+        auto && it = std::find(indices_old.begin(), indices_old.end(), index);
+        if(it != indices_old.end())
+        {
+            intersection.push_back(index);
+        }
+        else
+        {
+            difference.push_back(index);
+        }
+    }
+
+    for(auto && index: intersection)
+    {
+        BOOST_TEST(old_array[index] == new_array[index]);
+    }
+    if(is_initialized)
+    {
+        for(auto && index: difference)
+        {
+            BOOST_TEST(new_array[index] == value);
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(ReshapeLargerUninitialized)
 {
-    sycomore::Shape const old_shape = {5, 3};
-    sycomore::Shape const new_shape = {7, 5};
-
-    sycomore::Array<float> array(old_shape);
-    unsigned int i=0;
-    for(auto && index: sycomore::IndexGenerator(array.shape()))
+    sycomore::Array<int> old_array({5, 3});
+    unsigned int i=1;
+    for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
-        array[index] = i;
+        old_array[index] = i;
         ++i;
     }
 
-    array.reshape(new_shape);
+    auto new_array = old_array;
+    new_array.reshape({7,5});
 
-    BOOST_TEST(array.shape() == new_shape);
-
-    sycomore::Index index(array.dimension(), 0);
-    i=0;
-    for(index[1]=0; index[1]<old_shape[1]; ++index[1])
-    {
-        for(index[0]=0; index[0]<old_shape[0]; ++index[0])
-        {
-            BOOST_TEST(array[index] == i);
-            ++i;
-        }
-    }
+    BOOST_TEST(new_array.shape() == sycomore::Shape({7,5}));
+    compare_arrays(old_array, new_array, false);
 }
 
 BOOST_AUTO_TEST_CASE(ReshapeLargerInitialized)
 {
-    sycomore::Shape const old_shape = {5, 3};
-    sycomore::Shape const new_shape = {7, 5};
-
-    sycomore::Array<float> array(old_shape);
-    unsigned int i=0;
-    for(auto && index: sycomore::IndexGenerator(array.shape()))
+    sycomore::Array<int> old_array({5, 3});
+    unsigned int i=1;
+    for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
-        array[index] = i;
+        old_array[index] = i;
         ++i;
     }
 
-    array.reshape(new_shape, 1000);
+    auto new_array = old_array;
+    new_array.reshape({7,5}, 1000);
 
-    BOOST_TEST(array.shape() == new_shape);
-
-    sycomore::Index index(array.dimension(), 0);
-    i=0;
-    for(index[1]=0; index[1]<old_shape[1]; ++index[1])
-    {
-        for(index[0]=0; index[0]<old_shape[0]; ++index[0])
-        {
-            BOOST_TEST(array[index] == i);
-            ++i;
-        }
-        for(index[0]=old_shape[0]; index[0]<new_shape[0]; ++index[0])
-        {
-            BOOST_TEST(array[index] == 1000);
-        }
-    }
-    for(index[1]=old_shape[1]; index[1]<new_shape[1]; ++index[1])
-    {
-        for(index[0]=0; index[0]<new_shape[0]; ++index[0])
-        {
-            BOOST_TEST(array[index] == 1000);
-        }
-    }
+    BOOST_TEST(new_array.shape() == sycomore::Shape({7,5}));
+    compare_arrays(old_array, new_array, true, 1000);
 }
 
 BOOST_AUTO_TEST_CASE(ReshapeSmallerUninitialized)
 {
-    sycomore::Shape const old_shape{7, 5};
-    sycomore::Shape const new_shape{5, 3};
-
-    sycomore::Array<float> array(old_shape);
-    unsigned int i=0;
-    for(auto && index: sycomore::IndexGenerator(array.shape()))
+    sycomore::Array<int> old_array({7,5});
+    unsigned int i=1;
+    for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
-        array[index] = i;
+        old_array[index] = i;
         ++i;
     }
 
-    array.reshape(new_shape);
+    auto new_array = old_array;
+    new_array.reshape({5,3});
 
-    sycomore::Index index(array.dimension(), 0);
-    i=0;
-    for(index[1]=0; index[1]<new_shape[1]; ++index[1])
-    {
-        for(index[0]=0; index[0]<new_shape[0]; ++index[0])
-        {
-            BOOST_TEST(array[index] == i);
-            ++i;
-        }
-        for(index[0]=new_shape[0]; index[0]<old_shape[0]; ++index[0])
-        {
-            ++i;
-        }
-    }
+    BOOST_TEST(new_array.shape() == sycomore::Shape({5, 3}));
+    compare_arrays(old_array, new_array, false);
 }
 
 BOOST_AUTO_TEST_CASE(ReshapeSmallerInitialized)
 {
-    sycomore::Shape const old_shape{7, 5};
-    sycomore::Shape const new_shape{5, 3};
-
-    sycomore::Array<float> array(old_shape);
-    unsigned int i=0;
-    for(auto && index: sycomore::IndexGenerator(array.shape()))
+    sycomore::Array<int> old_array({7,5});
+    unsigned int i=1;
+    for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
-        array[index] = i;
+        old_array[index] = i;
         ++i;
     }
 
-    array.reshape(new_shape, 1000);
+    auto new_array = old_array;
+    new_array.reshape({5,3}, 1000);
 
-    sycomore::Index index(array.dimension(), 0);
-    i=0;
-    for(index[1]=0; index[1]<new_shape[1]; ++index[1])
-    {
-        for(index[0]=0; index[0]<new_shape[0]; ++index[0])
-        {
-            BOOST_TEST(array[index] == i);
-            ++i;
-        }
-        for(index[0]=new_shape[0]; index[0]<old_shape[0]; ++index[0])
-        {
-            ++i;
-        }
-    }
+    BOOST_TEST(new_array.shape() == sycomore::Shape({5, 3}));
+    compare_arrays(old_array, new_array, true, 1000);
 }
 
 BOOST_AUTO_TEST_CASE(ReshapeMixedUninitialized)
 {
-    sycomore::Shape const old_shape = {7, 5};
-    sycomore::Shape const new_shape = {11, 3};
-
-    sycomore::Array<float> array(old_shape);
-    unsigned int i=0;
-    for(auto && index: sycomore::IndexGenerator(array.shape()))
+    sycomore::Array<int> old_array({7,5});
+    unsigned int i=1;
+    for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
-        array[index] = i;
+        old_array[index] = i;
         ++i;
     }
 
-    array.reshape(new_shape);
+    auto new_array = old_array;
+    new_array.reshape({11,3});
 
-    BOOST_TEST(array.shape() == new_shape);
-
-    sycomore::Index index(array.dimension(), 0);
-    i=0;
-    for(index[1]=0; index[1]<new_shape[1]; ++index[1])
-    {
-        for(index[0]=0; index[0]<old_shape[0]; ++index[0])
-        {
-            BOOST_TEST(array[index] == i);
-            ++i;
-        }
-    }
+    BOOST_TEST(new_array.shape() == sycomore::Shape({11, 3}));
+    compare_arrays(old_array, new_array, false);
 }
 
 BOOST_AUTO_TEST_CASE(ReshapeMixedInitialized)
 {
-    sycomore::Shape const old_shape = {7, 5};
-    sycomore::Shape const new_shape = {11, 3};
-
-    sycomore::Array<float> array(old_shape);
-    unsigned int i=0;
-    for(auto && index: sycomore::IndexGenerator(array.shape()))
+    sycomore::Array<int> old_array({7,5});
+    unsigned int i=1;
+    for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
-        array[index] = i;
+        old_array[index] = i;
         ++i;
     }
 
-    array.reshape(new_shape, 1000);
+    auto new_array = old_array;
+    new_array.reshape({11,3}, 1000);
 
-    BOOST_TEST(array.shape() == new_shape);
-
-    sycomore::Index index(array.dimension(), 0);
-    i=0;
-    for(index[1]=0; index[1]<new_shape[1]; ++index[1])
-    {
-        for(index[0]=0; index[0]<old_shape[0]; ++index[0])
-        {
-            BOOST_TEST(array[index] == i);
-            ++i;
-        }
-    }
-    for(index[1]=old_shape[1]; index[1]<new_shape[1]; ++index[1])
-    {
-        for(index[0]=0; index[0]<new_shape[0]; ++index[0])
-        {
-            BOOST_TEST(array[index] == 1000);
-        }
-    }
+    BOOST_TEST(new_array.shape() == sycomore::Shape({11, 3}));
+    compare_arrays(old_array, new_array, true, 1000);
 }
