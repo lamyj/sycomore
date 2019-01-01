@@ -105,68 +105,68 @@ using ThermodynamicTemperature = Unit<0, 0, 0, 0, 1, 0, 0>;
 using AmountOfSubstance = Unit<0, 0, 0, 0, 0, 1, 0>;
 using LuminousIntensity = Unit<0, 0, 0, 0, 0, 0, 1>;
 
-#define DEFINE_UNIT(Type, name, factor) \
+#define SYCOMORE_DECLARE_UNIT(Type, name, factor) \
     Type const name(factor); \
-    Type operator "" _##name(unsigned long long v) { return double(v)*name; } \
-    Type operator "" _##name(long double v) { return double(v)*name; }
+    Type operator "" _##name(unsigned long long v); \
+    Type operator "" _##name(long double v);
 
-#define DEFINE_UNITS(Type, name) \
-    DEFINE_UNIT(Type, Y##name, 1e24) \
-    DEFINE_UNIT(Type, Z##name, 1e21) \
-    DEFINE_UNIT(Type, E##name, 1e18) \
-    DEFINE_UNIT(Type, P##name, 1e15) \
-    DEFINE_UNIT(Type, T##name, 1e12) \
-    DEFINE_UNIT(Type, G##name, 1e9) \
-    DEFINE_UNIT(Type, M##name, 1e6) \
-    DEFINE_UNIT(Type, k##name, 1e3) \
-    DEFINE_UNIT(Type, h##name, 1e2) \
-    DEFINE_UNIT(Type, da##name, 1e1) \
-    DEFINE_UNIT(Type, name, 1) \
-    DEFINE_UNIT(Type, d##name, 1e-1) \
-    DEFINE_UNIT(Type, c##name, 1e-2) \
-    DEFINE_UNIT(Type, m##name, 1e-3) \
-    DEFINE_UNIT(Type, u##name, 1e-6) \
-    DEFINE_UNIT(Type, µ##name, 1e-6) \
-    DEFINE_UNIT(Type, n##name, 1e-9) \
-    DEFINE_UNIT(Type, p##name, 1e-12) \
-    DEFINE_UNIT(Type, f##name, 1e-15) \
-    DEFINE_UNIT(Type, a##name, 1e-18) \
-    DEFINE_UNIT(Type, z##name, 1e-21) \
-    DEFINE_UNIT(Type, y##name, 1e-24)
+#define SYCOMORE_DECLARE_UNITS(Type, name) \
+    SYCOMORE_DECLARE_UNIT(Type, Y##name, 1e24) \
+    SYCOMORE_DECLARE_UNIT(Type, Z##name, 1e21) \
+    SYCOMORE_DECLARE_UNIT(Type, E##name, 1e18) \
+    SYCOMORE_DECLARE_UNIT(Type, P##name, 1e15) \
+    SYCOMORE_DECLARE_UNIT(Type, T##name, 1e12) \
+    SYCOMORE_DECLARE_UNIT(Type, G##name, 1e9) \
+    SYCOMORE_DECLARE_UNIT(Type, M##name, 1e6) \
+    SYCOMORE_DECLARE_UNIT(Type, k##name, 1e3) \
+    SYCOMORE_DECLARE_UNIT(Type, h##name, 1e2) \
+    SYCOMORE_DECLARE_UNIT(Type, da##name, 1e1) \
+    SYCOMORE_DECLARE_UNIT(Type, name, 1) \
+    SYCOMORE_DECLARE_UNIT(Type, d##name, 1e-1) \
+    SYCOMORE_DECLARE_UNIT(Type, c##name, 1e-2) \
+    SYCOMORE_DECLARE_UNIT(Type, m##name, 1e-3) \
+    SYCOMORE_DECLARE_UNIT(Type, u##name, 1e-6) \
+    SYCOMORE_DECLARE_UNIT(Type, µ##name, 1e-6) \
+    SYCOMORE_DECLARE_UNIT(Type, n##name, 1e-9) \
+    SYCOMORE_DECLARE_UNIT(Type, p##name, 1e-12) \
+    SYCOMORE_DECLARE_UNIT(Type, f##name, 1e-15) \
+    SYCOMORE_DECLARE_UNIT(Type, a##name, 1e-18) \
+    SYCOMORE_DECLARE_UNIT(Type, z##name, 1e-21) \
+    SYCOMORE_DECLARE_UNIT(Type, y##name, 1e-24)
 
-DEFINE_UNITS(Length, m)
+SYCOMORE_DECLARE_UNITS(Length, m)
 
-DEFINE_UNIT(Mass, Yg, 1e21)
-DEFINE_UNIT(Mass, Zg, 1e18)
-DEFINE_UNIT(Mass, Eg, 1e15)
-DEFINE_UNIT(Mass, Pg, 1e12)
-DEFINE_UNIT(Mass, Tg, 1e9)
-DEFINE_UNIT(Mass, Gg, 1e6)
-DEFINE_UNIT(Mass, Mg, 1e3)
-DEFINE_UNIT(Mass, kg, 1)
-DEFINE_UNIT(Mass, hg, 1e-1)
-DEFINE_UNIT(Mass, dag, 1e-2)
-DEFINE_UNIT(Mass, g, 1e-3)
-DEFINE_UNIT(Mass, dg, 1e-4)
-DEFINE_UNIT(Mass, cg, 1e-5)
-DEFINE_UNIT(Mass, mg, 1e-6)
-DEFINE_UNIT(Mass, ug, 1e-9)
-DEFINE_UNIT(Mass, µg, 1e-9)
-DEFINE_UNIT(Mass, ng, 1e-12)
-DEFINE_UNIT(Mass, pg, 1e-15)
-DEFINE_UNIT(Mass, fg, 1e-18)
-DEFINE_UNIT(Mass, ag, 1e-21)
-DEFINE_UNIT(Mass, zg, 1e-24)
-DEFINE_UNIT(Mass, yg, 1e-27)
+SYCOMORE_DECLARE_UNIT(Mass, Yg, 1e21)
+SYCOMORE_DECLARE_UNIT(Mass, Zg, 1e18)
+SYCOMORE_DECLARE_UNIT(Mass, Eg, 1e15)
+SYCOMORE_DECLARE_UNIT(Mass, Pg, 1e12)
+SYCOMORE_DECLARE_UNIT(Mass, Tg, 1e9)
+SYCOMORE_DECLARE_UNIT(Mass, Gg, 1e6)
+SYCOMORE_DECLARE_UNIT(Mass, Mg, 1e3)
+SYCOMORE_DECLARE_UNIT(Mass, kg, 1)
+SYCOMORE_DECLARE_UNIT(Mass, hg, 1e-1)
+SYCOMORE_DECLARE_UNIT(Mass, dag, 1e-2)
+SYCOMORE_DECLARE_UNIT(Mass, g, 1e-3)
+SYCOMORE_DECLARE_UNIT(Mass, dg, 1e-4)
+SYCOMORE_DECLARE_UNIT(Mass, cg, 1e-5)
+SYCOMORE_DECLARE_UNIT(Mass, mg, 1e-6)
+SYCOMORE_DECLARE_UNIT(Mass, ug, 1e-9)
+SYCOMORE_DECLARE_UNIT(Mass, µg, 1e-9)
+SYCOMORE_DECLARE_UNIT(Mass, ng, 1e-12)
+SYCOMORE_DECLARE_UNIT(Mass, pg, 1e-15)
+SYCOMORE_DECLARE_UNIT(Mass, fg, 1e-18)
+SYCOMORE_DECLARE_UNIT(Mass, ag, 1e-21)
+SYCOMORE_DECLARE_UNIT(Mass, zg, 1e-24)
+SYCOMORE_DECLARE_UNIT(Mass, yg, 1e-27)
 
-DEFINE_UNITS(Time, s)
-DEFINE_UNIT(Time, min, 60)
-DEFINE_UNIT(Time, h, 3600)
+SYCOMORE_DECLARE_UNITS(Time, s)
+SYCOMORE_DECLARE_UNIT(Time, min, 60)
+SYCOMORE_DECLARE_UNIT(Time, h, 3600)
 
-DEFINE_UNITS(ElectricCurrent, A)
-DEFINE_UNITS(ThermodynamicTemperature, K)
-DEFINE_UNITS(AmountOfSubstance, mol)
-DEFINE_UNITS(LuminousIntensity, cd)
+SYCOMORE_DECLARE_UNITS(ElectricCurrent, A)
+SYCOMORE_DECLARE_UNITS(ThermodynamicTemperature, K)
+SYCOMORE_DECLARE_UNITS(AmountOfSubstance, mol)
+SYCOMORE_DECLARE_UNITS(LuminousIntensity, cd)
 
 /******************************************************************************
  ******************************** Derived units *******************************
@@ -178,32 +178,32 @@ using Volume = pow<Length, 3>;
 using Velocity = div<Length, Time>;
 using Acceleration = div<Length, pow<Time, 2>>;
 
-#define DEFINE_DERIVED_UNIT(Type, name, ...) \
+#define SYCOMORE_DECLARE_DERIVED_UNIT(Type, name, ...) \
     using Type = __VA_ARGS__; \
-    DEFINE_UNITS(Type, name);
+    SYCOMORE_DECLARE_UNITS(Type, name);
 
-DEFINE_DERIVED_UNIT(Angle, rad, div<Length, Length>);
-DEFINE_DERIVED_UNIT(SolidAngle, sr, div<Surface, Surface>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Angle, rad, div<Length, Length>);
+SYCOMORE_DECLARE_DERIVED_UNIT(SolidAngle, sr, div<Surface, Surface>);
 
-DEFINE_DERIVED_UNIT(Frequency, Hz, pow<Time, -1>);
-DEFINE_DERIVED_UNIT(Force, N, div<mult<Mass, Length>, pow<Time, 2>>);
-DEFINE_DERIVED_UNIT(Pressure, Pa, div<Force, Surface>);
-DEFINE_DERIVED_UNIT(Energy, J, mult<Force, Length>);
-DEFINE_DERIVED_UNIT(Power, W, div<Energy, Time>);
-DEFINE_DERIVED_UNIT(ElectricCharge, C, mult<Time, ElectricCurrent>);
-DEFINE_DERIVED_UNIT(Voltage, V, mult<Power, ElectricCurrent>);
-DEFINE_DERIVED_UNIT(Capacitance, F, div<ElectricCharge, Voltage>);
-DEFINE_DERIVED_UNIT(Resistance, Ohm, div<Voltage, ElectricCurrent>);
-DEFINE_DERIVED_UNIT(ElectricalConductance, S, pow<Resistance, -1>);
-DEFINE_DERIVED_UNIT(MagneticFlux, Wb, mult<Voltage, Time>);
-DEFINE_DERIVED_UNIT(MagneticFluxDensity, T, div<MagneticFlux, Surface>);
-DEFINE_DERIVED_UNIT(Inductance, H, div<MagneticFlux, ElectricCurrent>);
-DEFINE_DERIVED_UNIT(LuminousFlux, lm, mult<LuminousIntensity, SolidAngle>);
-DEFINE_DERIVED_UNIT(Illuminance, lx, mult<Surface, LuminousFlux>);
-DEFINE_DERIVED_UNIT(Radioactivity, Bq, pow<Time, -1>);
-DEFINE_DERIVED_UNIT(AbsorbedDose, Gy, div<Energy, Mass>);
-DEFINE_DERIVED_UNIT(EquivalentDose, Sv, div<Energy, Mass>);
-DEFINE_DERIVED_UNIT(CatalyticActivity, kat, div<AmountOfSubstance, Time>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Frequency, Hz, pow<Time, -1>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Force, N, div<mult<Mass, Length>, pow<Time, 2>>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Pressure, Pa, div<Force, Surface>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Energy, J, mult<Force, Length>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Power, W, div<Energy, Time>);
+SYCOMORE_DECLARE_DERIVED_UNIT(ElectricCharge, C, mult<Time, ElectricCurrent>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Voltage, V, mult<Power, ElectricCurrent>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Capacitance, F, div<ElectricCharge, Voltage>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Resistance, Ohm, div<Voltage, ElectricCurrent>);
+SYCOMORE_DECLARE_DERIVED_UNIT(ElectricalConductance, S, pow<Resistance, -1>);
+SYCOMORE_DECLARE_DERIVED_UNIT(MagneticFlux, Wb, mult<Voltage, Time>);
+SYCOMORE_DECLARE_DERIVED_UNIT(MagneticFluxDensity, T, div<MagneticFlux, Surface>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Inductance, H, div<MagneticFlux, ElectricCurrent>);
+SYCOMORE_DECLARE_DERIVED_UNIT(LuminousFlux, lm, mult<LuminousIntensity, SolidAngle>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Illuminance, lx, mult<Surface, LuminousFlux>);
+SYCOMORE_DECLARE_DERIVED_UNIT(Radioactivity, Bq, pow<Time, -1>);
+SYCOMORE_DECLARE_DERIVED_UNIT(AbsorbedDose, Gy, div<Energy, Mass>);
+SYCOMORE_DECLARE_DERIVED_UNIT(EquivalentDose, Sv, div<Energy, Mass>);
+SYCOMORE_DECLARE_DERIVED_UNIT(CatalyticActivity, kat, div<AmountOfSubstance, Time>);
 
 }
 
