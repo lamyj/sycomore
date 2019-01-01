@@ -81,6 +81,10 @@ template<int ... Args>
 Unit<Args ...>
 operator*(Unit<Args ...> const & unit, double const & scalar);
 
+template<int ... Args>
+pow<Unit<Args ...>, -1>
+operator/(double const & scalar, Unit<Args ...> const & unit);
+
 template<typename Unit1, typename Unit2>
 mult<Unit1, Unit2>
 operator*(Unit1 const & unit_1, Unit2 const & unit_2);

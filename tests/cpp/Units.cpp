@@ -72,6 +72,14 @@ BOOST_AUTO_TEST_CASE(ProductScalarRight)
     BOOST_TEST(six.value == 6.);
 }
 
+BOOST_AUTO_TEST_CASE(QuotientScalarLeft)
+{
+    using namespace sycomore::units;
+    Time const six(6);
+    Frequency const two = 12/six;
+    BOOST_TEST(two.value == 2.);
+}
+
 BOOST_AUTO_TEST_CASE(ProductUnits)
 {
     using namespace sycomore::units;
