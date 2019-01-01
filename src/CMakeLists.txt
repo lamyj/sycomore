@@ -1,5 +1,3 @@
-find_package(Eigen3 REQUIRED)
-
 file(GLOB_RECURSE header_files "*.h")
 file(GLOB_RECURSE source_files "*.cpp")
 file(GLOB_RECURSE template_files "*.txx")

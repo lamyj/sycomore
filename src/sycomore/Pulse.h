@@ -1,7 +1,7 @@
 #ifndef _b46b179a_64e7_41db_9643_82051c4aa85a
 #define _b46b179a_64e7_41db_9643_82051c4aa85a
 
-#include <eigen3/Eigen/Dense>
+#include "sycomore/Array.h"
 #include "sycomore/sycomore.h"
 
 namespace sycomore
@@ -10,7 +10,7 @@ namespace sycomore
 class Pulse
 {
 public:
-    using RotationMatrix = Eigen::Matrix<Complex, 3, 3>;
+    using RotationMatrix = Array<Complex>;
 
     /// @brief Flip angle in radians.
     Real angle;

@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(InitializedConstructor)
     BOOST_TEST(grid.stride() == sycomore::Stride({1,11,77}));
     for(int i=0; i<grid.stride()[grid.dimension()]; ++i)
     {
-        BOOST_TEST(grid.data()[i] == m);
+        BOOST_REQUIRE(grid.data()[i] == m);
     }
 }
 
@@ -48,11 +48,11 @@ BOOST_AUTO_TEST_CASE(Accessor)
     {
         if(index == sycomore::Index{-2,-1})
         {
-            BOOST_TEST(grid_const[index] == non_zero);
+            BOOST_REQUIRE(grid_const[index] == non_zero);
         }
         else
         {
-            BOOST_TEST(grid_const[index] == zero);
+            BOOST_REQUIRE(grid_const[index] == zero);
         }
     }
 }
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(ScanOrder)
     auto && data = grid.data();
     for(unsigned int i=0; i<grid.stride()[grid.dimension()]; ++i)
     {
-        BOOST_TEST(*data == sycomore::ComplexMagnetization({i,i,i}));
+        BOOST_REQUIRE(*data == sycomore::ComplexMagnetization({i,i,i}));
         ++data;
     }
 }
@@ -105,13 +105,13 @@ void compare_grids(
 
     for(auto && index: intersection)
     {
-        BOOST_TEST(old[index] == new_[index]);
+        BOOST_REQUIRE(old[index] == new_[index]);
     }
     if(is_initialized)
     {
         for(auto && index: difference)
         {
-            BOOST_TEST(new_[index] == value);
+            BOOST_REQUIRE(new_[index] == value);
         }
     }
 }
