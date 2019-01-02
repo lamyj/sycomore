@@ -215,3 +215,47 @@ BOOST_AUTO_TEST_CASE(ReshapeMixedInitialized)
     BOOST_TEST(new_array.shape() == sycomore::Shape({11, 3}));
     compare_arrays(old_array, new_array, true, 1000);
 }
+
+BOOST_AUTO_TEST_CASE(ConstIterator)
+{
+    sycomore::Array<int> array({7,5});
+    unsigned int i=1;
+    for(auto && index: sycomore::IndexGenerator(array.shape()))
+    {
+        array[index] = i;
+        ++i;
+    }
+
+    sycomore::Array<int> const & array_const = const_cast<
+            sycomore::Array<int> const &
+        >(array);
+
+    i=1;
+    for(auto && x: array_const)
+    {
+        BOOST_TEST(i==x);
+        ++i;
+    }
+}
+
+BOOST_AUTO_TEST_CASE(Iterator)
+{
+    sycomore::Array<int> array({7,5}, 0);
+    unsigned int i=1;
+    for(auto && x: array)
+    {
+        x = i;
+        ++i;
+    }
+
+    sycomore::Array<int> const & array_const = const_cast<
+            sycomore::Array<int> const &
+        >(array);
+
+    i=1;
+    for(auto && x: array_const)
+    {
+        BOOST_TEST(i==x);
+        ++i;
+    }
+}

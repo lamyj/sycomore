@@ -38,6 +38,17 @@ public:
     TScalar const * data() const;
     TScalar * data();
 
+    using iterator = typename std::vector<TScalar>::iterator;
+    using const_iterator = typename std::vector<TScalar>::const_iterator;
+
+    iterator begin();
+    const_iterator begin() const;
+    const_iterator cbegin() const;
+
+    iterator end();
+    const_iterator end() const;
+    const_iterator cend() const;
+
 private:
     Shape _shape;
     Stride _stride;

@@ -267,3 +267,43 @@ BOOST_AUTO_TEST_CASE(ReshapeDisjointInitialized)
     BOOST_TEST(new_.shape() == sycomore::Shape({5,7}));
     compare_grids(old, new_, true, {1000,0,0});
 }
+
+BOOST_AUTO_TEST_CASE(ConstIterator)
+{
+    sycomore::Grid grid({-3,-2}, {7,5});
+    unsigned int i=1;
+    for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
+    {
+        grid[index] = {i,0,0};
+        ++i;
+    }
+
+    sycomore::Grid const & grid_const = const_cast<sycomore::Grid const &>(grid);
+
+    i=1;
+    for(auto && x: grid_const)
+    {
+        BOOST_REQUIRE(sycomore::ComplexMagnetization(i,0,0)==x);
+        ++i;
+    }
+}
+
+BOOST_AUTO_TEST_CASE(Iterator)
+{
+    sycomore::Grid grid({-3,-2}, {7,5});
+    unsigned int i=1;
+    for(auto && x: grid)
+    {
+        x = {i,0,0};
+        ++i;
+    }
+
+    sycomore::Grid const & grid_const = const_cast<sycomore::Grid const &>(grid);
+
+    i=1;
+    for(auto && x: grid_const)
+    {
+        BOOST_REQUIRE(sycomore::ComplexMagnetization(i,0,0)==x);
+        ++i;
+    }
+}

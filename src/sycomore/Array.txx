@@ -127,6 +127,54 @@ Array<TScalar>
 }
 
 template<typename TScalar>
+typename Array<TScalar>::iterator
+Array<TScalar>
+::begin()
+{
+    return this->_data.begin();
+}
+
+template<typename TScalar>
+typename Array<TScalar>::const_iterator
+Array<TScalar>
+::begin() const
+{
+    return this->_data.begin();
+}
+
+template<typename TScalar>
+typename Array<TScalar>::const_iterator
+Array<TScalar>
+::cbegin() const
+{
+    return this->_data.cbegin();
+}
+
+template<typename TScalar>
+typename Array<TScalar>::iterator
+Array<TScalar>
+::end()
+{
+    return this->_data.end();
+}
+
+template<typename TScalar>
+typename Array<TScalar>::const_iterator
+Array<TScalar>
+::end() const
+{
+    return this->_data.end();
+}
+
+template<typename TScalar>
+typename Array<TScalar>::const_iterator
+Array<TScalar>
+::cend() const
+{
+    return this->_data.cend();
+}
+
+template<typename TScalar>
 Stride
 Array<TScalar>
 ::_compute_stride(Shape const & shape)

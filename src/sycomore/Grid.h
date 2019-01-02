@@ -17,7 +17,7 @@ public:
 
     Grid();
     Grid(Index const & origin, Shape const & shape);
-    Grid(Index const & origin, Shape const & radius, value_type const & value);
+    Grid(Index const & origin, Shape const & shape, value_type const & value);
 
     Grid(Grid const &) = default;
     Grid(Grid &&) = default;
@@ -41,6 +41,17 @@ public:
     void reshape(Index const & origin, Shape const & shape);
     void reshape(
         Index const & origin, Shape const & shape, value_type const & value);
+
+    using iterator = Array<value_type>::iterator;
+    using const_iterator = Array<value_type>::const_iterator;
+
+    iterator begin();
+    const_iterator begin() const;
+    const_iterator cbegin() const;
+
+    iterator end();
+    const_iterator end() const;
+    const_iterator cend() const;
 
 private:
     Index _origin;

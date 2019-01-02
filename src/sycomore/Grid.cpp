@@ -117,6 +117,48 @@ Grid
     this->_reshape(new_grid);
 }
 
+Grid::iterator
+Grid
+::begin()
+{
+    return this->_array.begin();
+}
+
+Grid::const_iterator
+Grid
+::begin() const
+{
+    return this->_array.begin();
+}
+
+Grid::const_iterator
+Grid
+::cbegin() const
+{
+    return this->_array.cbegin();
+}
+
+Grid::iterator
+Grid
+::end()
+{
+    return this->_array.end();
+}
+
+Grid::const_iterator
+Grid
+::end() const
+{
+    return this->_array.end();
+}
+
+Grid::const_iterator
+Grid
+::cend() const
+{
+    return this->_array.cend();
+}
+
 void
 Grid
 ::_reshape(Grid & new_grid)
