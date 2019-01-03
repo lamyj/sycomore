@@ -25,4 +25,16 @@ Species
     // Nothing else.
 }
 
+Species
+::Species(
+    units::Time T1, units::Time T2,
+    units::div<units::pow<units::Length, 2>, units::Time> D,
+    units::Time T2_prime, Real delta_omega, Real w)
+: R1((1./T1).convert_to(units::Hz)), R2((1./T2).convert_to(units::Hz)),
+    D(D.convert_to(units::m*units::m/units::s)),
+    R2_prime((1./T2_prime).convert_to(units::Hz)), delta_omega(delta_omega), w(w)
+{
+    // Nothing else.
+}
+
 }
