@@ -8,6 +8,13 @@
 namespace sycomore
 {
 
+Pulse
+::Pulse(double angle, double phase)
+: angle(angle), phase(phase)
+{
+    // Nothing else.
+}
+
 Pulse::RotationMatrix
 Pulse
 ::rotation_matrix() const

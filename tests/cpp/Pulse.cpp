@@ -5,7 +5,7 @@
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    sycomore::Pulse const pulse{1, 2};
+    sycomore::Pulse const pulse(1, 2);
     BOOST_REQUIRE_EQUAL(pulse.angle, 1);
     BOOST_REQUIRE_EQUAL(pulse.phase, 2);
 }

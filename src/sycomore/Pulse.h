@@ -18,6 +18,8 @@ public:
     /// @brief Phase in radians.
     Real phase;
 
+    Pulse(double angle, double phase);
+
     /// @brief Return the rotation matrix for complex magnetization.
     RotationMatrix rotation_matrix() const;
 };
