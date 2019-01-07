@@ -15,7 +15,8 @@
 #include "sycomore/sycomore.h"
 #include "sycomore/TimeInterval.h"
 
-#include <iostream>
+BOOST_COMPUTE_ADAPT_STRUCT(
+    sycomore::ComplexMagnetization, ComplexMagnetization, (plus, zero, minus))
 
 namespace sycomore
 {
@@ -23,8 +24,9 @@ namespace sycomore
 Model
 ::Model(
     Species const & species, Magnetization const & magnetization,
-    std::vector<std::pair<std::string, TimeInterval>> const & time_intervals)
-: _species(species), _dimensions(), _time_intervals(), _epsilon_squared(0)
+    std::vector<std::pair<std::string, TimeInterval>> const & time_intervals,
+    cl_device_type device_filter)
+: _species(species), _epsilon_squared(0)
 {
     for(auto && item: time_intervals)
     {
@@ -39,6 +41,25 @@ Model
     this->_bounding_box = {origin, shape};
     this->_grid = Grid(origin, shape, ComplexMagnetization(0,0,0));
     this->_grid[Index(time_intervals.size(), 0)] = as_complex_magnetization(magnetization);
+
+    // Initialize OpenCL backend
+    for(auto && platform: boost::compute::system::platforms())
+    {
+        auto && devices = platform.devices(
+            device_filter & CL_DEVICE_DOUBLE_FP_CONFIG);
+        if(!devices.empty())
+        {
+            this->_device = devices[0];
+            break;
+        }
+    }
+    if(!this->_device.id())
+    {
+        throw std::runtime_error("No matching device");
+    }
+
+    this->_context = boost::compute::context(this->_device);
+    this->_queue = boost::compute::command_queue(this->_context, this->_device);
 }
 
 std::map<std::string, size_t> const &
@@ -77,25 +98,54 @@ Model
     Pulse const actual_pulse{actual_angle, pulse.phase};
     auto const R = actual_pulse.rotation_matrix();
 
-    for(auto & m: this->_grid)
-    {
-        ComplexMagnetization const result = {
-            R[{0,0}]*m.plus + R[{0,1}]*m.zero + R[{0,2}]*m.minus,
-            (R[{1,0}]*m.plus + R[{1,1}]*m.zero + R[{1,2}]*m.minus).real(),
-            R[{2,0}]*m.plus + R[{2,1}]*m.zero + R[{2,2}]*m.minus
-        };
-        m = std::move(result);
-    }
+    boost::compute::vector<Complex> R_d(
+        R.data(), R.data()+R.stride()[R.dimension()], this->_queue);
+    BOOST_COMPUTE_CLOSURE(
+        ComplexMagnetization, apply_pulse, (ComplexMagnetization m), (R_d),
+        {
+            ComplexMagnetization result;
+            result.plus.x =
+                R_d[0].x*m.plus.x - R_d[0].y*m.plus.y
+                + R_d[3].x*m.zero
+                + R_d[6].x*m.minus.x - R_d[6].y*m.minus.y;
+            result.plus.y =
+                R_d[0].x*m.plus.y + R_d[0].y*m.plus.x
+                + R_d[3].y*m.zero
+                + R_d[6].x*m.minus.y + R_d[6].y*m.minus.x;
+
+            result.zero =
+                R_d[1].x*m.plus.x - R_d[1].y*m.plus.y
+                + R_d[4].x*m.zero
+                + R_d[7].x*m.minus.x - R_d[7].y*m.minus.y;
+
+            result.minus.x =
+                R_d[0].x*m.plus.x - R_d[0].y*m.plus.y
+                + R_d[3].x*m.zero
+                + R_d[6].x*m.minus.x - R_d[6].y*m.minus.y;
+            result.minus.y =
+                R_d[2].x*m.plus.y + R_d[2].y*m.plus.x
+                + R_d[5].y*m.zero
+                + R_d[8].x*m.minus.y + R_d[8].y*m.minus.x;
+            return result;
+        });
+    boost::compute::vector<ComplexMagnetization> grid_d(
+        this->_grid.data(), this->_grid.data()+this->_grid.stride()[this->_grid.dimension()],
+        this->_queue);
+    boost::compute::transform(
+        grid_d.begin(), grid_d.end(), grid_d.begin(), apply_pulse,
+        this->_queue);
+    boost::compute::copy(
+        grid_d.begin(), grid_d.end(), this->_grid.data(), this->_queue);
 }
 
 void
 Model
 ::apply_time_interval(std::string const & name)
 {
-    auto const & time_interval = this->_time_intervals.at(name);
+    auto && time_interval = this->_time_intervals.at(name);
 
     Index const zero(this->_time_intervals.size(), 0);
-    auto const mu = this->_dimensions.at(name);
+    auto && mu = this->_dimensions.at(name);
 
     auto min_value = std::numeric_limits<Index::value_type>::max();
     auto max_value = std::numeric_limits<Index::value_type>::min();

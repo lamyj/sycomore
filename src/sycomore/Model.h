@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+#include <boost/compute.hpp>
+
 #include "sycomore/Grid.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Pulse.h"
@@ -30,7 +32,8 @@ public:
      */
     Model(
         Species const & species, Magnetization const & magnetization,
-        std::vector<std::pair<std::string, TimeInterval>> const & time_intervals);
+        std::vector<std::pair<std::string, TimeInterval>> const & time_intervals,
+        cl_device_type device_filter=CL_DEVICE_TYPE_ALL);
 
     /// @brief Return the dimension index map.
     std::map<std::string, size_t> const & dimensions() const;
@@ -72,6 +75,13 @@ private:
 
     /// @brief Precision to cull low-populated states
     Real _epsilon_squared;
+
+    /// @addtogroup OpenCL_backend OpenCL backend objects
+    /// @{
+    boost::compute::device _device;
+    boost::compute::context _context;
+    boost::compute::command_queue _queue;
+    /// @}
 
     /// @brief the configuration models, one for each species.
     Grid _grid;
