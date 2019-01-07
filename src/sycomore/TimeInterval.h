@@ -23,6 +23,9 @@ struct TimeInterval
     TimeInterval(units::Time duration, Real gradient_moment=0);
     TimeInterval(Real duration, std::vector<Real> gradient_moment);
     TimeInterval(units::Time duration, std::vector<Real> gradient_moment);
+
+    bool operator==(TimeInterval const & other) const;
+    bool operator!=(TimeInterval const & other) const;
 };
 
 }

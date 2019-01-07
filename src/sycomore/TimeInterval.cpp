@@ -36,4 +36,20 @@ TimeInterval
     // Nothing else.
 }
 
+bool
+TimeInterval
+::operator==(TimeInterval const & other) const
+{
+    return (
+        this->duration == other.duration
+        && this->gradient_moment == other.gradient_moment);
+}
+
+bool
+TimeInterval
+::operator!=(TimeInterval const & other) const
+{
+    return !(*this == other);
+}
+
 }
