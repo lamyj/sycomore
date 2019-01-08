@@ -230,9 +230,10 @@ Model
     Magnetization isochromat{0, 0, 0};
 
     auto const update_isochromat = [&](ComplexMagnetization const & m) {
-        isochromat.x += m.p.real();
-        isochromat.y += m.p.imag();
-        isochromat.z += m.z;
+        auto const m_r = as_real_magnetization(m);
+        isochromat.x += m_r.x;
+        isochromat.y += m_r.y;
+        isochromat.z += m_r.z;
     };
 
     if(configurations.empty())
@@ -249,9 +250,6 @@ Model
             update_isochromat(this->_grid[configuration]);
         }
     }
-
-    isochromat.x *= std::sqrt(Real(2));
-    isochromat.y *= std::sqrt(Real(2));
 
     return isochromat;
 }

@@ -158,8 +158,8 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(isochromat.y == 0.);
     BOOST_TEST(isochromat.z == 0.5 + 0.25*(1+std::sqrt(2.)/2.));
 
-    isochromat = model.isochromat({{0,0}, {-2,-2}});
-    BOOST_TEST(isochromat.x == 0.);
+    isochromat = model.isochromat({{0,0}, {-1,-1}});
+    BOOST_TEST(isochromat.x == 0.125*std::sqrt(2.)/2.);
     BOOST_TEST(isochromat.y == 0.);
     BOOST_TEST(isochromat.z == 0.5 + 0.25*(1+std::sqrt(2.)/2.));
 }
