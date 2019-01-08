@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(Pulse)
     sycomore::Species const species(1_s, 0.1_s);
     sycomore::Model model(species, {0,0,1}, {{"dummy", {0}}});
 
-    sycomore::Pulse const pulse{30_deg, 180_deg};
+    sycomore::Pulse const pulse{41_deg, 27_deg};
     model.apply_pulse(pulse);
 
     auto && grid = model.grid();
@@ -59,7 +59,11 @@ BOOST_AUTO_TEST_CASE(Pulse)
             // Values from CoMoTk@2b0ef02
             test_magnetization(
                 m,
-                {{0., std::sqrt(2.)/4.}, std::sqrt(3.)/2., {0., -std::sqrt(2.)/4.}});
+                {
+                    {0.210607912662250, -0.413341301933443},
+                    0.754709580222772,
+                    {0.210607912662250, +0.413341301933443}
+                });
         }
         else
         {
