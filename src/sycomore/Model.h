@@ -89,7 +89,7 @@ private:
     /// @brief Bounding box of the occupied configuration for each species.
     std::pair<Index, Shape> _bounding_box;
 
-    void _cleanup(Grid & model, std::pair<Index, Shape> const & bounding_box);
+    void _cleanup();
 };
 
 }

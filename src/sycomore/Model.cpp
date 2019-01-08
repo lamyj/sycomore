@@ -143,86 +143,52 @@ Model
 ::apply_time_interval(std::string const & name)
 {
     auto && time_interval = this->_time_intervals.at(name);
-
-    Index const zero(this->_time_intervals.size(), 0);
     auto && mu = this->_dimensions.at(name);
 
-    auto min_value = std::numeric_limits<Index::value_type>::max();
-    auto max_value = std::numeric_limits<Index::value_type>::min();
-
-    // Find configurations which participate in the update
-    std::set<Index> indices;
-    for(auto && index: IndexGenerator(this->_grid.origin(), this->_grid.shape()))
-    {
-        auto && m = this->_grid[index];
-        if(std::norm(m.plus) > 0)
-        {
-            auto n = index;
-            ++n[mu];
-            indices.insert(n);
-
-            min_value = std::min(min_value, n[mu]);
-            max_value = std::max(max_value, n[mu]);
-        }
-        if(m.zero > 0)
-        {
-            indices.insert(index);
-
-            min_value = std::min(min_value, index[mu]);
-            max_value = std::max(max_value, index[mu]);
-        }
-        if(std::norm(m.minus) > 0)
-        {
-            auto n = index;
-            --n[mu];
-            indices.insert(n);
-
-            min_value = std::min(min_value, n[mu]);
-            max_value = std::max(max_value, n[mu]);
-        }
-    }
-
-    this->_bounding_box.first[mu] = std::min(
-        this->_bounding_box.first[mu], min_value);
-    this->_bounding_box.second[mu] = std::max(
-        this->_bounding_box.second[mu],
-        static_cast<Shape::value_type>(max_value-min_value+1));
-
-    auto boundaries = std::minmax_element(
-        indices.begin(), indices.end(),
-        [&](Index const & x, Index const & y) { return x[mu] < y[mu]; });
-    auto boundary = std::max(
-        std::abs((*(boundaries.first))[mu]),
-        std::abs((*(boundaries.second))[mu]));
-    auto origin = this->_grid.origin();
-    auto shape = this->_grid.shape();
-    auto const radius = -origin[mu];
-
-    // Always keep a margin around the model to avoid checking the boundary
-    // conditions
-    if(boundary > radius-2)
+    // Update the bounding box, resize the grid if needed.
+    --this->_bounding_box.first[mu];
+    this->_bounding_box.second[mu] += 2;
+    if(this->_bounding_box.first[mu] < this->_grid.origin()[mu])
     {
         // Expand along mu
+        auto origin = this->_grid.origin();
         origin[mu] = std::min(-1, 2*origin[mu]-1);
-        shape[mu] = 2*shape[mu]+1;
-    }
 
-    Grid new_grid(origin, shape, ComplexMagnetization(0,0,0));
+        auto shape = this->_grid.shape();
+        shape[mu] = 2*shape[mu]+1;
+
+        this->_grid.reshape(origin, shape, ComplexMagnetization::zero);
+    }
 
     auto const E_1 = std::exp(-this->_species.R1 * time_interval.duration);
     auto const E_2 = std::exp(-this->_species.R2 * time_interval.duration);
 
-    static ComplexMagnetization const m0(0,0,0);
-
-    for(auto && index: indices)
+    // Relaxation effects: update m- with the forward neighbor, m+ with the
+    // backward neighbor and m0 with the current configuration.
+    size_t offset = 0;
+    auto * data = this->_grid.data();
+    auto const stride = this->_grid.stride()[mu];
+    // WARNING: to use the offset, we need to iterate on the whole grid, not
+    // on the bounding box only.
+    for(auto && index: IndexGenerator(this->_grid.origin(), this->_grid.shape()))
     {
-        auto n = index;
-        // No need to check the boundary conditions: we always have a margin
-        // around the model.
-        --n[mu]; auto && m_minus = this->_grid[n];
-        ++n[mu]; auto && m = this->_grid[n];
-        ++n[mu]; auto && m_plus = this->_grid[n];
-        new_grid[index] = {E_2*m_minus.plus, E_1*m.zero, E_2*m_plus.minus};
+        if(index[mu] == this->_grid.origin()[mu]+this->_grid.shape()[mu]-1)
+        {
+            // No forward neighbor and no symmetric backward neighbor.
+            ++offset;
+            continue;
+        }
+
+        auto && m_forward = data[offset+stride];
+
+        auto const symmetric_offset = this->_grid.stride()[this->_grid.dimension()]-offset-1;
+        auto && m_backward = data[symmetric_offset-stride];
+
+        data[offset].m = E_2*m_forward.m;
+        data[offset].z *= E_1;
+        data[symmetric_offset].p = E_2*m_backward.p;
+
+        ++offset;
     }
 
     // Repolarization: second term of Equation 19
@@ -231,9 +197,8 @@ Model
 
     if(this->_epsilon_squared > 0)
     {
-        this->_cleanup(new_grid, this->_bounding_box);
+        this->_cleanup();
     }
-    this->_grid = std::move(new_grid);
 }
 
 Grid const &
@@ -278,7 +243,7 @@ Model
 
 void
 Model
-::_cleanup(Grid & model, std::pair<Index, Shape> const & bounding_box)
+::_cleanup()
 {
     /*
      * A bounding box of the occupied configurations can be constructed
@@ -304,32 +269,40 @@ Model
      *       Continue to next configuration (its removal would create a concavity)
      */
 
-    IndexGenerator const generator(bounding_box.first, bounding_box.second);
-    std::vector<Index> indices(generator.begin(), generator.end());
+    Index const zero_i(this->_grid.dimension(), 0);
 
-    Index const zero_i(model.dimension(), 0);
+    Index first(this->_grid.dimension(), 0);
+    Index last(this->_grid.dimension(), 0);
 
-    // Careful with OpenCL here: could removing two points in parallel lead to
-    // a concavity?
-    for(auto && index: indices)
+    auto update_boundary = [&](Index const & index) {
+        for(size_t d=0; d<this->_grid.dimension(); ++d)
+        {
+            first[d] = std::min(first[d], index[d]);
+            last[d] = std::max(first[d], index[d]);
+        }
+    };
+
+    for(auto && index: IndexGenerator(this->_bounding_box.first, this->_bounding_box.second))
     {
         if(index == zero_i)
         {
+            update_boundary(index);
             continue;
         }
 
-        auto && m = model[index];
+        auto && m = this->_grid[index];
         auto const magnitude =
             m.p * std::conj(m.p)
             + m.z*m.z
             + m.m * std::conj(m.m);
         if(magnitude.real() >= this->_epsilon_squared)
         {
+            update_boundary(index);
             continue;
         }
 
         bool would_create_concavity = false;
-        for(size_t i=0; i<model.dimension(); ++i)
+        for(size_t i=0; i<this->_grid.dimension(); ++i)
         {
             int neighbors_count = 0;
 
@@ -359,12 +332,18 @@ Model
         }
         if(would_create_concavity)
         {
+            update_boundary(index);
             continue;
         }
 
         this->_grid[index] = ComplexMagnetization::zero;
     }
 
+    Shape shape(first.size());
+    std::transform(
+        first.begin(), first.end(), last.begin(), shape.begin(),
+        [](int f, int l) { return l-f+1;});
+    this->_bounding_box = {first, shape};
 }
 
 }
