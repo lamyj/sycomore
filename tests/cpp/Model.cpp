@@ -132,8 +132,8 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     {
         auto && grid = model.grid();
 
-        BOOST_TEST((model.grid().origin() <= sycomore::Index{-3, 0}));
-        BOOST_TEST((model.grid().shape() >= sycomore::Shape{7, 0}));
+        BOOST_TEST((model.grid().origin() <= sycomore::Index{-1, -1}));
+        BOOST_TEST((model.grid().shape() >= sycomore::Shape{3, 3}));
 
         for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
         {

@@ -175,30 +175,32 @@ Model
 
     // Relaxation effects: update m- with the forward neighbor, m+ with the
     // backward neighbor and m0 with the current configuration.
-    size_t offset = 0;
-    auto * data = this->_grid.data();
-    auto const stride = this->_grid.stride()[mu];
+    // Since the grid is kept symmetric, we can do it in a single, simple, scan.
+    auto && stride = this->_grid.stride()[mu];
+    int const last = this->_grid.origin()[mu]+this->_grid.shape()[mu]-1;
+    auto * iterator = this->_grid.data();
+    auto * reverse_iterator = iterator+this->_grid.stride()[this->_grid.dimension()]-1;
     // WARNING: to use the offset, we need to iterate on the whole grid, not
     // on the bounding box only.
     for(auto && index: IndexGenerator(this->_grid.origin(), this->_grid.shape()))
     {
-        if(index[mu] == this->_grid.origin()[mu]+this->_grid.shape()[mu]-1)
+        if(index[mu] == last)
         {
-            // No forward neighbor and no symmetric backward neighbor.
-            ++offset;
+            // No forward neighbor and thus no symmetric backward neighbor.
+            ++iterator;
+            --reverse_iterator;
             continue;
         }
 
-        auto && m_forward = data[offset+stride];
+        auto && m_forward = *(iterator+stride);
+        auto && m_backward = *(reverse_iterator-stride);
 
-        auto const symmetric_offset = this->_grid.stride()[this->_grid.dimension()]-offset-1;
-        auto && m_backward = data[symmetric_offset-stride];
+        iterator->m = E_2*m_forward.m;
+        iterator->z *= E_1;
+        reverse_iterator->p = E_2*m_backward.p;
 
-        data[offset].m = E_2*m_forward.m;
-        data[offset].z *= E_1;
-        data[symmetric_offset].p = E_2*m_backward.p;
-
-        ++offset;
+        ++iterator;
+        --reverse_iterator;
     }
 
     // Repolarization: second term of Equation 19
