@@ -43,7 +43,7 @@ TScalar const &
 Array<TScalar>
 ::operator[](Index const & index) const
 {
-    auto && position = std::inner_product(
+    auto position = std::inner_product(
         index.begin(), index.end(), this->_stride.begin(), 0);
     return this->_data[position];
 }
@@ -53,7 +53,7 @@ TScalar &
 Array<TScalar>
 ::operator[](Index const & index)
 {
-    auto && position = std::inner_product(
+    auto position = std::inner_product(
         index.begin(), index.end(), this->_stride.begin(), 0);
     return this->_data[position];
 }

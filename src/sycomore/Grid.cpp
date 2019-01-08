@@ -178,7 +178,7 @@ Grid
 
     // Check whether the two grids are disjoint (on at least one axis,
     // max_origin >= min_last)
-    auto && mismatch = std::mismatch(
+    auto mismatch = std::mismatch(
         max_origin.begin(), max_origin.end(), min_last.begin(),
         std::less<int>());
     if(mismatch.first == max_origin.end())
