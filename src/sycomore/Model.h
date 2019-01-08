@@ -67,6 +67,9 @@ private:
     /// @brief Species of the model.
     Species _species;
 
+    /// @brief Initial magnetization.
+    ComplexMagnetization _initial_magnetization;
+
     /// @brief Dimension index of time interval
     std::map<std::string, size_t> _dimensions;
 

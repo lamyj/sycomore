@@ -28,6 +28,8 @@ Model
     cl_device_type device_filter)
 : _species(species), _epsilon_squared(0)
 {
+    this->_initial_magnetization = as_complex_magnetization(magnetization);
+
     for(auto && item: time_intervals)
     {
         this->_time_intervals.insert(item);
@@ -40,7 +42,7 @@ Model
     Shape const shape (time_intervals.size(), 5);
     this->_bounding_box = {origin, shape};
     this->_grid = Grid(origin, shape, ComplexMagnetization(0,0,0));
-    this->_grid[Index(time_intervals.size(), 0)] = as_complex_magnetization(magnetization);
+    this->_grid[Index(time_intervals.size(), 0)] = this->_initial_magnetization;
 
     // Initialize OpenCL backend
     for(auto && platform: boost::compute::system::platforms())
@@ -202,8 +204,13 @@ Model
     }
 
     // Repolarization: second term of Equation 19
-    // WARNING: this assumes m_eq = [0,0,1] (as in CoMoTk)
-    new_grid[zero].zero += this->_species.w * (1-E_1);
+    auto const repolarization = this->_species.w * (1-E_1);
+    this->_grid[Index(this->_time_intervals.size(), 0)].p +=
+        repolarization * this->_initial_magnetization.p;
+    this->_grid[Index(this->_time_intervals.size(), 0)].z +=
+        repolarization * this->_initial_magnetization.z;
+    this->_grid[Index(this->_time_intervals.size(), 0)].m +=
+        repolarization * this->_initial_magnetization.m;
 
     if(this->_epsilon_squared > 0)
     {
