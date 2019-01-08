@@ -36,10 +36,8 @@ Model
         this->_dimensions[item.first] = this->_dimensions.size();
     }
 
-    // Always keep a margin around the model to avoid checking the boundary
-    // conditions
-    Index const origin(time_intervals.size(), -2);
-    Shape const shape (time_intervals.size(), 5);
+    Index const origin(time_intervals.size(), 0);
+    Shape const shape (time_intervals.size(), 1);
     this->_bounding_box = {origin, shape};
     this->_grid = Grid(origin, shape, ComplexMagnetization(0,0,0));
     this->_grid[Index(time_intervals.size(), 0)] = this->_initial_magnetization;
@@ -361,6 +359,12 @@ Model
         first.begin(), first.end(), last.begin(), shape.begin(),
         [](int f, int l) { return l-f+1;});
     this->_bounding_box = {first, shape};
+
+    std::cout << "Bouding box shrunk to:";
+    for(auto && x: this->_bounding_box.first) { std::cout << " " << x; };
+    std::cout << ", ";
+    for(auto && x: this->_bounding_box.second) { std::cout << " " << x; };
+    std::cout << "\n";
 }
 
 }
