@@ -12,7 +12,8 @@ BOOST_AUTO_TEST_CASE(Constructor)
 
 BOOST_AUTO_TEST_CASE(RotationMatrix)
 {
-    sycomore::Pulse const pulse{sycomore::deg2rad(41), sycomore::deg2rad(27)};
+    using namespace sycomore::units;
+    sycomore::Pulse const pulse{41_deg, 27_deg};
     auto const m = pulse.rotation_matrix();
 
     // Values from CoMoTk@2b0ef02

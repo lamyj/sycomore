@@ -20,8 +20,10 @@ void test_magnetization(
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    sycomore::Species const species(1*sycomore::units::s, 0.1*sycomore::units::s);
-    sycomore::TimeInterval const echo(10*sycomore::units::ms);
+    using namespace sycomore::units;
+
+    sycomore::Species const species(1_s, 0.1_s);
+    sycomore::TimeInterval const echo(10_ms);
 
     sycomore::Model const model(species, {0,0,1}, {{"echo", echo}});
 
@@ -36,10 +38,12 @@ BOOST_AUTO_TEST_CASE(Constructor)
 
 BOOST_AUTO_TEST_CASE(Pulse)
 {
-    sycomore::Species const species(1*sycomore::units::s, 0.1*sycomore::units::s);
+    using namespace sycomore::units;
+
+    sycomore::Species const species(1_s, 0.1_s);
     sycomore::Model model(species, {0,0,1}, {{"dummy", {0}}});
 
-    sycomore::Pulse const pulse{sycomore::deg2rad(30), sycomore::deg2rad(180)};
+    sycomore::Pulse const pulse{30_deg, 180_deg};
     model.apply_pulse(pulse);
 
     auto && grid = model.grid();
@@ -72,13 +76,14 @@ BOOST_AUTO_TEST_CASE(Pulse)
 
 BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
 {
-    sycomore::Species const species{
-        std::log(2)*sycomore::units::Hz, std::log(2)*sycomore::units::Hz};
+    using namespace sycomore::units;
+
+    sycomore::Species const species{std::log(2)*Hz, std::log(2)*Hz};
     // Dummy time intervals to build a 2D model
     sycomore::Model model(species, {0, 0, 1}, {{"foo", {1}}, {"bar", {1}}});
 
     // Resulting complex magnetization: 1/2, sqrt(2)/2, 1/2
-    model.apply_pulse({sycomore::deg2rad(45), sycomore::deg2rad(90)});
+    model.apply_pulse({45_deg, 90_deg});
 
     // Transverse magnetization is divided by 2, and becomes 1/4; longitudinal
     // magnetization becomes 1/2*sqrt(2)/2 + (1-1/2) == 1/2*(1+sqrt(2)/2)
@@ -161,13 +166,14 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
 
 BOOST_AUTO_TEST_CASE(CleanUp)
 {
-    sycomore::Species const species{
-        std::log(2)*sycomore::units::Hz, std::log(2)*sycomore::units::Hz};
+    using namespace sycomore::units;
+
+    sycomore::Species const species{std::log(2)*Hz, std::log(2)*Hz};
     // Dummy time intervals to build a 2D model
     sycomore::Model model(species, {0, 0, 1}, {{"short", {1}}, {"long", {2}}});
     model.epsilon(1.5*1./(1<<4));
 
-    model.apply_pulse({sycomore::deg2rad(45), sycomore::deg2rad(90)});
+    model.apply_pulse({45_deg, 90_deg});
     model.apply_time_interval("long");
 
     // All occupied configurations are above the threshold

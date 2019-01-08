@@ -15,6 +15,13 @@ Pulse
     // Nothing else.
 }
 
+Pulse
+::Pulse(units::Angle angle, units::Angle phase)
+: Pulse(angle.convert_to(units::rad), phase.convert_to(units::rad))
+{
+    // Nothing else.
+}
+
 Pulse::RotationMatrix
 Pulse
 ::rotation_matrix() const

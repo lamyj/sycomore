@@ -47,6 +47,7 @@ SYCOMORE_DEFINE_UNITS(AmountOfSubstance, mol)
 SYCOMORE_DEFINE_UNITS(LuminousIntensity, cd)
 
 SYCOMORE_DEFINE_UNITS(Angle, rad)
+SYCOMORE_DEFINE_UNIT(Angle, deg)
 SYCOMORE_DEFINE_UNITS(SolidAngle, sr)
 
 SYCOMORE_DEFINE_UNITS(Frequency, Hz)

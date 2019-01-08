@@ -3,6 +3,7 @@
 
 #include "sycomore/Array.h"
 #include "sycomore/sycomore.h"
+#include "sycomore/units.h"
 
 namespace sycomore
 {
@@ -19,6 +20,8 @@ public:
     Real phase;
 
     Pulse(double angle, double phase);
+
+    Pulse(units::Angle angle, units::Angle phase);
 
     /// @brief Return the rotation matrix for complex magnetization.
     RotationMatrix rotation_matrix() const;

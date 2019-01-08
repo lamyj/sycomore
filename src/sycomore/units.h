@@ -1,6 +1,8 @@
 #ifndef _e25f009a_96c8_4c52_97b5_de94a0752e6c
 #define _e25f009a_96c8_4c52_97b5_de94a0752e6c
 
+#include <cmath>
+
 namespace sycomore
 {
 
@@ -187,6 +189,8 @@ using Acceleration = div<Length, pow<Time, 2>>;
     SYCOMORE_DECLARE_UNITS(Type, name);
 
 SYCOMORE_DECLARE_DERIVED_UNIT(Angle, rad, div<Length, Length>);
+SYCOMORE_DECLARE_UNIT(Angle, deg, M_PI/180.);
+
 SYCOMORE_DECLARE_DERIVED_UNIT(SolidAngle, sr, div<Surface, Surface>);
 
 SYCOMORE_DECLARE_DERIVED_UNIT(Frequency, Hz, pow<Time, -1>);
