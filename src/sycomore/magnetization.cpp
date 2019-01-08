@@ -5,6 +5,10 @@
 namespace sycomore
 {
 
+ComplexMagnetization const
+ComplexMagnetization
+::zero{{0,0}, 0, {0,0}};
+
 Real
 Magnetization
 ::transversal() const
@@ -34,9 +38,8 @@ ComplexMagnetization
 }
 
 ComplexMagnetization
-::ComplexMagnetization(
-    Complex const & plus, Real const & zero, Complex const & minus)
-: plus(plus), minus(minus), zero(zero)
+::ComplexMagnetization(Complex const & p, Real const & z, Complex const & m)
+: p(p), m(m), z(z)
 {
     // Nothing else.
 }
@@ -45,10 +48,7 @@ bool
 ComplexMagnetization
 ::operator==(ComplexMagnetization const & other) const
 {
-    return (
-        this->plus == other.plus
-        && this->zero == other.zero
-        && this->minus == other.minus);
+    return (this->p == other.p && this->z == other.z && this->m == other.m);
 }
 
 bool
@@ -69,9 +69,9 @@ ComplexMagnetization as_complex_magnetization(Magnetization const & m)
 Magnetization as_real_magnetization(ComplexMagnetization const & m)
 {
     return Magnetization{
-        ((m.plus+m.minus) / std::sqrt(2.)).real(),
-        ((m.plus-m.minus) / std::sqrt(2.)).imag(),
-        m.zero};
+        ((m.p+m.m) / std::sqrt(2.)).real(),
+        ((m.p-m.m) / std::sqrt(2.)).imag(),
+        m.z};
 }
 
 }

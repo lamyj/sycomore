@@ -9,13 +9,13 @@ void test_magnetization(
     sycomore::ComplexMagnetization const & m1,
     sycomore::ComplexMagnetization const & m2, sycomore::Real tolerance=1e-9)
 {
-    BOOST_TEST(std::abs(m1.plus.real()-m2.plus.real())<=tolerance);
-    BOOST_TEST(std::abs(m1.plus.imag()-m2.plus.imag())<=tolerance);
+    BOOST_TEST(m1.p.real() == m2.p.real(), boost::test_tools::tolerance(tolerance));
+    BOOST_TEST(m1.p.imag() == m2.p.imag(), boost::test_tools::tolerance(tolerance));
 
-    BOOST_TEST(std::abs(m1.zero-m2.zero)<=tolerance);
+    BOOST_TEST(m1.z == m2.z, boost::test_tools::tolerance(tolerance));
 
-    BOOST_TEST(std::abs(m1.minus.real()-m2.minus.real())<=tolerance);
-    BOOST_TEST(std::abs(m1.minus.imag()-m2.minus.imag())<=tolerance);
+    BOOST_TEST(m1.m.real() == m2.m.real(), boost::test_tools::tolerance(tolerance));
+    BOOST_TEST(m1.m.imag() == m2.m.imag(), boost::test_tools::tolerance(tolerance));
 }
 
 BOOST_AUTO_TEST_CASE(Constructor)
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(Pulse)
         }
         else
         {
-            test_magnetization(m, {0., 0., 0.});
+            test_magnetization(m, sycomore::ComplexMagnetization::zero);
         }
     }
 }
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(Pulse)
 //for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
 //{
 //    std::cout << "("; for(auto && x: index) { std::cout << " " << x; }; std::cout << " ): ";
-//    std::cout << grid[index].plus << " " << grid[index].zero << " " << grid[index].minus << std::endl;
+//    std::cout << grid[index].p << " " << grid[index].z << " " << grid[index].m << std::endl;
 //}
 
 BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
             }
             else
             {
-                test_magnetization(m, {0., 0., 0.});
+                test_magnetization(m, sycomore::ComplexMagnetization::zero);
             }
         }
     }
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
             }
             else
             {
-                test_magnetization(m, {0., 0., 0.});
+                test_magnetization(m, sycomore::ComplexMagnetization::zero);
             }
         }
     }
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(CleanUp)
             }
             else
             {
-                test_magnetization(m, {0., 0., 0.});
+                test_magnetization(m, sycomore::ComplexMagnetization::zero);
             }
         }
     }
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(CleanUp)
             }
             else
             {
-                test_magnetization(m, {0., 0., 0.});
+                test_magnetization(m, sycomore::ComplexMagnetization::zero);
             }
         }
     }

@@ -16,7 +16,7 @@
 #include "sycomore/TimeInterval.h"
 
 BOOST_COMPUTE_ADAPT_STRUCT(
-    sycomore::ComplexMagnetization, ComplexMagnetization, (plus, zero, minus))
+    sycomore::ComplexMagnetization, ComplexMagnetization, (p, z, m))
 
 namespace sycomore
 {
@@ -104,28 +104,28 @@ Model
         ComplexMagnetization, apply_pulse, (ComplexMagnetization m), (R_d),
         {
             ComplexMagnetization result;
-            result.plus.x =
-                R_d[0].x*m.plus.x - R_d[0].y*m.plus.y
-                + R_d[3].x*m.zero
-                + R_d[6].x*m.minus.x - R_d[6].y*m.minus.y;
-            result.plus.y =
-                R_d[0].x*m.plus.y + R_d[0].y*m.plus.x
-                + R_d[3].y*m.zero
-                + R_d[6].x*m.minus.y + R_d[6].y*m.minus.x;
+            result.p.x =
+                R_d[0].x*m.p.x - R_d[0].y*m.p.y
+                + R_d[3].x*m.z
+                + R_d[6].x*m.m.x - R_d[6].y*m.m.y;
+            result.p.y =
+                R_d[0].x*m.p.y + R_d[0].y*m.p.x
+                + R_d[3].y*m.z
+                + R_d[6].x*m.m.y + R_d[6].y*m.m.x;
 
-            result.zero =
-                R_d[1].x*m.plus.x - R_d[1].y*m.plus.y
-                + R_d[4].x*m.zero
-                + R_d[7].x*m.minus.x - R_d[7].y*m.minus.y;
+            result.z =
+                R_d[1].x*m.p.x - R_d[1].y*m.p.y
+                + R_d[4].x*m.z
+                + R_d[7].x*m.m.x - R_d[7].y*m.m.y;
 
-            result.minus.x =
-                R_d[0].x*m.plus.x - R_d[0].y*m.plus.y
-                + R_d[3].x*m.zero
-                + R_d[6].x*m.minus.x - R_d[6].y*m.minus.y;
-            result.minus.y =
-                R_d[2].x*m.plus.y + R_d[2].y*m.plus.x
-                + R_d[5].y*m.zero
-                + R_d[8].x*m.minus.y + R_d[8].y*m.minus.x;
+            result.m.x =
+                R_d[0].x*m.p.x - R_d[0].y*m.p.y
+                + R_d[3].x*m.z
+                + R_d[6].x*m.m.x - R_d[6].y*m.m.y;
+            result.m.y =
+                R_d[2].x*m.p.y + R_d[2].y*m.p.x
+                + R_d[5].y*m.z
+                + R_d[8].x*m.m.y + R_d[8].y*m.m.x;
             return result;
         });
     boost::compute::vector<ComplexMagnetization> grid_d(
@@ -250,9 +250,9 @@ Model
     Magnetization isochromat{0, 0, 0};
 
     auto const update_isochromat = [&](ComplexMagnetization const & m) {
-        isochromat.x += m.plus.real();
-        isochromat.y += m.plus.imag();
-        isochromat.z += m.zero;
+        isochromat.x += m.p.real();
+        isochromat.y += m.p.imag();
+        isochromat.z += m.z;
     };
 
     if(configurations.empty())
@@ -308,7 +308,6 @@ Model
     std::vector<Index> indices(generator.begin(), generator.end());
 
     Index const zero_i(model.dimension(), 0);
-    ComplexMagnetization const zero_m(0, 0, 0);
 
     // Careful with OpenCL here: could removing two points in parallel lead to
     // a concavity?
@@ -321,9 +320,9 @@ Model
 
         auto && m = model[index];
         auto const magnitude =
-            m.plus * std::conj(m.plus)
-            + m.zero*m.zero
-            + m.minus * std::conj(m.minus);
+            m.p * std::conj(m.p)
+            + m.z*m.z
+            + m.m * std::conj(m.m);
         if(magnitude.real() >= this->_epsilon_squared)
         {
             continue;
@@ -337,13 +336,17 @@ Model
             Index neighbor = index;
 
             neighbor[i] += 1;
-            if(neighbor[i] < model.origin()[i]+model.shape()[i] && model[neighbor] != zero_m)
+            if(
+                neighbor[i] < this->_grid.origin()[i]+this->_grid.shape()[i]
+                && this->_grid[neighbor] != ComplexMagnetization::zero)
             {
                 ++neighbors_count;
             }
 
             neighbor[i] -= 2; // NOTE: go two steps back to skip the current index
-            if(neighbor[i] >= model.origin()[i] && model[neighbor] != zero_m)
+            if(
+                neighbor[i] >= this->_grid.origin()[i]
+                && this->_grid[neighbor] != ComplexMagnetization::zero)
             {
                 ++neighbors_count;
             }
@@ -359,7 +362,7 @@ Model
             continue;
         }
 
-        model[index] = zero_m;
+        this->_grid[index] = ComplexMagnetization::zero;
     }
 
 }

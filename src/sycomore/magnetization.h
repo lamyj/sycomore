@@ -19,14 +19,15 @@ struct Magnetization
 
 struct ComplexMagnetization
 {
-    Complex plus;
-    Real zero;
-    Complex minus;
+    static ComplexMagnetization const zero;
+
+    Complex p;
+    Real z;
+    Complex m;
 
     ComplexMagnetization();
 
-    ComplexMagnetization(
-        Complex const & plus, Real const & zero, Complex const & minus);
+    ComplexMagnetization(Complex const & p, Real const & z, Complex const & m);
 
     bool operator==(ComplexMagnetization const & other) const;
     bool operator!=(ComplexMagnetization const & other) const;

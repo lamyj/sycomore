@@ -8,13 +8,13 @@ BOOST_AUTO_TEST_CASE(ComplexMagnetizationFromMagnetization, *boost::unit_test::t
     sycomore::Magnetization const m_r{1,2,3};
     auto && m_c = sycomore::as_complex_magnetization(m_r);
 
-    BOOST_TEST(m_c.plus.real() == std::sqrt(2.)/2.);
-    BOOST_TEST(m_c.plus.imag() == std::sqrt(2.));
+    BOOST_TEST(m_c.p.real() == std::sqrt(2.)/2.);
+    BOOST_TEST(m_c.p.imag() == std::sqrt(2.));
 
-    BOOST_TEST(m_c.zero == 3);
+    BOOST_TEST(m_c.z == 3);
 
-    BOOST_TEST(m_c.minus.real() == std::sqrt(2.)/2.);
-    BOOST_TEST(m_c.minus.imag() == -std::sqrt(2.));
+    BOOST_TEST(m_c.m.real() == std::sqrt(2.)/2.);
+    BOOST_TEST(m_c.m.imag() == -std::sqrt(2.));
 }
 
 BOOST_AUTO_TEST_CASE(ComplexMagnetizationToMagnetization, *boost::unit_test::tolerance(1e-9))
