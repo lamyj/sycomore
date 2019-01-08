@@ -60,6 +60,37 @@ Model
 
     this->_context = boost::compute::context(this->_device);
     this->_queue = boost::compute::command_queue(this->_context, this->_device);
+
+    std::string source = BOOST_COMPUTE_STRINGIZE_SOURCE(
+    inline double2 mult_cc(double2 c1, double2 c2)
+    {
+        return (double2)(c1.x*c2.x-c1.y*c2.y, c1.y*c2.x+c1.x*c2.y);
+    }
+
+    inline double2 mult_cr(double2 c, double r)
+    {
+        return (double2)(c.x*r, c.y*r);
+    }
+
+    kernel void apply_pulse(
+        global ComplexMagnetization * grid, global const double2 * R)
+    {
+        global ComplexMagnetization * m_ptr = grid+get_global_id(0);
+        ComplexMagnetization m = *m_ptr;
+
+        ComplexMagnetization result;
+
+        result.p = mult_cc(R[0], m.p) + mult_cr(R[3], m.z) + mult_cc(R[6], m.m);
+        result.z = (mult_cc(R[1], m.p) + mult_cr(R[4], m.z) + mult_cc(R[7], m.m)).x;
+        result.m = mult_cc(R[2], m.p) + mult_cr(R[5], m.z) + mult_cc(R[8], m.m);
+
+        *m_ptr = result;
+    });
+    source = boost::compute::type_definition<ComplexMagnetization>() + "\n" + source;
+
+    auto program = boost::compute::program::build_with_source(
+            source, this->_context);
+    this->_apply_pulse = boost::compute::kernel(program, "apply_pulse");
 }
 
 std::map<std::string, size_t> const &
@@ -100,40 +131,19 @@ Model
 
     boost::compute::vector<Complex> R_d(
         R.data(), R.data()+R.stride()[R.dimension()], this->_queue);
-    BOOST_COMPUTE_CLOSURE(
-        ComplexMagnetization, apply_pulse, (ComplexMagnetization m), (R_d),
-        {
-            ComplexMagnetization result;
-            result.p.x =
-                R_d[0].x*m.p.x - R_d[0].y*m.p.y
-                + R_d[3].x*m.z
-                + R_d[6].x*m.m.x - R_d[6].y*m.m.y;
-            result.p.y =
-                R_d[0].x*m.p.y + R_d[0].y*m.p.x
-                + R_d[3].y*m.z
-                + R_d[6].x*m.m.y + R_d[6].y*m.m.x;
 
-            result.z =
-                R_d[1].x*m.p.x - R_d[1].y*m.p.y
-                + R_d[4].x*m.z
-                + R_d[7].x*m.m.x - R_d[7].y*m.m.y;
-
-            result.m.x =
-                R_d[0].x*m.p.x - R_d[0].y*m.p.y
-                + R_d[3].x*m.z
-                + R_d[6].x*m.m.x - R_d[6].y*m.m.y;
-            result.m.y =
-                R_d[2].x*m.p.y + R_d[2].y*m.p.x
-                + R_d[5].y*m.z
-                + R_d[8].x*m.m.y + R_d[8].y*m.m.x;
-            return result;
-        });
+    // WARNING: using only the bounding box takes more time that applying the
+    // pulse on the whole array
     boost::compute::vector<ComplexMagnetization> grid_d(
-        this->_grid.data(), this->_grid.data()+this->_grid.stride()[this->_grid.dimension()],
+        this->_grid.data(),
+        this->_grid.data()+this->_grid.stride()[this->_grid.dimension()],
         this->_queue);
-    boost::compute::transform(
-        grid_d.begin(), grid_d.end(), grid_d.begin(), apply_pulse,
-        this->_queue);
+
+    this->_apply_pulse.set_arg(0, grid_d);
+    this->_apply_pulse.set_arg(1, R_d);
+    this->_queue.enqueue_1d_range_kernel(
+        this->_apply_pulse, 0, grid_d.size(), 0);
+
     boost::compute::copy(
         grid_d.begin(), grid_d.end(), this->_grid.data(), this->_queue);
 }

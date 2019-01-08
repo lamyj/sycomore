@@ -81,6 +81,7 @@ private:
     boost::compute::device _device;
     boost::compute::context _context;
     boost::compute::command_queue _queue;
+    boost::compute::kernel _apply_pulse;
     /// @}
 
     /// @brief the configuration models, one for each species.
