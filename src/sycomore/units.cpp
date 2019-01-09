@@ -26,7 +26,6 @@ namespace units
     SYCOMORE_DEFINE_UNIT(Type, c##name) \
     SYCOMORE_DEFINE_UNIT(Type, m##name) \
     SYCOMORE_DEFINE_UNIT(Type, u##name) \
-    SYCOMORE_DEFINE_UNIT(Type, µ##name) \
     SYCOMORE_DEFINE_UNIT(Type, n##name) \
     SYCOMORE_DEFINE_UNIT(Type, p##name) \
     SYCOMORE_DEFINE_UNIT(Type, f##name) \

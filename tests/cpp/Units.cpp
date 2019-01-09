@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(Mult)
 BOOST_AUTO_TEST_CASE(Div)
 {
     using namespace sycomore::units;
-    div<Length, Time> x;
+    sycomore::units::div<Length, Time> x;
     Unit<1,0,-1,0,0,0,0> y = x;
 }
 

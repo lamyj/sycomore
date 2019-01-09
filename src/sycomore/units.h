@@ -132,7 +132,6 @@ using LuminousIntensity = Unit<0, 0, 0, 0, 0, 0, 1>;
     SYCOMORE_DECLARE_UNIT(Type, c##name, 1e-2) \
     SYCOMORE_DECLARE_UNIT(Type, m##name, 1e-3) \
     SYCOMORE_DECLARE_UNIT(Type, u##name, 1e-6) \
-    SYCOMORE_DECLARE_UNIT(Type, µ##name, 1e-6) \
     SYCOMORE_DECLARE_UNIT(Type, n##name, 1e-9) \
     SYCOMORE_DECLARE_UNIT(Type, p##name, 1e-12) \
     SYCOMORE_DECLARE_UNIT(Type, f##name, 1e-15) \
@@ -157,7 +156,6 @@ SYCOMORE_DECLARE_UNIT(Mass, dg, 1e-4)
 SYCOMORE_DECLARE_UNIT(Mass, cg, 1e-5)
 SYCOMORE_DECLARE_UNIT(Mass, mg, 1e-6)
 SYCOMORE_DECLARE_UNIT(Mass, ug, 1e-9)
-SYCOMORE_DECLARE_UNIT(Mass, µg, 1e-9)
 SYCOMORE_DECLARE_UNIT(Mass, ng, 1e-12)
 SYCOMORE_DECLARE_UNIT(Mass, pg, 1e-15)
 SYCOMORE_DECLARE_UNIT(Mass, fg, 1e-18)
