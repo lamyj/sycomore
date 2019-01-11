@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "sycomore/Grid.h"
+#include "sycomore/IndexGenerator.h"
 
 BOOST_AUTO_TEST_CASE(EmptyConstructor)
 {
@@ -132,6 +133,7 @@ BOOST_AUTO_TEST_CASE(ReshapeLargerUninitialized)
 
     BOOST_TEST(new_.origin() == sycomore::Index({-3,-2}));
     BOOST_TEST(new_.shape() == sycomore::Shape({7, 5}));
+    BOOST_TEST(new_.stride() == sycomore::Stride({1, 7, 35}));
     compare_grids(old, new_, false);
 }
 
@@ -151,6 +153,7 @@ BOOST_AUTO_TEST_CASE(ReshapeLargerInitialized)
 
     BOOST_TEST(new_.origin() == sycomore::Index({-3,-2}));
     BOOST_TEST(new_.shape() == sycomore::Shape({7, 5}));
+    BOOST_TEST(new_.stride() == sycomore::Stride({1, 7, 35}));
     compare_grids(old, new_, true, {1000,0,0});
 }
 
@@ -170,6 +173,7 @@ BOOST_AUTO_TEST_CASE(ReshapeSmallerUninitialized)
 
     BOOST_TEST(new_.origin() == sycomore::Index({-2,-1}));
     BOOST_TEST(new_.shape() == sycomore::Shape({5,3}));
+    BOOST_TEST(new_.stride() == sycomore::Stride({1, 5, 15}));
     compare_grids(old, new_, false);
 }
 
@@ -189,6 +193,7 @@ BOOST_AUTO_TEST_CASE(ReshapeSmallerInitialized)
 
     BOOST_TEST(new_.origin() == sycomore::Index({-2,-1}));
     BOOST_TEST(new_.shape() == sycomore::Shape({5,3}));
+    BOOST_TEST(new_.stride() == sycomore::Stride({1, 5, 15}));
     compare_grids(old, new_, true, {1000, 0, 0});
 }
 
@@ -208,6 +213,7 @@ BOOST_AUTO_TEST_CASE(ReshapeMixedUninitialized)
 
     BOOST_TEST(new_.origin() == sycomore::Index({-5,-1}));
     BOOST_TEST(new_.shape() == sycomore::Shape({11,3}));
+    BOOST_TEST(new_.stride() == sycomore::Stride({1, 11, 33}));
     compare_grids(old, new_, false);
 }
 
@@ -227,6 +233,7 @@ BOOST_AUTO_TEST_CASE(ReshapeMixedInitialized)
 
     BOOST_TEST(new_.origin() == sycomore::Index({-5,-1}));
     BOOST_TEST(new_.shape() == sycomore::Shape({11,3}));
+    BOOST_TEST(new_.stride() == sycomore::Stride({1, 11, 33}));
     compare_grids(old, new_, true, {1000,0,0});
 }
 
@@ -246,6 +253,7 @@ BOOST_AUTO_TEST_CASE(ReshapeDisjointUninitialized)
 
     BOOST_TEST(new_.origin() == sycomore::Index({1,9}));
     BOOST_TEST(new_.shape() == sycomore::Shape({5,7}));
+    BOOST_TEST(new_.stride() == sycomore::Stride({1, 5, 35}));
     compare_grids(old, new_, false);
 }
 
@@ -265,6 +273,7 @@ BOOST_AUTO_TEST_CASE(ReshapeDisjointInitialized)
 
     BOOST_TEST(new_.origin() == sycomore::Index({1,9}));
     BOOST_TEST(new_.shape() == sycomore::Shape({5,7}));
+    BOOST_TEST(new_.stride() == sycomore::Stride({1, 5, 35}));
     compare_grids(old, new_, true, {1000,0,0});
 }
 

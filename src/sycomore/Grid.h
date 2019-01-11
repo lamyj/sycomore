@@ -2,7 +2,7 @@
 #define _e22643b8_c194_4aa9_99f9_6effee6222c8
 
 #include <vector>
-#include "sycomore/Array.h"
+
 #include "sycomore/magnetization.h"
 #include "sycomore/sycomore.h"
 
@@ -42,8 +42,8 @@ public:
     void reshape(
         Index const & origin, Shape const & shape, value_type const & value);
 
-    using iterator = Array<value_type>::iterator;
-    using const_iterator = Array<value_type>::const_iterator;
+    using iterator = typename std::vector<value_type>::iterator;
+    using const_iterator = typename std::vector<value_type>::const_iterator;
 
     iterator begin();
     const_iterator begin() const;
@@ -55,8 +55,12 @@ public:
 
 private:
     Index _origin;
-    Array<value_type> _array;
+    Shape _shape;
+    Stride _stride;
+    std::vector<value_type> _data;
 
+    static Stride _compute_stride(Shape const & shape);
+    void _allocate(Shape);
     void _reshape(Grid & new_grid);
 };
 

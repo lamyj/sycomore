@@ -1,7 +1,12 @@
 #include "Grid.h"
 
+#include <algorithm>
+#include <numeric>
 #include <vector>
+
+#include "sycomore/IndexGenerator.h"
 #include "sycomore/magnetization.h"
+#include "sycomore/sycomore.h"
 
 namespace sycomore
 {
@@ -15,30 +20,33 @@ Grid
 
 Grid
 ::Grid(Index const & origin, Shape const & shape)
-: _origin(origin), _array(shape)
+: _origin(origin), _shape(shape), _stride(_compute_stride(shape))
 {
-    // Nothing else.
+    if(!this->_stride.empty())
+    {
+        this->_data.resize(this->_stride[this->_stride.size()-1]);
+    }
 }
 
 Grid
 ::Grid(Index const & origin, Shape const & shape, value_type const & value)
-: _origin(origin), _array(shape, value)
+: Grid(origin, shape)
 {
-    // Nothing else.
+    std::fill(this->_data.begin(), this->_data.end(), value);
 }
 
 Grid::value_type const *
 Grid
 ::data() const
 {
-    return this->_array.data();
+    return this->_data.data();
 }
 
 Grid::value_type *
 Grid
 ::data()
 {
-    return this->_array.data();
+    return this->_data.data();
 }
 
 Grid::value_type &
@@ -49,7 +57,10 @@ Grid
     std::transform(
         index.begin(), index.end(), this->_origin.begin(),
         translated_index.begin(), std::minus<int>());
-    return this->_array[translated_index];
+    auto const position = std::inner_product(
+        translated_index.begin(), translated_index.end(), this->_stride.begin(),
+        0);
+    return this->_data[position];
 }
 
 Grid::value_type const &
@@ -60,14 +71,17 @@ Grid
     std::transform(
         index.begin(), index.end(), this->_origin.begin(),
         translated_index.begin(), std::minus<int>());
-    return this->_array[translated_index];
+    auto const position = std::inner_product(
+        translated_index.begin(), translated_index.end(), this->_stride.begin(),
+        0);
+    return this->_data[position];
 }
 
 size_t
 Grid
 ::dimension() const
 {
-    return this->_array.dimension();
+    return this->_shape.size();
 }
 
 Index const &
@@ -81,14 +95,14 @@ Shape const &
 Grid
 ::shape() const
 {
-    return this->_array.shape();
+    return this->_shape;
 }
 
 Stride const &
 Grid
 ::stride() const
 {
-    return this->_array.stride();
+    return this->_stride;
 }
 
 void
@@ -121,42 +135,60 @@ Grid::iterator
 Grid
 ::begin()
 {
-    return this->_array.begin();
+    return this->_data.begin();
 }
 
 Grid::const_iterator
 Grid
 ::begin() const
 {
-    return this->_array.begin();
+    return this->_data.begin();
 }
 
 Grid::const_iterator
 Grid
 ::cbegin() const
 {
-    return this->_array.cbegin();
+    return this->_data.cbegin();
 }
 
 Grid::iterator
 Grid
 ::end()
 {
-    return this->_array.end();
+    return this->_data.end();
 }
 
 Grid::const_iterator
 Grid
 ::end() const
 {
-    return this->_array.end();
+    return this->_data.end();
 }
 
 Grid::const_iterator
 Grid
 ::cend() const
 {
-    return this->_array.cend();
+    return this->_data.cend();
+}
+
+Stride
+Grid::_compute_stride(Shape const & shape)
+{
+    if(shape.size() == 0)
+    {
+        return Stride();
+    }
+
+    Stride stride(shape.size()+1);
+    stride[0] = 1;
+    for(unsigned int i=0; i< shape.size(); ++i)
+    {
+        stride[i+1] = shape[i]*stride[i];
+    }
+
+    return stride;
 }
 
 void
@@ -198,7 +230,9 @@ Grid
     // Otherwise the two grids are disjoint, nothing to copy.
 
     this->_origin = std::move(new_grid._origin);
-    this->_array = std::move(new_grid._array);
+    this->_shape = std::move(new_grid._shape);
+    this->_stride = std::move(new_grid._stride);
+    this->_data = std::move(new_grid._data);
 }
 
 }
