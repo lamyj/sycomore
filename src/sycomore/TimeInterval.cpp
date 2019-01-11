@@ -1,7 +1,5 @@
 #include "TimeInterval.h"
 
-#include <valarray>
-
 #include "sycomore/sycomore.h"
 #include "sycomore/units.h"
 
@@ -23,14 +21,14 @@ TimeInterval
 }
 
 TimeInterval
-::TimeInterval(Real duration, std::vector<Real> gradient_moment)
+::TimeInterval(Real duration, Array<Real> gradient_moment)
 : duration(duration), gradient_moment(gradient_moment)
 {
     // Nothing else.
 }
 
 TimeInterval
-::TimeInterval(units::Time duration, std::vector<Real> gradient_moment)
+::TimeInterval(units::Time duration, Array<Real> gradient_moment)
 : TimeInterval(duration.convert_to(units::s), gradient_moment)
 {
     // Nothing else.

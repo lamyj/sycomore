@@ -53,13 +53,7 @@ Grid::value_type &
 Grid
 ::operator[](Index const & index)
 {
-    Index translated_index(index.size());
-    std::transform(
-        index.begin(), index.end(), this->_origin.begin(),
-        translated_index.begin(), std::minus<int>());
-    auto const position = std::inner_product(
-        translated_index.begin(), translated_index.end(), this->_stride.begin(),
-        0);
+    auto const position = dot(index-this->_origin, this->_stride);
     return this->_data[position];
 }
 
@@ -67,13 +61,7 @@ Grid::value_type const &
 Grid
 ::operator[](Index const & index) const
 {
-    Index translated_index(index.size());
-    std::transform(
-        index.begin(), index.end(), this->_origin.begin(),
-        translated_index.begin(), std::minus<int>());
-    auto const position = std::inner_product(
-        translated_index.begin(), translated_index.end(), this->_stride.begin(),
-        0);
+    auto const position = dot(index-this->_origin, this->_stride);
     return this->_data[position];
 }
 
@@ -195,18 +183,12 @@ void
 Grid
 ::_reshape(Grid & new_grid)
 {
-    Index max_origin(this->_origin.size());
-    std::transform(
-        this->_origin.begin(), this->_origin.end(), new_grid.origin().begin(),
-        max_origin.begin(), [](int x, int y) { return std::max(x, y); });
+    Index const max_origin = maximum(this->_origin, new_grid.origin());
 
     auto const old_last = IndexGenerator(this->origin(), this->shape()).last();
     auto const new_last = IndexGenerator(
         new_grid.origin(), new_grid.shape()).last();
-    Index min_last(this->_origin.size());
-    std::transform(
-        old_last.begin(), old_last.end(), new_last.begin(),
-        min_last.begin(), [](int x, int y) { return std::min(x, y); });
+    Index min_last = minimum(old_last, new_last);
 
     // Check whether the two grids are disjoint (on at least one axis,
     // max_origin >= min_last)
