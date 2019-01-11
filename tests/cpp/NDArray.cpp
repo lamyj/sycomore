@@ -1,11 +1,11 @@
-#define BOOST_TEST_MODULE Array
+#define BOOST_TEST_MODULE NDArray
 #include <boost/test/unit_test.hpp>
 
-#include "sycomore/Array.h"
+#include "sycomore/NDArray.h"
 
 BOOST_AUTO_TEST_CASE(EmptyConstructor)
 {
-    sycomore::Array<float> const array;
+    sycomore::NDArray<float> const array;
     BOOST_TEST(array.dimension() == 0);
     BOOST_TEST(array.shape().empty());
     BOOST_TEST(array.stride().empty());
@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE(EmptyConstructor)
 
 BOOST_AUTO_TEST_CASE(UninitializedConstructor)
 {
-    sycomore::Array<float> const array({2,3,5});
+    sycomore::NDArray<float> const array({2,3,5});
     BOOST_TEST(array.dimension() == 3);
     BOOST_TEST(array.shape() == sycomore::Shape({2,3,5}));
     BOOST_TEST(array.stride() == sycomore::Stride({1,2,6,30}));
@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(UninitializedConstructor)
 
 BOOST_AUTO_TEST_CASE(InitializedConstructor)
 {
-    sycomore::Array<float> const array({5, 3}, 42);
+    sycomore::NDArray<float> const array({5, 3}, 42);
     BOOST_TEST(array.dimension() == 2);
     BOOST_TEST(array.shape() == sycomore::Shape({5,3}));
     BOOST_TEST(array.stride() == sycomore::Stride({1,5,15}));
@@ -33,11 +33,11 @@ BOOST_AUTO_TEST_CASE(InitializedConstructor)
 
 BOOST_AUTO_TEST_CASE(Accessor)
 {
-    sycomore::Array<float> array({5, 3}, 0);
+    sycomore::NDArray<float> array({5, 3}, 0);
     array[{2,1}] = 42;
 
-    sycomore::Array<float> const & array_const = const_cast<
-            sycomore::Array<float> const &
+    sycomore::NDArray<float> const & array_const = const_cast<
+            sycomore::NDArray<float> const &
         >(array);
 
     for(auto && index: sycomore::IndexGenerator(array.shape()))
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(Accessor)
 
 BOOST_AUTO_TEST_CASE(ScanOrder)
 {
-    sycomore::Array<unsigned int> array({3, 5, 7, 11}, 0);
+    sycomore::NDArray<unsigned int> array({3, 5, 7, 11}, 0);
 
     unsigned int i=0;
     for(auto && index: sycomore::IndexGenerator(array.shape()))
@@ -74,8 +74,8 @@ BOOST_AUTO_TEST_CASE(ScanOrder)
 
 template<typename TScalar>
 void compare_arrays(
-    sycomore::Array<TScalar> const & old_array,
-    sycomore::Array<TScalar> const & new_array,
+    sycomore::NDArray<TScalar> const & old_array,
+    sycomore::NDArray<TScalar> const & new_array,
     bool is_initialized, TScalar const & value={})
 {
     sycomore::IndexGenerator const generator_old(old_array.shape());
@@ -116,7 +116,7 @@ void compare_arrays(
 
 BOOST_AUTO_TEST_CASE(ReshapeLargerUninitialized)
 {
-    sycomore::Array<int> old_array({5, 3});
+    sycomore::NDArray<int> old_array({5, 3});
     unsigned int i=1;
     for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(ReshapeLargerUninitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeLargerInitialized)
 {
-    sycomore::Array<int> old_array({5, 3});
+    sycomore::NDArray<int> old_array({5, 3});
     unsigned int i=1;
     for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(ReshapeLargerInitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeSmallerUninitialized)
 {
-    sycomore::Array<int> old_array({7,5});
+    sycomore::NDArray<int> old_array({7,5});
     unsigned int i=1;
     for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(ReshapeSmallerUninitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeSmallerInitialized)
 {
-    sycomore::Array<int> old_array({7,5});
+    sycomore::NDArray<int> old_array({7,5});
     unsigned int i=1;
     for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(ReshapeSmallerInitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeMixedUninitialized)
 {
-    sycomore::Array<int> old_array({7,5});
+    sycomore::NDArray<int> old_array({7,5});
     unsigned int i=1;
     for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(ReshapeMixedUninitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeMixedInitialized)
 {
-    sycomore::Array<int> old_array({7,5});
+    sycomore::NDArray<int> old_array({7,5});
     unsigned int i=1;
     for(auto && index: sycomore::IndexGenerator(old_array.shape()))
     {
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(ReshapeMixedInitialized)
 
 BOOST_AUTO_TEST_CASE(ConstIterator)
 {
-    sycomore::Array<int> array({7,5});
+    sycomore::NDArray<int> array({7,5});
     unsigned int i=1;
     for(auto && index: sycomore::IndexGenerator(array.shape()))
     {
@@ -226,8 +226,8 @@ BOOST_AUTO_TEST_CASE(ConstIterator)
         ++i;
     }
 
-    sycomore::Array<int> const & array_const = const_cast<
-            sycomore::Array<int> const &
+    sycomore::NDArray<int> const & array_const = const_cast<
+            sycomore::NDArray<int> const &
         >(array);
 
     i=1;
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE(ConstIterator)
 
 BOOST_AUTO_TEST_CASE(Iterator)
 {
-    sycomore::Array<int> array({7,5}, 0);
+    sycomore::NDArray<int> array({7,5}, 0);
     unsigned int i=1;
     for(auto && x: array)
     {
@@ -248,8 +248,8 @@ BOOST_AUTO_TEST_CASE(Iterator)
         ++i;
     }
 
-    sycomore::Array<int> const & array_const = const_cast<
-            sycomore::Array<int> const &
+    sycomore::NDArray<int> const & array_const = const_cast<
+            sycomore::NDArray<int> const &
         >(array);
 
     i=1;

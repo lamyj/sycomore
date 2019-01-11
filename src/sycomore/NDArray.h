@@ -10,20 +10,20 @@ namespace sycomore
 
 /// @brief N-dimensional array.
 template<typename TScalar>
-class Array
+class NDArray
 {
 public:
-    Array();
-    Array(Shape const & shape);
-    Array(Shape const & shape, TScalar const & value);
+    NDArray();
+    NDArray(Shape const & shape);
+    NDArray(Shape const & shape, TScalar const & value);
 
-    Array(Array<TScalar> const &) = default;
-    Array(Array<TScalar> &&) = default;
+    NDArray(NDArray<TScalar> const &) = default;
+    NDArray(NDArray<TScalar> &&) = default;
 
-    Array<TScalar> & operator=(Array<TScalar> const &) = default;
-    Array<TScalar> & operator=(Array<TScalar> &&) = default;
+    NDArray<TScalar> & operator=(NDArray<TScalar> const &) = default;
+    NDArray<TScalar> & operator=(NDArray<TScalar> &&) = default;
 
-    ~Array() = default;
+    ~NDArray() = default;
 
     TScalar const & operator[](Index const & index) const;
     TScalar & operator[](Index const & index);
@@ -55,11 +55,11 @@ private:
     std::vector<TScalar> _data;
 
     static Stride _compute_stride(Shape const & shape);
-    void _reshape(Array<TScalar> & new_array);
+    void _reshape(NDArray<TScalar> & new_array);
 };
 
 }
 
-#include "Array.txx"
+#include "NDArray.txx"
 
 #endif // _f40986ed_5367_42c0_a613_78150c4df2ae

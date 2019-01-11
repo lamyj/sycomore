@@ -1,4 +1,4 @@
-#include "Array.h"
+#include "NDArray.h"
 
 #include <algorithm>
 #include <functional>
@@ -12,17 +12,17 @@ namespace sycomore
 {
 
 template<typename TScalar>
-Array<TScalar>
-::Array()
-: Array<TScalar>(Shape())
+NDArray<TScalar>
+::NDArray()
+: NDArray<TScalar>(Shape())
 {
     // Nothing else.
 }
 
 template<typename TScalar>
-Array<TScalar>
-::Array(Shape const & shape)
-: _shape(shape), _stride(Array<TScalar>::_compute_stride(shape))
+NDArray<TScalar>
+::NDArray(Shape const & shape)
+: _shape(shape), _stride(NDArray<TScalar>::_compute_stride(shape))
 {
     if(!_shape.empty())
     {
@@ -31,16 +31,16 @@ Array<TScalar>
 }
 
 template<typename TScalar>
-Array<TScalar>
-::Array(Shape const & shape, TScalar const & value)
-: Array<TScalar>(shape)
+NDArray<TScalar>
+::NDArray(Shape const & shape, TScalar const & value)
+: NDArray<TScalar>(shape)
 {
     std::fill(this->_data.begin(), this->_data.end(), value);
 }
 
 template<typename TScalar>
 TScalar const &
-Array<TScalar>
+NDArray<TScalar>
 ::operator[](Index const & index) const
 {
     auto position = std::inner_product(
@@ -50,7 +50,7 @@ Array<TScalar>
 
 template<typename TScalar>
 TScalar &
-Array<TScalar>
+NDArray<TScalar>
 ::operator[](Index const & index)
 {
     auto position = std::inner_product(
@@ -60,7 +60,7 @@ Array<TScalar>
 
 template<typename TScalar>
 unsigned int
-Array<TScalar>
+NDArray<TScalar>
 ::dimension() const
 {
     return this->_shape.size();
@@ -68,7 +68,7 @@ Array<TScalar>
 
 template<typename TScalar>
 Shape const &
-Array<TScalar>
+NDArray<TScalar>
 ::shape() const
 {
     return this->_shape;
@@ -76,7 +76,7 @@ Array<TScalar>
 
 template<typename TScalar>
 Stride const &
-Array<TScalar>
+NDArray<TScalar>
 ::stride() const
 {
     return this->_stride;
@@ -84,7 +84,7 @@ Array<TScalar>
 
 template<typename TScalar>
 void
-Array<TScalar>
+NDArray<TScalar>
 ::reshape(Shape const & shape)
 {
     if(shape.size() != this->dimension())
@@ -92,13 +92,13 @@ Array<TScalar>
         throw std::runtime_error("Reshaping must preserve dimension");
     }
 
-    Array<TScalar> new_array(shape);
+    NDArray<TScalar> new_array(shape);
     this->_reshape(new_array);
 }
 
 template<typename TScalar>
 void
-Array<TScalar>
+NDArray<TScalar>
 ::reshape(Shape const & shape, TScalar const & value)
 {
     if(shape.size() != this->dimension())
@@ -106,13 +106,13 @@ Array<TScalar>
         throw std::runtime_error("Reshaping must preserve dimension");
     }
 
-    Array<TScalar> new_array(shape, value);
+    NDArray<TScalar> new_array(shape, value);
     this->_reshape(new_array);
 }
 
 template<typename TScalar>
 TScalar const *
-Array<TScalar>
+NDArray<TScalar>
 ::data() const
 {
     return this->_data.data();
@@ -120,55 +120,55 @@ Array<TScalar>
 
 template<typename TScalar>
 TScalar *
-Array<TScalar>
+NDArray<TScalar>
 ::data()
 {
     return this->_data.data();
 }
 
 template<typename TScalar>
-typename Array<TScalar>::iterator
-Array<TScalar>
+typename NDArray<TScalar>::iterator
+NDArray<TScalar>
 ::begin()
 {
     return this->_data.begin();
 }
 
 template<typename TScalar>
-typename Array<TScalar>::const_iterator
-Array<TScalar>
+typename NDArray<TScalar>::const_iterator
+NDArray<TScalar>
 ::begin() const
 {
     return this->_data.begin();
 }
 
 template<typename TScalar>
-typename Array<TScalar>::const_iterator
-Array<TScalar>
+typename NDArray<TScalar>::const_iterator
+NDArray<TScalar>
 ::cbegin() const
 {
     return this->_data.cbegin();
 }
 
 template<typename TScalar>
-typename Array<TScalar>::iterator
-Array<TScalar>
+typename NDArray<TScalar>::iterator
+NDArray<TScalar>
 ::end()
 {
     return this->_data.end();
 }
 
 template<typename TScalar>
-typename Array<TScalar>::const_iterator
-Array<TScalar>
+typename NDArray<TScalar>::const_iterator
+NDArray<TScalar>
 ::end() const
 {
     return this->_data.end();
 }
 
 template<typename TScalar>
-typename Array<TScalar>::const_iterator
-Array<TScalar>
+typename NDArray<TScalar>::const_iterator
+NDArray<TScalar>
 ::cend() const
 {
     return this->_data.cend();
@@ -176,7 +176,7 @@ Array<TScalar>
 
 template<typename TScalar>
 Stride
-Array<TScalar>
+NDArray<TScalar>
 ::_compute_stride(Shape const & shape)
 {
     if(shape.empty())
@@ -196,8 +196,8 @@ Array<TScalar>
 
 template<typename TScalar>
 void
-Array<TScalar>
-::_reshape(Array<TScalar> & new_array)
+NDArray<TScalar>
+::_reshape(NDArray<TScalar> & new_array)
 {
     Shape min_shape(this->dimension());
     std::transform(

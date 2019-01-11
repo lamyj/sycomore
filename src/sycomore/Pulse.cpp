@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "sycomore/Array.h"
+#include "sycomore/NDArray.h"
 #include "sycomore/sycomore.h"
 
 namespace sycomore
