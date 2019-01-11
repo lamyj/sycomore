@@ -317,7 +317,7 @@ template<typename T1, typename T2> \
 Array<decltype(std::declval<T1>() op std::declval<T2>())> \
 operator op(Array<T1> const & a, T2 const & s) \
 { \
-    Array<decltype(std::declval<T1>() op std::declval<T2>())> result; \
+    Array<decltype(std::declval<T1>() op std::declval<T2>())> result(a.size()); \
     for(size_t i=0; i<result.size(); ++i) \
     { \
         result[i] = a[i] op s; \
@@ -337,7 +337,7 @@ template<typename T1, typename T2> \
 Array<decltype(std::declval<T1>() op std::declval<T2>())> \
 operator op(T1 const & s, Array<T2> const & a) \
 { \
-    Array<decltype(std::declval<T1>() op std::declval<T2>())> result; \
+    Array<decltype(std::declval<T1>() op std::declval<T2>())> result(a.size()); \
     for(size_t i=0; i<result.size(); ++i) \
     { \
         result[i] = a[i] op s; \
