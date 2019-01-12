@@ -5,20 +5,21 @@
 #include <vector>
 
 #include "sycomore/IndexGenerator.h"
-#include "sycomore/magnetization.h"
 #include "sycomore/sycomore.h"
 
 namespace sycomore
 {
 
-Grid
+template<typename T>
+Grid<T>
 ::Grid()
 : Grid(Index(), Shape())
 {
     // Nothing else.
 }
 
-Grid
+template<typename T>
+Grid<T>
 ::Grid(Index const & origin, Shape const & shape)
 : _origin(origin), _shape(shape), _stride(_compute_stride(shape))
 {
@@ -28,73 +29,83 @@ Grid
     }
 }
 
-Grid
+template<typename T>
+Grid<T>
 ::Grid(Index const & origin, Shape const & shape, value_type const & value)
 : Grid(origin, shape)
 {
     std::fill(this->_data.begin(), this->_data.end(), value);
 }
 
-Grid::value_type const *
-Grid
+template<typename T>
+typename Grid<T>::value_type const *
+Grid<T>
 ::data() const
 {
     return this->_data.data();
 }
 
-Grid::value_type *
-Grid
+template<typename T>
+typename Grid<T>::value_type *
+Grid<T>
 ::data()
 {
     return this->_data.data();
 }
 
-Grid::value_type &
-Grid
+template<typename T>
+typename Grid<T>::value_type &
+Grid<T>
 ::operator[](Index const & index)
 {
     auto const position = dot(index-this->_origin, this->_stride);
     return this->_data[position];
 }
 
-Grid::value_type const &
-Grid
+template<typename T>
+typename Grid<T>::value_type const &
+Grid<T>
 ::operator[](Index const & index) const
 {
     auto const position = dot(index-this->_origin, this->_stride);
     return this->_data[position];
 }
 
+template<typename T>
 size_t
-Grid
+Grid<T>
 ::dimension() const
 {
     return this->_shape.size();
 }
 
+template<typename T>
 Index const &
-Grid
+Grid<T>
 ::origin() const
 {
     return this->_origin;
 }
 
+template<typename T>
 Shape const &
-Grid
+Grid<T>
 ::shape() const
 {
     return this->_shape;
 }
 
+template<typename T>
 Stride const &
-Grid
+Grid<T>
 ::stride() const
 {
     return this->_stride;
 }
 
+template<typename T>
 void
-Grid
+Grid<T>
 ::reshape(Index const & origin, Shape const & shape)
 {
     if(shape.size() != this->dimension())
@@ -106,8 +117,9 @@ Grid
     this->_reshape(new_grid);
 }
 
+template<typename T>
 void
-Grid
+Grid<T>
 ::reshape(Index const & origin, Shape const & shape, value_type const & value)
 {
     if(shape.size() != this->dimension())
@@ -119,50 +131,58 @@ Grid
     this->_reshape(new_grid);
 }
 
-Grid::iterator
-Grid
+template<typename T>
+typename Grid<T>::iterator
+Grid<T>
 ::begin()
 {
     return this->_data.begin();
 }
 
-Grid::const_iterator
-Grid
+template<typename T>
+typename Grid<T>::const_iterator
+Grid<T>
 ::begin() const
 {
     return this->_data.begin();
 }
 
-Grid::const_iterator
-Grid
+template<typename T>
+typename Grid<T>::const_iterator
+Grid<T>
 ::cbegin() const
 {
     return this->_data.cbegin();
 }
 
-Grid::iterator
-Grid
+template<typename T>
+typename Grid<T>::iterator
+Grid<T>
 ::end()
 {
     return this->_data.end();
 }
 
-Grid::const_iterator
-Grid
+template<typename T>
+typename Grid<T>::const_iterator
+Grid<T>
 ::end() const
 {
     return this->_data.end();
 }
 
-Grid::const_iterator
-Grid
+template<typename T>
+typename Grid<T>::const_iterator
+Grid<T>
 ::cend() const
 {
     return this->_data.cend();
 }
 
+template<typename T>
 Stride
-Grid::_compute_stride(Shape const & shape)
+Grid<T>
+::_compute_stride(Shape const & shape)
 {
     if(shape.size() == 0)
     {
@@ -179,8 +199,9 @@ Grid::_compute_stride(Shape const & shape)
     return stride;
 }
 
+template<typename T>
 void
-Grid
+Grid<T>
 ::_reshape(Grid & new_grid)
 {
     Index const max_origin = maximum(this->_origin, new_grid.origin());

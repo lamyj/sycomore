@@ -54,7 +54,7 @@ public:
     void apply_time_interval(std::string const & name);
 
     /// @brief Return the complex magnetizations.
-    Grid const & grid() const;
+    Grid<ComplexMagnetization> const & grid() const;
 
     /**
      * @brief Return the isochromat for the given configurations.
@@ -88,7 +88,7 @@ private:
     /// @}
 
     /// @brief the configuration models, one for each species.
-    Grid _grid;
+    Grid<ComplexMagnetization> _grid;
 
     /// @brief Bounding box of the occupied configuration for each species.
     std::pair<Index, Shape> _bounding_box;

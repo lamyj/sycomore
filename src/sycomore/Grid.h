@@ -3,17 +3,17 @@
 
 #include <vector>
 
-#include "sycomore/magnetization.h"
 #include "sycomore/sycomore.h"
 
 namespace sycomore
 {
 
 /// @brief Discrete, n-dimensional grid of data.
+template<typename T>
 class Grid
 {
 public:
-    using value_type = ComplexMagnetization;
+    using value_type = T;
 
     Grid();
     Grid(Index const & origin, Shape const & shape);
@@ -22,8 +22,8 @@ public:
     Grid(Grid const &) = default;
     Grid(Grid &&) = default;
 
-    Grid & operator=(Grid const &) = default;
-    Grid & operator=(Grid &&) = default;
+    Grid<T> & operator=(Grid const &) = default;
+    Grid<T> & operator=(Grid &&) = default;
 
     ~Grid() = default;
 
@@ -65,5 +65,7 @@ private:
 };
 
 }
+
+#include "Grid.txx"
 
 #endif // _e22643b8_c194_4aa9_99f9_6effee6222c8

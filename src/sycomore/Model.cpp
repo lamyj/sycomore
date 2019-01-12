@@ -40,7 +40,8 @@ Model
     Index const origin(time_intervals.size(), 0);
     Shape const shape (time_intervals.size(), 1);
     this->_bounding_box = {origin, shape};
-    this->_grid = Grid(origin, shape, ComplexMagnetization(0,0,0));
+    this->_grid = Grid<ComplexMagnetization>(
+        origin, shape, ComplexMagnetization(0,0,0));
     this->_grid[Index(time_intervals.size(), 0)] = this->_initial_magnetization;
 
     // Initialize OpenCL backend
@@ -256,7 +257,7 @@ Model
     }
 }
 
-Grid const &
+Grid<ComplexMagnetization> const &
 Model
 ::grid() const
 {

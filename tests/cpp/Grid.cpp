@@ -3,10 +3,13 @@
 
 #include "sycomore/Grid.h"
 #include "sycomore/IndexGenerator.h"
+#include "sycomore/magnetization.h"
+
+using Grid = sycomore::Grid<sycomore::ComplexMagnetization>;
 
 BOOST_AUTO_TEST_CASE(EmptyConstructor)
 {
-    sycomore::Grid const grid;
+    Grid const grid;
     BOOST_TEST(grid.dimension() == 0);
     BOOST_TEST(grid.origin().empty());
     BOOST_TEST(grid.shape().empty());
@@ -15,7 +18,7 @@ BOOST_AUTO_TEST_CASE(EmptyConstructor)
 
 BOOST_AUTO_TEST_CASE(UninitializedConstructor)
 {
-    sycomore::Grid const grid({-2,-3,-5}, {5,7,11});
+    Grid const grid({-2,-3,-5}, {5,7,11});
     BOOST_TEST(grid.dimension() == 3);
     BOOST_TEST(grid.origin() == sycomore::Index({-2,-3,-5}));
     BOOST_TEST(grid.shape() == sycomore::Shape({5,7,11}));
@@ -25,7 +28,7 @@ BOOST_AUTO_TEST_CASE(UninitializedConstructor)
 BOOST_AUTO_TEST_CASE(InitializedConstructor)
 {
     sycomore::ComplexMagnetization const m{{1, 2}, 3, {4, 5}};
-    sycomore::Grid const grid({-5, -3}, {11, 7}, m);
+    Grid const grid({-5, -3}, {11, 7}, m);
     BOOST_TEST(grid.dimension() == 2);
     BOOST_TEST(grid.origin() == sycomore::Index({-5, -3}));
     BOOST_TEST(grid.shape() == sycomore::Shape({11,7}));
@@ -40,10 +43,10 @@ BOOST_AUTO_TEST_CASE(Accessor)
 {
     sycomore::ComplexMagnetization const zero{0,0,0};
     sycomore::ComplexMagnetization const non_zero{1,2,3};
-    sycomore::Grid grid({-5, -3}, {11, 7}, zero);
+    Grid grid({-5, -3}, {11, 7}, zero);
     grid[{-2,-1}] = non_zero;
 
-    auto && grid_const = const_cast<sycomore::Grid const &>(grid);
+    auto && grid_const = const_cast<Grid const &>(grid);
 
     for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
     {
@@ -60,7 +63,7 @@ BOOST_AUTO_TEST_CASE(Accessor)
 
 BOOST_AUTO_TEST_CASE(ScanOrder)
 {
-    sycomore::Grid grid({-5, -3}, {11, 7}, {0, 0, 0});
+    Grid grid({-5, -3}, {11, 7}, {0, 0, 0});
 
     unsigned int i=0;
     for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
@@ -78,8 +81,8 @@ BOOST_AUTO_TEST_CASE(ScanOrder)
 }
 
 void compare_grids(
-    sycomore::Grid const & old, sycomore::Grid const & new_,
-    bool is_initialized, sycomore::Grid::value_type const & value={})
+    Grid const & old, Grid const & new_,
+    bool is_initialized, Grid::value_type const & value={})
 {
     sycomore::IndexGenerator const generator_old(old.origin(), old.shape());
     std::vector<sycomore::Index> const indices_old(
@@ -119,7 +122,7 @@ void compare_grids(
 
 BOOST_AUTO_TEST_CASE(ReshapeLargerUninitialized)
 {
-    sycomore::Grid old({-2,-1}, {5,3});
+    Grid old({-2,-1}, {5,3});
 
     int i=1;
     for(auto && index: sycomore::IndexGenerator(old.origin(), old.shape()))
@@ -128,7 +131,7 @@ BOOST_AUTO_TEST_CASE(ReshapeLargerUninitialized)
         ++i;
     }
 
-    sycomore::Grid new_(old);
+    Grid new_(old);
     new_.reshape({-3,-2}, {7,5});
 
     BOOST_TEST(new_.origin() == sycomore::Index({-3,-2}));
@@ -139,7 +142,7 @@ BOOST_AUTO_TEST_CASE(ReshapeLargerUninitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeLargerInitialized)
 {
-    sycomore::Grid old({-2,-1}, {5,3});
+    Grid old({-2,-1}, {5,3});
 
     int i=1;
     for(auto && index: sycomore::IndexGenerator(old.origin(), old.shape()))
@@ -148,7 +151,7 @@ BOOST_AUTO_TEST_CASE(ReshapeLargerInitialized)
         ++i;
     }
 
-    sycomore::Grid new_(old);
+    Grid new_(old);
     new_.reshape({-3,-2}, {7,5}, {1000, 0, 0});
 
     BOOST_TEST(new_.origin() == sycomore::Index({-3,-2}));
@@ -159,7 +162,7 @@ BOOST_AUTO_TEST_CASE(ReshapeLargerInitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeSmallerUninitialized)
 {
-    sycomore::Grid old({-3,-2}, {7, 5});
+    Grid old({-3,-2}, {7, 5});
 
     int i=1;
     for(auto && index: sycomore::IndexGenerator(old.origin(), old.shape()))
@@ -168,7 +171,7 @@ BOOST_AUTO_TEST_CASE(ReshapeSmallerUninitialized)
         ++i;
     }
 
-    sycomore::Grid new_(old);
+    Grid new_(old);
     new_.reshape({-2,-1}, {5,3});
 
     BOOST_TEST(new_.origin() == sycomore::Index({-2,-1}));
@@ -179,7 +182,7 @@ BOOST_AUTO_TEST_CASE(ReshapeSmallerUninitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeSmallerInitialized)
 {
-    sycomore::Grid old({-3,-2}, {7, 5});
+    Grid old({-3,-2}, {7, 5});
 
     int i=1;
     for(auto && index: sycomore::IndexGenerator(old.origin(), old.shape()))
@@ -188,7 +191,7 @@ BOOST_AUTO_TEST_CASE(ReshapeSmallerInitialized)
         ++i;
     }
 
-    sycomore::Grid new_(old);
+    Grid new_(old);
     new_.reshape({-2,-1}, {5,3}, {1000, 0, 0});
 
     BOOST_TEST(new_.origin() == sycomore::Index({-2,-1}));
@@ -199,7 +202,7 @@ BOOST_AUTO_TEST_CASE(ReshapeSmallerInitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeMixedUninitialized)
 {
-    sycomore::Grid old({-3,-2}, {7, 5});
+    Grid old({-3,-2}, {7, 5});
 
     int i=1;
     for(auto && index: sycomore::IndexGenerator(old.origin(), old.shape()))
@@ -208,7 +211,7 @@ BOOST_AUTO_TEST_CASE(ReshapeMixedUninitialized)
         ++i;
     }
 
-    sycomore::Grid new_(old);
+    Grid new_(old);
     new_.reshape({-5,-1}, {11,3});
 
     BOOST_TEST(new_.origin() == sycomore::Index({-5,-1}));
@@ -219,7 +222,7 @@ BOOST_AUTO_TEST_CASE(ReshapeMixedUninitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeMixedInitialized)
 {
-    sycomore::Grid old({-3,-2}, {7, 5});
+    Grid old({-3,-2}, {7, 5});
 
     int i=1;
     for(auto && index: sycomore::IndexGenerator(old.origin(), old.shape()))
@@ -228,7 +231,7 @@ BOOST_AUTO_TEST_CASE(ReshapeMixedInitialized)
         ++i;
     }
 
-    sycomore::Grid new_(old);
+    Grid new_(old);
     new_.reshape({-5,-1}, {11,3}, {1000,0,0});
 
     BOOST_TEST(new_.origin() == sycomore::Index({-5,-1}));
@@ -239,7 +242,7 @@ BOOST_AUTO_TEST_CASE(ReshapeMixedInitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeDisjointUninitialized)
 {
-    sycomore::Grid old({-3,-2}, {3, 2});
+    Grid old({-3,-2}, {3, 2});
 
     int i=1;
     for(auto && index: sycomore::IndexGenerator(old.origin(), old.shape()))
@@ -248,7 +251,7 @@ BOOST_AUTO_TEST_CASE(ReshapeDisjointUninitialized)
         ++i;
     }
 
-    sycomore::Grid new_(old);
+    Grid new_(old);
     new_.reshape({1,9}, {5,7});
 
     BOOST_TEST(new_.origin() == sycomore::Index({1,9}));
@@ -259,7 +262,7 @@ BOOST_AUTO_TEST_CASE(ReshapeDisjointUninitialized)
 
 BOOST_AUTO_TEST_CASE(ReshapeDisjointInitialized)
 {
-    sycomore::Grid old({-3,-2}, {3, 2});
+    Grid old({-3,-2}, {3, 2});
 
     int i=1;
     for(auto && index: sycomore::IndexGenerator(old.origin(), old.shape()))
@@ -268,7 +271,7 @@ BOOST_AUTO_TEST_CASE(ReshapeDisjointInitialized)
         ++i;
     }
 
-    sycomore::Grid new_(old);
+    Grid new_(old);
     new_.reshape({1,9}, {5,7}, {1000,0,0});
 
     BOOST_TEST(new_.origin() == sycomore::Index({1,9}));
@@ -279,7 +282,7 @@ BOOST_AUTO_TEST_CASE(ReshapeDisjointInitialized)
 
 BOOST_AUTO_TEST_CASE(ConstIterator)
 {
-    sycomore::Grid grid({-3,-2}, {7,5});
+    Grid grid({-3,-2}, {7,5});
     unsigned int i=1;
     for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
     {
@@ -287,7 +290,7 @@ BOOST_AUTO_TEST_CASE(ConstIterator)
         ++i;
     }
 
-    sycomore::Grid const & grid_const = const_cast<sycomore::Grid const &>(grid);
+    Grid const & grid_const = const_cast<Grid const &>(grid);
 
     i=1;
     for(auto && x: grid_const)
@@ -299,7 +302,7 @@ BOOST_AUTO_TEST_CASE(ConstIterator)
 
 BOOST_AUTO_TEST_CASE(Iterator)
 {
-    sycomore::Grid grid({-3,-2}, {7,5});
+    Grid grid({-3,-2}, {7,5});
     unsigned int i=1;
     for(auto && x: grid)
     {
@@ -307,7 +310,7 @@ BOOST_AUTO_TEST_CASE(Iterator)
         ++i;
     }
 
-    sycomore::Grid const & grid_const = const_cast<sycomore::Grid const &>(grid);
+    Grid const & grid_const = const_cast<Grid const &>(grid);
 
     i=1;
     for(auto && x: grid_const)
