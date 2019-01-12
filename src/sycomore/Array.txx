@@ -51,18 +51,6 @@ Array<T>
     other._data = nullptr;
 }
 
-//template<typename T>
-//template<typename Expression, typename std::enable_if<ArrayExpressionTraits<Expression>::is_array_expression, int>::type>
-//Array<T>
-//::Array(Expression const & expression)
-//: Array(expression.size())
-//{
-//    for(size_t i=0; i<expression.size(); ++i)
-//    {
-//        this->_data[i] = expression[i];
-//    }
-//}
-
 template<typename T>
 Array<T> &
 Array<T>
@@ -93,28 +81,6 @@ Array<T>
 
     return *this;
 }
-
-//template<typename T>
-//template<typename Expression, typename std::enable_if<ArrayExpressionTraits<Expression>::is_array_expression, int>::type>
-//Array<T> &
-//Array<T>
-//::operator=(Expression const & expression)
-//{
-//    this->_size = expression.size();
-
-//    if(this->_data != nullptr)
-//    {
-//        delete[] this->_data;
-//    }
-//    this->_data = new T[this->_size];
-
-//    for(size_t i=0; i<expression.size(); ++i)
-//    {
-//        this->_data[i] = expression[i];
-//    }
-
-//    return *this;
-//}
 
 template<typename T>
 Array<T>

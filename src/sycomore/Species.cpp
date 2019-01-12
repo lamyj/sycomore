@@ -15,8 +15,7 @@ Species
 
 Species
 ::Species(
-    units::Frequency R1, units::Frequency R2,
-    units::div<units::pow<units::Length, 2>, units::Time> D,
+    units::Frequency R1, units::Frequency R2, Diffusion D,
     units::Frequency R2_prime, Real delta_omega, Real w)
 : R1(R1.convert_to(units::Hz)), R2(R2.convert_to(units::Hz)),
     D(D.convert_to(units::m*units::m/units::s)),
@@ -27,8 +26,7 @@ Species
 
 Species
 ::Species(
-    units::Time T1, units::Time T2,
-    units::div<units::pow<units::Length, 2>, units::Time> D,
+    units::Time T1, units::Time T2, Diffusion D,
     units::Time T2_prime, Real delta_omega, Real w)
 : R1((1./T1).convert_to(units::Hz)), R2((1./T2).convert_to(units::Hz)),
     D(D.convert_to(units::m*units::m/units::s)),

@@ -34,15 +34,13 @@ public:
 
     Species(
         units::Frequency R1, units::Frequency R2,
-        units::div<units::pow<units::Length, 2>, units::Time> D=
-            units::div<units::pow<units::Length, 2>, units::Time>(0.),
+        Diffusion D=Diffusion(0.),
         units::Frequency R2_prime=units::Frequency(0.), Real delta_omega=0,
         Real w=1);
 
     Species(
         units::Time T1, units::Time T2,
-        units::div<units::pow<units::Length, 2>, units::Time> D=
-            units::div<units::pow<units::Length, 2>, units::Time>(0.),
+        Diffusion D=Diffusion(0.),
         units::Time T2_prime=units::Time(INFINITY), Real delta_omega=0,
         Real w=1);
 };
