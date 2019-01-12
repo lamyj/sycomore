@@ -14,8 +14,9 @@ TimeInterval
 }
 
 TimeInterval
-::TimeInterval(units::Time duration, Real gradient_moment)
-: TimeInterval(duration.convert_to(units::s), gradient_moment)
+::TimeInterval(units::Time duration, GradientMoment gradient_moment)
+: TimeInterval(duration.convert_to(units::s),
+    gradient_moment.convert_to(1/units::m))
 {
     // Nothing else.
 }
@@ -28,10 +29,15 @@ TimeInterval
 }
 
 TimeInterval
-::TimeInterval(units::Time duration, Array<Real> gradient_moment)
-: TimeInterval(duration.convert_to(units::s), gradient_moment)
+::TimeInterval(units::Time duration, Array<GradientMoment> gradient_moment_)
+//: TimeInterval(duration.convert_to(units::s), gradient_moment)
+: duration(duration.convert_to(units::s))
 {
-    // Nothing else.
+    this->gradient_moment = Array<Real>(gradient_moment_.size());
+    for(size_t d=0; d<this->gradient_moment.size(); ++d)
+    {
+        this->gradient_moment[d] = gradient_moment_[d].convert_to(1/units::m);
+    }
 }
 
 bool
