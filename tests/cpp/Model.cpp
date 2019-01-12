@@ -168,6 +168,54 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(isochromat.z == 0.5 + 0.25*(1+std::sqrt(2.)/2.));
 }
 
+BOOST_AUTO_TEST_CASE(Diffusion)
+{
+    using namespace sycomore::units;
+
+    sycomore::Species const species{0_Hz, 0_Hz, 1_um*um/ms};
+    sycomore::TimeInterval const interval{500_ms, 0.1/um};
+
+    sycomore::Model model(species, {0,0,1}, {{"echo", {500_ms, 0.1/um}}});
+
+    model.apply_pulse({40_deg, 0_deg});
+    model.apply_time_interval("echo");
+
+    // model = CoMoTk;
+    // model.R1 = 0;
+    // model.R2 = 0;
+    // model.D = 1;
+    // model.init_configuration([0;0;1]);
+    // model.RF(deg2rad(40), 0);
+    // model.time(1, 'tau', 500, 'p', 0.1);
+    {
+        auto && grid = model.grid();
+
+        BOOST_TEST((model.grid().origin() <= sycomore::Index{-1}));
+        BOOST_TEST((model.grid().shape() >= sycomore::Shape{3}));
+
+        for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
+        {
+            auto && m = grid[index];
+            if(index == sycomore::Index{-1})
+            {
+                test_magnetization(m, {0., 0., {0, 0.003062528150606}});
+            }
+            else if(index == sycomore::Index{0})
+            {
+                test_magnetization(m, {0., 0.766044443118978, 0.});
+            }
+            else if(index == sycomore::Index{1})
+            {
+                test_magnetization(m, {{0., -0.003062528150606}, 0., 0.});
+            }
+            else
+            {
+                test_magnetization(m, sycomore::ComplexMagnetization::zero);
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(CleanUp)
 {
     using namespace sycomore::units;
@@ -177,6 +225,7 @@ BOOST_AUTO_TEST_CASE(CleanUp)
     sycomore::Model model(species, {0, 0, 1}, {{"short", {1}}, {"long", {2}}});
     model.epsilon(1.5*1./(1<<4));
 
+    // Resulting complex magnetization: 1/2, sqrt(2)/2, 1/2
     model.apply_pulse({45_deg, 90_deg});
     model.apply_time_interval("long");
 

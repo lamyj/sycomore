@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "sycomore/Grid.h"
+#include "sycomore/IndexGenerator.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Pulse.h"
 #include "sycomore/Species.h"
@@ -178,10 +179,34 @@ Model
     // Since the grid is kept symmetric, we can do it in a single, simple, scan.
     auto && stride = this->_grid.stride()[mu];
     int const last = this->_grid.origin()[mu]+this->_grid.shape()[mu]-1;
-    auto * iterator = this->_grid.data();
-    auto * reverse_iterator = iterator+this->_grid.stride()[this->_grid.dimension()]-1;
+    // Diffusion effects
+    auto && p_mu = time_interval.gradient_moment;
+    auto const do_diffusion =
+        this->_species.D > 0 && p_mu != Array<Real>(p_mu.size(), 0);
+    auto const compute_p_n = [&](Index const & n)
+    {
+        Array<Real> p_n(3, 0);
+        for(auto && dimensions_item: this->_dimensions)
+        {
+            auto && name = dimensions_item.first;
+            auto && d = dimensions_item.second;
+            auto && time_interval = this->_time_intervals.at(name);
+            p_n += n[d] * time_interval.gradient_moment;
+        }
+        return p_n;
+    };
+    auto const compute_F = [&](Index const & n, int j) {
+        auto const p_n = compute_p_n(n);
+        auto const F = std::exp(
+            -this->_species.D*time_interval.duration
+            *(dot(p_n, p_n) + j*dot(p_n, p_mu) + j*j*dot(p_mu, p_mu)/3));
+        return F;
+    };
     // WARNING: to use the offset, we need to iterate on the whole grid, not
     // on the bounding box only.
+    auto * iterator = this->_grid.data();
+    auto * reverse_iterator = iterator+this->_grid.stride()[this->_grid.dimension()]-1;
+
     for(auto && index: IndexGenerator(this->_grid.origin(), this->_grid.shape()))
     {
         if(index[mu] == last)
@@ -192,12 +217,25 @@ Model
             continue;
         }
 
-        auto && m_forward = *(iterator+stride);
-        auto && m_backward = *(reverse_iterator-stride);
+        Real F_minus = 1;
+        Real F_plus = 1;
+        Real F = 1;
+        if(do_diffusion)
+        {
+            auto neighbor(index); ++neighbor[mu];
 
-        iterator->m = E_2*m_forward.m;
-        iterator->z *= E_1;
-        reverse_iterator->p = E_2*m_backward.p;
+            F_minus = compute_F(neighbor, -1);
+
+            neighbor = -index;
+            --neighbor[mu];
+            F_plus = compute_F(neighbor, +1);
+
+            F = compute_F(index, 0);
+        }
+
+        iterator->m = F_minus * E_2 * (iterator+stride)->m;
+        iterator->z *= F * E_1;
+        reverse_iterator->p = F_plus * E_2 * (reverse_iterator-stride)->p;
 
         ++iterator;
         --reverse_iterator;
