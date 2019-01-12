@@ -69,6 +69,10 @@ template<typename U, int P> using pow = typename _pow<U, P>::type;
 
 template<int ... Args>
 Unit<Args ...>
+operator-(Unit<Args ...> const & x);
+
+template<int ... Args>
+Unit<Args ...>
 operator+(Unit<Args ...> const & x, Unit<Args ...> const & y);
 
 template<int ... Args>

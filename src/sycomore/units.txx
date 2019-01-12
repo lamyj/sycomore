@@ -32,6 +32,13 @@ Unit<L,M,T,I,Theta,N,J>
 
 template<int ... Args>
 Unit<Args ...>
+operator-(Unit<Args ...> const & x)
+{
+    return Unit<Args ...>(-x.value);
+}
+
+template<int ... Args>
+Unit<Args ...>
 operator+(Unit<Args ...> const & x, Unit<Args ...> const & y)
 {
     return Unit<Args ...>(x.value+y.value);
