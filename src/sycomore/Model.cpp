@@ -200,27 +200,10 @@ Model
     int const last = this->_m.origin()[mu]+this->_m.shape()[mu]-1;
     // Diffusion effects
     auto && p_mu = time_interval.gradient_moment;
+    auto const p_mu_norm_third = dot(p_mu, p_mu)/3;
+    auto const minus_D_tau = -this->_species.D*time_interval.duration;
     auto const do_diffusion =
         this->_species.D > 0 && p_mu != Array<Real>(p_mu.size(), 0);
-    auto const compute_p_n = [&](Index const & n)
-    {
-        Array<Real> p_n(3, 0);
-        for(auto && dimensions_item: this->_dimensions)
-        {
-            auto && name = dimensions_item.first;
-            auto && d = dimensions_item.second;
-            auto && time_interval = this->_time_intervals.at(name);
-            p_n += n[d] * time_interval.gradient_moment;
-        }
-        return p_n;
-    };
-    auto const compute_F = [&](Index const & n, int j) {
-        auto const p_n = compute_p_n(n);
-        auto const F = std::exp(
-            -this->_species.D*time_interval.duration
-            *(dot(p_n, p_n) + j*dot(p_n, p_mu) + j*j*dot(p_mu, p_mu)/3));
-        return F;
-    };
     // WARNING: to use the offset, we need to iterate on the whole grid, not
     // on the bounding box only.
     std::pair<decltype(this->_m.data()), decltype(this->_m.data())> m_it;
@@ -245,13 +228,15 @@ Model
                 if(std::isnan(*F_it_neighbor))
                 {
                     auto neighbor(index); ++neighbor[mu];
-                    *(F_it_neighbor) = compute_F(neighbor, -1);
+                    *(F_it_neighbor) = this->_compute_F(
+                        neighbor, -1, p_mu, minus_D_tau, p_mu_norm_third);
                 }
                 F_minus = *(F_it_neighbor);
 
                 if(std::isnan(*(F_it.first+1)))
                 {
-                    *(F_it.first+1) = compute_F(index, 0);
+                    *(F_it.first+1) = this->_compute_F(
+                        index, 0, p_mu, minus_D_tau, p_mu_norm_third);
                 }
                 F = *(F_it.first+1);
 
@@ -259,7 +244,8 @@ Model
                 if(std::isnan(*F_it_neighbor))
                 {
                     auto neighbor(-index); --neighbor[mu];
-                    *F_it_neighbor = compute_F(neighbor, +1);
+                    *F_it_neighbor = this->_compute_F(
+                        neighbor, +1, p_mu, minus_D_tau, p_mu_norm_third);
                 }
                 F_plus = *F_it_neighbor;
             }
@@ -325,6 +311,27 @@ Model
     }
 
     return isochromat;
+}
+
+Real
+Model
+::_compute_F(
+    Index const & n, int j,
+    Array<Real> const & p_mu, Real minus_D_tau, Real p_mu_norm_third)
+{
+    Array<Real> p_n(3, 0);
+    for(auto && dimensions_item: this->_dimensions)
+    {
+        auto && name = dimensions_item.first;
+        auto && d = dimensions_item.second;
+        auto && time_interval = this->_time_intervals.at(name);
+        p_n += n[d] * time_interval.gradient_moment;
+    }
+
+    auto const F = std::exp(
+        minus_D_tau
+        *(dot(p_n, p_n) + j*dot(p_n, p_mu) + j*j*p_mu_norm_third));
+    return F;
 }
 
 void

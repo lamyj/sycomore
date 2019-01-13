@@ -101,6 +101,11 @@ private:
     /// @brief Bounding box of the occupied configuration for each species.
     std::pair<Index, Shape> _bounding_box;
 
+    /// @brief Compute the diffusion damping factor.
+    Real _compute_F(
+        Index const & n, int j,
+        Array<Real> const & p_mu, Real minus_D_tau, Real p_mu_norm_third);
+
     void _cleanup();
 };
 
