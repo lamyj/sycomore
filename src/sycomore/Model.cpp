@@ -40,9 +40,19 @@ Model
     Index const origin(time_intervals.size(), 0);
     Shape const shape (time_intervals.size(), 1);
     this->_bounding_box = {origin, shape};
-    this->_grid = Grid<ComplexMagnetization>(
+    this->_m = Grid<ComplexMagnetization>(
         origin, shape, ComplexMagnetization(0,0,0));
-    this->_grid[Index(time_intervals.size(), 0)] = this->_initial_magnetization;
+    this->_m[Index(time_intervals.size(), 0)] = this->_initial_magnetization;
+
+    Index F_origin(origin.size()+2, 0);
+    std::copy(origin.begin(), origin.end(), F_origin.begin()+1);
+
+    Shape F_shape(shape.size()+2, 0);
+    std::copy(shape.begin(), shape.end(), F_shape.begin()+1);
+    F_shape[0] = 3;
+    F_shape[F_shape.size()-1] = this->_dimensions.size();
+
+    this->_F = Grid<Real>(F_origin, F_shape, NAN);
 
     // Initialize OpenCL backend
     for(auto && platform: boost::compute::system::platforms())
@@ -75,9 +85,9 @@ Model
     }
 
     kernel void apply_pulse(
-        global ComplexMagnetization * grid, global const double2 * R)
+        global ComplexMagnetization * m_grid, global const double2 * R)
     {
-        global ComplexMagnetization * m_ptr = grid+get_global_id(0);
+        global ComplexMagnetization * m_ptr = m_grid+get_global_id(0);
         ComplexMagnetization m = *m_ptr;
 
         ComplexMagnetization result;
@@ -136,18 +146,16 @@ Model
 
     // WARNING: using only the bounding box takes more time that applying the
     // pulse on the whole array
-    boost::compute::vector<ComplexMagnetization> grid_d(
-        this->_grid.data(),
-        this->_grid.data()+this->_grid.stride()[this->_grid.dimension()],
+    boost::compute::vector<ComplexMagnetization> m_d(
+        this->_m.data(),
+        this->_m.data()+this->_m.stride()[this->_m.dimension()],
         this->_queue);
 
-    this->_apply_pulse.set_arg(0, grid_d);
+    this->_apply_pulse.set_arg(0, m_d);
     this->_apply_pulse.set_arg(1, R_d);
-    this->_queue.enqueue_1d_range_kernel(
-        this->_apply_pulse, 0, grid_d.size(), 0);
+    this->_queue.enqueue_1d_range_kernel(this->_apply_pulse, 0, m_d.size(), 0);
 
-    boost::compute::copy(
-        grid_d.begin(), grid_d.end(), this->_grid.data(), this->_queue);
+    boost::compute::copy(m_d.begin(), m_d.end(), this->_m.data(), this->_queue);
 }
 
 void
@@ -157,19 +165,29 @@ Model
     auto && time_interval = this->_time_intervals.at(name);
     auto && mu = this->_dimensions.at(name);
 
-    // Update the bounding box, resize the grid if needed.
+    // Update the bounding box, resize the grids if needed.
     --this->_bounding_box.first[mu];
     this->_bounding_box.second[mu] += 2;
-    if(this->_bounding_box.first[mu] < this->_grid.origin()[mu])
+    if(this->_bounding_box.first[mu] < this->_m.origin()[mu])
     {
         // Expand along mu
-        auto origin = this->_grid.origin();
+        auto origin = this->_m.origin();
         origin[mu] = std::min(-1, 2*origin[mu]-1);
 
-        auto shape = this->_grid.shape();
+        auto shape = this->_m.shape();
         shape[mu] = 2*shape[mu]+1;
 
-        this->_grid.reshape(origin, shape, ComplexMagnetization::zero);
+        this->_m.reshape(origin, shape, ComplexMagnetization::zero);
+
+        Index F_origin(this->_F.origin());
+        std::copy(origin.begin(), origin.end(), F_origin.begin()+1);
+
+        Shape F_shape(this->_F.shape());
+        std::copy(shape.begin(), shape.end(), F_shape.begin()+1);
+        F_shape[0] = 3;
+        F_shape[F_shape.size()-1] = this->_dimensions.size();
+
+        this->_F.reshape(F_origin, F_shape, NAN);
     }
 
     auto const E_1 = std::exp(-this->_species.R1 * time_interval.duration);
@@ -177,9 +195,9 @@ Model
 
     // Relaxation effects: update m- with the forward neighbor, m+ with the
     // backward neighbor and m0 with the current configuration.
-    // Since the grid is kept symmetric, we can do it in a single, simple, scan.
-    auto && stride = this->_grid.stride()[mu];
-    int const last = this->_grid.origin()[mu]+this->_grid.shape()[mu]-1;
+    // Since the grids are kept symmetric, we can do it in a single, simple, scan.
+    auto && m_stride = this->_m.stride()[mu];
+    int const last = this->_m.origin()[mu]+this->_m.shape()[mu]-1;
     // Diffusion effects
     auto && p_mu = time_interval.gradient_moment;
     auto const do_diffusion =
@@ -205,50 +223,64 @@ Model
     };
     // WARNING: to use the offset, we need to iterate on the whole grid, not
     // on the bounding box only.
-    auto * iterator = this->_grid.data();
-    auto * reverse_iterator = iterator+this->_grid.stride()[this->_grid.dimension()]-1;
+    std::pair<decltype(this->_m.data()), decltype(this->_m.data())> m_it;
+    m_it.first = this->_m.data();
+    m_it.second = m_it.first + this->_m.stride()[this->_m.dimension()] - 1;
 
-    for(auto && index: IndexGenerator(this->_grid.origin(), this->_grid.shape()))
+    auto && F_stride = this->_F.stride()[1+mu];
+    std::pair<decltype(this->_F.data()), decltype(this->_F.data())> F_it;
+    F_it.first = this->_F.data() + mu*this->_F.stride()[this->_F.dimension()-1];
+    F_it.second = F_it.first + this->_F.stride()[this->_F.dimension()-1] - 3;
+
+    for(auto && index: IndexGenerator(this->_m.origin(), this->_m.shape()))
     {
-        if(index[mu] == last)
+        if(index[mu] != last)
         {
-            // No forward neighbor and thus no symmetric backward neighbor.
-            ++iterator;
-            --reverse_iterator;
-            continue;
+            Real F_minus = 1;
+            Real F = 1;
+            Real F_plus = 1;
+            if(do_diffusion)
+            {
+                auto F_it_neighbor = F_it.first+F_stride;
+                if(std::isnan(*F_it_neighbor))
+                {
+                    auto neighbor(index); ++neighbor[mu];
+                    *(F_it_neighbor) = compute_F(neighbor, -1);
+                }
+                F_minus = *(F_it_neighbor);
+
+                if(std::isnan(*(F_it.first+1)))
+                {
+                    *(F_it.first+1) = compute_F(index, 0);
+                }
+                F = *(F_it.first+1);
+
+                F_it_neighbor = F_it.second-F_stride+2;
+                if(std::isnan(*F_it_neighbor))
+                {
+                    auto neighbor(-index); --neighbor[mu];
+                    *F_it_neighbor = compute_F(neighbor, +1);
+                }
+                F_plus = *F_it_neighbor;
+            }
+
+            m_it.first->m = F_minus * E_2 * (m_it.first+m_stride)->m;
+            m_it.first->z *= F * E_1;
+            m_it.second->p = F_plus * E_2 * (m_it.second-m_stride)->p;
         }
+        // Else no forward neighbor and thus no symmetric backward neighbor.
 
-        Real F_minus = 1;
-        Real F_plus = 1;
-        Real F = 1;
-        if(do_diffusion)
-        {
-            auto neighbor(index); ++neighbor[mu];
-
-            F_minus = compute_F(neighbor, -1);
-
-            neighbor = -index;
-            --neighbor[mu];
-            F_plus = compute_F(neighbor, +1);
-
-            F = compute_F(index, 0);
-        }
-
-        iterator->m = F_minus * E_2 * (iterator+stride)->m;
-        iterator->z *= F * E_1;
-        reverse_iterator->p = F_plus * E_2 * (reverse_iterator-stride)->p;
-
-        ++iterator;
-        --reverse_iterator;
+        ++m_it.first; --m_it.second;
+        F_it.first += 3; F_it.second -= 3;
     }
 
     // Repolarization: second term of Equation 19
     auto const repolarization = this->_species.w * (1-E_1);
-    this->_grid[Index(this->_time_intervals.size(), 0)].p +=
+    this->_m[Index(this->_time_intervals.size(), 0)].p +=
         repolarization * this->_initial_magnetization.p;
-    this->_grid[Index(this->_time_intervals.size(), 0)].z +=
+    this->_m[Index(this->_time_intervals.size(), 0)].z +=
         repolarization * this->_initial_magnetization.z;
-    this->_grid[Index(this->_time_intervals.size(), 0)].m +=
+    this->_m[Index(this->_time_intervals.size(), 0)].m +=
         repolarization * this->_initial_magnetization.m;
 
     if(this->_epsilon_squared > 0)
@@ -259,9 +291,9 @@ Model
 
 Grid<ComplexMagnetization> const &
 Model
-::grid() const
+::magnetization() const
 {
-    return this->_grid;
+    return this->_m;
 }
 
 Magnetization
@@ -279,7 +311,7 @@ Model
 
     if(configurations.empty())
     {
-        for(auto && m: this->_grid)
+        for(auto && m: this->_m)
         {
             update_isochromat(m);
         }
@@ -288,7 +320,7 @@ Model
     {
         for(auto && configuration: configurations)
         {
-            update_isochromat(this->_grid[configuration]);
+            update_isochromat(this->_m[configuration]);
         }
     }
 
@@ -323,13 +355,13 @@ Model
      *       Continue to next configuration (its removal would create a concavity)
      */
 
-    Index const zero_i(this->_grid.dimension(), 0);
+    Index const zero_i(this->_m.dimension(), 0);
 
-    Index first(this->_grid.dimension(), 0);
-    Index last(this->_grid.dimension(), 0);
+    Index first(this->_m.dimension(), 0);
+    Index last(this->_m.dimension(), 0);
 
     auto update_boundary = [&](Index const & index) {
-        for(size_t d=0; d<this->_grid.dimension(); ++d)
+        for(size_t d=0; d<this->_m.dimension(); ++d)
         {
             first[d] = std::min(first[d], index[d]);
             last[d] = std::max(first[d], index[d]);
@@ -344,7 +376,7 @@ Model
             continue;
         }
 
-        auto && m = this->_grid[index];
+        auto && m = this->_m[index];
         auto const magnitude =
             m.p * std::conj(m.p)
             + m.z*m.z
@@ -356,7 +388,7 @@ Model
         }
 
         bool would_create_concavity = false;
-        for(size_t i=0; i<this->_grid.dimension(); ++i)
+        for(size_t i=0; i<this->_m.dimension(); ++i)
         {
             int neighbors_count = 0;
 
@@ -364,16 +396,16 @@ Model
 
             neighbor[i] += 1;
             if(
-                neighbor[i] < this->_grid.origin()[i]+this->_grid.shape()[i]
-                && this->_grid[neighbor] != ComplexMagnetization::zero)
+                neighbor[i] < this->_m.origin()[i]+this->_m.shape()[i]
+                && this->_m[neighbor] != ComplexMagnetization::zero)
             {
                 ++neighbors_count;
             }
 
             neighbor[i] -= 2; // NOTE: go two steps back to skip the current index
             if(
-                neighbor[i] >= this->_grid.origin()[i]
-                && this->_grid[neighbor] != ComplexMagnetization::zero)
+                neighbor[i] >= this->_m.origin()[i]
+                && this->_m[neighbor] != ComplexMagnetization::zero)
             {
                 ++neighbors_count;
             }
@@ -390,7 +422,7 @@ Model
             continue;
         }
 
-        this->_grid[index] = ComplexMagnetization::zero;
+        this->_m[index] = ComplexMagnetization::zero;
     }
 
     Shape shape(first.size());

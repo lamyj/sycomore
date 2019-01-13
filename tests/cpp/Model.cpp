@@ -32,8 +32,8 @@ BOOST_AUTO_TEST_CASE(Constructor)
         model.time_intervals()
         == std::map<std::string, sycomore::TimeInterval>{{"echo", echo}}));
 
-    BOOST_TEST((model.grid().origin() <= sycomore::Index{0}));
-    BOOST_TEST((model.grid().shape() >= sycomore::Shape{1}));
+    BOOST_TEST((model.magnetization().origin() <= sycomore::Index{0}));
+    BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{1}));
 }
 
 BOOST_AUTO_TEST_CASE(Pulse)
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(Pulse)
     sycomore::Pulse const pulse{41_deg, 27_deg};
     model.apply_pulse(pulse);
 
-    auto && grid = model.grid();
+    auto && grid = model.magnetization();
 
     BOOST_TEST((grid.origin() <= sycomore::Index{0}));
     BOOST_TEST((grid.shape() >= sycomore::Shape{1}));
@@ -96,10 +96,10 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     model.apply_time_interval("foo");
 
     {
-        auto && grid = model.grid();
+        auto && grid = model.magnetization();
 
-        BOOST_TEST((model.grid().origin() <= sycomore::Index{-1, 0}));
-        BOOST_TEST((model.grid().shape() >= sycomore::Shape{3, 0}));
+        BOOST_TEST((model.magnetization().origin() <= sycomore::Index{-1, 0}));
+        BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{3, 0}));
 
         for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
         {
@@ -130,10 +130,10 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     model.apply_time_interval("bar");
 
     {
-        auto && grid = model.grid();
+        auto && grid = model.magnetization();
 
-        BOOST_TEST((model.grid().origin() <= sycomore::Index{-1, -1}));
-        BOOST_TEST((model.grid().shape() >= sycomore::Shape{3, 3}));
+        BOOST_TEST((model.magnetization().origin() <= sycomore::Index{-1, -1}));
+        BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{3, 3}));
 
         for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
         {
@@ -188,10 +188,10 @@ BOOST_AUTO_TEST_CASE(Diffusion)
     // model.RF(deg2rad(40), 0);
     // model.time(1, 'tau', 500, 'p', 0.1);
     {
-        auto && grid = model.grid();
+        auto && grid = model.magnetization();
 
-        BOOST_TEST((model.grid().origin() <= sycomore::Index{-1}));
-        BOOST_TEST((model.grid().shape() >= sycomore::Shape{3}));
+        BOOST_TEST((model.magnetization().origin() <= sycomore::Index{-1}));
+        BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{3}));
 
         for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
         {
@@ -231,10 +231,10 @@ BOOST_AUTO_TEST_CASE(CleanUp)
 
     // All occupied configurations are above the threshold
     {
-        auto && grid = model.grid();
+        auto && grid = model.magnetization();
 
-        BOOST_TEST((model.grid().origin() <= sycomore::Index{0, -1}));
-        BOOST_TEST((model.grid().shape() >= sycomore::Shape{0, 1}));
+        BOOST_TEST((model.magnetization().origin() <= sycomore::Index{0, -1}));
+        BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{0, 1}));
 
         for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
         {
@@ -262,10 +262,10 @@ BOOST_AUTO_TEST_CASE(CleanUp)
 
     // Magnetizations on non-zero configurations fall below the threshold
     {
-        auto && grid = model.grid();
+        auto && grid = model.magnetization();
 
-        BOOST_TEST((model.grid().origin() <= sycomore::Index{0, -3}));
-        BOOST_TEST((model.grid().shape() >= sycomore::Shape{0, 3}));
+        BOOST_TEST((model.magnetization().origin() <= sycomore::Index{0, -3}));
+        BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{0, 3}));
 
         for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
         {

@@ -54,7 +54,7 @@ public:
     void apply_time_interval(std::string const & name);
 
     /// @brief Return the complex magnetizations.
-    Grid<ComplexMagnetization> const & grid() const;
+    Grid<ComplexMagnetization> const & magnetization() const;
 
     /**
      * @brief Return the isochromat for the given configurations.
@@ -87,8 +87,16 @@ private:
     boost::compute::kernel _apply_pulse;
     /// @}
 
-    /// @brief the configuration models, one for each species.
-    Grid<ComplexMagnetization> _grid;
+    /// @brief The configuration vectors.
+    Grid<ComplexMagnetization> _m;
+
+    /**
+     * @brief The diffusion damping factors, with shape
+     * (3, s[0], ..., s[D-1], D), where S is the shape of the magnetization grid
+     * and D the number of dimensions. The damping factors storage order is
+     * F_{-1}, F_{0}, F_{+1}
+     */
+    Grid<Real> _F;
 
     /// @brief Bounding box of the occupied configuration for each species.
     std::pair<Index, Shape> _bounding_box;
