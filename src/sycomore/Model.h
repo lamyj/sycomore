@@ -38,8 +38,8 @@ public:
     /// @brief Return the dimension index map.
     std::map<std::string, size_t> const & dimensions() const;
 
-    /// @brief Return the models for all species
-    std::map<std::string, TimeInterval> const & time_intervals() const;
+    /// @brief Return the time intervals.
+    std::vector<TimeInterval> const & time_intervals() const;
 
     /// @brief Return the threshold magnetization for clean-up (default to 0).
     Real epsilon() const;
@@ -74,7 +74,7 @@ private:
     std::map<std::string, size_t> _dimensions;
 
     /// @brief Named time intervals.
-    std::map<std::string, TimeInterval> _time_intervals;
+    std::vector<TimeInterval> _time_intervals;
 
     /// @brief Precision to cull low-populated states
     Real _epsilon_squared;

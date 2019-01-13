@@ -27,10 +27,10 @@ BOOST_AUTO_TEST_CASE(Constructor)
 
     sycomore::Model const model(species, {0,0,1}, {{"echo", echo}});
 
-    BOOST_TEST((model.dimensions() == std::map<std::string, size_t>{{"echo", 0}}));
     BOOST_TEST((
-        model.time_intervals()
-        == std::map<std::string, sycomore::TimeInterval>{{"echo", echo}}));
+        model.dimensions() == std::map<std::string, size_t>{{"echo", 0}}));
+    BOOST_TEST((
+        model.time_intervals() == std::vector<sycomore::TimeInterval>{{echo}}));
 
     BOOST_TEST((model.magnetization().origin() <= sycomore::Index{0}));
     BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{1}));

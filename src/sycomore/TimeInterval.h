@@ -17,7 +17,7 @@ struct TimeInterval
 
     // TODO: gradient shape
 
-    TimeInterval(Real duration, Real gradient_moment=0);
+    TimeInterval(Real duration=0, Real gradient_moment=0);
     TimeInterval(
         units::Time duration, GradientMoment gradient_moment=GradientMoment(0));
     TimeInterval(Real duration, Array<Real> gradient_moment);

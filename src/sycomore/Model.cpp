@@ -31,9 +31,10 @@ Model
 {
     this->_initial_magnetization = as_complex_magnetization(magnetization);
 
+    this->_time_intervals.resize(time_intervals.size());
     for(auto && item: time_intervals)
     {
-        this->_time_intervals.insert(item);
+        this->_time_intervals[this->_dimensions.size()] = item.second;
         this->_dimensions[item.first] = this->_dimensions.size();
     }
 
@@ -112,7 +113,7 @@ Model
     return this->_dimensions;
 }
 
-std::map<std::string, TimeInterval> const &
+std::vector<TimeInterval> const &
 Model
 ::time_intervals() const
 {
@@ -162,8 +163,8 @@ void
 Model
 ::apply_time_interval(std::string const & name)
 {
-    auto && time_interval = this->_time_intervals.at(name);
     auto && mu = this->_dimensions.at(name);
+    auto && time_interval = this->_time_intervals[mu];
 
     // Update the bounding box, resize the grids if needed.
     --this->_bounding_box.first[mu];
@@ -320,11 +321,9 @@ Model
     Array<Real> const & p_mu, Real minus_D_tau, Real p_mu_norm_third)
 {
     Array<Real> p_n(3, 0);
-    for(auto && dimensions_item: this->_dimensions)
+    for(size_t d=0; d<this->_dimensions.size(); ++d)
     {
-        auto && name = dimensions_item.first;
-        auto && d = dimensions_item.second;
-        auto && time_interval = this->_time_intervals.at(name);
+        auto && time_interval = this->_time_intervals[d];
         p_n += n[d] * time_interval.gradient_moment;
     }
 
