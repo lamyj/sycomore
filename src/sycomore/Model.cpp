@@ -26,7 +26,7 @@ Model
 ::Model(
     Species const & species, Magnetization const & magnetization,
     std::vector<std::pair<std::string, TimeInterval>> const & time_intervals,
-    cl_device_type device_filter)
+    cl_device_type device_type)
 : _species(species), _epsilon_squared(0)
 {
     this->_initial_magnetization = as_complex_magnetization(magnetization);
@@ -56,14 +56,20 @@ Model
     this->_F = Grid<Real>(F_origin, F_shape, NAN);
 
     // Initialize OpenCL backend
-    for(auto && platform: boost::compute::system::platforms())
+    auto platforms = boost::compute::system::platforms();
+    for(
+        auto platform_it=platforms.begin();
+        platform_it!=platforms.end() && !this->_device.id();
+        ++platform_it)
     {
-        auto && devices = platform.devices(
-            device_filter & CL_DEVICE_DOUBLE_FP_CONFIG);
-        if(!devices.empty())
+        auto && devices = platform_it->devices(device_type);
+        for(auto && device: devices)
         {
-            this->_device = devices[0];
-            break;
+            if(device.get_info<CL_DEVICE_DOUBLE_FP_CONFIG>())
+            {
+                this->_device = devices[0];
+                break;
+            }
         }
     }
     if(!this->_device.id())
@@ -75,29 +81,21 @@ Model
     this->_queue = boost::compute::command_queue(this->_context, this->_device);
 
     std::string source = BOOST_COMPUTE_STRINGIZE_SOURCE(
-    inline double2 mult_cc(double2 c1, double2 c2)
+    inline double2 cmult(double2 c1, double2 c2)
     {
         return (double2)(c1.x*c2.x-c1.y*c2.y, c1.y*c2.x+c1.x*c2.y);
     }
 
-    inline double2 mult_cr(double2 c, double r)
-    {
-        return (double2)(c.x*r, c.y*r);
-    }
-
     kernel void apply_pulse(
-        global ComplexMagnetization * m_grid, global const double2 * R)
+        global ComplexMagnetization * m_grid, global double2 const * R)
     {
         global ComplexMagnetization * m_ptr = m_grid+get_global_id(0);
-        ComplexMagnetization m = *m_ptr;
 
-        ComplexMagnetization result;
+        double2 p = cmult(R[0], m_ptr->p) + R[3]*m_ptr->z + cmult(R[6], m_ptr->m);
+        double z = (cmult(R[1], m_ptr->p) + R[4]*m_ptr->z + cmult(R[7], m_ptr->m)).x;
+        double2 m = cmult(R[2], m_ptr->p) + R[5]*m_ptr->z + cmult(R[8], m_ptr->m);
 
-        result.p = mult_cc(R[0], m.p) + mult_cr(R[3], m.z) + mult_cc(R[6], m.m);
-        result.z = (mult_cc(R[1], m.p) + mult_cr(R[4], m.z) + mult_cc(R[7], m.m)).x;
-        result.m = mult_cc(R[2], m.p) + mult_cr(R[5], m.z) + mult_cc(R[8], m.m);
-
-        *m_ptr = result;
+        m_ptr->p = p; m_ptr->z = z; m_ptr->m = m;
     });
     source = boost::compute::type_definition<ComplexMagnetization>() + "\n" + source;
 

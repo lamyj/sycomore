@@ -33,7 +33,7 @@ public:
     Model(
         Species const & species, Magnetization const & magnetization,
         std::vector<std::pair<std::string, TimeInterval>> const & time_intervals,
-        cl_device_type device_filter=CL_DEVICE_TYPE_ALL);
+        cl_device_type device_type=CL_DEVICE_TYPE_ALL);
 
     /// @brief Return the dimension index map.
     std::map<std::string, size_t> const & dimensions() const;
