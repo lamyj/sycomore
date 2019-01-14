@@ -35,7 +35,7 @@ Model
     for(auto && item: time_intervals)
     {
         this->_time_intervals[this->_dimensions.size()] = item.second;
-        this->_dimensions[item.first] = this->_dimensions.size();
+        this->_dimensions.emplace(item.first, this->_dimensions.size());
     }
 
     Index const origin(time_intervals.size(), 0);
