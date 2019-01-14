@@ -232,12 +232,13 @@ Model
                 }
                 F_minus = *(F_it_neighbor);
 
-                if(std::isnan(*(F_it.first+1)))
+                F_it_neighbor = F_it.first+1;
+                if(std::isnan(*(F_it_neighbor)))
                 {
-                    *(F_it.first+1) = this->_compute_F(
+                    *F_it_neighbor = this->_compute_F(
                         index, 0, p_mu, minus_D_tau, p_mu_norm_third);
                 }
-                F = *(F_it.first+1);
+                F = *F_it_neighbor;
 
                 F_it_neighbor = F_it.second-F_stride+2;
                 if(std::isnan(*F_it_neighbor))
@@ -321,8 +322,8 @@ Model
     Array<Real> p_n(3, 0);
     for(size_t d=0; d<this->_dimensions.size(); ++d)
     {
-        auto && time_interval = this->_time_intervals[d];
-        p_n += n[d] * time_interval.gradient_moment;
+        auto && p_eta = this->_time_intervals[d].gradient_moment;
+        p_n += n[d] * p_eta;
     }
 
     auto const F = std::exp(
