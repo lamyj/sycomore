@@ -37,3 +37,8 @@ foreach(test_file ${tests})
         endif()
     endforeach()
 endforeach()
+
+file(GLOB_RECURSE data data/*)
+add_custom_target(
+    data ${CMAKE_COMMAND} -E echo "Data" SOURCES ${data})
+set_target_properties(data PROPERTIES FOLDER "Test data")

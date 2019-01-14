@@ -24,6 +24,11 @@ elseif(COMPILER_SUPPORTS_CXX0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
+add_custom_target(
+    Documentation ${CMAKE_COMMAND} -E echo "Documentation"
+    SOURCES README.md)
+set_target_properties(Documentation PROPERTIES FOLDER "Utils")
+
 add_subdirectory("src")
 
  if(BUILD_TESTING)
