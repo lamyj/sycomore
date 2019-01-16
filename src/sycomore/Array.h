@@ -146,6 +146,9 @@ template<typename T1, typename T2>
 decltype(std::declval<T1>()*std::declval<T2>())
 dot(Array<T1> const & l, Array<T2> const & r);
 
+template<typename T>
+std::ostream & operator<<(std::ostream & stream, Array<T> const & index);
+
 }
 
 #include "Array.txx"

@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <functional>
 #include <initializer_list>
+#include <numeric>
 #include <type_traits>
 #include <utility>
 
@@ -367,6 +368,16 @@ dot(Array<T1> const & l, Array<T2> const & r)
         result += l[i]*r[i];
     }
     return result;
+}
+
+template<typename T>
+std::ostream & operator<<(std::ostream & stream, Array<T> const & index)
+{
+    auto const s = std::accumulate(
+        std::next(index.begin()), index.end(), std::to_string(*index.begin()),
+        [](std::string s, int x){ return std::move(s)+" "+std::to_string(x); });
+    stream << "(" << s << ")";
+    return stream;
 }
 
 }
