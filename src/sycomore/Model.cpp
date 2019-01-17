@@ -8,6 +8,8 @@
 #include <utility>
 #include <vector>
 
+#include <omp.h>
+
 #include "sycomore/Grid.h"
 #include "sycomore/GridScanner.h"
 #include "sycomore/IndexGenerator.h"
@@ -17,17 +19,13 @@
 #include "sycomore/sycomore.h"
 #include "sycomore/TimeInterval.h"
 
-BOOST_COMPUTE_ADAPT_STRUCT(
-    sycomore::ComplexMagnetization, ComplexMagnetization, (p, z, m))
-
 namespace sycomore
 {
 
 Model
 ::Model(
     Species const & species, Magnetization const & magnetization,
-    std::vector<std::pair<std::string, TimeInterval>> const & time_intervals,
-    cl_device_type device_type)
+    std::vector<std::pair<std::string, TimeInterval>> const & time_intervals)
 : _species(species), _epsilon_squared(0)
 {
     this->_initial_magnetization = as_complex_magnetization(magnetization);
@@ -55,54 +53,6 @@ Model
     F_shape[F_shape.size()-1] = this->_dimensions.size();
 
     this->_F = Grid<Real>(F_origin, F_shape, NAN);
-
-    // Initialize OpenCL backend
-    auto platforms = boost::compute::system::platforms();
-    for(
-        auto platform_it=platforms.begin();
-        platform_it!=platforms.end() && !this->_device.id();
-        ++platform_it)
-    {
-        auto && devices = platform_it->devices(device_type);
-        for(auto && device: devices)
-        {
-            if(device.get_info<CL_DEVICE_DOUBLE_FP_CONFIG>())
-            {
-                this->_device = devices[0];
-                break;
-            }
-        }
-    }
-    if(!this->_device.id())
-    {
-        throw std::runtime_error("No matching device");
-    }
-
-    this->_context = boost::compute::context(this->_device);
-    this->_queue = boost::compute::command_queue(this->_context, this->_device);
-
-    std::string source = BOOST_COMPUTE_STRINGIZE_SOURCE(
-    inline double2 cmult(double2 c1, double2 c2)
-    {
-        return (double2)(c1.x*c2.x-c1.y*c2.y, c1.y*c2.x+c1.x*c2.y);
-    }
-
-    kernel void apply_pulse(
-        global ComplexMagnetization * m_grid, global double2 const * R)
-    {
-        global ComplexMagnetization * m_ptr = m_grid+get_global_id(0);
-
-        double2 p = cmult(R[0], m_ptr->p) + R[3]*m_ptr->z + cmult(R[6], m_ptr->m);
-        double z = (cmult(R[1], m_ptr->p) + R[4]*m_ptr->z + cmult(R[7], m_ptr->m)).x;
-        double2 m = cmult(R[2], m_ptr->p) + R[5]*m_ptr->z + cmult(R[8], m_ptr->m);
-
-        m_ptr->p = p; m_ptr->z = z; m_ptr->m = m;
-    });
-    source = boost::compute::type_definition<ComplexMagnetization>() + "\n" + source;
-
-    auto program = boost::compute::program::build_with_source(
-            source, this->_context);
-    this->_apply_pulse = boost::compute::kernel(program, "apply_pulse");
 }
 
 std::map<std::string, size_t> const &
@@ -139,23 +89,23 @@ Model
 {
     auto const actual_angle = this->B1 * pulse.angle;
     Pulse const actual_pulse{actual_angle, pulse.phase};
-    auto const R = actual_pulse.rotation_matrix();
+    auto const R_m = actual_pulse.rotation_matrix();
+    auto const R = R_m.data();
 
-    boost::compute::vector<Complex> R_d(
-        R.data(), R.data()+R.stride()[R.dimension()], this->_queue);
+    #pragma omp parallel for
+    for(
+        auto it=this->_m.data();
+        it<this->_m.data()+this->_m.stride()[this->_m.dimension()]; ++it)
+    {
+        auto && m = *it;
 
-    // WARNING: using only the bounding box takes more time that applying the
-    // pulse on the whole array
-    boost::compute::vector<ComplexMagnetization> m_d(
-        this->_m.data(),
-        this->_m.data()+this->_m.stride()[this->_m.dimension()],
-        this->_queue);
+        ComplexMagnetization const result{
+            R[0]*m.p + R[3]*m.z + R[6]*m.m,
+            (R[1]*m.p + R[4]*m.z + R[7]*m.m).real(),
+            R[2]*m.p + R[5]*m.z + R[8]*m.m};
 
-    this->_apply_pulse.set_arg(0, m_d);
-    this->_apply_pulse.set_arg(1, R_d);
-    this->_queue.enqueue_1d_range_kernel(this->_apply_pulse, 0, m_d.size(), 0);
-
-    boost::compute::copy(m_d.begin(), m_d.end(), this->_m.data(), this->_queue);
+        *it = std::move(result);
+    }
 }
 
 void
@@ -214,8 +164,12 @@ Model
     GridScanner const scanner(
         this->_m.origin(), this->_m.shape(),
         this->_bounding_box.first, hyperplane_shape);
-    for(auto && index_offset: scanner)
+    std::vector<GridScanner::value_type> const scanner_data(
+        scanner.begin(), scanner.end());
+    #pragma omp parallel for
+    for(auto scanner_it=scanner_data.begin(); scanner_it<scanner_data.end(); ++scanner_it)
     {
+        auto && index_offset = *scanner_it;
         // Position of the first point of the line
         auto && line_start_index = index_offset.first;
         auto && line_start_offset = index_offset.second;
@@ -460,6 +414,7 @@ Model
         this->_m[index] = ComplexMagnetization::zero;
     }
 
+    // WARNING: make sure we keep a symmetric bounding box.
     Shape shape(first.size());
     std::transform(
         first.begin(), first.end(), last.begin(), shape.begin(),

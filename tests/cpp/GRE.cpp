@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE GRE
 #include <boost/test/unit_test.hpp>
 
+#include <chrono>
 #include <cmath>
 #include <fstream>
 
@@ -108,11 +109,11 @@ BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
     std::vector<sycomore::Magnetization> magnetization;
 
     // CoMoTk: 6.13 s
-    // Total time: 1.91403 s
-    // Pulse time: 1.29 s
-    // Time interval time: 0.621434 s
-    // Unaccounted time: 0.00260183 s
-    // Sycomore speedup: 3.20
+    // Total time: 0.85933 s
+    // Pulse time: 0.334359 s
+    // Time interval time: 0.521324 s
+    // Unaccounted time: 0.00364655 s
+    // Sycomore speedup: 7.13
 
     double pulse_time = 0;
     double time_interval_time = 0;

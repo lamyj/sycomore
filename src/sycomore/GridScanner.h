@@ -11,7 +11,11 @@ namespace sycomore
 class GridScanner
 {
 public:
+    using iterator_category = std::forward_iterator_tag;
     using value_type = std::pair<Index, size_t>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type const *;
+    using reference = value_type const &;
 
     GridScanner(Index const & origin, Shape const & shape);
 
