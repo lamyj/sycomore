@@ -1,3 +1,5 @@
+find_package(Boost REQUIRED)
+
 file(GLOB_RECURSE header_files "*.h")
 file(GLOB_RECURSE source_files "*.cpp")
 file(GLOB_RECURSE template_files "*.txx")
@@ -5,7 +7,7 @@ list(SORT header_files)
 list(SORT source_files)
 list(SORT template_files)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 
 add_library(libsycomore ${source_files} ${header_files} ${template_files})
 target_link_libraries(libsycomore profiler)
