@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "sycomore/Grid.h"
+#include "sycomore/GridScanner.h"
 #include "sycomore/IndexGenerator.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Pulse.h"
@@ -205,17 +206,24 @@ Model
         this->_species.D > 0 && p_mu != Array<Real>(p_mu.size(), 0);
     // WARNING: to use the offset, we need to iterate on the whole grid, not
     // on the bounding box only.
-    std::pair<decltype(this->_m.data()), decltype(this->_m.data())> m_it;
-    m_it.first = this->_m.data();
-    m_it.second = m_it.first + this->_m.stride()[this->_m.dimension()] - 1;
 
     auto && F_stride = this->_F.stride()[1+mu];
-    std::pair<decltype(this->_F.data()), decltype(this->_F.data())> F_it;
-    F_it.first = this->_F.data() + mu*this->_F.stride()[this->_F.dimension()-1];
-    F_it.second = F_it.first + this->_F.stride()[this->_F.dimension()-1] - 3;
 
-    for(auto && index: IndexGenerator(this->_m.origin(), this->_m.shape()))
     {
+    GridScanner const scanner(
+        this->_m.origin(), this->_m.shape(),
+        this->_bounding_box.first, this->_bounding_box.second);
+    for(auto && index_offset: scanner)
+    {
+        auto && index = index_offset.first;
+        auto && offset = index_offset.second;
+
+        auto m_it = std::make_pair(
+            this->_m.data()+offset,
+            this->_m.data()+this->_m.stride()[this->_m.dimension()] - 1 - offset);
+        auto F_it = std::make_pair(
+            this->_F.data()+mu*this->_F.stride()[this->_F.dimension()-1]+3*offset,
+            this->_F.data()+(mu+1)*this->_F.stride()[this->_F.dimension()-1]- 3 - 3*offset);
         if(index[mu] != last)
         {
             Real F_minus = 1;
@@ -255,9 +263,6 @@ Model
             m_it.second->p = F_plus * E_2 * (m_it.second-m_stride)->p;
         }
         // Else no forward neighbor and thus no symmetric backward neighbor.
-
-        ++m_it.first; --m_it.second;
-        F_it.first += 3; F_it.second -= 3;
     }
 
     // Repolarization: second term of Equation 19
