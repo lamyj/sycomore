@@ -107,10 +107,12 @@ BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
 
     std::vector<sycomore::Magnetization> magnetization;
 
-    // CoMoTk: 6.13 s, sycomore: 2.116 s (speedup 2.89)
-    // Pulse time: 1.321 s
-    // Time interval time: 0.793 s
-    // Unaccounted time: 0.002 s
+    // CoMoTk: 6.13 s
+    // Total time: 1.91403 s
+    // Pulse time: 1.29 s
+    // Time interval time: 0.621434 s
+    // Unaccounted time: 0.00260183 s
+    // Sycomore speedup: 3.20
 
     double pulse_time = 0;
     double time_interval_time = 0;

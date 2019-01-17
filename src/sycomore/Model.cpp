@@ -190,79 +190,104 @@ Model
         this->_F.reshape(F_origin, F_shape, NAN);
     }
 
+    // Relaxation effects
     auto const E_1 = std::exp(-this->_species.R1 * time_interval.duration);
     auto const E_2 = std::exp(-this->_species.R2 * time_interval.duration);
 
-    // Relaxation effects: update m- with the forward neighbor, m+ with the
-    // backward neighbor and m0 with the current configuration.
-    // Since the grids are kept symmetric, we can do it in a single, simple, scan.
-    auto && m_stride = this->_m.stride()[mu];
-    int const last = this->_m.origin()[mu]+this->_m.shape()[mu]-1;
-    // Diffusion effects
+    // Configuration-independent diffusion effects
     auto && p_mu = time_interval.gradient_moment;
     auto const p_mu_norm_third = dot(p_mu, p_mu)/3;
     auto const minus_D_tau = -this->_species.D*time_interval.duration;
     auto const do_diffusion =
         this->_species.D > 0 && p_mu != Array<Real>(p_mu.size(), 0);
-    // WARNING: to use the offset, we need to iterate on the whole grid, not
-    // on the bounding box only.
 
+    // Offsets on the mu axis
+    auto && m_stride = this->_m.stride()[mu];
     auto && F_stride = this->_F.stride()[1+mu];
 
-    {
+    // Each line along the mu axis can be updated independently. We scan the
+    // first hyperplane of the bounding box orthogonal to the mu axis, and for
+    // each point of this hyperplane, we scan the mu-line forward (to compute
+    // m.m and m.z on each point) and the backward (to compute m.p on each point)
+    Shape hyperplane_shape(this->_bounding_box.second);
+    hyperplane_shape[mu] = 1;
     GridScanner const scanner(
         this->_m.origin(), this->_m.shape(),
-        this->_bounding_box.first, this->_bounding_box.second);
+        this->_bounding_box.first, hyperplane_shape);
     for(auto && index_offset: scanner)
     {
-        auto && index = index_offset.first;
-        auto && offset = index_offset.second;
+        // Position of the first point of the line
+        auto && line_start_index = index_offset.first;
+        auto && line_start_offset = index_offset.second;
 
-        auto m_it = std::make_pair(
-            this->_m.data()+offset,
-            this->_m.data()+this->_m.stride()[this->_m.dimension()] - 1 - offset);
-        auto F_it = std::make_pair(
-            this->_F.data()+mu*this->_F.stride()[this->_F.dimension()-1]+3*offset,
-            this->_F.data()+(mu+1)*this->_F.stride()[this->_F.dimension()-1]- 3 - 3*offset);
-        if(index[mu] != last)
+        // Iterator pointing to the first point of the line
+        auto m_line_start_it = this->_m.data() + line_start_offset;
+        auto F_line_start_it =
+            this->_F.data()
+            + mu*this->_F.stride()[this->_F.dimension()-1]
+            + 3*line_start_offset;
+
+        // Forward scan: compute m.m and m.z
+        for(size_t i=0; i<this->_bounding_box.second[mu]-1; ++i)
         {
+            // Iterator pointing to the current point of the line
+            auto m_it = m_line_start_it + i*m_stride;
+            auto F_it = F_line_start_it + i*F_stride;
+
             Real F_minus = 1;
-            Real F = 1;
+            Real F_zero = 1;
+            if(do_diffusion)
+            {
+                auto const F_minus_it(F_it+F_stride);
+                if(std::isnan(*F_minus_it))
+                {
+                    auto F_index(line_start_index);
+                    F_index[mu] += i+1;
+
+                    *F_minus_it = this->_compute_F(
+                        F_index, -1, p_mu, minus_D_tau, p_mu_norm_third);
+                }
+                F_minus = *F_minus_it;
+
+                auto const F_zero_it(F_it+1);
+                if(std::isnan(*F_zero_it))
+                {
+                    auto F_index(line_start_index);
+                    F_index[mu] += i;
+
+                    *F_zero_it = this->_compute_F(
+                        F_index, 0, p_mu, minus_D_tau, p_mu_norm_third);
+                }
+                F_zero = *F_zero_it;
+            }
+
+            m_it->m = F_minus * E_2 * (m_it+m_stride)->m;
+            m_it->z = F_zero * E_1 * m_it->z;
+        }
+
+        // Backward scan: compute m.p
+        for(Index::value_type i=this->_bounding_box.second[mu]-1; i>0; --i)
+        {
+            // Iterator pointing to the current point of the line
+            auto m_it = m_line_start_it + i*m_stride;
+            auto F_it = F_line_start_it + i*F_stride;
+
             Real F_plus = 1;
             if(do_diffusion)
             {
-                auto F_it_neighbor = F_it.first+F_stride;
-                if(std::isnan(*F_it_neighbor))
+                auto const F_plus_it(F_it-F_stride+2);
+                if(std::isnan(*F_plus_it))
                 {
-                    auto neighbor(index); ++neighbor[mu];
-                    *(F_it_neighbor) = this->_compute_F(
-                        neighbor, -1, p_mu, minus_D_tau, p_mu_norm_third);
-                }
-                F_minus = *(F_it_neighbor);
+                    auto F_index(line_start_index);
+                    F_index[mu] += i-1;
 
-                F_it_neighbor = F_it.first+1;
-                if(std::isnan(*(F_it_neighbor)))
-                {
-                    *F_it_neighbor = this->_compute_F(
-                        index, 0, p_mu, minus_D_tau, p_mu_norm_third);
+                    *F_plus_it = this->_compute_F(
+                        F_index, +1, p_mu, minus_D_tau, p_mu_norm_third);
                 }
-                F = *F_it_neighbor;
-
-                F_it_neighbor = F_it.second-F_stride+2;
-                if(std::isnan(*F_it_neighbor))
-                {
-                    auto neighbor(-index); --neighbor[mu];
-                    *F_it_neighbor = this->_compute_F(
-                        neighbor, +1, p_mu, minus_D_tau, p_mu_norm_third);
-                }
-                F_plus = *F_it_neighbor;
+                F_plus = *F_plus_it;
             }
-
-            m_it.first->m = F_minus * E_2 * (m_it.first+m_stride)->m;
-            m_it.first->z *= F * E_1;
-            m_it.second->p = F_plus * E_2 * (m_it.second-m_stride)->p;
+            m_it->p = F_plus * E_2 * (m_it-m_stride)->p;
         }
-        // Else no forward neighbor and thus no symmetric backward neighbor.
     }
 
     // Repolarization: second term of Equation 19
