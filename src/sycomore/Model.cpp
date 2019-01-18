@@ -44,6 +44,17 @@ Model
         origin, shape, ComplexMagnetization(0,0,0));
     this->_m[Index(time_intervals.size(), 0)] = this->_initial_magnetization;
 
+    // Grid of gradient moments
+    Index p_origin(origin.size()+1, 0);
+    std::copy(origin.begin(), origin.end(), p_origin.begin()+1);
+
+    Shape p_shape(shape.size()+1, 0);
+    std::copy(shape.begin(), shape.end(), p_shape.begin()+1);
+    p_shape[0] = 3;
+
+    this->_p = Grid<Real>(p_origin, p_shape, NAN);
+
+    // Grid of diffusion damping factors
     Index F_origin(origin.size()+2, 0);
     std::copy(origin.begin(), origin.end(), F_origin.begin()+1);
 
@@ -129,6 +140,15 @@ Model
 
         this->_m.reshape(origin, shape, ComplexMagnetization::zero);
 
+        Index p_origin(this->_p.origin());
+        std::copy(origin.begin(), origin.end(), p_origin.begin()+1);
+
+        Shape p_shape(this->_p.shape());
+        std::copy(shape.begin(), shape.end(), p_shape.begin()+1);
+        p_shape[0] = 3;
+
+        this->_p.reshape(p_origin, p_shape, NAN);
+
         Index F_origin(this->_F.origin());
         std::copy(origin.begin(), origin.end(), F_origin.begin()+1);
 
@@ -153,6 +173,7 @@ Model
 
     // Offsets on the mu axis
     auto && m_stride = this->_m.stride()[mu];
+    auto && p_stride = this->_p.stride()[1+mu];
     auto && F_stride = this->_F.stride()[1+mu];
 
     // Each line along the mu axis can be updated independently. We scan the
@@ -176,6 +197,7 @@ Model
 
         // Iterator pointing to the first point of the line
         auto m_line_start_it = this->_m.data() + line_start_offset;
+        auto p_line_start_it = this->_p.data() + 3*line_start_offset;
         auto F_line_start_it =
             this->_F.data()
             + mu*this->_F.stride()[this->_F.dimension()-1]
@@ -185,8 +207,8 @@ Model
         for(size_t i=0; i<this->_bounding_box.second[mu]-1; ++i)
         {
             // Iterator pointing to the current point of the line
-            auto m_it = m_line_start_it + i*m_stride;
-            auto F_it = F_line_start_it + i*F_stride;
+            auto const m_it = m_line_start_it + i*m_stride;
+            auto const F_it = F_line_start_it + i*F_stride;
 
             Real F_minus = 1;
             Real F_zero = 1;
@@ -195,22 +217,32 @@ Model
                 auto const F_minus_it(F_it+F_stride);
                 if(std::isnan(*F_minus_it))
                 {
-                    auto F_index(line_start_index);
-                    F_index[mu] += i+1;
+                    Array<Real> p_n(p_line_start_it + (i+1)*p_stride, 3);
+                    if(std::isnan(p_n[0]))
+                    {
+                        auto index(line_start_index);
+                        index[mu] += i+1;
+                        this->_compute_p_n(index, p_n);
+                    }
 
                     *F_minus_it = this->_compute_F(
-                        F_index, -1, p_mu, minus_D_tau, p_mu_norm_third);
+                        p_n, -1, p_mu, minus_D_tau, p_mu_norm_third);
                 }
                 F_minus = *F_minus_it;
 
                 auto const F_zero_it(F_it+1);
                 if(std::isnan(*F_zero_it))
                 {
-                    auto F_index(line_start_index);
-                    F_index[mu] += i;
+                    Array<Real> p_n(p_line_start_it + i*p_stride, 3);
+                    if(std::isnan(p_n[0]))
+                    {
+                        auto index(line_start_index);
+                        index[mu] += i;
+                        this->_compute_p_n(index, p_n);
+                    }
 
                     *F_zero_it = this->_compute_F(
-                        F_index, 0, p_mu, minus_D_tau, p_mu_norm_third);
+                        p_n, 0, p_mu, minus_D_tau, p_mu_norm_third);
                 }
                 F_zero = *F_zero_it;
             }
@@ -223,8 +255,8 @@ Model
         for(Index::value_type i=this->_bounding_box.second[mu]-1; i>0; --i)
         {
             // Iterator pointing to the current point of the line
-            auto m_it = m_line_start_it + i*m_stride;
-            auto F_it = F_line_start_it + i*F_stride;
+            auto const m_it = m_line_start_it + i*m_stride;
+            auto const F_it = F_line_start_it + i*F_stride;
 
             Real F_plus = 1;
             if(do_diffusion)
@@ -232,11 +264,16 @@ Model
                 auto const F_plus_it(F_it-F_stride+2);
                 if(std::isnan(*F_plus_it))
                 {
-                    auto F_index(line_start_index);
-                    F_index[mu] += i-1;
+                    Array<Real> p_n(p_line_start_it + (i-1)*p_stride, 3);
+                    if(std::isnan(p_n[0]))
+                    {
+                        auto index(line_start_index);
+                        index[mu] += i-1;
+                        this->_compute_p_n(index, p_n);
+                    }
 
                     *F_plus_it = this->_compute_F(
-                        F_index, +1, p_mu, minus_D_tau, p_mu_norm_third);
+                        p_n, +1, p_mu, minus_D_tau, p_mu_norm_third);
                 }
                 F_plus = *F_plus_it;
             }
@@ -297,19 +334,24 @@ Model
     return isochromat;
 }
 
-Real
+void
 Model
-::_compute_F(
-    Index const & n, int j,
-    Array<Real> const & p_mu, Real minus_D_tau, Real p_mu_norm_third)
+::_compute_p_n(Index const & n, Array<Real> & p)
 {
-    Array<Real> p_n(3, 0);
+    std::fill(p.begin(), p.end(), 0);
     for(size_t d=0; d<this->_dimensions.size(); ++d)
     {
         auto && p_eta = this->_time_intervals[d].gradient_moment;
-        p_n += n[d] * p_eta;
+        p += n[d] * p_eta;
     }
+}
 
+Real
+Model
+::_compute_F(
+    Array<Real> const & p_n, int j, Array<Real> const & p_mu,
+    Real minus_D_tau, Real p_mu_norm_third)
+{
     auto const F = std::exp(
         minus_D_tau
         *(dot(p_n, p_n) + j*dot(p_n, p_mu) + j*j*p_mu_norm_third));

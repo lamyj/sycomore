@@ -80,6 +80,13 @@ private:
     Grid<ComplexMagnetization> _m;
 
     /**
+     * @brief The gradient moment of each configuration, with shape
+     * (3, s[0], ..., s[D-1]), where S is the shape of the magnetization grid.
+     * The gradient moment storage order is x,y,z
+     */
+    Grid<Real> _p;
+
+    /**
      * @brief The diffusion damping factors, with shape
      * (3, s[0], ..., s[D-1], D), where S is the shape of the magnetization grid
      * and D the number of dimensions. The damping factors storage order is
@@ -90,10 +97,13 @@ private:
     /// @brief Bounding box of the occupied configuration for each species.
     std::pair<Index, Shape> _bounding_box;
 
+    /// @brief Compute the gradient moment of a configuration.
+    void _compute_p_n(Index const & n, Array<Real> & p);
+
     /// @brief Compute the diffusion damping factor.
     Real _compute_F(
-        Index const & n, int j,
-        Array<Real> const & p_mu, Real minus_D_tau, Real p_mu_norm_third);
+        Array<Real> const & p_n, int j, Array<Real> const & p_mu,
+        Real minus_D_tau, Real p_mu_norm_third);
 
     void _cleanup();
 };
