@@ -14,7 +14,7 @@ namespace sycomore
 template<typename T>
 Array<T>
 ::Array(size_t count)
-: _size(count), _data(nullptr)
+: _size(count), _is_view(false), _data(nullptr)
 {
     this->_data = new T[this->_size];
 }
@@ -25,6 +25,14 @@ Array<T>
 : Array(count)
 {
     std::fill(this->begin(), this->end(), value);
+}
+
+template<typename T>
+Array<T>
+::Array(T * pointer, size_t size)
+: _size(size), _is_view(true), _data(pointer)
+{
+    // Nothing else.
 }
 
 template<typename T>
@@ -46,9 +54,10 @@ Array<T>
 template<typename T>
 Array<T>
 ::Array(Array<T> && other)
-: _size(other._size), _data(other._data)
+: _size(other._size), _is_view(other._is_view), _data(other._data)
 {
     other._size = 0;
+    other._is_view = false;
     other._data = nullptr;
 }
 
@@ -57,14 +66,23 @@ Array<T> &
 Array<T>
 ::operator=(Array<T> const & other)
 {
-    this->_size = other._size;
-
-    if(this->_data != nullptr)
+    if(this->_is_view)
     {
-        delete[] this->_data;
+        if(this->_size != other.size())
+        {
+            throw std::runtime_error("Assigning to a view must preserve size");
+        }
     }
-    this->_data = new T[this->_size];
+    else
+    {
+        this->_size = other._size;
 
+        if(this->_data != nullptr)
+        {
+            delete[] this->_data;
+        }
+        this->_data = new T[this->_size];
+    }
     std::copy(other.begin(), other.end(), this->begin());
     return *this;
 }
@@ -75,9 +93,11 @@ Array<T>
 ::operator=(Array<T> && other)
 {
     this->_size = other._size;
+    this->_is_view = other._is_view;
     this->_data = other._data;
 
     other._size = 0;
+    other._is_view = false;
     other._data = nullptr;
 
     return *this;
@@ -87,7 +107,7 @@ template<typename T>
 Array<T>
 ::~Array()
 {
-    if(this->_data != nullptr)
+    if(!this->_is_view && this->_data != nullptr)
     {
         delete[] this->_data;
         this->_data = nullptr;
@@ -109,6 +129,14 @@ Array<T>
 ::empty() const
 {
     return this->size() == 0;
+}
+
+template<typename T>
+bool
+Array<T>
+::is_view() const
+{
+
 }
 
 template<typename T>

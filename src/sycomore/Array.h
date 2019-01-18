@@ -22,6 +22,7 @@ public:
 
     explicit Array(size_t count=0);
     Array(size_t count, T const & value);
+    Array(T * pointer, size_t size);
     Array(Array<T> const & other);
     Array(std::initializer_list<T> const & init);
 
@@ -38,6 +39,9 @@ public:
 
     /// @brief Test whether the array contains no element.
     bool empty() const;
+
+    /// @brief Test whether the array is a view or owns its data.
+    bool is_view() const;
 
     /// @brief Read-only access, no bounds checking.
     T const & operator[](size_t i) const;
@@ -78,6 +82,8 @@ public:
 private:
     /// @brief Number of elements in the array
     size_t _size;
+
+    bool _is_view;
 
     /// @brief Contiguous memory area holding the elements
     T * _data;
