@@ -1,7 +1,7 @@
 #ifndef _b46b179a_64e7_41db_9643_82051c4aa85a
 #define _b46b179a_64e7_41db_9643_82051c4aa85a
 
-#include "sycomore/NDArray.h"
+#include "sycomore/Grid.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/units.h"
 
@@ -11,7 +11,7 @@ namespace sycomore
 class Pulse
 {
 public:
-    using RotationMatrix = NDArray<Complex>;
+    using RotationMatrix = Grid<Complex>;
 
     /// @brief Flip angle in radians.
     Real angle;

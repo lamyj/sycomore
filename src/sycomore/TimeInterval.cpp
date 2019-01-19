@@ -30,7 +30,6 @@ TimeInterval
 
 TimeInterval
 ::TimeInterval(units::Time duration, Array<GradientMoment> gradient_moment_)
-//: TimeInterval(duration.convert_to(units::s), gradient_moment)
 : duration(duration.convert_to(units::s))
 {
     this->gradient_moment = Array<Real>(gradient_moment_.size());

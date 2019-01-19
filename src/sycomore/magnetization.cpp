@@ -1,5 +1,6 @@
 #include "magnetization.h"
 
+#include <cmath>
 #include "sycomore/sycomore.h"
 
 namespace sycomore

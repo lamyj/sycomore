@@ -34,6 +34,9 @@ public:
     bool operator!=(GridScanner const & other) const;
 
     GridScanner const & operator++();
+
+    Index const & region_end() const;
+
 private:
     value_type _iterator;
 
@@ -44,18 +47,6 @@ private:
     Index _end_index;
     size_t _end_offset;
 };
-
-Stride compute_stride(Shape const & shape);
-
-Stride
-compute_offset_increment(
-    Index const & region_origin, Shape const & region_shape,
-    Index const & origin, Shape const & shape, Stride const & stride);
-
-void increment(
-    Index & index, size_t & offset,
-    Index const & region_origin, Index const & region_end,
-    Stride const & offset_increment);
 
 }
 

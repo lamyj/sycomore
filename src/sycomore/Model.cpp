@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <complex>
 #include <map>
 #include <set>
 #include <string>
@@ -12,7 +13,6 @@
 
 #include "sycomore/Grid.h"
 #include "sycomore/GridScanner.h"
-#include "sycomore/IndexGenerator.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Pulse.h"
 #include "sycomore/Species.h"
@@ -37,12 +37,15 @@ Model
         this->_dimensions.emplace(item.first, this->_dimensions.size());
     }
 
+    // Grid of magnetization (i.e. configuration vectors)
     Index const origin(time_intervals.size(), 0);
     Shape const shape (time_intervals.size(), 1);
-    this->_bounding_box = {origin, shape};
+
     this->_m = Grid<ComplexMagnetization>(
         origin, shape, ComplexMagnetization(0,0,0));
     this->_m[Index(time_intervals.size(), 0)] = this->_initial_magnetization;
+
+    this->_bounding_box = {origin, shape};
 
     // Grid of gradient moments
     Index p_origin(origin.size()+1, 0);
@@ -101,7 +104,7 @@ Model
     auto const actual_angle = this->B1 * pulse.angle;
     Pulse const actual_pulse{actual_angle, pulse.phase};
     auto const R_m = actual_pulse.rotation_matrix();
-    auto const R = R_m.data();
+    auto && R = R_m.data();
 
     #pragma omp parallel for
     for(
@@ -131,7 +134,7 @@ Model
     this->_bounding_box.second[mu] += 2;
     if(this->_bounding_box.first[mu] < this->_m.origin()[mu])
     {
-        // Expand along mu
+        // Expand m along mu
         auto origin = this->_m.origin();
         origin[mu] = std::min(-1, 2*origin[mu]-1);
 
@@ -140,6 +143,7 @@ Model
 
         this->_m.reshape(origin, shape, ComplexMagnetization::zero);
 
+        // Expand p along mu
         Index p_origin(this->_p.origin());
         std::copy(origin.begin(), origin.end(), p_origin.begin()+1);
 
@@ -149,6 +153,7 @@ Model
 
         this->_p.reshape(p_origin, p_shape, NAN);
 
+        // Expand F along mu
         Index F_origin(this->_F.origin());
         std::copy(origin.begin(), origin.end(), F_origin.begin()+1);
 
@@ -179,21 +184,24 @@ Model
     // Each line along the mu axis can be updated independently. We scan the
     // first hyperplane of the bounding box orthogonal to the mu axis, and for
     // each point of this hyperplane, we scan the mu-line forward (to compute
-    // m.m and m.z on each point) and the backward (to compute m.p on each point)
+    // m.m and m.z on each point) and backward (to compute m.p on each point)
     Shape hyperplane_shape(this->_bounding_box.second);
     hyperplane_shape[mu] = 1;
     GridScanner const scanner(
         this->_m.origin(), this->_m.shape(),
         this->_bounding_box.first, hyperplane_shape);
+    // NOTE: since GridScanner is not a RandomAccessIterator, we need to
+    // pre-compute the values in order to use OpenMP.
     std::vector<GridScanner::value_type> const scanner_data(
         scanner.begin(), scanner.end());
     #pragma omp parallel for
-    for(auto scanner_it=scanner_data.begin(); scanner_it<scanner_data.end(); ++scanner_it)
+    for(
+        auto scanner_it=scanner_data.begin(); scanner_it<scanner_data.end();
+        ++scanner_it)
     {
-        auto && index_offset = *scanner_it;
         // Position of the first point of the line
-        auto && line_start_index = index_offset.first;
-        auto && line_start_offset = index_offset.second;
+        auto && line_start_index = scanner_it->first;
+        auto && line_start_offset = scanner_it->second;
 
         // Iterator pointing to the first point of the line
         auto m_line_start_it = this->_m.data() + line_start_offset;
@@ -204,7 +212,7 @@ Model
             + 3*line_start_offset;
 
         // Forward scan: compute m.m and m.z
-        for(size_t i=0; i<this->_bounding_box.second[mu]-1; ++i)
+        for(Index::value_type i=0; i<this->_bounding_box.second[mu]-1; ++i)
         {
             // Iterator pointing to the current point of the line
             auto const m_it = m_line_start_it + i*m_stride;
@@ -399,22 +407,22 @@ Model
         }
     };
 
-    for(auto && index: IndexGenerator(this->_bounding_box.first, this->_bounding_box.second))
+    for(auto && index: GridScanner(this->_bounding_box.first, this->_bounding_box.second))
     {
-        if(index == zero_i)
+        if(index.first == zero_i)
         {
-            update_boundary(index);
+            update_boundary(index.first);
             continue;
         }
 
-        auto && m = this->_m[index];
+        auto && m = this->_m[index.first];
         auto const magnitude =
             m.p * std::conj(m.p)
             + m.z*m.z
             + m.m * std::conj(m.m);
         if(magnitude.real() >= this->_epsilon_squared)
         {
-            update_boundary(index);
+            update_boundary(index.first);
             continue;
         }
 
@@ -423,7 +431,7 @@ Model
         {
             int neighbors_count = 0;
 
-            Index neighbor = index;
+            Index neighbor = index.first;
 
             neighbor[i] += 1;
             if(
@@ -449,25 +457,19 @@ Model
         }
         if(would_create_concavity)
         {
-            update_boundary(index);
+            update_boundary(index.first);
             continue;
         }
 
-        this->_m[index] = ComplexMagnetization::zero;
+        this->_m[index.first] = ComplexMagnetization::zero;
     }
 
-    // WARNING: make sure we keep a symmetric bounding box.
+    // FIXME: make sure we keep a symmetric bounding box.
     Shape shape(first.size());
     std::transform(
         first.begin(), first.end(), last.begin(), shape.begin(),
         [](int f, int l) { return l-f+1;});
     this->_bounding_box = {first, shape};
-
-    std::cout << "Bouding box shrunk to:";
-    for(auto && x: this->_bounding_box.first) { std::cout << " " << x; };
-    std::cout << ", ";
-    for(auto && x: this->_bounding_box.second) { std::cout << " " << x; };
-    std::cout << "\n";
 }
 
 }

@@ -191,6 +191,8 @@ using Acceleration = div<Length, pow<Time, 2>>;
     SYCOMORE_DECLARE_UNITS(Type, name);
 
 SYCOMORE_DECLARE_DERIVED_UNIT(Angle, rad, div<Length, Length>);
+// WARNING M_PI is not C++-standard, but is POSIX-standard.
+// On Windows, define _USE_MATH_DEFINES
 SYCOMORE_DECLARE_UNIT(Angle, deg, M_PI/180.);
 
 SYCOMORE_DECLARE_DERIVED_UNIT(SolidAngle, sr, div<Surface, Surface>);

@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "sycomore/NDArray.h"
+#include "sycomore/Grid.h"
 #include "sycomore/sycomore.h"
 
 namespace sycomore
@@ -30,7 +30,7 @@ Pulse
     Real const s_alpha = std::sin(this->angle);
     Complex const e_i_phi{std::cos(this->phase), std::sin(this->phase)};
 
-    RotationMatrix m({3,3}, 0);
+    RotationMatrix m({0,0}, {3,3}, 0);
     m[{0, 0}] = 0.5 * (1. + c_alpha);
     m[{0, 1}] = Complex{0, -s_alpha} * e_i_phi / std::sqrt(2.);
     m[{0, 2}] = 0.5 * (1. - c_alpha) * std::pow(e_i_phi, 2);

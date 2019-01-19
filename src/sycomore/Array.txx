@@ -2,10 +2,10 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <functional>
 #include <initializer_list>
+#include <iterator>
 #include <numeric>
-#include <type_traits>
+#include <ostream>
 #include <utility>
 
 namespace sycomore
@@ -136,7 +136,7 @@ bool
 Array<T>
 ::is_view() const
 {
-
+    return this->_is_view;
 }
 
 template<typename T>

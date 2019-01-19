@@ -1,10 +1,10 @@
 #include "Grid.h"
 
 #include <algorithm>
-#include <numeric>
+#include <utility>
 #include <vector>
 
-#include "sycomore/IndexGenerator.h"
+#include "sycomore/GridScanner.h"
 #include "sycomore/sycomore.h"
 
 namespace sycomore
@@ -108,11 +108,6 @@ void
 Grid<T>
 ::reshape(Index const & origin, Shape const & shape)
 {
-    if(shape.size() != this->dimension())
-    {
-        throw std::runtime_error("Reshaping must preserve dimension");
-    }
-
     Grid new_grid(origin, shape);
     this->_reshape(new_grid);
 }
@@ -122,11 +117,6 @@ void
 Grid<T>
 ::reshape(Index const & origin, Shape const & shape, value_type const & value)
 {
-    if(shape.size() != this->dimension())
-    {
-        throw std::runtime_error("Reshaping must preserve dimension");
-    }
-
     Grid new_grid(origin, shape, value);
     this->_reshape(new_grid);
 }
@@ -204,30 +194,36 @@ void
 Grid<T>
 ::_reshape(Grid & new_grid)
 {
+    if(this->dimension() != new_grid.dimension())
+    {
+        throw std::runtime_error("Reshaping must preserve dimension");
+    }
+
     Index const max_origin = maximum(this->_origin, new_grid.origin());
 
-    auto const old_last = IndexGenerator(this->origin(), this->shape()).last();
-    auto const new_last = IndexGenerator(
-        new_grid.origin(), new_grid.shape()).last();
-    Index min_last = minimum(old_last, new_last);
+    auto const old_end = GridScanner(
+        this->origin(), this->shape()).region_end();
+    auto const new_end = GridScanner(
+        new_grid.origin(), new_grid.shape()).region_end();
+    Index min_end = minimum(old_end, new_end);
 
     // Check whether the two grids are disjoint (on at least one axis,
     // max_origin >= min_last)
     auto mismatch = std::mismatch(
-        max_origin.begin(), max_origin.end(), min_last.begin(),
+        max_origin.begin(), max_origin.end(), min_end.begin(),
         std::less<int>());
     if(mismatch.first == max_origin.end())
     {
-        Shape min_shape(min_last.size());
+        Shape min_shape(min_end.size());
         std::transform(
-            min_last.begin(), min_last.end(),
+            min_end.begin(), min_end.end(),
             max_origin.begin(), min_shape.begin(),
             std::minus<int>());
 
         // NOTE: we could memcopy line-by-line
-        for(auto && index: IndexGenerator(max_origin, min_shape))
+        for(auto && index_offset: GridScanner(max_origin, min_shape))
         {
-            new_grid[index] = (*this)[index];
+            new_grid[index_offset.first] = (*this)[index_offset.first];
         }
     }
     // Otherwise the two grids are disjoint, nothing to copy.

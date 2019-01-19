@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE Model
 #include <boost/test/unit_test.hpp>
 
+#include "sycomore/GridScanner.h"
 #include "sycomore/Model.h"
 #include "sycomore/Species.h"
 #include "sycomore/TimeInterval.h"
@@ -51,10 +52,10 @@ BOOST_AUTO_TEST_CASE(Pulse)
     BOOST_TEST((grid.origin() <= sycomore::Index{0}));
     BOOST_TEST((grid.shape() >= sycomore::Shape{1}));
 
-    for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
+    for(auto && index: sycomore::GridScanner(grid.origin(), grid.shape()))
     {
-        auto & m = grid[index];
-        if(index == sycomore::Index{0})
+        auto & m = grid[index.first];
+        if(index.first == sycomore::Index{0})
         {
             // Values from CoMoTk@2b0ef02
             test_magnetization(
@@ -71,12 +72,6 @@ BOOST_AUTO_TEST_CASE(Pulse)
         }
     }
 }
-
-//for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
-//{
-//    std::cout << "("; for(auto && x: index) { std::cout << " " << x; }; std::cout << " ): ";
-//    std::cout << grid[index].p << " " << grid[index].z << " " << grid[index].m << std::endl;
-//}
 
 BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
 {
@@ -101,18 +96,18 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
         BOOST_TEST((model.magnetization().origin() <= sycomore::Index{-1, 0}));
         BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{3, 0}));
 
-        for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
+        for(auto && index: sycomore::GridScanner(grid.origin(), grid.shape()))
         {
-            auto && m = grid[index];
-            if(index == sycomore::Index{-1,0})
+            auto && m = grid[index.first];
+            if(index.first == sycomore::Index{-1,0})
             {
                 test_magnetization(m, {0., 0., 0.25});
             }
-            else if(index == sycomore::Index{0,0})
+            else if(index.first == sycomore::Index{0,0})
             {
                 test_magnetization(m, {0., 1./2.*(1+std::sqrt(2.)/2.), 0.});
             }
-            else if(index == sycomore::Index{1,0})
+            else if(index.first == sycomore::Index{1,0})
             {
                 test_magnetization(m, {0.25, 0., 0.});
             }
@@ -135,18 +130,18 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
         BOOST_TEST((model.magnetization().origin() <= sycomore::Index{-1, -1}));
         BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{3, 3}));
 
-        for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
+        for(auto && index: sycomore::GridScanner(grid.origin(), grid.shape()))
         {
-            auto && m = grid[index];
-            if(index == sycomore::Index{-1,-1})
+            auto && m = grid[index.first];
+            if(index.first == sycomore::Index{-1,-1})
             {
                 test_magnetization(m, {0., 0., 0.125});
             }
-            else if(index == sycomore::Index{0,0})
+            else if(index.first == sycomore::Index{0,0})
             {
                 test_magnetization(m, {0., 0.5 + 0.25*(1+std::sqrt(2.)/2.), 0.});
             }
-            else if(index == sycomore::Index{1,1})
+            else if(index.first == sycomore::Index{1,1})
             {
                 test_magnetization(m, {0.125, 0., 0.});
             }
@@ -193,18 +188,18 @@ BOOST_AUTO_TEST_CASE(Diffusion)
         BOOST_TEST((model.magnetization().origin() <= sycomore::Index{-1}));
         BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{3}));
 
-        for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
+        for(auto && index: sycomore::GridScanner(grid.origin(), grid.shape()))
         {
-            auto && m = grid[index];
-            if(index == sycomore::Index{-1})
+            auto && m = grid[index.first];
+            if(index.first == sycomore::Index{-1})
             {
                 test_magnetization(m, {0., 0., {0, 0.003062528150606}});
             }
-            else if(index == sycomore::Index{0})
+            else if(index.first == sycomore::Index{0})
             {
                 test_magnetization(m, {0., 0.766044443118978, 0.});
             }
-            else if(index == sycomore::Index{1})
+            else if(index.first == sycomore::Index{1})
             {
                 test_magnetization(m, {{0., -0.003062528150606}, 0., 0.});
             }
@@ -236,18 +231,18 @@ BOOST_AUTO_TEST_CASE(CleanUp)
         BOOST_TEST((model.magnetization().origin() <= sycomore::Index{0, -1}));
         BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{0, 1}));
 
-        for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
+        for(auto && index: sycomore::GridScanner(grid.origin(), grid.shape()))
         {
-            auto && m = grid[index];
-            if(index == sycomore::Index{0,-1})
+            auto && m = grid[index.first];
+            if(index.first == sycomore::Index{0,-1})
             {
                 test_magnetization(m, {0., 0., 0.125});
             }
-            else if(index == sycomore::Index{0,0})
+            else if(index.first == sycomore::Index{0,0})
             {
                 test_magnetization(m, {0., 0.25*std::sqrt(2.)/2. + 1-0.25, 0.});
             }
-            else if(index == sycomore::Index{0,1})
+            else if(index.first == sycomore::Index{0,1})
             {
                 test_magnetization(m, {0.125, 0., 0.});
             }
@@ -267,10 +262,10 @@ BOOST_AUTO_TEST_CASE(CleanUp)
         BOOST_TEST((model.magnetization().origin() <= sycomore::Index{0, -3}));
         BOOST_TEST((model.magnetization().shape() >= sycomore::Shape{0, 3}));
 
-        for(auto && index: sycomore::IndexGenerator(grid.origin(), grid.shape()))
+        for(auto && index: sycomore::GridScanner(grid.origin(), grid.shape()))
         {
-            auto && m = grid[index];
-            if(index == sycomore::Index{0,0})
+            auto && m = grid[index.first];
+            if(index.first == sycomore::Index{0,0})
             {
                 test_magnetization(
                     m, {0., 0.5*(0.25*std::sqrt(2.)/2. + 1-0.25)+(1-0.5), 0.});

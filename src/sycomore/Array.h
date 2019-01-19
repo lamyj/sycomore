@@ -1,14 +1,10 @@
 #ifndef _dc7a30fd_6048_4dfc_a551_efae434269f0
 #define _dc7a30fd_6048_4dfc_a551_efae434269f0
 
-#include <algorithm>
 #include <cstddef>
-#include <functional>
 #include <initializer_list>
-#include <type_traits>
+#include <ostream>
 #include <utility>
-
-#include <iostream>
 
 namespace sycomore
 {

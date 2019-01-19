@@ -3,6 +3,23 @@
 
 #include "sycomore/GridScanner.h"
 
+sycomore::Stride compute_stride(sycomore::Shape const & shape)
+{
+    if(shape.size() == 0)
+    {
+        return sycomore::Stride();
+    }
+
+    sycomore::Stride stride(shape.size()+1);
+    stride[0] = 1;
+    for(unsigned int i=0; i< shape.size(); ++i)
+    {
+        stride[i+1] = shape[i]*stride[i];
+    }
+
+    return stride;
+}
+
 BOOST_AUTO_TEST_CASE(WithoutRegion)
 {
     sycomore::Index const origin{-3, -5, -7};
