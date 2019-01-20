@@ -80,6 +80,12 @@ private:
     Grid<ComplexMagnetization> _m;
 
     /**
+     * @brief The time scale of each configuration, with shape
+     * (s[0], ..., s[D-1]), where S is the shape of the magnetization grid.
+     */
+    Grid<Real> _tau;
+
+    /**
      * @brief The gradient moment of each configuration, with shape
      * (3, s[0], ..., s[D-1]), where S is the shape of the magnetization grid.
      * The gradient moment storage order is x,y,z
@@ -96,6 +102,9 @@ private:
 
     /// @brief Bounding box of the occupied configuration for each species.
     std::pair<Index, Shape> _bounding_box;
+
+    /// @brief Compute the time scale of a configuration.
+    void _compute_tau_n(Index const & n, Real & tau);
 
     /// @brief Compute the gradient moment of a configuration.
     void _compute_p_n(Index const & n, Array<Real> & p);

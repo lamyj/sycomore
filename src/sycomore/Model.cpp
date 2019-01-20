@@ -47,6 +47,9 @@ Model
 
     this->_bounding_box = {origin, shape};
 
+    // Grid of time scales
+    this->_tau = Grid<Real>(this->_m.origin(), this->_m.shape(), NAN);
+
     // Grid of gradient moments
     Index p_origin(origin.size()+1, 0);
     std::copy(origin.begin(), origin.end(), p_origin.begin()+1);
@@ -143,6 +146,9 @@ Model
 
         this->_m.reshape(origin, shape, ComplexMagnetization::zero);
 
+        // Expand tau along mu
+        this->_tau.reshape(origin, shape, NAN);
+
         // Expand p along mu
         Index p_origin(this->_p.origin());
         std::copy(origin.begin(), origin.end(), p_origin.begin()+1);
@@ -178,6 +184,7 @@ Model
 
     // Offsets on the mu axis
     auto && m_stride = this->_m.stride()[mu];
+    auto && tau_stride = this->_tau.stride()[mu];
     auto && p_stride = this->_p.stride()[1+mu];
     auto && F_stride = this->_F.stride()[1+mu];
 
@@ -205,6 +212,7 @@ Model
 
         // Iterator pointing to the first point of the line
         auto m_line_start_it = this->_m.data() + line_start_offset;
+        auto tau_line_start_it = this->_tau.data() + line_start_offset;
         auto p_line_start_it = this->_p.data() + 3*line_start_offset;
         auto F_line_start_it =
             this->_F.data()
@@ -230,6 +238,9 @@ Model
                     {
                         auto index(line_start_index);
                         index[mu] += i+1;
+
+                        this->_compute_tau_n(
+                            index, *(tau_line_start_it+(i+1)*tau_stride));
                         this->_compute_p_n(index, p_n);
                     }
 
@@ -246,6 +257,9 @@ Model
                     {
                         auto index(line_start_index);
                         index[mu] += i;
+
+                        this->_compute_tau_n(
+                            index, *(tau_line_start_it+i*tau_stride));
                         this->_compute_p_n(index, p_n);
                     }
 
@@ -277,6 +291,9 @@ Model
                     {
                         auto index(line_start_index);
                         index[mu] += i-1;
+
+                        this->_compute_tau_n(
+                            index, *(tau_line_start_it+(i-1)*tau_stride));
                         this->_compute_p_n(index, p_n);
                     }
 
@@ -340,6 +357,18 @@ Model
     }
 
     return isochromat;
+}
+
+void
+Model
+::_compute_tau_n(Index const & n, Real & tau)
+{
+    tau = 0;
+    for(size_t d=0; d<this->_dimensions.size(); ++d)
+    {
+        auto && tau_eta = this->_time_intervals[d].duration;
+        tau += tau_eta;
+    }
 }
 
 void
