@@ -51,6 +51,16 @@ Array<T>
     std::copy(initializer_list.begin(), initializer_list.end(), this->begin());
 }
 
+//template<typename T>
+//template<typename T2>
+//Array<T>
+//::Array(Array<T2> const & other)
+//: _size(other.size()), _is_view(false), _data(nullptr)
+//{
+//    this->_data = new T[this->_size];
+//    std::copy(other.begin(), other.end(), this->begin());
+//}
+
 template<typename T>
 Array<T>
 ::Array(Array<T> && other)
@@ -403,7 +413,7 @@ std::ostream & operator<<(std::ostream & stream, Array<T> const & index)
 {
     auto const s = std::accumulate(
         std::next(index.begin()), index.end(), std::to_string(*index.begin()),
-        [](std::string s, int x){ return std::move(s)+" "+std::to_string(x); });
+        [](std::string s, T const & x){ return std::move(s)+" "+std::to_string(x); });
     stream << "(" << s << ")";
     return stream;
 }
