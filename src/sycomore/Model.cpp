@@ -104,9 +104,7 @@ void
 Model
 ::apply_pulse(Pulse const & pulse)
 {
-    auto const actual_angle = this->B1 * pulse.angle;
-    Pulse const actual_pulse{actual_angle, pulse.phase};
-    auto const R_m = actual_pulse.rotation_matrix();
+    auto const R_m = pulse.rotation_matrix();
     auto && R = R_m.data();
 
     #pragma omp parallel for

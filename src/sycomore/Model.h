@@ -20,9 +20,6 @@ namespace sycomore
 class Model
 {
 public:
-    /// @brief Relative B1
-    Real B1 = 1.;
-
     /**
      * @brief Create a new model from an initial state (defined by a species and
      * its initial real magnetizations) and a set of named time intervals.
