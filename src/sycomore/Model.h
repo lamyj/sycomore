@@ -55,7 +55,9 @@ public:
      *
      * If no configuration is specified, all configurations are used.
      */
-    Magnetization isochromat(std::vector<Index> const & configurations={}) const;
+    Magnetization isochromat(
+        std::set<Index> const & configurations={},
+        Array<Real> const & position=Array<Real>()) const;
 
 private:
     /// @brief Species of the model.

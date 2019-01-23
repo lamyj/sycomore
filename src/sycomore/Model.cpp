@@ -328,12 +328,32 @@ Model
 
 Magnetization
 Model
-::isochromat(std::vector<Index> const & configurations) const
+::isochromat(
+    std::set<Index> const & configurations, Array<Real> const & position) const
 {
     Magnetization isochromat{0, 0, 0};
 
-    auto const update_isochromat = [&](ComplexMagnetization const & m) {
-        auto const m_r = as_real_magnetization(m);
+    auto const update_isochromat = [&](Index const & n) {
+        Real off_resonance = 0;
+        Real gradients_dephasing= 0;
+        if(!position.empty())
+        {
+            auto const offset = dot(n-this->_m.origin(), this->_m.stride());
+            Array<Real> const p(const_cast<Real*>(this->_p.data())+3*offset, 3);
+            gradients_dephasing = dot(p, position);
+        }
+
+        auto const dephasing =
+            std::exp(Complex(0,1)*(off_resonance-gradients_dephasing));
+
+        auto && m = this->_m[n];
+        // NOTE: the additional dephasing (exponential term in eq. 4) will
+        // create complex longitudinal magnetization. However, the summation
+        // of the longitudinal magnetization will be purely real.
+        ComplexMagnetization const dephased_m(
+            m.p*dephasing, (m.z*dephasing).real(), m.m*dephasing);
+        auto const m_r = as_real_magnetization(dephased_m);
+
         isochromat.x += m_r.x;
         isochromat.y += m_r.y;
         isochromat.z += m_r.z;
@@ -341,16 +361,18 @@ Model
 
     if(configurations.empty())
     {
-        for(auto && m: this->_m)
+        GridScanner const scanner(
+            this->_bounding_box.first, this->_bounding_box.second);
+        for(auto && index_offset: scanner)
         {
-            update_isochromat(m);
+            update_isochromat(index_offset.first);
         }
     }
     else
     {
         for(auto && configuration: configurations)
         {
-            update_isochromat(this->_m[configuration]);
+            update_isochromat(configuration);
         }
     }
 
