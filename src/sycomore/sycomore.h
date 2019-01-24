@@ -16,6 +16,8 @@ using Index = Array<int>;
 using Shape = Array<unsigned int>;
 using Stride = Array<unsigned int>;
 
+using Point = Array<units::Length>;
+
 using Diffusion = units::div<units::pow<units::Length, 2>, units::Time>;
 
 // NOTE: gradient moment is gamma * integral(g(t)*dt), with gamma in

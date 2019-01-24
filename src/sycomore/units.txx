@@ -1,5 +1,8 @@
 #include "units.h"
 
+#include <cmath>
+#include <ostream>
+
 namespace sycomore
 {
 
@@ -35,6 +38,13 @@ Unit<Args ...>
 operator-(Unit<Args ...> const & x)
 {
     return Unit<Args ...>(-x.value);
+}
+
+template<int ... Args>
+Unit<Args ...>
+operator+(Unit<Args ...> const & x)
+{
+    return Unit<Args ...>(+x.value);
 }
 
 template<int ... Args>
@@ -91,6 +101,14 @@ div<Unit1, Unit2>
 operator/(Unit1 const & unit_1, Unit2 const & unit_2)
 {
     return div<Unit1, Unit2>(unit_1.value/unit_2.value);
+}
+
+template<int L, int M, int T, int I, int Theta, int N, int J>
+std::ostream &
+operator<<(std::ostream & stream, Unit<L,M,T,I,Theta,N,J> const & u)
+{
+    stream << u.value;
+    return stream;
 }
 
 }

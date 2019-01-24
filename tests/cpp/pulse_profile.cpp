@@ -19,13 +19,13 @@ BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-10))
     sycomore::Species const species(1000_ms, 100_ms, 0.89_um*um/ms);
     sycomore::Magnetization const m0{0,0,1};
 
-    sycomore::units::Angle const flip_angle=90_deg;
-    sycomore::units::Time const pulse_duration=1_ms;
+    sycomore::Pulse const pulse(90_deg, M_PI*rad);
+    auto const pulse_duration=1_ms;
     int const pulse_support_size = 100;
     int const zero_crossings = 2;
 
-    sycomore::units::Time const TR=500_ms;
-    sycomore::units::Length const slice_thickness=1_mm;
+    auto const TR=500_ms;
+    auto const slice_thickness=1_mm;
 
     int const sampling_support_size = 501;
 
@@ -44,13 +44,10 @@ BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-10))
     auto const slice_selection_gradient_moment =
         2*M_PI*bandwidth*pulse_duration/slice_thickness;
 
-    std::vector<sycomore::Array<sycomore::Real>> sampling_locations;
-    for(size_t i=0; i<sampling_support_size; ++i)
-    {
-        auto const delta = 2.*slice_thickness/(sampling_support_size-1);
-        auto const z = -slice_thickness + i*delta;
-        sampling_locations.push_back({0, 0, z.convert_to(m)});
-    }
+    auto const sampling_locations = sycomore::linspace(
+        sycomore::Point{0_m, 0_m, -slice_thickness},
+        sycomore::Point{0_m, 0_m, +slice_thickness},
+        sampling_support_size);
 
     sycomore::Model model(
         species, m0, {

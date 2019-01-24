@@ -6,6 +6,7 @@
 #include <iterator>
 #include <numeric>
 #include <ostream>
+#include <sstream>
 #include <utility>
 
 namespace sycomore
@@ -409,12 +410,14 @@ dot(Array<T1> const & l, Array<T2> const & r)
 }
 
 template<typename T>
-std::ostream & operator<<(std::ostream & stream, Array<T> const & index)
+std::ostream & operator<<(std::ostream & stream, Array<T> const & array)
 {
-    auto const s = std::accumulate(
-        std::next(index.begin()), index.end(), std::to_string(*index.begin()),
-        [](std::string s, T const & x){ return std::move(s)+" "+std::to_string(x); });
-    stream << "(" << s << ")";
+    auto printer = [](T const & x) {
+        std::stringstream s; s << x; return s.str(); };
+    auto const string = std::accumulate(
+        std::next(array.begin()), array.end(), printer(*array.begin()),
+        [&](std::string const & s, T const & x) { return s+" "+printer(x); });
+    stream << "(" << string << ")";
     return stream;
 }
 

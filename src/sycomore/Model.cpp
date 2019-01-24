@@ -329,18 +329,23 @@ Model
 Magnetization
 Model
 ::isochromat(
-    std::set<Index> const & configurations, Array<Real> const & position) const
+    std::set<Index> const & configurations, Point const & position) const
 {
     Magnetization isochromat{0, 0, 0};
+
+    Array<Real> position_real(position.size(), 0);
+    std::transform(
+        position.begin(), position.end(), position_real.begin(),
+        [](Point::value_type const & x){ return x.value; });
 
     auto const update_isochromat = [&](Index const & n) {
         Real off_resonance = 0;
         Real gradients_dephasing= 0;
-        if(!position.empty())
+        if(!position_real.empty())
         {
             auto const offset = dot(n-this->_m.origin(), this->_m.stride());
             Array<Real> const p(const_cast<Real*>(this->_p.data())+3*offset, 3);
-            gradients_dephasing = dot(p, position);
+            gradients_dephasing = dot(p, position_real);
         }
 
         auto const dephasing =

@@ -2,6 +2,7 @@
 #define _e25f009a_96c8_4c52_97b5_de94a0752e6c
 
 #include <cmath>
+#include <ostream>
 
 namespace sycomore
 {
@@ -73,6 +74,10 @@ operator-(Unit<Args ...> const & x);
 
 template<int ... Args>
 Unit<Args ...>
+operator+(Unit<Args ...> const & x);
+
+template<int ... Args>
+Unit<Args ...>
 operator+(Unit<Args ...> const & x, Unit<Args ...> const & y);
 
 template<int ... Args>
@@ -102,6 +107,10 @@ operator*(Unit1 const & unit_1, Unit2 const & unit_2);
 template<typename Unit1, typename Unit2>
 div<Unit1, Unit2>
 operator/(Unit1 const & unit_1, Unit2 const & unit_2);
+
+template<int L, int M, int T, int I, int Theta, int N, int J>
+std::ostream &
+operator<<(std::ostream & stream, Unit<L,M,T,I,Theta,N,J> const & u);
 
 /******************************************************************************
  ********************************* Basic units ********************************

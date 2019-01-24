@@ -41,7 +41,7 @@ public:
     /// @brief Set the threshold magnetization for clean-up.
     void epsilon(Real const & value);
 
-    /// @brief Apply an RF pulse to the model, modulated by the relative B1.
+    /// @brief Apply an RF pulse to the model.
     void apply_pulse(Pulse const & pulse);
 
     /// @brief Apply a time interval to the model.
@@ -57,7 +57,7 @@ public:
      */
     Magnetization isochromat(
         std::set<Index> const & configurations={},
-        Array<Real> const & position=Array<Real>()) const;
+        Point const & position=Point()) const;
 
 private:
     /// @brief Species of the model.
