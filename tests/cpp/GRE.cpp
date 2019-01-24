@@ -78,16 +78,10 @@ BOOST_FIXTURE_TEST_CASE(Ideal, Fixture, *boost::unit_test::tolerance(1e-15))
 
 BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
 {
-    sycomore::Array<sycomore::Real> small_flip_angles(pulse_support_size+1, 0.);
-    for(size_t i=0; i<small_flip_angles.size(); ++i)
-    {
-        auto const x = zero_crossings * (-1. + 2.*i/pulse_support_size);
-        auto const y = (x==0?1:std::sin(x*M_PI)/(x*M_PI));
-        small_flip_angles[i] = y;
-    }
-    small_flip_angles *=
-        flip_angle.convert_to(rad)
-        / std::accumulate(small_flip_angles.begin(), small_flip_angles.end(), 0.);
+    auto const sinc = [](sycomore::Real x) { return x==0?1:std::sin(x*M_PI)/(x*M_PI); };
+    auto const pulse_support = sycomore::linspace(
+        -sycomore::Real(zero_crossings), +sycomore::Real(zero_crossings),
+        1+pulse_support_size);
 
     auto const bandwidth = 2 * zero_crossings / pulse_duration;
     sycomore::GradientMoment const slice_selection_gradient_moment =
@@ -119,14 +113,9 @@ BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
     for(int i=0; i<TR_count; ++i)
     {
         auto const phase = (M_PI/3+(i%2)*M_PI)*rad;
-
-        model.apply_pulse({small_flip_angles[0]*rad, phase});
-
-        for(size_t j=1; j!=small_flip_angles.size(); ++j)
-        {
-            model.apply_time_interval("rf");
-            model.apply_pulse({small_flip_angles[j]*rad, phase});
-        }
+        auto const pulses = sycomore::hard_pulse_approximation(
+            {flip_angle, phase}, sinc, pulse_support);
+        model.apply_pulses(pulses, "rf");
         model.apply_time_interval("echo");
         magnetization.push_back(model.isochromat());
         model.apply_time_interval("echo");

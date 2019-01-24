@@ -1,6 +1,9 @@
 #include "Pulse.h"
 
+#include <algorithm>
 #include <cmath>
+#include <numeric>
+#include <vector>
 
 #include "sycomore/Grid.h"
 #include "sycomore/sycomore.h"
@@ -42,6 +45,28 @@ Pulse
     m[{2, 2}] = m[{0, 0}];
 
     return m;
+}
+
+std::vector<sycomore::Pulse>
+hard_pulse_approximation(
+    Pulse const & pulse,
+    std::function<Real(Real)> const & envelope,
+    std::vector<Real> const & support)
+{
+    std::vector<Real> angles(support.size());
+    std::transform(support.begin(), support.end(), angles.begin(), envelope);
+    auto const sum = std::accumulate(angles.begin(), angles.end(), 0.);
+    std::transform(
+        angles.begin(), angles.end(), angles.begin(),
+        [&](Real x) { return x*pulse.angle / sum; });
+
+    std::vector<Pulse> pulses;
+    for(auto && angle: angles)
+    {
+        pulses.emplace_back(angle, pulse.phase);
+    }
+
+    return pulses;
 }
 
 }

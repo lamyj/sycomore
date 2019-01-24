@@ -131,6 +131,24 @@ Model
 
 void
 Model
+::apply_pulses(
+    std::vector<Pulse> const & pulses, std::string const & interval_name)
+{
+    if(pulses.empty())
+    {
+        return;
+    }
+
+    this->apply_pulse(pulses[0]);
+    for(size_t i=1; i!=pulses.size(); ++i)
+    {
+        this->apply_time_interval(interval_name);
+        this->apply_pulse(pulses[i]);
+    }
+}
+
+void
+Model
 ::apply_time_interval(std::string const & name)
 {
     auto const start = std::chrono::high_resolution_clock::now();

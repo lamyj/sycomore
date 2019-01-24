@@ -44,6 +44,13 @@ public:
     /// @brief Apply an RF pulse to the model.
     void apply_pulse(Pulse const & pulse);
 
+    /**
+     * @brief Apply a set of pulses separated by a time interval (e.g. hard
+     * pulse approximation).
+     */
+    void apply_pulses(
+        std::vector<Pulse> const & pulses, std::string const & interval_name);
+
     /// @brief Apply a time interval to the model.
     void apply_time_interval(std::string const & name);
 
