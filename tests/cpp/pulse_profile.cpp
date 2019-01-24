@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE PulseProfile
 #include <boost/test/unit_test.hpp>
 
-#include <chrono>
 #include <cmath>
 #include <fstream>
 

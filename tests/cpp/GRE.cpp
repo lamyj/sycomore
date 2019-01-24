@@ -82,7 +82,6 @@ BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
     for(size_t i=0; i<small_flip_angles.size(); ++i)
     {
         auto const x = zero_crossings * (-1. + 2.*i/pulse_support_size);
-        // WARNING: C++ does not have a built-in sinc function.
         auto const y = (x==0?1:std::sin(x*M_PI)/(x*M_PI));
         small_flip_angles[i] = y;
     }
@@ -115,41 +114,34 @@ BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
     // Unaccounted time: 0.00364655 s
     // Sycomore speedup: 7.13
 
-    double pulse_time = 0;
-    double time_interval_time = 0;
 
-    auto const now = std::chrono::high_resolution_clock::now;
-    using seconds = std::chrono::duration<double, std::ratio<1>>;
-    decltype (now()) start;
-
-    auto loop_start = now();
-
+    auto const start = std::chrono::high_resolution_clock::now();
     for(int i=0; i<TR_count; ++i)
     {
         auto const phase = (M_PI/3+(i%2)*M_PI)*rad;
 
-        start = now(); model.apply_pulse({small_flip_angles[0]*rad, phase}); pulse_time += seconds(now()-start).count();
+        model.apply_pulse({small_flip_angles[0]*rad, phase});
 
         for(size_t j=1; j!=small_flip_angles.size(); ++j)
         {
-            start = now(); model.apply_time_interval("rf"); time_interval_time += seconds(now()-start).count();
-            start = now(); model.apply_pulse({small_flip_angles[j]*rad, phase}); pulse_time += seconds(now()-start).count();
+            model.apply_time_interval("rf");
+            model.apply_pulse({small_flip_angles[j]*rad, phase});
         }
-        start = now(); model.apply_time_interval("echo"); time_interval_time += seconds(now()-start).count();
+        model.apply_time_interval("echo");
         magnetization.push_back(model.isochromat());
-        start = now(); model.apply_time_interval("echo"); time_interval_time += seconds(now()-start).count();
-
-//        std::cout
-//            << "TR=" << (1+i)
-//            << ", pulse time: " << pulse_time
-//            << " s, time interval time: " << time_interval_time << " s\n";
+        model.apply_time_interval("echo");
     }
-    auto const loop_time = seconds(now()-loop_start).count();
+    auto const total_time = std::chrono::duration<double, std::ratio<1>>(
+        std::chrono::high_resolution_clock::now()-start).count();
 
-    std::cout << "Total time: " << loop_time << " s\n";
-    std::cout << "Pulse time: " << pulse_time << " s\n";
-    std::cout << "Time interval time: " << time_interval_time << " s\n";
-    std::cout << "Unaccounted time: " << loop_time-pulse_time-time_interval_time << " s\n";
+    std::cout << "{\"total\": " << total_time;
+    double accounted=0;
+    for(auto && item: model.timers())
+    {
+        std::cout << ", \"" << item.first << "\": " << item.second;
+        accounted += item.second;
+    }
+    std::cout << ", \"extra\": " << total_time-accounted << "}\n";
 
     std::vector<double> baseline;
     std::string const root(getenv("SYCOMORE_TEST_DATA")?getenv("SYCOMORE_TEST_DATA"):"");

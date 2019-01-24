@@ -104,6 +104,8 @@ void
 Model
 ::apply_pulse(Pulse const & pulse)
 {
+    auto const start = std::chrono::high_resolution_clock::now();
+
     auto const R_m = pulse.rotation_matrix();
     auto && R = R_m.data();
 
@@ -121,12 +123,18 @@ Model
 
         *it = std::move(result);
     }
+
+    this->_timers["pulse"] +=
+        std::chrono::duration<double, std::ratio<1>>(
+            std::chrono::high_resolution_clock::now()-start).count();
 }
 
 void
 Model
 ::apply_time_interval(std::string const & name)
 {
+    auto const start = std::chrono::high_resolution_clock::now();
+
     auto && mu = this->_dimensions.at(name);
     auto && time_interval = this->_time_intervals[mu];
 
@@ -313,6 +321,10 @@ Model
     this->_m[Index(this->_time_intervals.size(), 0)].m +=
         repolarization * this->_initial_magnetization.m;
 
+    this->_timers["time_interval"] +=
+        std::chrono::duration<double, std::ratio<1>>(
+            std::chrono::high_resolution_clock::now()-start).count();
+
     if(this->_epsilon_squared > 0)
     {
         this->_cleanup();
@@ -331,6 +343,8 @@ Model
 ::isochromat(
     std::set<Index> const & configurations, Point const & position) const
 {
+    auto const start = std::chrono::high_resolution_clock::now();
+
     Magnetization isochromat{0, 0, 0};
 
     Array<Real> position_real(position.size(), 0);
@@ -381,7 +395,18 @@ Model
         }
     }
 
+    this->_timers["isochromat"] +=
+        std::chrono::duration<double, std::ratio<1>>(
+            std::chrono::high_resolution_clock::now()-start).count();
+
     return isochromat;
+}
+
+std::map<std::string, double> const &
+Model
+::timers() const
+{
+    return this->_timers;
 }
 
 void

@@ -59,6 +59,7 @@ public:
         std::set<Index> const & configurations={},
         Point const & position=Point()) const;
 
+    std::map<std::string, double> const & timers() const;
 private:
     /// @brief Species of the model.
     Species _species;
@@ -101,6 +102,9 @@ private:
 
     /// @brief Bounding box of the occupied configuration for each species.
     std::pair<Index, Shape> _bounding_box;
+
+    /// @brief Timing information, for profiling.
+    mutable std::map<std::string, double> _timers;
 
     /// @brief Compute the time scale of a configuration.
     void _compute_tau_n(Index const & n, Real & tau);
