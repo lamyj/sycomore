@@ -52,16 +52,6 @@ Array<T>
     std::copy(initializer_list.begin(), initializer_list.end(), this->begin());
 }
 
-//template<typename T>
-//template<typename T2>
-//Array<T>
-//::Array(Array<T2> const & other)
-//: _size(other.size()), _is_view(false), _data(nullptr)
-//{
-//    this->_data = new T[this->_size];
-//    std::copy(other.begin(), other.end(), this->begin());
-//}
-
 template<typename T>
 Array<T>
 ::Array(Array<T> && other)

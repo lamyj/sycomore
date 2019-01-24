@@ -203,8 +203,8 @@ Model
     auto && p_mu = time_interval.gradient_moment;
     auto const p_mu_norm_third = dot(p_mu, p_mu)/3;
     auto const minus_D_tau = -this->_species.D*time_interval.duration;
-    auto const do_diffusion =
-        this->_species.D > 0 && p_mu != Array<Real>(p_mu.size(), 0);
+    auto const has_gradient = p_mu != Array<Real>(p_mu.size(), 0);
+    auto const do_diffusion = this->_species.D > 0 && has_gradient;
 
     // Offsets on the mu axis
     auto && m_stride = this->_m.stride()[mu];
@@ -252,10 +252,8 @@ Model
 
             Real F_minus = 1;
             Real F_zero = 1;
-            if(do_diffusion)
+            if(has_gradient)
             {
-                auto const F_minus_it(F_it+F_stride);
-                if(std::isnan(*F_minus_it))
                 {
                     Array<Real> p_n(p_line_start_it + (i+1)*p_stride, 3);
                     if(std::isnan(p_n[0]))
@@ -267,14 +265,17 @@ Model
                             index, *(tau_line_start_it+(i+1)*tau_stride));
                         this->_compute_p_n(index, p_n);
                     }
-
-                    *F_minus_it = this->_compute_F(
-                        p_n, -1, p_mu, minus_D_tau, p_mu_norm_third);
+                    if(do_diffusion)
+                    {
+                        auto const F_minus_it(F_it+F_stride);
+                        if(std::isnan(*F_minus_it))
+                        {
+                            *F_minus_it = this->_compute_F(
+                                p_n, -1, p_mu, minus_D_tau, p_mu_norm_third);
+                        }
+                        F_minus = *F_minus_it;
+                    }
                 }
-                F_minus = *F_minus_it;
-
-                auto const F_zero_it(F_it+1);
-                if(std::isnan(*F_zero_it))
                 {
                     Array<Real> p_n(p_line_start_it + i*p_stride, 3);
                     if(std::isnan(p_n[0]))
@@ -286,11 +287,17 @@ Model
                             index, *(tau_line_start_it+i*tau_stride));
                         this->_compute_p_n(index, p_n);
                     }
-
-                    *F_zero_it = this->_compute_F(
-                        p_n, 0, p_mu, minus_D_tau, p_mu_norm_third);
+                    if(do_diffusion)
+                    {
+                        auto const F_zero_it(F_it+1);
+                        if(std::isnan(*F_zero_it))
+                        {
+                            *F_zero_it = this->_compute_F(
+                                p_n, 0, p_mu, minus_D_tau, p_mu_norm_third);
+                        }
+                        F_zero = *F_zero_it;
+                    }
                 }
-                F_zero = *F_zero_it;
             }
 
             m_it->m = F_minus * E_2 * (m_it+m_stride)->m;
@@ -305,26 +312,28 @@ Model
             auto const F_it = F_line_start_it + i*F_stride;
 
             Real F_plus = 1;
-            if(do_diffusion)
+            if(has_gradient)
             {
-                auto const F_plus_it(F_it-F_stride+2);
-                if(std::isnan(*F_plus_it))
+                Array<Real> p_n(p_line_start_it + (i-1)*p_stride, 3);
+                if(std::isnan(p_n[0]))
                 {
-                    Array<Real> p_n(p_line_start_it + (i-1)*p_stride, 3);
-                    if(std::isnan(p_n[0]))
-                    {
-                        auto index(line_start_index);
-                        index[mu] += i-1;
+                    auto index(line_start_index);
+                    index[mu] += i-1;
 
-                        this->_compute_tau_n(
-                            index, *(tau_line_start_it+(i-1)*tau_stride));
-                        this->_compute_p_n(index, p_n);
-                    }
-
-                    *F_plus_it = this->_compute_F(
-                        p_n, +1, p_mu, minus_D_tau, p_mu_norm_third);
+                    this->_compute_tau_n(
+                        index, *(tau_line_start_it+(i-1)*tau_stride));
+                    this->_compute_p_n(index, p_n);
                 }
-                F_plus = *F_plus_it;
+                if(do_diffusion)
+                {
+                    auto const F_plus_it(F_it-F_stride+2);
+                    if(std::isnan(*F_plus_it))
+                    {
+                        *F_plus_it = this->_compute_F(
+                            p_n, +1, p_mu, minus_D_tau, p_mu_norm_third);
+                    }
+                    F_plus = *F_plus_it;
+                }
             }
             m_it->p = F_plus * E_2 * (m_it-m_stride)->p;
         }
