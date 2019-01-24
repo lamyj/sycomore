@@ -379,46 +379,58 @@ Model
         position.begin(), position.end(), position_real.begin(),
         [](Point::value_type const & x){ return x.value; });
 
-    auto const update_isochromat = [&](Index const & n) {
+    auto const update_isochromat = [&](Index const & n, size_t const & offset) {
         Real off_resonance = 0;
         Real gradients_dephasing= 0;
         if(!position_real.empty())
         {
-            auto const offset = dot(n-this->_m.origin(), this->_m.stride());
             Array<Real> const p(const_cast<Real*>(this->_p.data())+3*offset, 3);
             gradients_dephasing = dot(p, position_real);
         }
 
-        auto const dephasing =
-            std::exp(Complex(0,1)*(off_resonance-gradients_dephasing));
-
         auto && m = this->_m[n];
-        // NOTE: the additional dephasing (exponential term in eq. 4) will
-        // create complex longitudinal magnetization. However, the summation
-        // of the longitudinal magnetization will be purely real.
-        ComplexMagnetization const dephased_m(
-            m.p*dephasing, (m.z*dephasing).real(), m.m*dephasing);
-        auto const m_r = as_real_magnetization(dephased_m);
+        Magnetization m_r;
+        if(off_resonance != 0 || gradients_dephasing != 0)
+        {
+            auto const dephasing =
+                std::exp(Complex(0,1)*(off_resonance-gradients_dephasing));
+
+            // NOTE: the additional dephasing (exponential term in eq. 4) will
+            // create complex longitudinal magnetization. However, the summation
+            // of the longitudinal magnetization will be purely real.
+            ComplexMagnetization const dephased_m(
+                m.p*dephasing, (m.z*dephasing).real(), m.m*dephasing);
+            m_r = as_real_magnetization(dephased_m);
+        }
+        else
+        {
+            m_r = as_real_magnetization(m);
+        }
 
         isochromat.x += m_r.x;
         isochromat.y += m_r.y;
         isochromat.z += m_r.z;
     };
+    auto const update_isochromat_no_offset = [&](Index const & n) {
+        auto const offset = dot(n-this->_m.origin(), this->_m.stride());
+        return update_isochromat(n, offset);
+    };
 
     if(configurations.empty())
     {
         GridScanner const scanner(
+            this->_m.origin(), this->_m.shape(),
             this->_bounding_box.first, this->_bounding_box.second);
         for(auto && index_offset: scanner)
         {
-            update_isochromat(index_offset.first);
+            update_isochromat(index_offset.first, index_offset.second);
         }
     }
     else
     {
         for(auto && configuration: configurations)
         {
-            update_isochromat(configuration);
+            update_isochromat_no_offset(configuration);
         }
     }
 
