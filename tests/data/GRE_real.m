@@ -1,10 +1,10 @@
 T1 = 1000; % [ms]
 T2 = 100; % [ms]
-D = 0.89; % [µm^2/ms]
+D = 0.89; % [um^2/ms]
 m0 = [0; 0; 1];
 
 flip_angle = deg2rad(40); % [rad]
-pulse_duration = 1; %[ms]
+pulse_duration = 1; % [ms]
 TR = 500; % [ms]
 slice_thickness = 1000; % [um]
 pulse_support_size = 100;
@@ -36,19 +36,6 @@ intervals.echo.p = [0; 0; -slice_selection_gradient_moment / 2.];
 signal = zeros(3, TR_count);
 model.init_configuration(m0);
 
-% % time after echo
-% cm_bSSFP_real.time( mu_bSSFP_real, 'tau', tau_bSSFP_real, 'p', p_bSSFP_real );
-% % excitation pulse
-% cm_bSSFP_real.RF( al_rad( 1 ), ph_rad( i ) );     
-% for j = 1 : n_tau
-%     cm_bSSFP_real.time( mu_real_rf, 'tau', tau_real_rf, 'p', p_real_rf );
-%     cm_bSSFP_real.RF( al_rad( j + 1 ), ph_rad( i ) );     
-% end
-% cm_bSSFP_real.time( mu_bSSFP_real, 'tau', tau_bSSFP_real, 'p', p_bSSFP_real );
-% % bSSFP : only the slice encoding direction requires a zero gradient moment
-% b_n = cm_bSSFP_real.b_n & reshape( cm_bSSFP_real.p_n( 3, : ) == 0, size( cm_bSSFP_real.b_n ) );
-% iso = cm_bSSFP_real.isochromat( 0, [], b_n );
-
 tic;
 for i = 1 : TR_count
     % Pulse
@@ -61,7 +48,6 @@ for i = 1 : TR_count
     
     model.time(intervals.echo.mu, 'tau', intervals.echo.tau, 'p', intervals.echo.p);
     
-    % WARNING: which configurations contribute to the signal intensity?
     s = model.isochromat(0, [], []);
     signal(:,i) = [real(s.xy), imag(s.xy), real(s.z)];
     

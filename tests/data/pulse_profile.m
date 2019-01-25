@@ -1,10 +1,11 @@
-T1 = 1000; % [ms]
-T2 = 100; % [ms]
-D = 0.89; % [um^2/ms]
+T1 = inf; % [ms]
+T2 = inf; % [ms]
+D = 0; % [um^2/ms]
 m0 = [0; 0; 1];
 
 flip_angle = deg2rad(90); % [rad]
 pulse_duration = 1; % [ms]
+% NOTE: in the absence of relaxation and diffusion, the TR is meaningless
 TR = 500; % [ms]
 slice_thickness = 1000; % [um]
 pulse_support_size = 100;

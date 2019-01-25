@@ -12,10 +12,9 @@
 
 using namespace sycomore::units;
 
-BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-10))
+BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-14))
 {
-    // FIXME: need value of D to compute p_n
-    sycomore::Species const species(1000_ms, 100_ms, 0.89_um*um/ms);
+    sycomore::Species const species(0_Hz, 0_Hz, 0_um*um/ms);
     sycomore::Magnetization const m0{0,0,1};
 
     sycomore::Pulse const pulse(90_deg, M_PI*rad);
@@ -23,6 +22,7 @@ BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-10))
     int const pulse_support_size = 100;
     int const zero_crossings = 2;
 
+    // NOTE: in the absence of relaxation and diffusion, the TR is meaningless
     auto const TR=500_ms;
     auto const slice_thickness=1_mm;
 
@@ -91,11 +91,13 @@ BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-10))
         }
     }
 
+    // WARNING: we are using absolute tolerance, not relative to the value of
+    // left and right
 #define TEST_COMPONENT(left, right, where) \
     BOOST_TEST(\
-        left == right, \
-        "Error on " << #left << " (" << where << ") at " << x \
-            << " [ " << left << " != " << right << " ]")
+    left-right == 0., \
+    "Error on " << #left << " (" << where << ") at " << x \
+        << " [ " << left << " != " << right << " ]")
 #define TEST_MAGNETIZATION(where) \
     TEST_COMPONENT(m.x, *(baseline_it+0), where); \
     TEST_COMPONENT(m.y, *(baseline_it+1), where); \
