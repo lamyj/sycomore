@@ -226,6 +226,8 @@ SYCOMORE_DECLARE_DERIVED_UNIT(AbsorbedDose, Gy, div<Energy, Mass>);
 SYCOMORE_DECLARE_DERIVED_UNIT(EquivalentDose, Sv, div<Energy, Mass>);
 SYCOMORE_DECLARE_DERIVED_UNIT(CatalyticActivity, kat, div<AmountOfSubstance, Time>);
 
+using AngularFrequency = div<Angle, Time>;
+
 }
 
 }

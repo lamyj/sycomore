@@ -368,19 +368,23 @@ Model
 Magnetization
 Model
 ::isochromat(
-    std::set<Index> const & configurations, Point const & position) const
+    std::set<Index> const & configurations, Point const & position,
+    units::AngularFrequency relative_frequency) const
 {
     auto const start = std::chrono::high_resolution_clock::now();
 
-    Magnetization isochromat{0, 0, 0};
+    Array<Complex> isochromat{0, 0, 0};
 
     Array<Real> position_real(position.size(), 0);
     std::transform(
         position.begin(), position.end(), position_real.begin(),
         [](Point::value_type const & x){ return x.value; });
 
+    auto const omega = relative_frequency.convert_to(units::rad/units::s);
+
     auto const update_isochromat = [&](Index const & n, size_t const & offset) {
-        Real off_resonance = 0;
+        Real const off_resonance = omega * *(this->_tau.data()+offset);
+
         Real gradients_dephasing= 0;
         if(!position_real.empty())
         {
@@ -388,28 +392,13 @@ Model
             gradients_dephasing = dot(p, position_real);
         }
 
-        auto && m = this->_m[n];
-        Magnetization m_r;
-        if(off_resonance != 0 || gradients_dephasing != 0)
-        {
-            auto const dephasing =
-                std::exp(Complex(0,1)*(off_resonance-gradients_dephasing));
+        auto const dephasing =
+            std::exp(Complex(0,1)*(off_resonance-gradients_dephasing));
 
-            // NOTE: the additional dephasing (exponential term in eq. 4) will
-            // create complex longitudinal magnetization. However, the summation
-            // of the longitudinal magnetization will be purely real.
-            ComplexMagnetization const dephased_m(
-                m.p*dephasing, (m.z*dephasing).real(), m.m*dephasing);
-            m_r = as_real_magnetization(dephased_m);
-        }
-        else
-        {
-            m_r = as_real_magnetization(m);
-        }
-
-        isochromat.x += m_r.x;
-        isochromat.y += m_r.y;
-        isochromat.z += m_r.z;
+        auto && m = *(this->_m.data()+offset);
+        isochromat[0] += m.p*dephasing;
+        isochromat[1] += m.z*dephasing;
+        isochromat[2] += m.m*dephasing;
     };
     auto const update_isochromat_no_offset = [&](Index const & n) {
         auto const offset = dot(n-this->_m.origin(), this->_m.stride());
@@ -434,11 +423,15 @@ Model
         }
     }
 
+    ComplexMagnetization const m_c(
+        isochromat[0], isochromat[1].real(), isochromat[2]);
+    auto const m_r = as_real_magnetization(m_c);
+
     this->_timers["isochromat"] +=
         std::chrono::duration<double, std::ratio<1>>(
             std::chrono::high_resolution_clock::now()-start).count();
 
-    return isochromat;
+    return m_r;
 }
 
 std::map<std::string, double> const &
@@ -456,7 +449,7 @@ Model
     for(size_t d=0; d<this->_dimensions.size(); ++d)
     {
         auto && tau_eta = this->_time_intervals[d].duration;
-        tau += tau_eta;
+        tau += n[d] * tau_eta;
     }
 }
 

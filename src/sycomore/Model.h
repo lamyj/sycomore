@@ -64,7 +64,8 @@ public:
      */
     Magnetization isochromat(
         std::set<Index> const & configurations={},
-        Point const & position=Point()) const;
+        Point const & position=Point(),
+        units::AngularFrequency relative_frequency=units::AngularFrequency(0)) const;
 
     std::map<std::string, double> const & timers() const;
 private:

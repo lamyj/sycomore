@@ -16,7 +16,8 @@ class Array
 public:
     using value_type = T;
 
-    explicit Array(size_t count=0);
+    Array();
+    explicit Array(size_t count);
     Array(size_t count, T const & value);
     Array(T * pointer, size_t size);
     Array(Array<T> const & other);

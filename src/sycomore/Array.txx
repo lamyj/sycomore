@@ -14,6 +14,14 @@ namespace sycomore
 
 template<typename T>
 Array<T>
+::Array()
+: Array(0)
+{
+    // Nothing else.
+}
+
+template<typename T>
+Array<T>
 ::Array(size_t count)
 : _size(count), _is_view(false), _data(nullptr)
 {
