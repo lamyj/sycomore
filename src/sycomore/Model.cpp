@@ -1,6 +1,7 @@
 #include "Model.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <complex>
 #include <map>

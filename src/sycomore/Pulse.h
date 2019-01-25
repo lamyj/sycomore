@@ -1,6 +1,7 @@
 #ifndef _b46b179a_64e7_41db_9643_82051c4aa85a
 #define _b46b179a_64e7_41db_9643_82051c4aa85a
 
+#include <functional>
 #include <vector>
 
 #include "sycomore/Grid.h"
