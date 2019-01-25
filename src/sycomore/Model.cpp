@@ -243,6 +243,32 @@ Model
             + mu*this->_F.stride()[this->_F.dimension()-1]
             + 3*line_start_offset;
 
+        // Update tau and p along the line. F must to be updated during the
+        // forward/backward pass since it is updated based on neighbors.
+        {
+            auto index=line_start_index;
+            auto tau_it = tau_line_start_it;
+            auto p_it = p_line_start_it;
+            for(int i=0; i<this->_bounding_box.second[mu]; ++i)
+            {
+                if(std::isnan(*tau_it))
+                {
+                    this->_compute_tau_n(index, *tau_it);
+                }
+                if(has_gradient)
+                {
+                    Array<Real> p_n(p_it, 3);
+                    if(std::isnan(p_n[0]))
+                    {
+                        this->_compute_p_n(index, p_n);
+                    }
+                }
+                ++index[mu];
+                tau_it += tau_stride;
+                p_it += p_stride;
+            }
+        }
+
         // Forward scan: compute m.m and m.z
         for(Index::value_type i=0; i<this->_bounding_box.second[mu]-1; ++i)
         {
@@ -252,51 +278,30 @@ Model
 
             Real F_minus = 1;
             Real F_zero = 1;
-            if(has_gradient)
+
+            if(do_diffusion)
             {
                 {
                     Array<Real> p_n(p_line_start_it + (i+1)*p_stride, 3);
-                    if(std::isnan(p_n[0]))
-                    {
-                        auto index(line_start_index);
-                        index[mu] += i+1;
 
-                        this->_compute_tau_n(
-                            index, *(tau_line_start_it+(i+1)*tau_stride));
-                        this->_compute_p_n(index, p_n);
-                    }
-                    if(do_diffusion)
+                    auto const F_minus_it(F_it+F_stride);
+                    if(std::isnan(*F_minus_it))
                     {
-                        auto const F_minus_it(F_it+F_stride);
-                        if(std::isnan(*F_minus_it))
-                        {
-                            *F_minus_it = this->_compute_F(
-                                p_n, -1, p_mu, minus_D_tau, p_mu_norm_third);
-                        }
-                        F_minus = *F_minus_it;
+                        *F_minus_it = this->_compute_F(
+                            p_n, -1, p_mu, minus_D_tau, p_mu_norm_third);
                     }
+                    F_minus = *F_minus_it;
                 }
                 {
                     Array<Real> p_n(p_line_start_it + i*p_stride, 3);
-                    if(std::isnan(p_n[0]))
-                    {
-                        auto index(line_start_index);
-                        index[mu] += i;
 
-                        this->_compute_tau_n(
-                            index, *(tau_line_start_it+i*tau_stride));
-                        this->_compute_p_n(index, p_n);
-                    }
-                    if(do_diffusion)
+                    auto const F_zero_it(F_it+1);
+                    if(std::isnan(*F_zero_it))
                     {
-                        auto const F_zero_it(F_it+1);
-                        if(std::isnan(*F_zero_it))
-                        {
-                            *F_zero_it = this->_compute_F(
-                                p_n, 0, p_mu, minus_D_tau, p_mu_norm_third);
-                        }
-                        F_zero = *F_zero_it;
+                        *F_zero_it = this->_compute_F(
+                            p_n, 0, p_mu, minus_D_tau, p_mu_norm_third);
                     }
+                    F_zero = *F_zero_it;
                 }
             }
 
@@ -312,28 +317,16 @@ Model
             auto const F_it = F_line_start_it + i*F_stride;
 
             Real F_plus = 1;
-            if(has_gradient)
+            if(do_diffusion)
             {
                 Array<Real> p_n(p_line_start_it + (i-1)*p_stride, 3);
-                if(std::isnan(p_n[0]))
+                auto const F_plus_it(F_it-F_stride+2);
+                if(std::isnan(*F_plus_it))
                 {
-                    auto index(line_start_index);
-                    index[mu] += i-1;
-
-                    this->_compute_tau_n(
-                        index, *(tau_line_start_it+(i-1)*tau_stride));
-                    this->_compute_p_n(index, p_n);
+                    *F_plus_it = this->_compute_F(
+                        p_n, +1, p_mu, minus_D_tau, p_mu_norm_third);
                 }
-                if(do_diffusion)
-                {
-                    auto const F_plus_it(F_it-F_stride+2);
-                    if(std::isnan(*F_plus_it))
-                    {
-                        *F_plus_it = this->_compute_F(
-                            p_n, +1, p_mu, minus_D_tau, p_mu_norm_third);
-                    }
-                    F_plus = *F_plus_it;
-                }
+                F_plus = *F_plus_it;
             }
             m_it->p = F_plus * E_2 * (m_it-m_stride)->p;
         }
@@ -383,7 +376,11 @@ Model
     auto const omega = relative_frequency.convert_to(units::rad/units::s);
 
     auto const update_isochromat = [&](Index const & n, size_t const & offset) {
-        Real const off_resonance = omega * *(this->_tau.data()+offset);
+        auto && tau = *(this->_tau.data()+offset);
+
+        Real const susceptibility = -this->_species.R2_prime * tau;
+
+        Real const off_resonance = omega * tau;
 
         Real gradients_dephasing= 0;
         if(!position_real.empty())
@@ -393,7 +390,7 @@ Model
         }
 
         auto const dephasing =
-            std::exp(Complex(0,1)*(off_resonance-gradients_dephasing));
+            std::exp(Complex(susceptibility, off_resonance-gradients_dephasing));
 
         auto && m = *(this->_m.data()+offset);
         isochromat[0] += m.p*dephasing;
