@@ -6,6 +6,7 @@ nav:
   - User Guide:
     - docs/installation.md
     - docs/units.md
+    - docs/species.md
   - About: []
 docs_dir: .
 theme: 

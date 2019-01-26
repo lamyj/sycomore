@@ -17,6 +17,7 @@ Additional details are provided in the [documentation](docs/installation.md).
 
 ## Usage
 
-The main features are described in the documentation:
+The features and data structures are described in the documentation:
 
 - [Units](docs/units.md)
+- [Species](docs/species.md)
