@@ -1,0 +1,15 @@
+site_name: Sycomore
+repo_url: https://git.unistra.fr/lamy/sycomore/
+site_author: Julien Lamy
+nav:
+  - Home: README.md
+  - User Guide:
+    - docs/installation.md
+docs_dir: .
+theme: 
+  name: mkdocs
+  extra: 
+    version: 0.4
+markdown_extensions:
+  - toc:
+      permalink: true

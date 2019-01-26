@@ -24,9 +24,10 @@ elseif(COMPILER_SUPPORTS_CXX0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
+file(GLOB_RECURSE docs mkdocs.yml docs/*)
 add_custom_target(
     Documentation ${CMAKE_COMMAND} -E echo "Documentation"
-    SOURCES README.md)
+    SOURCES README.md ${docs})
 set_target_properties(Documentation PROPERTIES FOLDER "Utils")
 
 add_subdirectory("src")
@@ -35,6 +36,6 @@ add_subdirectory("src")
      add_subdirectory("tests")
  endif()
 
-# if(BUILD_EXAMPLES)
-#     add_subdirectory("examples")
-# endif()
+ if(BUILD_EXAMPLES)
+     add_subdirectory("examples")
+ endif()
