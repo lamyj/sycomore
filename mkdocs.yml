@@ -5,9 +5,11 @@ nav:
   - Home: README.md
   - User Guide:
     - docs/installation.md
+    - docs/units.md
+  - About: []
 docs_dir: .
 theme: 
-  name: mkdocs
+  name: readthedocs
   extra: 
     version: 0.4
 markdown_extensions:
