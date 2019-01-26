@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(FrequencyConstructorFull)
 {
     using namespace sycomore::units;
     sycomore::Species const species(
-        1/1000_ms, 1/100_ms, 3_um*um/ms, 1/1.5_s, 0.9, 1.1);
+        1/1000_ms, 1/100_ms, 3_um*um/ms, 1/1.5_s, 0.9_rad/s, 1.1);
     BOOST_TEST(species.R1 == 1);
     BOOST_TEST(species.R2 == 10);
     BOOST_TEST(species.D == 3e-9);
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(TimeConstructorFull)
 {
     using namespace sycomore::units;
     sycomore::Species const species(
-        1000_ms, 100_ms, 3_um*um/ms, 1.5_s, 0.9, 1.1);
+        1000_ms, 100_ms, 3_um*um/ms, 1.5_s, 0.9_rad/s, 1.1);
     BOOST_TEST(species.R1 == 1);
     BOOST_TEST(species.R2 == 10);
     BOOST_TEST(species.D == 3e-9);

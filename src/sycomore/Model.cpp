@@ -374,7 +374,9 @@ Model
         position.begin(), position.end(), position_real.begin(),
         [](Point::value_type const & x){ return x.value; });
 
-    auto const omega = relative_frequency.convert_to(units::rad/units::s);
+    auto const omega =
+        relative_frequency.convert_to(units::rad/units::s)
+        +this->_species.delta_omega;
 
     auto const update_isochromat = [&](Index const & n, size_t const & offset) {
         auto && tau = *(this->_tau.data()+offset);
