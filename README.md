@@ -1,6 +1,12 @@
-# Sycomore: a configuration model library
+# Sycomore &mdash; an MRI simulation toolkit
 
-Sycomore simulates MRI sequences using configuration models. Inspired by Carl Ganter's [CoMoTk](https://github.com/cganter/CoMoTk), Sycomore is fast and is usable both through its native C++ API and through a similar Python API. Except for the computation of derivatives, Sycomore is on-par with the features offered by CoMoTk.
+Sycomore is an MRI simulation toolkit using the configuration model formalism. Inspired by Carl Ganter's [CoMoTk](https://github.com/cganter/CoMoTk), Sycomore is fast and is usable both through its native C++ API and through a similar Python API. Sycomore includes:
+
+- Radiofrequency pulses
+- Gradients
+- Off-resonance effects
+- Susceptiblity effects
+- Slice profiles
 
 ## Installation
 
@@ -21,3 +27,5 @@ The features and data structures are described in the documentation:
 
 - [Units](docs/units.md)
 - [Species](docs/species.md)
+- [RF pulses](docs/pulses.md)
+- [Time intervals](docs/time_intervals.md)

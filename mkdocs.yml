@@ -7,6 +7,8 @@ nav:
     - docs/installation.md
     - docs/units.md
     - docs/species.md
+    - docs/pulses.md
+    - docs/time_intervals.md
   - About: []
 docs_dir: .
 theme: 
