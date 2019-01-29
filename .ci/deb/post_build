@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -ev
+
+export WORKSPACE=${WORKSPACE:?}
+
+cd ${WORKSPACE}/build
+ctest -T Test

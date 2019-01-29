@@ -1,7 +1,12 @@
 .build_template: &build_template
-  WORKSPACE: $CI_PROJECT_DIR
-  before_script: ./.ci/deb/install
-  script: ./.ci/deb/build
+  variables:
+    WORKSPACE: $CI_PROJECT_DIR
+  before_script:
+    - ./.ci/deb/install
+  script:
+    - ./.ci/deb/build
+  after_script:
+    - ./.ci/deb/post_build
 
 build_stretch:
   <<: *build_template
