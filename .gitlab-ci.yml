@@ -8,6 +8,20 @@
   after_script:
     - ./.ci/deb/post_build
 
+pages:
+  image: debian:stretch
+  script:
+    - apt-get update
+    - apt-get install -y mkdocs
+    - mkdocs build -d ../public -f ./mkdocs.yml
+    - mv ../public ./
+  artifacts:
+    paths:
+      - public
+    only:
+    - master
+
+
 build_stretch:
   <<: *build_template
   image: debian:stretch
