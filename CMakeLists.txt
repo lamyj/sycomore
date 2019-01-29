@@ -30,7 +30,7 @@ add_custom_target(
     SOURCES README.md ${docs})
 set_target_properties(Documentation PROPERTIES FOLDER "Utils")
 
-file(GLOB_RECURSE ContinuousIntegration .gitlab.yml .ci/*)
+file(GLOB_RECURSE ContinuousIntegration .gitlab-ci.yml .ci/*)
 add_custom_target(
     ContinuousIntegration ${CMAKE_COMMAND} -E echo "Continuous Integration"
     SOURCES ${ContinuousIntegration})

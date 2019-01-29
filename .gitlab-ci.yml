@@ -18,9 +18,8 @@ pages:
   artifacts:
     paths:
       - public
-    only:
+  only:
     - master
-
 
 build_stretch:
   <<: *build_template
