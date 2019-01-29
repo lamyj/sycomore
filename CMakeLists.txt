@@ -12,7 +12,7 @@ option(BUILD_SHARED_LIBS "Build Sycomore with shared libraries." ON)
 option(BUILD_TESTING "Build unit tests." ON)
 option(BUILD_EXAMPLES "Build the examples directory." ON)
 
- include(CTest)
+include(CTest)
 
 # Add the C++0x or C++11 flag
 include(CheckCXXCompilerFlag)
@@ -29,6 +29,12 @@ add_custom_target(
     Documentation ${CMAKE_COMMAND} -E echo "Documentation"
     SOURCES README.md ${docs})
 set_target_properties(Documentation PROPERTIES FOLDER "Utils")
+
+file(GLOB_RECURSE ContinuousIntegration .gitlab.yml .ci/*)
+add_custom_target(
+    ContinuousIntegration ${CMAKE_COMMAND} -E echo "Continuous Integration"
+    SOURCES ${ContinuousIntegration})
+set_target_properties(ContinuousIntegration PROPERTIES FOLDER "Utils")
 
 add_subdirectory("src")
 
