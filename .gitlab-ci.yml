@@ -10,17 +10,20 @@
 
 pages:
   image: debian:stretch
+  variables:
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
   script:
     - apt-get update
-    - apt-get install -y mkdocs
-    - mkdocs build -d ../public -f ./mkdocs.yml
-    - mv ../public ./
+    - apt-get install -y python3-pip
+    - pip3 install mkdocs
+    - mkdocs build -d public
   artifacts:
     paths:
       - public
   only:
     - master
 
-build_stretch:
-  <<: *build_template
-  image: debian:stretch
+#build_stretch:
+  #<<: *build_template
+  #image: debian:stretch

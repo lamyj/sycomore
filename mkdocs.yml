@@ -1,20 +1,19 @@
 site_name: Sycomore
 repo_url: https://git.unistra.fr/lamy/sycomore/
 site_author: Julien Lamy
+site_description: Sycomore - an MRI simulation toolkit
 nav:
-  - Home: README.md
+  - Home: index.md
   - User Guide:
-    - docs/installation.md
-    - docs/units.md
-    - docs/species.md
-    - docs/pulses.md
-    - docs/time_intervals.md
+    - installation.md
+    - units.md
+    - species.md
+    - pulses.md
+    - time_intervals.md
+    - models.md
   - About: []
-docs_dir: .
 theme: 
   name: readthedocs
-  extra: 
-    version: 0.4
 markdown_extensions:
   - toc:
       permalink: true
