@@ -3,4 +3,4 @@
 set -ev
 
 apt-get -y update
-apt-get -y --no-install-recommends install cmake g++ libboost-dev libboost-test-dev
+apt-get -y --no-install-recommends install cmake g++ libboost-dev libboost-test-dev make

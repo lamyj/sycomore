@@ -4,5 +4,8 @@ set -ev
 
 export WORKSPACE=${WORKSPACE:?}
 
-cd ${WORKSPACE}/build
+export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
+export SYCOMORE_TEST_DATA=${WORKSPACE}/tests/data
+
+cd "${BUILD_DIR}"
 ctest -T Test
