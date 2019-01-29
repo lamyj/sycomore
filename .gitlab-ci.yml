@@ -6,6 +6,7 @@
   script:
     - ./.ci/deb/build
   after_script:
+    - ls -l
     - ./.ci/deb/post_build
 
 pages:
@@ -24,6 +25,16 @@ pages:
   only:
     - master
 
-#build_stretch:
-  #<<: *build_template
-  #image: debian:stretch
+build_stretch:
+  <<: *build_template
+  variables:
+    BUILD_DIR: build.stretch
+    INSTALL_DIR: install.stretch
+  image: debian:stretch
+
+build_bionic:
+  <<: *build_template
+  variables:
+    BUILD_DIR: build.bionic
+    INSTALL_DIR: install.bionic
+  image: ubuntu:bionic
