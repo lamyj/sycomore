@@ -1,6 +1,4 @@
 .build_template: &build_template
-  variables:
-    WORKSPACE: $CI_PROJECT_DIR
   before_script:
     - ./.ci/deb/install
   script:
@@ -28,6 +26,7 @@ pages:
 build_stretch:
   <<: *build_template
   variables:
+    WORKSPACE: $CI_PROJECT_DIR
     BUILD_DIR: build.stretch
     INSTALL_DIR: install.stretch
   image: debian:stretch
@@ -35,6 +34,7 @@ build_stretch:
 build_bionic:
   <<: *build_template
   variables:
+    WORKSPACE: $CI_PROJECT_DIR
     BUILD_DIR: build.bionic
     INSTALL_DIR: install.bionic
   image: ubuntu:bionic
