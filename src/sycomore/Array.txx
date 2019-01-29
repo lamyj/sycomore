@@ -7,6 +7,7 @@
 #include <numeric>
 #include <ostream>
 #include <sstream>
+#include <stdexcept>
 #include <utility>
 
 namespace sycomore
