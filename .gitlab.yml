@@ -1,0 +1,8 @@
+.build_template: &build_template
+  WORKSPACE: $CI_PROJECT_DIR
+  before_script: ./.ci/deb/install
+  script: ./.ci/deb/build
+
+build_stretch:
+  <<: *build_template
+  image: debian:stretch
