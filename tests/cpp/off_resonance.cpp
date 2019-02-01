@@ -19,39 +19,29 @@ BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-12))
 
     sycomore::Pulse const pulse(90_deg, M_PI*rad);
     auto const pulse_duration=1_ms;
-    int const pulse_support_size = 100;
+    int const pulse_support_size = 101;
     int const zero_crossings = 2;
 
     // NOTE: in the absence of relaxation and diffusion, the TR is meaningless
     auto const TR=500_ms;
     auto const slice_thickness=1_mm;
 
-    auto const pulses = sycomore::hard_pulse_approximation(
+    auto const t0 = pulse_duration/(2*zero_crossings);
+    sycomore::HardPulseApproximation const sinc_pulse(
         pulse,
-        [](sycomore::Real x) { return x==0?1:std::sin(x*M_PI)/(x*M_PI); },
-        sycomore::linspace(
-            -sycomore::Real(zero_crossings), +sycomore::Real(zero_crossings),
-            1+pulse_support_size));
+        sycomore::linspace(pulse_duration, pulse_support_size),
+        sycomore::sinc_envelope(t0), 1/t0, slice_thickness, "rf");
 
-    auto const bandwidth = 2 * zero_crossings / pulse_duration;
-    auto const slice_selection_gradient_moment =
-        2*M_PI*bandwidth*pulse_duration/slice_thickness;
-
-    auto const frequencies = sycomore::linspace(-30._rad/ms, 30._rad/ms, 201);
+    auto const frequencies = sycomore::linspace(60._rad/ms, 201);
 
     sycomore::Model model(
         species, m0, {
-            {"rf", {
-                pulse_duration/pulse_support_size, {
-                    0*1/m, 0*1/m,
-                    slice_selection_gradient_moment/pulse_support_size}}},
+            {"rf", sinc_pulse.get_time_interval()},
             {"refocalization", {
-                (TR-pulse_duration)/2., {
-                    0*1/m, 0*1/m,
-                    -slice_selection_gradient_moment/2}}}
+                (TR-pulse_duration).value/2., -sinc_pulse.get_gradient_moment()/2}}
     });
 
-    model.apply_pulses(pulses, "rf");
+    model.apply_pulse(sinc_pulse);
     model.apply_time_interval("refocalization");
 
     std::vector<sycomore::Magnetization> magnetization;

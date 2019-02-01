@@ -38,6 +38,12 @@ std::vector<T> linspace(T min, T max, size_t size)
     return result;
 }
 
+template<typename T>
+std::vector<T> linspace(T span, size_t size)
+{
+    return linspace(-span/2., span/2., size);
+}
+
 }
 
 #endif // _a5b5eb59_d6dc_4067_b736_f03a01085d12

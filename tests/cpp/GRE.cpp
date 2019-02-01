@@ -22,7 +22,7 @@ struct Fixture
 
     static sycomore::units::Angle const flip_angle;
     static sycomore::units::Time const pulse_duration;
-    static int const pulse_support_size = 100;
+    static int const pulse_support_size = 101;
     static int const zero_crossings = 2;
 
     static sycomore::units::Time const TR;
@@ -78,25 +78,17 @@ BOOST_FIXTURE_TEST_CASE(Ideal, Fixture, *boost::unit_test::tolerance(1e-15))
 
 BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
 {
-    auto const sinc = [](sycomore::Real x) { return x==0?1:std::sin(x*M_PI)/(x*M_PI); };
-    auto const pulse_support = sycomore::linspace(
-        -sycomore::Real(zero_crossings), +sycomore::Real(zero_crossings),
-        1+pulse_support_size);
-
-    auto const bandwidth = 2 * zero_crossings / pulse_duration;
-    sycomore::GradientMoment const slice_selection_gradient_moment =
-        2*M_PI*bandwidth*pulse_duration/slice_thickness;
+    auto const t0 = pulse_duration/(2*zero_crossings);
+    sycomore::HardPulseApproximation sinc_pulse(
+        {flip_angle, 0_rad},
+        sycomore::linspace(pulse_duration, pulse_support_size),
+        sycomore::sinc_envelope(t0), 1/t0, slice_thickness, "rf");
 
     sycomore::Model model(
         species, m0, {
-            {"rf", {
-                pulse_duration/pulse_support_size, {
-                    sycomore::GradientMoment(0), sycomore::GradientMoment(0),
-                    slice_selection_gradient_moment/pulse_support_size}}},
-            {"echo", {
-                (TR-pulse_duration)/2., {
-                    sycomore::GradientMoment(0), sycomore::GradientMoment(0),
-                    -slice_selection_gradient_moment/2}}}
+            {"rf", sinc_pulse.get_time_interval()},
+            {"half_echo", {
+                (TR-pulse_duration).value/2., -sinc_pulse.get_gradient_moment()/2}}
     });
 
     std::vector<sycomore::Magnetization> magnetization;
@@ -112,13 +104,11 @@ BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
     auto const start = std::chrono::high_resolution_clock::now();
     for(int i=0; i<TR_count; ++i)
     {
-        auto const phase = (M_PI/3+(i%2)*M_PI)*rad;
-        auto const pulses = sycomore::hard_pulse_approximation(
-            {flip_angle, phase}, sinc, pulse_support);
-        model.apply_pulses(pulses, "rf");
-        model.apply_time_interval("echo");
+        sinc_pulse.set_phase((M_PI/3+(i%2)*M_PI)*rad);
+        model.apply_pulse(sinc_pulse);
+        model.apply_time_interval("half_echo");
         magnetization.push_back(model.isochromat());
-        model.apply_time_interval("echo");
+        model.apply_time_interval("half_echo");
     }
     auto const total_time = std::chrono::duration<double, std::ratio<1>>(
         std::chrono::high_resolution_clock::now()-start).count();

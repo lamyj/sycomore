@@ -4,6 +4,7 @@
 #include <cmath>
 #include <fstream>
 
+#include <sycomore/HardPulseApproximation.h>
 #include <sycomore/magnetization.h>
 #include <sycomore/Model.h>
 #include <sycomore/Pulse.h>
@@ -19,7 +20,7 @@ BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-14))
 
     sycomore::Pulse const pulse(90_deg, M_PI*rad);
     auto const pulse_duration=1_ms;
-    int const pulse_support_size = 100;
+    int const pulse_support_size = 101;
     int const zero_crossings = 2;
 
     // NOTE: in the absence of relaxation and diffusion, the TR is meaningless
@@ -28,35 +29,26 @@ BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-14))
 
     int const sampling_support_size = 501;
 
-    auto const pulses = sycomore::hard_pulse_approximation(
+    auto const t0 = pulse_duration/(2*zero_crossings);
+    sycomore::HardPulseApproximation const sinc_pulse(
         pulse,
-        [](sycomore::Real x) { return x==0?1:std::sin(x*M_PI)/(x*M_PI); },
-        sycomore::linspace(
-            -sycomore::Real(zero_crossings), +sycomore::Real(zero_crossings),
-            1+pulse_support_size));
+        sycomore::linspace(pulse_duration, pulse_support_size),
+        sycomore::sinc_envelope(t0), 1/t0, slice_thickness, "rf");
 
-    auto const bandwidth = 2 * zero_crossings / pulse_duration;
-    auto const slice_selection_gradient_moment =
-        2*M_PI*bandwidth*pulse_duration/slice_thickness;
+    sycomore::TimeInterval const refocalization(
+        (TR-pulse_duration).value/2., -sinc_pulse.get_gradient_moment()/2);
 
     auto const sampling_locations = sycomore::linspace(
-        sycomore::Point{0_m, 0_m, -slice_thickness},
-        sycomore::Point{0_m, 0_m, +slice_thickness},
+        sycomore::Point{0_m, 0_m, 2*slice_thickness},
         sampling_support_size);
 
     sycomore::Model model(
         species, m0, {
-            {"rf", {
-                pulse_duration/pulse_support_size, {
-                    0*1/m, 0*1/m,
-                    slice_selection_gradient_moment/pulse_support_size}}},
-            {"refocalization", {
-                (TR-pulse_duration)/2., {
-                    0*1/m, 0*1/m,
-                    -slice_selection_gradient_moment/2}}}
+            {"rf", sinc_pulse.get_time_interval()},
+            {"refocalization", refocalization}
     });
 
-    model.apply_pulses(pulses, "rf");
+    model.apply_pulse(sinc_pulse);
 
     std::vector<sycomore::Magnetization> before_refocalization;
     for(auto && location: sampling_locations)

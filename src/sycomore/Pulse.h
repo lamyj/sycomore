@@ -30,11 +30,6 @@ public:
     RotationMatrix rotation_matrix() const;
 };
 
-std::vector<Pulse>
-hard_pulse_approximation(
-    Pulse const & pulse, std::function<Real(Real)> const & envelope,
-    std::vector<Real> const & support);
-
 }
 
 #endif // _b46b179a_64e7_41db_9643_82051c4aa85a

@@ -132,19 +132,18 @@ Model
 
 void
 Model
-::apply_pulses(
-    std::vector<Pulse> const & pulses, std::string const & interval_name)
+::apply_pulse(HardPulseApproximation const & pulse)
 {
-    if(pulses.empty())
+    if(pulse.get_pulses().empty())
     {
         return;
     }
 
-    this->apply_pulse(pulses[0]);
-    for(size_t i=1; i!=pulses.size(); ++i)
+    this->apply_pulse(pulse.get_pulses()[0]);
+    for(size_t i=1; i!=pulse.get_pulses().size(); ++i)
     {
-        this->apply_time_interval(interval_name);
-        this->apply_pulse(pulses[i]);
+        this->apply_time_interval(pulse.get_name());
+        this->apply_pulse(pulse.get_pulses()[i]);
     }
 }
 
