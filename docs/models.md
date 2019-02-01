@@ -93,3 +93,66 @@ The `isochromat` function return a `Magnetization` object, i.e. a 3D vector with
 - the set of configurations to include in the computation; by default all configurations are used, and an empty set (`{}`) specifies this explicitely
 - the location at which to perform the computation, in order to compute e.g. slice profiles
 - the relative frequency to account for off-resonance effects
+
+## Spin echo with a slice-selective sinc pulse
+
+The previous example can be easily adapted to use a slice-selective sinc pulse with a slice-rephasing gradient.
+
+```cpp
+#include <sycomore/Model.h>
+#include <sycomore/Pulse.h>
+#include <sycomore/Species.h>
+#include <sycomore/TimeInterval.h>
+#include <sycomore/units.h>
+
+int main()
+{
+    using namespace sycomore::units;
+    
+    auto const TR = 700_ms;
+    auto const TE = 20_ms;
+    
+    sycomore::Species const water(4000_ms, 2000_ms, 2.317_um*um/s);
+    
+    // Hard pulse model
+    sycomore::Pulse const pulse(90_deg, 0_rad);
+    
+    // Approximation parameters
+    auto const pulse_duration=1_ms;
+    int const pulse_support_size = 101;
+    int const zero_crossings = 2;
+    auto const slice_thickness=1_mm;
+    
+    auto const t0 = pulse_duration/(2*zero_crossings);
+    sycomore::HardPulseApproximation const excitation(
+        pulse,
+        sycomore::linspace(pulse_duration, pulse_support_size),
+        sycomore::sinc_envelope(t0), 1/t0, slice_thickness, "rf");
+    
+    sycomore::Pulse const refocalization(180_deg, 0_rad);
+    
+    // Slice-rephasing gradient lobe: without ramps on the gradient, and with a
+    // sinc pulse, the area of the rephasing gradient is -1/2 the area of the 
+    // slice selection gradient.
+    sycomore::Model model(
+        water, {0,0,1}, {
+            {excitation.get_name(), excitation.get_time_interval()},
+            {"slice_rephasing", {
+                (TE-pulse_duration).value/2., -excitation.get_gradient_moment()/2}},
+            {"half_echo", {(TE-pulse_duration)/2.}},
+            {"idle", {TR-TE-pulse_duration}}
+    });
+    
+    model.apply_pulse(excitation);
+    model.apply_time_interval("slice_rephasing");
+    model.apply_pulse(refocalization);
+    model.apply_time_interval("half_echo");
+    auto const echo_signal = model.isochromat();
+    model.apply_time_interval("idle");
+    auto const end_tr_signal = model.isochromat();
+}
+```
+
+With the exception of definition of the hard pulse approximation, this example is very similar to the previous one: objects of type `HardPulseApproximation` are applied in the same way as objects of type `Pulse`. The last parameter of the `HardPulseApproximation` constructor is the name of the time interval which will be applied during the hard pulses when calling `apply_pulse` with a `HardPulseApproximation` object.
+
+The previous-to-last two parameters of the `HardPulseApproximation` constructor (bandwidth and slice thickness) are optional: if they are not specified, the pulse is played without a slice selection gradient.

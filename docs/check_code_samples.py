@@ -17,6 +17,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Build and run the code samples in the documentation")
     parser.add_argument("build_directory")
+    parser.add_argument("files", nargs="*", metavar="file")
     arguments = parser.parse_args()
     
     configuration = {}
@@ -28,7 +29,10 @@ def main():
     configuration["include_path"] = os.path.join(source, "src")
     configuration["library_path"] = os.path.join(binary, "src")
     
-    for path in sorted(glob.glob(os.path.join(docs, "*.md"))):
+    if not arguments.files:
+        arguments.files = glob.glob(os.path.join(docs, "*.md"))
+    
+    for path in sorted(arguments.files):
         check_file(path, configuration)
     
 def check_file(markdown_path, configuration):
