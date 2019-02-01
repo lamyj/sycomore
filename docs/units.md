@@ -9,7 +9,7 @@ Unit objects contain their value in the base SI unit and may be converted to a c
 ```cpp
 #include <sycomore/units.h>
 
-void main()
+int main()
 {
     using namespace sycomore::units;
     

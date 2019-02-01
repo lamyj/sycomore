@@ -8,14 +8,14 @@ The following code sample creates two equivalent time intervals:
 #include <sycomore/TimeInterval.h>
 #include <sycomore/units.h>
 
-void main()
+int main()
 {
     using namespace sycomore::units;
     
     // Values in base SI values
-    sycomore::TimeInterval const foo(0.5, 0.001);
+    sycomore::TimeInterval const idle(0.5, 0.001);
     
     // Values using units
-    sycomore::TimeInterval const bar(500_ms, 1/mm);
+    sycomore::TimeInterval const refocalization(500_ms, 1/mm);
 }
 ```

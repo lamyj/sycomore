@@ -11,13 +11,13 @@ The creation of a configuration model requires a `Species` object, the correspon
 #include <sycomore/TimeInterval.h>
 #include <sycomore/units.h>
 
-void main()
+int main()
 {
     using namespace sycomore::units;
     
     sycomore::Species const water(4000_ms, 2000_ms, 2.317_um*um/s);
     sycomore::TimeInterval const half_echo(20_ms);
-    sycomore::Magnetization const m0(0,0,1);
+    sycomore::Magnetization const m0{0,0,1};
     
     sycomore::Model model(water, m0, {{"half_echo", half_echo}});
 }
@@ -29,7 +29,7 @@ Note that the last parameter uses an initializer list to build a `std::map<std::
 #include <sycomore/Model.h>
 #include <sycomore/units.h>
 
-void main()
+int main()
 {
     using namespace sycomore::units;
     
@@ -53,7 +53,7 @@ The pulses and time intervals (with or without gradients) in a sequence can be s
 #include <sycomore/TimeInterval.h>
 #include <sycomore/units.h>
 
-void main()
+int main()
 {
     using namespace sycomore::units;
     
@@ -63,13 +63,13 @@ void main()
     sycomore::Species const water(4000_ms, 2000_ms, 2.317_um*um/s);
     
     sycomore::TimeInterval const half_echo(TE/2);
-    sycomore::TimeInterval const rest(TR-TE);
+    sycomore::TimeInterval const idle(TR-TE);
     
     sycomore::Pulse const excitation(90_deg, 0_deg);
     sycomore::Pulse const refocalization(180_deg, 0_deg);
     
-    sycomore::Model const model(
-        water, {0,0,1}, {{"half_echo", half_echo}, {"rest", rest}});
+    sycomore::Model model(
+        water, {0,0,1}, {{"half_echo", half_echo}, {"idle", idle}});
     
     model.apply_pulse(excitation);
     model.apply_time_interval("half_echo");
@@ -77,7 +77,7 @@ void main()
     model.apply_time_interval("half_echo");
     auto const echo_signal = model.isochromat();
     
-    model.apply_time_interval("rest");
+    model.apply_time_interval("idle");
     auto const end_tr_signal = model.isochromat();
     
     std::cout 

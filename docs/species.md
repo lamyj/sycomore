@@ -14,7 +14,7 @@ The parameters of the constructors of the `Species` class are (in order):
 #include <sycomore/Species.h>
 #include <sycomore/units.h>
 
-void main()
+int main()
 {
     // In this example, the relaxation paramters are always the same, but 
     // specified using different syntaxes.
@@ -22,12 +22,12 @@ void main()
     using namespace sycomore::units;
     
     // Values in base SI values, default parameters (D=0, R2_prime=0, delta_omega=0)
-    sycomore::Species const foo(1.0, 0.1);
+    sycomore::Species const s1(1.0, 0.1);
     
     // Values using times, user-specified diffusivity
-    sycomore::Species const bar(1000_ms, 100_ms, 0.89_um*um/s);
+    sycomore::Species const s2(1000_ms, 100_ms, 0.89_um*um/s);
     
     // Values using rates
-    sycomore::Species const bar(1_Hz, 1/100_ms);
+    sycomore::Species const s3(1_Hz, 1/100_ms);
 }
 ```
