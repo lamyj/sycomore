@@ -33,7 +33,7 @@ When compiling with GCC on Debian 9, `-ffast-math` enables `-ffinite-math-only`,
 ```sh
 cmake \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_CXX_FLAGS="-march=native -fno-math-errno -funsafe-math-optimizations -fno-rounding-math -fno-signaling-nans -fcx-limited-range -fexcess-precision=fast -D__FAST_MATH__" ⁠\
+  -DCMAKE_CXX_FLAGS="-march=native -fno-math-errno -funsafe-math-optimizations -fno-rounding-math -fno-signaling-nans -fcx-limited-range -fexcess-precision=fast -D__FAST_MATH__" \
   ..
 ```
 

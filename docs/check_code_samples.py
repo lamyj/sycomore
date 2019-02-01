@@ -1,4 +1,5 @@
 import argparse
+import codecs
 import glob
 import os
 import re
@@ -31,7 +32,7 @@ def main():
         check_file(path, configuration)
     
 def check_file(markdown_path, configuration):
-    with open(markdown_path) as fd:
+    with codecs.open(markdown_path, encoding="utf-8") as fd:
         html = markdown.markdown(fd.read(), extensions=["fenced_code"])
     document = bs4.BeautifulSoup(html, "html.parser")
 
@@ -56,7 +57,9 @@ def check_cpp(path, configuration):
         "-L", configuration["library_path"], "-l", "sycomore",
         "-o", os.path.splitext(path)[0],
         path])
-    subprocess.check_output([os.path.splitext(path)[0]])
+    environment = os.environ.copy()
+    environment["LD_LIBRARY_PATH"] = configuration["library_path"]
+    subprocess.check_output([os.path.splitext(path)[0]], env=environment)
 
 if __name__ == "__main__":
     sys.exit(main())
