@@ -1,5 +1,11 @@
 #include "units.h"
 
+#include <cmath>
+#include <ostream>
+
+#include "sycomore/Dimensions.h"
+#include "sycomore/Quantity.h"
+
 namespace sycomore
 {
 
@@ -7,8 +13,8 @@ namespace units
 {
 
 #define SYCOMORE_DEFINE_UNIT(Type, name) \
-    Type operator "" _##name(unsigned long long v) { return double(v)*name; } \
-    Type operator "" _##name(long double v) { return double(v)*name; }
+    Quantity operator "" _##name(unsigned long long v) { return double(v)*name; } \
+    Quantity operator "" _##name(long double v) { return double(v)*name; }
 
 #define SYCOMORE_DEFINE_UNITS(Type, name) \
     SYCOMORE_DEFINE_UNIT(Type, Y##name) \

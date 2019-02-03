@@ -362,7 +362,7 @@ Magnetization
 Model
 ::isochromat(
     std::set<Index> const & configurations, Point const & position,
-    units::AngularFrequency relative_frequency) const
+    Quantity const & relative_frequency) const
 {
     auto const start = std::chrono::high_resolution_clock::now();
 
@@ -371,7 +371,7 @@ Model
     Array<Real> position_real(position.size(), 0);
     std::transform(
         position.begin(), position.end(), position_real.begin(),
-        [](Point::value_type const & x){ return x.value; });
+        [](Point::value_type const & x){ return x.convert_to(units::m); });
 
     auto const omega =
         relative_frequency.convert_to(units::rad/units::s)

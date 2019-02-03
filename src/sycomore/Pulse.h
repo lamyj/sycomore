@@ -24,7 +24,7 @@ public:
 
     Pulse(double angle, double phase);
 
-    Pulse(units::Angle angle, units::Angle phase);
+    Pulse(Quantity const & angle, Quantity const & phase);
 
     /// @brief Return the rotation matrix for complex magnetization.
     RotationMatrix rotation_matrix() const;

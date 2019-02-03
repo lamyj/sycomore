@@ -33,18 +33,9 @@ public:
         Real D=0, Real R2_prime=0, Real delta_omega=0, Real w=1);
 
     Species(
-        units::Frequency R1, units::Frequency R2,
-        Diffusion D=Diffusion(0.),
-        units::Frequency R2_prime=units::Frequency(0.),
-        units::AngularFrequency delta_omega=units::AngularFrequency(0.),
-        Real w=1);
-
-    Species(
-        units::Time T1, units::Time T2,
-        Diffusion D=Diffusion(0.),
-        units::Time T2_prime=units::Time(INFINITY),
-        units::AngularFrequency delta_omega=units::AngularFrequency(0.),
-        Real w=1);
+        Quantity const & R1, Quantity const & R2,
+        Quantity const & D={0, Diffusion}, Quantity const & R2_prime={0, Frequency},
+        Quantity const & delta_omega={0, AngularFrequency}, Real w=1);
 };
 
 }

@@ -13,7 +13,7 @@ namespace sycomore
 
 HardPulseApproximation
 ::HardPulseApproximation(
-    Pulse const & model, std::vector<units::Time> const & support,
+    Pulse const & model, std::vector<Quantity> const & support,
     Envelope const & envelope, std::string const & name)
 : _name(name)
 {
@@ -30,14 +30,15 @@ HardPulseApproximation
     }
 
     auto const pulse_duration = support.back()-support.front();
-    this->_time_interval.duration = pulse_duration.value/(support.size()-1);
+    this->_time_interval.duration =
+        pulse_duration.convert_to(units::s)/(support.size()-1);
 }
 
 HardPulseApproximation
 ::HardPulseApproximation(
-    Pulse const & model, std::vector<units::Time> const & support,
-    Envelope const & envelope, units::Frequency const & bandwidth,
-    units::Length const & slice_thickness, std::string const & name)
+    Pulse const & model, std::vector<Quantity> const & support,
+    Envelope const & envelope, Quantity const & bandwidth,
+    Quantity const & slice_thickness, std::string const & name)
 : HardPulseApproximation(model, support, envelope, name)
 {
     // From Handbook, eq. 8.53, which gives gradient amplitude. Assuming a
@@ -45,7 +46,8 @@ HardPulseApproximation
     // duration
     auto const pulse_duration = support.back()-support.front();
     auto const total_moment =
-        2*M_PI*bandwidth.value/slice_thickness.value * pulse_duration.value;
+        2*M_PI*bandwidth.convert_to(units::Hz)/slice_thickness.convert_to(units::m)
+        * pulse_duration.convert_to(units::s);
     this->_time_interval.gradient_moment = {
         0., 0., total_moment/(support.size()-1)};
 }
@@ -80,7 +82,7 @@ HardPulseApproximation
 
 void
 HardPulseApproximation
-::set_phase(units::Angle const & phase)
+::set_phase(Quantity const & phase)
 {
     this->set_phase(phase.convert_to(units::rad));
 }
@@ -95,10 +97,10 @@ HardPulseApproximation
     }
 }
 
-HardPulseApproximation::Envelope sinc_envelope(units::Time const & t0)
+HardPulseApproximation::Envelope sinc_envelope(Quantity const & t0)
 {
-    return [&](units::Time const x) {
-        auto const x_scaled = x.value/t0.value;
+    return [&](Quantity const x) {
+        auto const x_scaled = x.convert_to(units::s)/t0.convert_to(units::s);
         return x_scaled==0?1:std::sin(x_scaled*M_PI)/(x_scaled*M_PI);
     };
 }

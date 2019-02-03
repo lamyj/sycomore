@@ -20,22 +20,22 @@ struct Fixture
     static sycomore::Species const species;
     static sycomore::Magnetization const m0;
 
-    static sycomore::units::Angle const flip_angle;
-    static sycomore::units::Time const pulse_duration;
+    static sycomore::Quantity const flip_angle;
+    static sycomore::Quantity const pulse_duration;
     static int const pulse_support_size = 101;
     static int const zero_crossings = 2;
 
-    static sycomore::units::Time const TR;
-    static sycomore::units::Length const slice_thickness;
+    static sycomore::Quantity const TR;
+    static sycomore::Quantity const slice_thickness;
 
     static size_t const TR_count = 10;
 };
 sycomore::Species const Fixture::species{1000_ms, 100_ms, 0.89_um*um/ms};
 sycomore::Magnetization const Fixture::m0{0,0,1};
-sycomore::units::Angle const Fixture::flip_angle=40_deg;
-sycomore::units::Time const Fixture::pulse_duration=1_ms;
-sycomore::units::Time const Fixture::TR=500_ms;
-sycomore::units::Length const Fixture::slice_thickness=1_mm;
+sycomore::Quantity const Fixture::flip_angle=40_deg;
+sycomore::Quantity const Fixture::pulse_duration=1_ms;
+sycomore::Quantity const Fixture::TR=500_ms;
+sycomore::Quantity const Fixture::slice_thickness=1_mm;
 
 BOOST_FIXTURE_TEST_CASE(Ideal, Fixture, *boost::unit_test::tolerance(1e-15))
 {
@@ -88,7 +88,8 @@ BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
         species, m0, {
             {"rf", sinc_pulse.get_time_interval()},
             {"half_echo", {
-                (TR-pulse_duration).value/2., -sinc_pulse.get_gradient_moment()/2}}
+                (TR-pulse_duration).convert_to(sycomore::units::s)/2.,
+                -sinc_pulse.get_gradient_moment()/2}}
     });
 
     std::vector<sycomore::Magnetization> magnetization;

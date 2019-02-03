@@ -4,7 +4,7 @@ MRI simulations deal with various quantities: times, frequencies and angular fre
 
 Sycomore provides a unit system so that users do not have to convert their quantities to a specific unit. In C++, units may be declared either by using a custom suffix (e.g. `500_ms`) or by multiplying or dividing by the unit name (e.g. `500*ms`). Those two syntaxes can be mixed in order to use more complex units (e.g. `267.522_MHz/T`). Unit objects follow the usual arithmetic rules, and all SI [base units](https://en.wikipedia.org/wiki/SI_base_unit), [derived units](https://en.wikipedia.org/wiki/SI_derived_unit) and [prefixes](https://en.wikipedia.org/wiki/Metric_prefix). Moreover, Sycomore defines MRI-specific units, such as the diffusion coefficient (in _[L<sup>2</sup>/T]_) or gradient moments (in _[L<sup>-1</sup>]_).
 
-Unit objects contain their value in the base SI unit and may be converted to a compatible units. The following code sample summarizes these features.
+`Quantity` objects contain their value in the base SI unit and may be converted to a compatible unit. The following code sample summarizes these features.
 
 ```cpp
 #include <sycomore/units.h>
@@ -14,16 +14,16 @@ int main()
     using namespace sycomore::units;
     
     // Unit suffix
-    Time const repetition_time = 500_ms;
+    auto const repetition_time = 500_ms;
     // Unit as an object
-    Time const echo_time = 100*ms;
+    auto const echo_time = 100*ms;
     
     // Suffix and objects, along with type inference
     auto const diffusion = 0.89_um*um/ms;
     
     // Value in SI base unit
     auto const length = 180_cm;
-    double const length_in_meters = length.value; // equals to 1.8
+    double const length_in_meters = length.magnitude; // equals to 1.8
     
     // Value in a compatible unit
     auto const duration = 1_h;

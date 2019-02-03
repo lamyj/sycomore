@@ -15,10 +15,10 @@ namespace sycomore
 class HardPulseApproximation
 {
 public:
-    using Envelope = std::function<Real(units::Time)>;
+    using Envelope = std::function<Real(Quantity const &)>;
 
     HardPulseApproximation(
-        Pulse const & model, std::vector<units::Time> const & support,
+        Pulse const & model, std::vector<Quantity> const & support,
         Envelope const & envelope, std::string const & name);
 
     /**
@@ -26,9 +26,9 @@ public:
      * during the time interval.
      */
     HardPulseApproximation(
-        Pulse const & model, std::vector<units::Time> const & support,
-        Envelope const & envelope, units::Frequency const & bandwidth,
-        units::Length const & slice_thickness, std::string const & name);
+        Pulse const & model, std::vector<Quantity> const & support,
+        Envelope const & envelope, Quantity const & bandwidth,
+        Quantity const & slice_thickness, std::string const & name);
 
     std::vector<Pulse> const & get_pulses() const;
     TimeInterval const & get_time_interval() const;
@@ -36,7 +36,7 @@ public:
 
     Array<Real> get_gradient_moment() const;
 
-    void set_phase(units::Angle const & phase);
+    void set_phase(Quantity const & phase);
     void set_phase(Real const & phase);
 
 private:
@@ -45,7 +45,7 @@ private:
     std::string _name;
 };
 
-HardPulseApproximation::Envelope sinc_envelope(units::Time const & t0);
+HardPulseApproximation::Envelope sinc_envelope(Quantity const & t0);
 
 }
 

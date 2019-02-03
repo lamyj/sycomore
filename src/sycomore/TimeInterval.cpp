@@ -14,7 +14,7 @@ TimeInterval
 }
 
 TimeInterval
-::TimeInterval(units::Time duration, GradientMoment gradient_moment)
+::TimeInterval(Quantity const & duration, Quantity const & gradient_moment)
 : TimeInterval(duration.convert_to(units::s),
     gradient_moment.convert_to(1/units::m))
 {
@@ -29,7 +29,7 @@ TimeInterval
 }
 
 TimeInterval
-::TimeInterval(units::Time duration, Array<GradientMoment> gradient_moment_)
+::TimeInterval(Quantity const & duration, Array<Quantity> const & gradient_moment_)
 : duration(duration.convert_to(units::s))
 {
     this->gradient_moment = Array<Real>(gradient_moment_.size());

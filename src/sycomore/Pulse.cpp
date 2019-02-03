@@ -19,7 +19,7 @@ Pulse
 }
 
 Pulse
-::Pulse(units::Angle angle, units::Angle phase)
+::Pulse(Quantity const & angle, Quantity const & phase)
 : Pulse(angle.convert_to(units::rad), phase.convert_to(units::rad))
 {
     // Nothing else.

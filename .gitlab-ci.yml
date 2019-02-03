@@ -8,7 +8,7 @@
     - ./.ci/deb/post_build
 
 pages:
-  stage: deploy
+  stage: build
   image: debian:stretch
   variables:
     LC_ALL: C.UTF-8

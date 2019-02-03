@@ -17,23 +17,24 @@ using Index = Array<int>;
 using Shape = Array<unsigned int>;
 using Stride = Array<unsigned int>;
 
-using Point = Array<units::Length>;
+using Point = Array<Quantity>;
 
-using Diffusion = units::div<units::pow<units::Length, 2>, units::Time>;
+auto const Diffusion = std::pow(Length, 2)/Time;
 
 // NOTE: gradient moment is gamma * integral(g(t)*dt), with gamma in
 // [T^-1 * s^-1] and g(t) in [T * m^-1] (thus integral(g(t)*dt)
 // in [T * m^-1 * s]). Gradient moment is then in [m^-1]
-using GradientMoment = units::pow<units::Length, -1>;
+auto const GradientMoment = std::pow(Length, -1);
 
 template<typename T>
 std::vector<T> linspace(T min, T max, size_t size)
 {
-    std::vector<T> result(size, T(0));
+    std::vector<T> result;
+    result.reserve(size);
     auto const delta = (max-min)/(size-1);
-    for(size_t i=0; i<result.size(); ++i)
+    for(size_t i=0; i<size; ++i)
     {
-        result[i] = min+i*delta;
+        result.push_back(min+i*delta);
     }
     return result;
 }

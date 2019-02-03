@@ -19,9 +19,9 @@ struct TimeInterval
 
     TimeInterval(Real duration=0, Real gradient_moment=0);
     TimeInterval(
-        units::Time duration, GradientMoment gradient_moment=GradientMoment(0));
+        Quantity const & duration, Quantity const & gradient_moment={0,GradientMoment});
     TimeInterval(Real duration, Array<Real> gradient_moment);
-    TimeInterval(units::Time duration, Array<GradientMoment> gradient_moment);
+    TimeInterval(Quantity const & duration, Array<Quantity> const & gradient_moment);
 
     bool operator==(TimeInterval const & other) const;
     bool operator!=(TimeInterval const & other) const;
