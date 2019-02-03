@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(SubtractionInPlace)
     BOOST_CHECK(q1 == r);
 
     sycomore::Quantity const q3{2, {0,1,0,0,0,0,0}};
-    BOOST_CHECK_THROW(q1 += q3, std::runtime_error);
+    BOOST_CHECK_THROW(q1 -= q3, std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(MultiplicationInPlace)

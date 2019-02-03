@@ -3,4 +3,12 @@
 set -ev
 
 apt-get -y update
-apt-get -y --no-install-recommends install cmake g++ libboost-dev libboost-test-dev make
+
+apt-get -y --no-install-recommends install gnupg software-properties-common wget
+wget -O - http://dl.bintray.com/lamyj/generic/gpg.key | apt-key add -
+add-apt-repository "deb http://dl.bintray.com/lamyj/generic/apt $(lsb_release -cs) main"
+
+apt-get -y --no-install-recommends install \
+    cmake g++ libboost-dev make \
+    pybind11-dev python3-pybind11 python3-dev \
+    libboost-test-dev

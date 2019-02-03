@@ -8,9 +8,9 @@ endif()
 
 link_directories(${Boost_LIBRARY_DIRS})
 
-file(GLOB_RECURSE tests cpp/*.cpp)
+file(GLOB_RECURSE cpp_tests cpp/*.cpp)
 
-foreach(test_file ${tests})
+foreach(test_file ${cpp_tests})
     get_filename_component(unit ${test_file} NAME_WE)
     get_filename_component(module ${test_file} PATH)
     get_filename_component(module ${module} NAME)
@@ -42,3 +42,7 @@ file(GLOB_RECURSE data data/*)
 add_custom_target(
     data ${CMAKE_COMMAND} -E echo "Data" SOURCES ${data})
 set_target_properties(data PROPERTIES FOLDER "Test data")
+
+file(GLOB_RECURSE python_tests python/*.py)
+add_custom_target(
+    python_tests ${CMAKE_COMMAND} -E echo "Python tests" SOURCES ${python_tests})

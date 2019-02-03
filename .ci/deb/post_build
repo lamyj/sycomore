@@ -3,9 +3,14 @@
 set -ev
 
 export WORKSPACE=${WORKSPACE:?}
-
 export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
+export INSTALL_DIR="${WORKSPACE}/${INSTALL_DIR:-install}"
+
+export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
+export PYTHONPATH=$(ls ${INSTALL_DIR}/lib/python*/site-packages/)
+
 export SYCOMORE_TEST_DATA=${WORKSPACE}/tests/data
 
 cd "${BUILD_DIR}"
 ctest -T Test
+python3 -m unittest discover -s ${WORKSPACE}/tests/python/
