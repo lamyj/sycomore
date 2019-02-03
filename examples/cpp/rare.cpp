@@ -16,9 +16,9 @@ int main()
     auto const TE = 5_ms;
     auto const train_length = 32;
     sycomore::TimeInterval const half_echo(TE/2);
-    sycomore::TimeInterval const rest(TR-train_length*TE);
+    sycomore::TimeInterval const idle(TR-train_length*TE);
     sycomore::Model model(
-        gray_matter, {0,0,1}, {{"half_echo", half_echo}, {"rest", rest}});
+        gray_matter, {0,0,1}, {{"half_echo", half_echo}, {"idle", idle}});
 
     std::vector<std::pair<sycomore::Real, sycomore::Real>> signal;
 
@@ -37,8 +37,8 @@ int main()
         auto const m = model.isochromat();
         signal.emplace_back(time, m.transversal());
     }
-    model.apply_time_interval("rest");
-    time += rest.duration;
+    model.apply_time_interval("idle");
+    time += idle.duration;
 
 
     for(auto it = signal.begin(); it!=signal.end(); ++it)

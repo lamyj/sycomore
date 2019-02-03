@@ -7,7 +7,7 @@ export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
 export INSTALL_DIR="${WORKSPACE}/${INSTALL_DIR:-install}"
 
 export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
-export PYTHONPATH=$(ls ${INSTALL_DIR}/lib/python*/site-packages/)
+export PYTHONPATH=${INSTALL_DIR}/$(python3 -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))")
 
 export SYCOMORE_TEST_DATA=${WORKSPACE}/tests/data
 
