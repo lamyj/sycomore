@@ -113,7 +113,6 @@ SYCOMORE_DECLARE_UNITS(AbsorbedDose, Gy);
 SYCOMORE_DECLARE_UNITS(EquivalentDose, Sv);
 SYCOMORE_DECLARE_UNITS(CatalyticActivity, kat);
 
-
 /// @}
 
 }

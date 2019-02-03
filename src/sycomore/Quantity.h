@@ -15,6 +15,8 @@ public:
     double magnitude;
     Dimensions dimensions;
 
+    Quantity(double magnitude={}, Dimensions const & dimensions={});
+
     bool operator==(Quantity const & other) const;
     bool operator!=(Quantity const & other) const;
 

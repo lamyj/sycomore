@@ -8,6 +8,13 @@
 namespace sycomore
 {
 
+Quantity
+::Quantity(double magnitude, Dimensions const & dimensions)
+: magnitude(magnitude), dimensions(dimensions)
+{
+    // Nothing else.
+}
+
 bool
 Quantity
 ::operator==(Quantity const & other) const

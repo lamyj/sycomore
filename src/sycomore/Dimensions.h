@@ -17,6 +17,11 @@ public:
     int amount_of_substance;
     int luminous_intensity;
 
+    Dimensions(
+        int length=0, int mass=0, int time=0, int electric_current=0,
+        int thermodynamic_temperature=0, int amount_of_substance=0,
+        int luminous_intensity=0);
+
     bool operator==(Dimensions const & other) const;
     bool operator!=(Dimensions const & other) const;
 

@@ -5,6 +5,19 @@
 namespace sycomore
 {
 
+Dimensions
+::Dimensions(
+    int length, int mass, int time, int electric_current,
+    int thermodynamic_temperature, int amount_of_substance,
+    int luminous_intensity)
+: length(length), mass(mass), time(time), electric_current(electric_current),
+    thermodynamic_temperature(thermodynamic_temperature),
+    amount_of_substance(amount_of_substance),
+    luminous_intensity(luminous_intensity)
+{
+    // Nothing else.
+}
+
 bool
 Dimensions
 ::operator==(Dimensions const & other) const
