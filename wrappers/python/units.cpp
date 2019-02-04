@@ -3,12 +3,12 @@
 
 #include "sycomore/units.h"
 
-void wrap_units(pybind11::module & m)
+void wrap_units(pybind11::module & module)
 {
     using namespace pybind11;
     using namespace sycomore::units;
 
-    auto units = m.def_submodule("units");
+    auto units = module.def_submodule("units");
 
 #define SYCOMORE_WRAPPED_UNIT(name) units.attr(#name) = name;
 #define SYCOMORE_WRAPPED_UNITS(name) \
@@ -71,5 +71,4 @@ void wrap_units(pybind11::module & m)
     SYCOMORE_WRAPPED_UNITS(Gy);
     SYCOMORE_WRAPPED_UNITS(Sv);
     SYCOMORE_WRAPPED_UNITS(kat);
-
 }
