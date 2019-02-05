@@ -23,7 +23,7 @@ void wrap_TimeInterval(pybind11::module & m)
             "__init__",
             [&](TimeInterval & self, Quantity duration, sequence s) {
                 auto sycomore_py = module::import("sycomore");
-                auto Array_py = sycomore_py.attr("Array")[sycomore_py.attr("Quantity").get_type()];
+                auto Array_py = sycomore_py.attr("Array")[sycomore_py.attr("Quantity")];
                 new (&self) TimeInterval(duration, Array_py(s).cast<Array<Quantity>>());
             })
         .def_readwrite("duration", &TimeInterval::duration)
