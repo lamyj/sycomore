@@ -23,6 +23,12 @@ class TestArray(unittest.TestCase):
         self.assertFalse(array.empty())
         self.assertTrue(array)
 
+    def test_args_constructor(self):
+        array = sycomore.Array[float](1,2,3)
+        self.assertEqual(array.size(), 3)
+        self.assertFalse(array.empty())
+        self.assertTrue(array)
+
     def test_item(self):
         array = sycomore.Array[float]([1,2,3])
         array[1] = 42

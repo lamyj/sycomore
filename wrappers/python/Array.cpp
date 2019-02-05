@@ -8,7 +8,9 @@
 #include "sycomore/sycomore.h"
 
 template<typename T>
-void wrap_Array(pybind11::module & m, pybind11::object python_type, std::string const & suffix)
+void wrap_Array(
+    pybind11::module & m, pybind11::handle python_type,
+    std::string const & suffix)
 {
     using namespace pybind11;
     using namespace sycomore;
@@ -16,21 +18,14 @@ void wrap_Array(pybind11::module & m, pybind11::object python_type, std::string 
     auto const name = "_Array"+suffix;
     auto const array = class_<Array<T>>(m, name.c_str(), buffer_protocol())
         .def(init<>())
-        .def("__init__", [](Array<T> & array, buffer b) {
-            buffer_info info = b.request();
-            if(info.format != format_descriptor<T>::format())
-            {
-                throw std::runtime_error("Incompatible format");
-            }
-            if(info.ndim != 1)
-            {
-                throw std::runtime_error("Incompatible dimension");
-            }
-            new (&array) Array<T>(info.shape[0]);
-            T * data = static_cast<T *>(info.ptr);
-            std::copy(data, data+array.size(), array.begin());
-        })
         .def("__init__", [](Array<T> & array, sequence s) {
+            new (&array) Array<T>(s.size());
+            for(size_t i=0; i<array.size(); ++i)
+            {
+                array[i] = s[i].cast<T>();
+            }
+        })
+        .def("__init__", [](Array<T> & array, args s) {
             new (&array) Array<T>(s.size());
             for(size_t i=0; i<array.size(); ++i)
             {
@@ -68,7 +63,7 @@ void wrap_Array(pybind11::module & m, pybind11::object python_type, std::string 
                 return stream.str();
             });
 
-    m.attr("Array")[python_type.get_type()] = array;
+    m.attr("Array")[python_type] = array;
 }
 
 void wrap_Array(pybind11::module & m)
@@ -78,6 +73,16 @@ void wrap_Array(pybind11::module & m)
 
     m.attr("Array") = dict();
 
-    wrap_Array<Real>(m, float_(), "Real");
+    auto int_ = module::import("numpy").attr("int32");
+    auto uint_ = module::import("numpy").attr("uint32");
+
+    wrap_Array<Real>(m, float_().get_type(), "Real");
+    wrap_Array<int>(m, int_, "Int");
+    wrap_Array<unsigned int>(m, uint_, "UInt");
     wrap_Array<Quantity>(m, m.attr("Quantity"), "Quantity");
+
+    m.attr("Index") = m.attr("Array")[int_];
+    m.attr("Shape") = m.attr("Array")[uint_];
+    m.attr("Stride") = m.attr("Array")[uint_];
+
 }

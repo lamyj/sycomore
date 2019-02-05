@@ -1,6 +1,7 @@
 #ifndef _a5b5eb59_d6dc_4067_b736_f03a01085d12
 #define _a5b5eb59_d6dc_4067_b736_f03a01085d12
 
+#include <cstdint>
 #include <complex>
 #include <vector>
 
@@ -13,9 +14,9 @@ namespace sycomore
 using Real = double;
 using Complex = std::complex<Real>;
 
-using Index = Array<int>;
-using Shape = Array<unsigned int>;
-using Stride = Array<unsigned int>;
+using Index = Array<int32_t>;
+using Shape = Array<uint32_t>;
+using Stride = Array<uint32_t>;
 
 using Point = Array<Quantity>;
 
