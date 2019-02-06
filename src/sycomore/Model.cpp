@@ -389,7 +389,7 @@ Model
         Real const off_resonance = omega * tau;
 
         Real gradients_dephasing= 0;
-        if(!position_real.empty() && !std::isnan(*(this->_p.data())+3*offset))
+        if(!position_real.empty() && !std::isnan(*(this->_p.data()+3*offset)))
         {
             Array<Real> const p(const_cast<Real*>(this->_p.data())+3*offset, 3);
             gradients_dephasing = dot(p, position_real);
