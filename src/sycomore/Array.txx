@@ -411,12 +411,17 @@ dot(Array<T1> const & l, Array<T2> const & r)
 template<typename T>
 std::ostream & operator<<(std::ostream & stream, Array<T> const & array)
 {
-    auto printer = [](T const & x) {
-        std::stringstream s; s << x; return s.str(); };
-    auto const string = std::accumulate(
-        std::next(array.begin()), array.end(), printer(*array.begin()),
-        [&](std::string const & s, T const & x) { return s+" "+printer(x); });
-    stream << "(" << string << ")";
+    stream << "(";
+    if(!array.empty())
+    {
+        auto printer = [](T const & x) {
+            std::stringstream s; s << x; return s.str(); };
+        auto const string = std::accumulate(
+            std::next(array.begin()), array.end(), printer(*array.begin()),
+            [&](std::string const & s, T const & x) { return s+" "+printer(x); });
+        stream << string;
+    }
+    stream << ")";
     return stream;
 }
 

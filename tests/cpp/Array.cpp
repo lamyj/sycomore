@@ -60,6 +60,23 @@ BOOST_AUTO_TEST_CASE(InitializerListConstructor)
     }
 }
 
+BOOST_AUTO_TEST_CASE(MoveConstructor)
+{
+    sycomore::Array<size_t> array_1(3);
+    for(size_t i=0; i<array_1.size(); ++i)
+    {
+        array_1[i] = i;
+    }
+
+    sycomore::Array<size_t> const array_2(std::move(array_1));
+    BOOST_TEST(array_2.size() == 3);
+    BOOST_TEST(!array_2.empty());
+    for(size_t i=0; i<array_2.size(); ++i)
+    {
+        BOOST_TEST(array_2[i] == i);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(Assignment)
 {
     sycomore::Array<int> const array_1{1,2,3};
@@ -71,6 +88,20 @@ BOOST_AUTO_TEST_CASE(Assignment)
     for(size_t i=0; i<array_1.size(); ++i)
     {
         BOOST_TEST(array_2[i] == array_1[i]);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(MoveAssignment)
+{
+    sycomore::Array<int> array_1{0,1,2};
+    sycomore::Array<int> array_2;
+    array_2 = array_1;
+
+    BOOST_TEST(array_2.size() == 3);
+    BOOST_TEST(!array_2.empty());
+    for(size_t i=0; i<array_2.size(); ++i)
+    {
+        BOOST_TEST(array_2[i] == i);
     }
 }
 

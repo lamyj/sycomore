@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project("sycomore")
 
 set(sycomore_MAJOR_VERSION 0)
-set(sycomore_MINOR_VERSION 1)
+set(sycomore_MINOR_VERSION 4)
 set(sycomore_PATCH_VERSION 0)
 set(sycomore_VERSION
     ${sycomore_MAJOR_VERSION}.${sycomore_MINOR_VERSION}.${sycomore_PATCH_VERSION})

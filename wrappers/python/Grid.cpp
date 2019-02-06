@@ -6,6 +6,7 @@
 #include <pybind11/operators.h>
 
 #include "sycomore/Grid.h"
+#include "sycomore/magnetization.h"
 #include "sycomore/sycomore.h"
 
 template<typename T>
@@ -55,4 +56,6 @@ void wrap_Grid(pybind11::module & m)
     m.attr("Grid") = dict();
 
     wrap_Grid<Complex>(m, eval("complex"), "Complex");
+    wrap_Grid<ComplexMagnetization>(
+        m, m.attr("ComplexMagnetization"), "ComplexMagnetization");
 }

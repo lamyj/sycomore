@@ -368,6 +368,10 @@ Model
 
     Array<Complex> isochromat{0, 0, 0};
 
+    if(position.size() != 3 && !position.empty())
+    {
+        throw std::runtime_error("Invalid position");
+    }
     Array<Real> position_real(position.size(), 0);
     std::transform(
         position.begin(), position.end(), position_real.begin(),
@@ -385,7 +389,7 @@ Model
         Real const off_resonance = omega * tau;
 
         Real gradients_dephasing= 0;
-        if(!position_real.empty())
+        if(!position_real.empty() && !std::isnan(*(this->_p.data())+3*offset))
         {
             Array<Real> const p(const_cast<Real*>(this->_p.data())+3*offset, 3);
             gradients_dephasing = dot(p, position_real);

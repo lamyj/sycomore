@@ -18,20 +18,24 @@ void wrap_Array(
     auto const name = "_Array"+suffix;
     auto const array = class_<Array<T>>(m, name.c_str(), buffer_protocol())
         .def(init<>())
-        .def("__init__", [](Array<T> & array, sequence s) {
-            new (&array) Array<T>(s.size());
-            for(size_t i=0; i<array.size(); ++i)
-            {
-                array[i] = s[i].cast<T>();
-            }
-        })
-        .def("__init__", [](Array<T> & array, args s) {
-            new (&array) Array<T>(s.size());
-            for(size_t i=0; i<array.size(); ++i)
-            {
-                array[i] = s[i].cast<T>();
-            }
-        })
+        .def(init(
+            [](sequence s) {
+                Array<T> array(s.size());
+                for(size_t i=0; i<array.size(); ++i)
+                {
+                    array[i] = s[i].cast<T>();
+                }
+                return array;
+            }))
+        .def(init(
+            [](args s) {
+                Array<T> array(s.size());
+                for(size_t i=0; i<array.size(); ++i)
+                {
+                    array[i] = s[i].cast<T>();
+                }
+                return array;
+            }))
         .def_buffer([](Array<T> & array) -> buffer_info {
             return buffer_info(
                 array.begin(), sizeof(T), format_descriptor<T>::format(),
@@ -84,5 +88,5 @@ void wrap_Array(pybind11::module & m)
     m.attr("Index") = m.attr("Array")[int_];
     m.attr("Shape") = m.attr("Array")[uint_];
     m.attr("Stride") = m.attr("Array")[uint_];
-
+    m.attr("Point") = m.attr("Array")[m.attr("Quantity")];
 }
