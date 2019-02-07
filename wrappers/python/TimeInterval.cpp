@@ -14,7 +14,7 @@ void wrap_TimeInterval(pybind11::module & m)
         .def(init<Real, Real>(), arg("duration")=0, arg("gradient_moment")=0)
         .def(
             init<Quantity, Quantity>(),
-            arg("duration"), arg("gradient_moment")=0/sycomore::units::s)
+            arg("duration"), arg("gradient_moment")=0/sycomore::units::m)
         .def(init<Real, Array<Real>>())
         .def(init(
             [&](Real duration, sequence s) {

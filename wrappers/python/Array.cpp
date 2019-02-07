@@ -49,6 +49,11 @@ void wrap_Array(
         .def("__setitem__", [](Array<T> & a, size_t i, T v) { a[i]=v; })
         .def(self == self)
         .def(self != self)
+        .def(-self)
+        .def(self+self)
+        .def(self-self)
+        .def(self*T())
+        .def(self/T())
         .def(
             "__iter__",
             [](Array<T> & a) {
