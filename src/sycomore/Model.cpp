@@ -381,7 +381,7 @@ Model
         relative_frequency.convert_to(units::rad/units::s)
         +this->_species.delta_omega;
 
-    auto const update_isochromat = [&](Index const & n, size_t const & offset) {
+    auto const update_isochromat = [&](size_t const & offset) {
         auto && tau = *(this->_tau.data()+offset);
 
         Real const susceptibility = -this->_species.R2_prime * tau;
@@ -405,7 +405,7 @@ Model
     };
     auto const update_isochromat_no_offset = [&](Index const & n) {
         auto const offset = dot(n-this->_m.origin(), this->_m.stride());
-        return update_isochromat(n, offset);
+        return update_isochromat(offset);
     };
 
     if(configurations.empty())
@@ -415,7 +415,7 @@ Model
             this->_bounding_box.first, this->_bounding_box.second);
         for(auto && index_offset: scanner)
         {
-            update_isochromat(index_offset.first, index_offset.second);
+            update_isochromat(index_offset.second);
         }
     }
     else
