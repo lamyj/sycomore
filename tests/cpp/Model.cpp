@@ -153,14 +153,14 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     }
 
     auto isochromat = model.isochromat();
-    BOOST_TEST(isochromat.x == 0.125*std::sqrt(2.));
-    BOOST_TEST(isochromat.y == 0.);
-    BOOST_TEST(isochromat.z == 0.5 + 0.25*(1+std::sqrt(2.)/2.));
+    BOOST_TEST(isochromat[0] == 0.125*std::sqrt(2.));
+    BOOST_TEST(isochromat[1] == 0.);
+    BOOST_TEST(isochromat[2] == 0.5 + 0.25*(1+std::sqrt(2.)/2.));
 
     isochromat = model.isochromat({{0,0}, {-1,-1}});
-    BOOST_TEST(isochromat.x == 0.125*std::sqrt(2.)/2.);
-    BOOST_TEST(isochromat.y == 0.);
-    BOOST_TEST(isochromat.z == 0.5 + 0.25*(1+std::sqrt(2.)/2.));
+    BOOST_TEST(isochromat[0] == 0.125*std::sqrt(2.)/2.);
+    BOOST_TEST(isochromat[1] == 0.);
+    BOOST_TEST(isochromat[2] == 0.5 + 0.25*(1+std::sqrt(2.)/2.));
 }
 
 BOOST_AUTO_TEST_CASE(Diffusion)
@@ -168,9 +168,9 @@ BOOST_AUTO_TEST_CASE(Diffusion)
     using namespace sycomore::units;
 
     sycomore::Species const species{0_Hz, 0_Hz, 1_um*um/ms};
-    sycomore::TimeInterval const interval{500_ms, 0.1/um};
+    sycomore::TimeInterval const echo{500_ms, 0.1/um};
 
-    sycomore::Model model(species, {0,0,1}, {{"echo", {500_ms, 0.1/um}}});
+    sycomore::Model model(species, {0,0,1}, {{"echo", echo}});
 
     model.apply_pulse({40_deg, 0_deg});
     model.apply_time_interval("echo");
