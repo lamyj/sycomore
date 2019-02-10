@@ -92,9 +92,9 @@ BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-14))
     "Error on " << #left << " (" << where << ") at " << x \
         << " [ " << left << " != " << right << " ]")
 #define TEST_MAGNETIZATION(where) \
-    TEST_COMPONENT(m.x, *(baseline_it+0), where); \
-    TEST_COMPONENT(m.y, *(baseline_it+1), where); \
-    TEST_COMPONENT(m.z, *(baseline_it+2), where)
+    TEST_COMPONENT(m[0], *(baseline_it+0), where); \
+    TEST_COMPONENT(m[1], *(baseline_it+1), where); \
+    TEST_COMPONENT(m[2], *(baseline_it+2), where)
 
     BOOST_REQUIRE_EQUAL(baseline.size(), 2*3*sampling_locations.size());
     auto baseline_it = baseline.begin();

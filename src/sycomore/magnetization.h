@@ -6,17 +6,6 @@
 namespace sycomore
 {
 
-struct Magnetization
-{
-    Real x, y, z;
-
-    /// @brief Return the transversal magnetization.
-    Real transversal() const;
-
-    bool operator==(Magnetization const & other) const;
-    bool operator!=(Magnetization const & other) const;
-};
-
 struct ComplexMagnetization
 {
     static ComplexMagnetization const zero;
@@ -32,7 +21,9 @@ struct ComplexMagnetization
     bool operator==(ComplexMagnetization const & other) const;
     bool operator!=(ComplexMagnetization const & other) const;
 };
+using Magnetization = Array<Real>;
 
+Magnetization::value_type transversal(Magnetization const & m);
 ComplexMagnetization as_complex_magnetization(Magnetization const & m);
 Magnetization as_real_magnetization(ComplexMagnetization const & m);
 

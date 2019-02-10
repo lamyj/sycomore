@@ -75,12 +75,13 @@ BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-12))
     for(size_t i=0; i<magnetization.size(); ++i)
     {
         BOOST_TEST(
-            magnetization[i].transversal()-baseline[2*i] == 0.,
+            sycomore::transversal(magnetization[i])-baseline[2*i] == 0.,
             "Error at " << i << " [ "
-                << magnetization[i].transversal() << " != " << baseline[2*i] << " ]");
+                << sycomore::transversal(magnetization[i]) <<
+                " != " << baseline[2*i] << " ]");
         BOOST_TEST(
-            magnetization[i].z-baseline[2*i+1] == 0.,
+            magnetization[i][2]-baseline[2*i+1] == 0.,
             "Error at " << i << " [ "
-                << magnetization[i].z << " != " << baseline[2*i+1] << " ]");
+                << magnetization[i][2] << " != " << baseline[2*i+1] << " ]");
     }
 }

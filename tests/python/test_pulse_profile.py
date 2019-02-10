@@ -60,17 +60,17 @@ class TestPulseProfile(unittest.TestCase):
             m_test = before_refocalization[i]
             m_baseline = baseline[3*i:3*(i+1)]
 
-            self.assertAlmostEqual(m_test.x, m_baseline[0])
-            self.assertAlmostEqual(m_test.y, m_baseline[1])
-            self.assertAlmostEqual(m_test.z, m_baseline[2])
+            self.assertAlmostEqual(m_test[0], m_baseline[0])
+            self.assertAlmostEqual(m_test[1], m_baseline[1])
+            self.assertAlmostEqual(m_test[2], m_baseline[2])
         for i in range(len(sampling_locations)):
             m_test = after_refocalization[i]
             m_baseline = baseline[
                 3*(i+len(sampling_locations)):3*(i+len(sampling_locations)+1)]
 
-            self.assertAlmostEqual(m_test.x, m_baseline[0])
-            self.assertAlmostEqual(m_test.y, m_baseline[1])
-            self.assertAlmostEqual(m_test.z, m_baseline[2])
+            self.assertAlmostEqual(m_test[0], m_baseline[0])
+            self.assertAlmostEqual(m_test[1], m_baseline[1])
+            self.assertAlmostEqual(m_test[2], m_baseline[2])
 
 if __name__ == "__main__":
     unittest.main()

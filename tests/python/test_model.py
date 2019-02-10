@@ -78,15 +78,15 @@ class TestModel(unittest.TestCase):
                 self.assertAlmostEqual(grid[index].m, 0)
 
         isochromat = model.isochromat()
-        self.assertAlmostEqual(isochromat.x, 0.125*math.sqrt(2))
-        self.assertAlmostEqual(isochromat.y, 0)
-        self.assertAlmostEqual(isochromat.z, 0.5+0.25*(1+math.sqrt(2)/2))
+        self.assertAlmostEqual(isochromat[0], 0.125*math.sqrt(2))
+        self.assertAlmostEqual(isochromat[1], 0)
+        self.assertAlmostEqual(isochromat[2], 0.5+0.25*(1+math.sqrt(2)/2))
 
         isochromat = model.isochromat(
             {sycomore.Index(0,0), sycomore.Index(-1, -1)})
-        self.assertAlmostEqual(isochromat.x, 0.125*math.sqrt(2)/2)
-        self.assertAlmostEqual(isochromat.y, 0)
-        self.assertAlmostEqual(isochromat.z, 0.5+0.25*(1+math.sqrt(2)/2))
+        self.assertAlmostEqual(isochromat[0], 0.125*math.sqrt(2)/2)
+        self.assertAlmostEqual(isochromat[1], 0)
+        self.assertAlmostEqual(isochromat[2], 0.5+0.25*(1+math.sqrt(2)/2))
 
     def test_diffusion(self):
         model = sycomore.Model(

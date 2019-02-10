@@ -10,27 +10,6 @@ ComplexMagnetization const
 ComplexMagnetization
 ::zero{{0,0}, 0, {0,0}};
 
-Real
-Magnetization
-::transversal() const
-{
-    return std::sqrt(std::pow(this->x, Real(2.)) + std::pow(this->y, Real(2.)));
-}
-
-bool
-Magnetization
-::operator==(Magnetization const & other) const
-{
-    return this->x == other.x && this->y == other.y && this->z == other.z;
-}
-
-bool
-Magnetization
-::operator!=(Magnetization const & other) const
-{
-    return !this->operator==(other);
-}
-
 ComplexMagnetization
 ::ComplexMagnetization()
 : ComplexMagnetization(0, 0, 0)
@@ -59,12 +38,17 @@ ComplexMagnetization
     return !this->operator==(other);
 }
 
+Magnetization::value_type transversal(Magnetization const & m)
+{
+    return std::sqrt(std::pow(m[0], 2.) + std::pow(m[1], 2.));
+}
+
 ComplexMagnetization as_complex_magnetization(Magnetization const & m)
 {
     return ComplexMagnetization(
-        Complex(m.x, m.y)/std::sqrt(2.),
-        m.z,
-        Complex(m.x, -m.y)/std::sqrt(2.));
+        Complex(m[0], m[1])/std::sqrt(2.),
+        m[2],
+        Complex(m[0], -m[1])/std::sqrt(2.));
 }
 
 Magnetization as_real_magnetization(ComplexMagnetization const & m)

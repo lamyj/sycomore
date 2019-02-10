@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(ComplexMagnetizationToMagnetization, *boost::unit_test::tol
 
     auto && m_r = sycomore::as_real_magnetization(m_c);
 
-    BOOST_TEST(m_r.x == 1);
-    BOOST_TEST(m_r.y == 2);
-    BOOST_TEST(m_r.z == 3);
+    BOOST_TEST(m_r[0] == 1);
+    BOOST_TEST(m_r[1] == 2);
+    BOOST_TEST(m_r[2] == 3);
 }

@@ -49,8 +49,9 @@ class TestOffResonance(unittest.TestCase):
 
         self.assertEqual(len(baseline), 2*len(magnetization))
         for i in range(len(magnetization)):
-            self.assertAlmostEqual(magnetization[i].transversal(), baseline[2*i])
-            self.assertAlmostEqual(magnetization[i].z, baseline[2*i+1])
+            self.assertAlmostEqual(
+                sycomore.transversal(magnetization[i]), baseline[2*i])
+            self.assertAlmostEqual(magnetization[i][2], baseline[2*i+1])
 
 if __name__ == "__main__":
     unittest.main()

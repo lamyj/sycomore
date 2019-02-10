@@ -9,15 +9,6 @@ void wrap_magnetization(pybind11::module & m)
     using namespace pybind11;
     using namespace sycomore;
 
-    class_<Magnetization>(m, "Magnetization")
-        .def(init<Real, Real, Real>())
-        .def_readwrite("x", &Magnetization::x)
-        .def_readwrite("y", &Magnetization::y)
-        .def_readwrite("z", &Magnetization::z)
-        .def("transversal", &Magnetization::transversal)
-        .def(self == self)
-        .def(self != self);
-
     class_<ComplexMagnetization>(m, "ComplexMagnetization")
         .def(init<Complex, Real, Complex>())
         .def_readwrite("p", &ComplexMagnetization::p)
@@ -25,4 +16,6 @@ void wrap_magnetization(pybind11::module & m)
         .def_readwrite("m", &ComplexMagnetization::m)
         .def(self == self)
         .def(self != self);
+    m.attr("Magnetization") = m.attr("Array")[float_().get_type()];
+    m.def("transversal", transversal);
 }

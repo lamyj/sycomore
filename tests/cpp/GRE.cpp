@@ -70,9 +70,9 @@ BOOST_FIXTURE_TEST_CASE(Ideal, Fixture, *boost::unit_test::tolerance(1e-15))
     BOOST_REQUIRE_EQUAL(baseline.size(), 3*TR_count);
     for(size_t i=0; i!=TR_count; ++i)
     {
-        BOOST_TEST(magnetization[i].x == baseline[3*i+0]);
-        BOOST_TEST(magnetization[i].y == baseline[3*i+1]);
-        BOOST_TEST(magnetization[i].z == baseline[3*i+2]);
+        BOOST_TEST(magnetization[i][0] == baseline[3*i+0]);
+        BOOST_TEST(magnetization[i][1] == baseline[3*i+1]);
+        BOOST_TEST(magnetization[i][2] == baseline[3*i+2]);
     }
 }
 
@@ -143,8 +143,8 @@ BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
     BOOST_REQUIRE_EQUAL(baseline.size(), 3*TR_count);
     for(size_t i=0; i!=TR_count; ++i)
     {
-        BOOST_TEST(magnetization[i].x == baseline[3*i+0]);
-        BOOST_TEST(magnetization[i].y == baseline[3*i+1]);
-        BOOST_TEST(magnetization[i].z == baseline[3*i+2]);
+        BOOST_TEST(magnetization[i][0] == baseline[3*i+0]);
+        BOOST_TEST(magnetization[i][1] == baseline[3*i+1]);
+        BOOST_TEST(magnetization[i][2] == baseline[3*i+2]);
     }
 }
