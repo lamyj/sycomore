@@ -35,7 +35,7 @@ int main()
         time += half_echo.duration;
 
         auto const m = model.isochromat();
-        signal.emplace_back(time, m.transversal());
+        signal.emplace_back(time, sycomore::transversal(m));
     }
     model.apply_time_interval("idle");
     time += idle.duration;
