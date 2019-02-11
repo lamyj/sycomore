@@ -382,14 +382,14 @@ Model
         +this->_species.delta_omega;
 
     auto const update_isochromat = [&](size_t const & offset) {
-        auto && tau = *(this->_tau.data()+offset);
+        auto && tau = this->_tau[offset];
 
         Real const susceptibility = -this->_species.R2_prime * tau;
 
         Real const off_resonance = omega * tau;
 
         Real gradients_dephasing= 0;
-        if(!position_real.empty() && !std::isnan(*(this->_p.data()+3*offset)))
+        if(!position_real.empty() && !std::isnan(this->_p[3*offset]))
         {
             Array<Real> const p(const_cast<Real*>(this->_p.data())+3*offset, 3);
             gradients_dephasing = dot(p, position_real);
@@ -398,7 +398,7 @@ Model
         auto const dephasing =
             std::exp(Complex(susceptibility, off_resonance-gradients_dephasing));
 
-        auto && m = *(this->_m.data()+offset);
+        auto && m = this->_m[offset];
         isochromat[0] += m.p*dephasing;
         isochromat[1] += m.z*dephasing;
         isochromat[2] += m.m*dephasing;
@@ -517,26 +517,30 @@ Model
         for(size_t d=0; d<this->_m.dimension(); ++d)
         {
             first[d] = std::min(first[d], index[d]);
-            last[d] = std::max(first[d], index[d]);
+            last[d] = std::max(last[d], index[d]);
         }
     };
 
-    for(auto && index: GridScanner(this->_bounding_box.first, this->_bounding_box.second))
+    GridScanner const scanner(
+        this->_m.origin(), this->_m.shape(),
+        this->_bounding_box.first, this->_bounding_box.second);
+    for(auto && index_offset: scanner)
     {
-        if(index.first == zero_i)
+        auto && index = index_offset.first;
+        auto && offset = index_offset.second;
+
+        if(index == zero_i)
         {
-            update_boundary(index.first);
+            update_boundary(index);
             continue;
         }
 
-        auto && m = this->_m[index.first];
+        auto && m = this->_m[offset];
         auto const magnitude =
-            m.p * std::conj(m.p)
-            + m.z*m.z
-            + m.m * std::conj(m.m);
+            m.p*std::conj(m.p) + m.z*m.z + m.m*std::conj(m.m);
         if(magnitude.real() >= this->_epsilon_squared)
         {
-            update_boundary(index.first);
+            update_boundary(index);
             continue;
         }
 
@@ -545,20 +549,23 @@ Model
         {
             int neighbors_count = 0;
 
-            Index neighbor = index.first;
+            auto neighbor_index = index;
+            auto neighbor_offset = offset;
 
-            neighbor[i] += 1;
+            neighbor_index[i] += 1;
+            neighbor_offset += this->_m.stride()[i];
             if(
-                neighbor[i] < this->_m.origin()[i]+this->_m.shape()[i]
-                && this->_m[neighbor] != ComplexMagnetization::zero)
+                neighbor_index[i] < this->_m.origin()[i]+this->_m.shape()[i]
+                && this->_m[neighbor_offset] != ComplexMagnetization::zero)
             {
                 ++neighbors_count;
             }
 
-            neighbor[i] -= 2; // NOTE: go two steps back to skip the current index
+            neighbor_index[i] -= 2; // NOTE: go two steps back to skip the current index
+            neighbor_offset -= 2*this->_m.stride()[i];
             if(
-                neighbor[i] >= this->_m.origin()[i]
-                && this->_m[neighbor] != ComplexMagnetization::zero)
+                neighbor_index[i] >= this->_m.origin()[i]
+                && this->_m[neighbor_offset] != ComplexMagnetization::zero)
             {
                 ++neighbors_count;
             }
@@ -571,19 +578,23 @@ Model
         }
         if(would_create_concavity)
         {
-            update_boundary(index.first);
+            update_boundary(index);
             continue;
         }
 
-        this->_m[index.first] = ComplexMagnetization::zero;
+        // Otherwise we can remove the configuration.
+        m = ComplexMagnetization::zero;
     }
 
-    // FIXME: make sure we keep a symmetric bounding box.
-    Shape shape(first.size());
-    std::transform(
-        first.begin(), first.end(), last.begin(), shape.begin(),
-        [](int f, int l) { return l-f+1;});
-    this->_bounding_box = {first, shape};
+    // Keep a symmetric bounding box as assumed by apply_time_interval
+    Index origin(this->_m.dimension());
+    Shape shape(this->_m.dimension());
+    for(size_t i=0; i<shape.size(); ++i)
+    {
+        origin[i] = -std::max(std::abs(first[i]), std::abs(last[i]));
+        shape[i] = 1+2*std::max(std::abs(first[i]), std::abs(last[i]));
+    }
+    this->_bounding_box = {origin, shape};
 }
 
 }

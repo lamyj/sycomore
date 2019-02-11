@@ -30,6 +30,9 @@ public:
     value_type const * data() const;
     value_type * data();
 
+    value_type & operator[](size_t offset);
+    value_type const & operator[](size_t offset) const;
+
     value_type & operator[](Index const & index);
     value_type const & operator[](Index const & index) const;
 

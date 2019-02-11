@@ -56,10 +56,26 @@ Grid<T>
 template<typename T>
 typename Grid<T>::value_type &
 Grid<T>
+::operator[](size_t offset)
+{
+    return this->_data[offset];
+}
+
+template<typename T>
+typename Grid<T>::value_type const &
+Grid<T>
+::operator[](size_t offset) const
+{
+    return this->_data[offset];
+}
+
+template<typename T>
+typename Grid<T>::value_type &
+Grid<T>
 ::operator[](Index const & index)
 {
-    auto const position = dot(index-this->_origin, this->_stride);
-    return this->_data[position];
+    auto const offset = dot(index-this->_origin, this->_stride);
+    return this->operator[](offset);
 }
 
 template<typename T>
@@ -67,8 +83,8 @@ typename Grid<T>::value_type const &
 Grid<T>
 ::operator[](Index const & index) const
 {
-    auto const position = dot(index-this->_origin, this->_stride);
-    return this->_data[position];
+    auto const offset = dot(index-this->_origin, this->_stride);
+    return this->operator[](offset);
 }
 
 template<typename T>
