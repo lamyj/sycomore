@@ -50,6 +50,7 @@ Model
 
     // Grid of time scales
     this->_tau = Grid<Real>(this->_m.origin(), this->_m.shape(), NAN);
+    this->_tau[Index(origin.size(), 0)] = 0;
 
     // Grid of gradient moments
     Index p_origin(origin.size()+1, 0);
@@ -60,6 +61,8 @@ Model
     p_shape[0] = 3;
 
     this->_p = Grid<Real>(p_origin, p_shape, NAN);
+    Array<Real> p(this->_p.data()+dot(-this->_p.origin(), this->_p.stride()), 3);
+    std::fill(p.begin(), p.end(), 0);
 
     // Grid of diffusion damping factors
     Index F_origin(origin.size()+2, 0);
