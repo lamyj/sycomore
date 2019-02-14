@@ -30,6 +30,11 @@ public:
     double convert_to(Quantity const & destination) const;
 };
 
+bool operator<(Quantity const & l, Quantity const & r);
+bool operator<=(Quantity const & l, Quantity const & r);
+bool operator>(Quantity const & l, Quantity const & r);
+bool operator>=(Quantity const & l, Quantity const & r);
+
 Quantity operator+(Quantity q);
 Quantity operator-(Quantity q);
 Quantity operator+(Quantity l, Quantity const & r);

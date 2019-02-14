@@ -34,6 +34,10 @@ void wrap_Quantity(pybind11::module & m)
         .def(self / self)
         .def(self / double())
         .def(double() / self)
+        .def(self > self)
+        .def(self >= self)
+        .def(self < self)
+        .def(self <= self)
         .def(
             "__repr__",
             [](Quantity const & d) {

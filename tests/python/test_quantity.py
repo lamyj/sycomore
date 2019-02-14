@@ -16,6 +16,19 @@ class TestQuantity(unittest.TestCase):
         self.assertTrue(q1 != q2)
         self.assertTrue(q1 != q3)
 
+        self.assertTrue(q1 < q2)
+        self.assertFalse(q2 <= q1)
+        self.assertFalse(q1 > q2)
+        self.assertFalse(q1 >= q2)
+        with self.assertRaises(Exception):
+            q1 < q3
+        with self.assertRaises(Exception):
+            q1 <= q3
+        with self.assertRaises(Exception):
+            q1 > q3
+        with self.assertRaises(Exception):
+            q1 >= q3
+
     def test_addition_in_place(self):
         q1 = sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0))
         q2 = sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0))

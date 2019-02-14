@@ -112,6 +112,33 @@ Quantity
     return this->magnitude / destination.magnitude;
 }
 
+bool operator<(Quantity const & l, Quantity const & r)
+{
+    if(l.dimensions != r.dimensions)
+    {
+        std::ostringstream message;
+        message
+            << "Unequal dimensions: " << l.dimensions << " != " << r.dimensions;
+        throw std::runtime_error(message.str());
+    }
+    return l.magnitude < r.magnitude;
+}
+
+bool operator<=(Quantity const & l, Quantity const & r)
+{
+    return l<r || l==r;
+}
+
+bool operator>(Quantity const & l, Quantity const & r)
+{
+    return !(l<=r);
+}
+
+bool operator>=(Quantity const & l, Quantity const & r)
+{
+    return !(l<r);
+}
+
 Quantity operator+(Quantity q) { return q; }
 Quantity operator-(Quantity q) { q *= -1; return q; }
 

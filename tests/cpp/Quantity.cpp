@@ -11,9 +11,19 @@ BOOST_AUTO_TEST_CASE(Comparison)
     BOOST_CHECK(q1 == q1);
     BOOST_CHECK(!(q1 == q2));
     BOOST_CHECK(!(q1 == q3));
+
     BOOST_CHECK(!(q1 != q1));
     BOOST_CHECK(q1 != q2);
     BOOST_CHECK(q1 != q3);
+
+    BOOST_CHECK(q1 < q2);
+    BOOST_CHECK(!(q2 <= q1));
+    BOOST_CHECK(!(q1 > q2));
+    BOOST_CHECK(!(q1 >= q2));
+    BOOST_CHECK_THROW(q1 < q3, std::runtime_error);
+    BOOST_CHECK_THROW(q1 <= q3, std::runtime_error);
+    BOOST_CHECK_THROW(q1 > q3, std::runtime_error);
+    BOOST_CHECK_THROW(q1 >= q3, std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(AdditionInPlace)
