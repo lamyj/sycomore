@@ -46,7 +46,8 @@ HardPulseApproximation
     // duration
     auto const pulse_duration = support.back()-support.front();
     auto const total_moment =
-        2*M_PI*bandwidth.convert_to(units::Hz)/slice_thickness.convert_to(units::m)
+        2*M_PI
+        * bandwidth.convert_to(units::Hz)/slice_thickness.convert_to(units::m)
         * pulse_duration.convert_to(units::s);
     this->_time_interval.gradient_moment = {
         0., 0., total_moment/(support.size()-1)};

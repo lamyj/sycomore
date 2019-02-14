@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(Diffusion)
     using namespace sycomore::units;
 
     sycomore::Species const species{0_Hz, 0_Hz, 1_um*um/ms};
-    sycomore::TimeInterval const echo{500_ms, 0.1/um};
+    sycomore::TimeInterval const echo{500_ms, 0.1*rad/um};
 
     sycomore::Model model(species, {0,0,1}, {{"echo", echo}});
 

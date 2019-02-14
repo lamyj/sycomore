@@ -23,9 +23,10 @@ using Point = Array<Quantity>;
 auto const Diffusion = std::pow(Length, 2)/Time;
 
 // NOTE: gradient moment is gamma * integral(g(t)*dt), with gamma in
-// [T^-1 * s^-1] and g(t) in [T * m^-1] (thus integral(g(t)*dt)
-// in [T * m^-1 * s]). Gradient moment is then in [m^-1]
-auto const GradientMoment = std::pow(Length, -1);
+// [rad * T^-1 * s^-1] and g(t) in [T * m^-1] (thus integral(g(t)*dt)
+// in [T * m^-1 * s]). Gradient moment is then in [rad * m^-1], i.e. accumulated
+// phase per length.
+auto const GradientMoment = Angle/Length;
 
 template<typename T>
 std::vector<T> linspace(T min, T max, size_t size)

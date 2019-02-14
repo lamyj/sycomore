@@ -12,7 +12,7 @@ struct TimeInterval
     /// @brief Interval duration in seconds
     Real duration;
 
-    /// @brief Gradient moment on x,y,z axes, in 1/m.
+    /// @brief Gradient moment on x,y,z axes, in rad/m.
     Array<Real> gradient_moment;
 
     // TODO: gradient shape

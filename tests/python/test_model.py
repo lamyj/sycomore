@@ -92,7 +92,7 @@ class TestModel(unittest.TestCase):
         model = sycomore.Model(
             sycomore.Species(0*Hz, 0*Hz, 1*um*um/ms),
             sycomore.Magnetization(0, 0, 1), [
-                ["foo", sycomore.TimeInterval(500*ms, 0.1/um)]])
+                ["foo", sycomore.TimeInterval(500*ms, 0.1*rad/um)]])
 
         model.apply_pulse(sycomore.Pulse(40*deg, 0*deg))
         model.apply_time_interval("foo")
