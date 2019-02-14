@@ -89,14 +89,14 @@ Model
 
 Real
 Model
-::epsilon() const
+::get_epsilon() const
 {
     return std::sqrt(this->_epsilon_squared);
 }
 
 void
 Model
-::epsilon(Real const & value)
+::set_epsilon(Real const & value)
 {
     this->_epsilon_squared = std::pow(value, 2.);
 }

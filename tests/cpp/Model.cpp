@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(CleanUp)
     sycomore::Species const species{std::log(2)*Hz, std::log(2)*Hz};
     // Dummy time intervals to build a 2D model
     sycomore::Model model(species, {0, 0, 1}, {{"short", {1}}, {"long", {2}}});
-    model.epsilon(1.5*1./(1<<4));
+    model.set_epsilon(1.5*1./(1<<4));
 
     // Resulting complex magnetization: 1/2, sqrt(2)/2, 1/2
     model.apply_pulse({45_deg, 90_deg});

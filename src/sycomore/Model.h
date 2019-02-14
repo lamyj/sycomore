@@ -37,10 +37,10 @@ public:
     std::vector<TimeInterval> const & time_intervals() const;
 
     /// @brief Return the threshold magnetization for clean-up (default to 0).
-    Real epsilon() const;
+    Real get_epsilon() const;
 
     /// @brief Set the threshold magnetization for clean-up.
-    void epsilon(Real const & value);
+    void set_epsilon(Real const & value);
 
     /// @brief Apply an RF pulse to the model.
     void apply_pulse(Pulse const & pulse);

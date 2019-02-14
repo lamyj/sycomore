@@ -27,6 +27,7 @@ void wrap_Model(pybind11::module & m)
 
                 return new Model(species, magnetization, time_intervals_cpp);
             }))
+        .def_property("epsilon", &Model::get_epsilon, &Model::set_epsilon)
         .def(
             "apply_pulse",
             static_cast<void (Model::*)(Pulse const &)>(&Model::apply_pulse))
