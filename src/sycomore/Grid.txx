@@ -236,10 +236,19 @@ Grid<T>
             max_origin.begin(), min_shape.begin(),
             std::minus<int>());
 
-        // NOTE: we could memcopy line-by-line
-        for(auto && index_offset: GridScanner(max_origin, min_shape))
+        GridScanner const source_scanner(
+            this->_origin, this->_shape, max_origin, min_shape);
+        auto source_it = source_scanner.begin();
+        auto const source_end = source_scanner.end();
+        GridScanner const destination_scanner(
+            new_grid._origin, new_grid._shape, max_origin, min_shape);
+        auto destination_it = destination_scanner.begin();
+        auto const destination_end = destination_scanner.end();
+        while(source_it != source_end && destination_it != destination_end)
         {
-            new_grid[index_offset.first] = (*this)[index_offset.first];
+            new_grid._data[destination_it->second] = this->_data[source_it->second];
+            ++source_it;
+            ++destination_it;
         }
     }
     // Otherwise the two grids are disjoint, nothing to copy.
