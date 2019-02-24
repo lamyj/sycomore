@@ -26,6 +26,7 @@ public:
     Quantity & operator*=(double scalar);
     Quantity & operator/=(Quantity const & other);
     Quantity & operator/=(double scalar);
+    Quantity & operator%=(double scalar);
 
     double convert_to(Quantity const & destination) const;
 };
@@ -45,6 +46,7 @@ Quantity operator*(double s, Quantity q);
 Quantity operator/(Quantity l, Quantity const & r);
 Quantity operator/(Quantity q, double s);
 Quantity operator/(double s, Quantity const & q);
+Quantity operator%(Quantity q, double s);
 
 std::ostream & operator<<(std::ostream & stream, Quantity const & q);
 

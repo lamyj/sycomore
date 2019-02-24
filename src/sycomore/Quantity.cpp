@@ -1,5 +1,6 @@
 #include "Quantity.h"
 
+#include <cmath>
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
@@ -97,6 +98,14 @@ Quantity
     return *this;
 }
 
+Quantity &
+Quantity
+::operator%=(double scalar)
+{
+    this->magnitude = std::fmod(this->magnitude, scalar);
+    return *this;
+}
+
 double
 Quantity
 ::convert_to(Quantity const & destination) const
@@ -161,6 +170,7 @@ Quantity operator/(double s, Quantity const & q)
             -q.dimensions.amount_of_substance,
             -q.dimensions.luminous_intensity}};
 }
+Quantity operator%(Quantity q, double s) { q %= s; return q; }
 
 std::ostream & operator<<(std::ostream & stream, Quantity const & q)
 {
