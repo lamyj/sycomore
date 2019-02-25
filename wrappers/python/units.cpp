@@ -39,7 +39,7 @@ void wrap_units(pybind11::module & module)
     SYCOMORE_WRAPPED_UNITS(g);
 
     SYCOMORE_WRAPPED_UNITS(s);
-    SYCOMORE_WRAPPED_UNIT(min);
+//    SYCOMORE_WRAPPED_UNIT(min);
     SYCOMORE_WRAPPED_UNIT(h);
 
     SYCOMORE_WRAPPED_UNITS(A);

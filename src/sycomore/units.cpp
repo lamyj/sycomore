@@ -44,7 +44,7 @@ SYCOMORE_DEFINE_UNITS(Length, m)
 // this simpler form works.
 SYCOMORE_DEFINE_UNITS(Mass, g)
 SYCOMORE_DEFINE_UNITS(Time, s)
-SYCOMORE_DEFINE_UNIT(Time, min)
+//SYCOMORE_DEFINE_UNIT(Time, min)
 SYCOMORE_DEFINE_UNIT(Time, h)
 SYCOMORE_DEFINE_UNITS(ElectricCurrent, A)
 SYCOMORE_DEFINE_UNITS(ThermodynamicTemperature, K)
