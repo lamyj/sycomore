@@ -84,6 +84,26 @@ BOOST_AUTO_TEST_CASE(ScalarDivisionInPlace)
     BOOST_CHECK(q == r);
 }
 
+BOOST_AUTO_TEST_CASE(ModuloInPlace)
+{
+    sycomore::Quantity q1{7, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const q2{3, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r{1, {1,0,0,0,0,0,0}};
+    q1 %= q2;
+    BOOST_CHECK(q1 == r);
+
+    sycomore::Quantity const q3{2, {0,1,0,0,0,0,0}};
+    BOOST_CHECK_THROW(q1 %= q3, std::runtime_error);
+}
+
+BOOST_AUTO_TEST_CASE(ScalarModuloInPlace)
+{
+    sycomore::Quantity q{7, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r{1, {1,0,0,0,0,0,0}};
+    q %= 3;
+    BOOST_CHECK(q == r);
+}
+
 BOOST_AUTO_TEST_CASE(UnaryPlus)
 {
     sycomore::Quantity q{2, {1,0,0,0,0,0,0}};
@@ -150,4 +170,19 @@ BOOST_AUTO_TEST_CASE(ScalarDivision)
     sycomore::Quantity const r2{1.5, {-1,0,0,0,0,0,0}};
     BOOST_CHECK(q/4 == r1);
     BOOST_CHECK(3/q == r2);
+}
+
+BOOST_AUTO_TEST_CASE(Modulo)
+{
+    sycomore::Quantity const q1{7, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const q2{3, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r{1, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(q1%q2 == r);
+}
+
+BOOST_AUTO_TEST_CASE(ScalarModulo)
+{
+    sycomore::Quantity const q{7, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r1{1, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(q%3 == r1);
 }

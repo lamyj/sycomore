@@ -100,6 +100,22 @@ Quantity
 
 Quantity &
 Quantity
+::operator%=(Quantity const & other)
+{
+    if(this->dimensions != other.dimensions)
+    {
+        std::ostringstream message;
+        message
+            << "Unequal dimensions: "
+            << this->dimensions << " != " << other.dimensions;
+        throw std::runtime_error(message.str());
+    }
+    this->magnitude = std::fmod(this->magnitude, other.magnitude);
+    return *this;
+}
+
+Quantity &
+Quantity
 ::operator%=(double scalar)
 {
     this->magnitude = std::fmod(this->magnitude, scalar);
@@ -171,6 +187,7 @@ Quantity operator/(double s, Quantity const & q)
             -q.dimensions.luminous_intensity}};
 }
 Quantity operator%(Quantity q, double s) { q %= s; return q; }
+Quantity operator%(Quantity l, Quantity const & r) { l %= r; return l; }
 
 std::ostream & operator<<(std::ostream & stream, Quantity const & q)
 {
