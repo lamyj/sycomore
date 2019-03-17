@@ -77,6 +77,23 @@ class TestQuantity(unittest.TestCase):
         q /= 4
         self.assertEqual(q, r)
 
+    def test_modulo_in_place(self):
+        q1 = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        q2 = sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r = sycomore.Quantity(1, sycomore.Dimensions(1,0,0,0,0,0,0))
+        q1 %= q2
+        self.assertEqual(q1, r)
+
+        q3 = sycomore.Quantity(2, sycomore.Dimensions(0,1,0,0,0,0,0))
+        with self.assertRaises(Exception):
+            q1 %= q3
+
+    def test_scalar_modulo_in_place(self):
+        q = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r = sycomore.Quantity(1, sycomore.Dimensions(1,0,0,0,0,0,0))
+        q %= 3
+        self.assertEqual(q, r)
+
     def test_unary_plus(self):
         q = sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0))
         self.assertEqual(+q, q)
@@ -130,6 +147,28 @@ class TestQuantity(unittest.TestCase):
         r2 = sycomore.Quantity(1.5, sycomore.Dimensions(-1,0,0,0,0,0,0))
         self.assertEqual(q/4, r1)
         self.assertEqual(3/q, r2)
+
+    def test_modulo(self):
+        q1 = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        q2 = sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r = sycomore.Quantity(1, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(q1%q2, r)
+
+    def test_scalar_modulo(self):
+        q = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r = sycomore.Quantity(1, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(q%3, r)
+
+    def test_hash(self):
+        quantities = set()
+
+        quantities.add(sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0)))
+        quantities.add(sycomore.Quantity(2, sycomore.Dimensions(0,1,0,0,0,0,0)))
+        quantities.add(sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0)))
+        self.assertEqual(len(quantities), 3)
+
+        quantities.add(sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0)))
+        self.assertEqual(len(quantities), 3)
 
 if __name__ == "__main__":
     unittest.main()

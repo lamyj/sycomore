@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <functional>
 #include <sstream>
 
@@ -15,29 +16,45 @@ namespace std
 template<>
 struct hash<sycomore::Quantity>
 {
-    // Not a good hash function, but easy to test
     size_t operator()(sycomore::Quantity const & q)
     {
-        auto const k1 = std::hash<double>{}(q.magnitude);
-        // FIXME: k2 is in Z not in N
-        auto k2 =
-            (q.dimensions.length << 1)
-            + (q.dimensions.mass << 2)
-            + (q.dimensions.time << 3)
-            + (q.dimensions.electric_current << 4)
-            + (q.dimensions.thermodynamic_temperature << 5)
-            + (q.dimensions.amount_of_substance << 6)
-            + (q.dimensions.luminous_intensity << 7);
-        if(k2 < 0)
-        {
-            k2 = -2*k2+1;
-        }
-        else
-        {
-            k2 = 2*k2;
-        }
-        // Cantor's pairing function
-        return std::hash<double>{}(0.5*(k1+k2)*(k1+k2+1) + k2);
+        std::string binary_representation;
+        std::copy(
+            &q.magnitude, &q.magnitude+sizeof(q.magnitude),
+            std::back_inserter(binary_representation));
+        std::copy(
+            &q.dimensions.length,
+            &q.dimensions.length+sizeof(q.dimensions.length),
+            std::back_inserter(binary_representation));
+        std::copy(
+            &q.dimensions.mass,
+            &q.dimensions.mass+sizeof(q.dimensions.mass),
+            std::back_inserter(binary_representation));
+        std::copy(
+            &q.dimensions.time,
+            &q.dimensions.time+sizeof(q.dimensions.time),
+            std::back_inserter(binary_representation));
+        std::copy(
+            &q.dimensions.electric_current,
+            &q.dimensions.electric_current
+                +sizeof(q.dimensions.electric_current),
+            std::back_inserter(binary_representation));
+        std::copy(
+            &q.dimensions.thermodynamic_temperature,
+            &q.dimensions.thermodynamic_temperature
+                +sizeof(q.dimensions.thermodynamic_temperature),
+            std::back_inserter(binary_representation));
+        std::copy(
+            &q.dimensions.amount_of_substance,
+            &q.dimensions.amount_of_substance
+                +sizeof(q.dimensions.amount_of_substance),
+            std::back_inserter(binary_representation));
+        std::copy(
+            &q.dimensions.luminous_intensity,
+            &q.dimensions.luminous_intensity
+                +sizeof(q.dimensions.luminous_intensity),
+            std::back_inserter(binary_representation));
+        return std::hash<std::string>{}(binary_representation);
     }
 };
 
@@ -62,6 +79,7 @@ void wrap_Quantity(pybind11::module & m)
         .def(self /= self)
         .def(self /= double())
         .def(self %= double())
+        .def(self %= self)
         .def(+self)
         .def(-self)
         .def(self + self)
@@ -72,6 +90,7 @@ void wrap_Quantity(pybind11::module & m)
         .def(self / self)
         .def(self / double())
         .def(double() / self)
+        .def(self % self)
         .def(self % double())
         .def(self > self)
         .def(self >= self)
