@@ -105,6 +105,7 @@ SYCOMORE_DECLARE_UNITS(Resistance, Ohm);
 SYCOMORE_DECLARE_UNITS(ElectricalConductance, S);
 SYCOMORE_DECLARE_UNITS(MagneticFlux, Wb);
 SYCOMORE_DECLARE_UNITS(MagneticFluxDensity, T);
+SYCOMORE_DECLARE_UNIT(MagneticFluxDensity, G, 1e-4);
 SYCOMORE_DECLARE_UNITS(Inductance, H);
 SYCOMORE_DECLARE_UNITS(LuminousFlux, lm);
 SYCOMORE_DECLARE_UNITS(Illuminance, lx);
