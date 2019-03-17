@@ -186,3 +186,10 @@ BOOST_AUTO_TEST_CASE(ScalarModulo)
     sycomore::Quantity const r1{1, {1,0,0,0,0,0,0}};
     BOOST_CHECK(q%3 == r1);
 }
+
+BOOST_AUTO_TEST_CASE(Power)
+{
+    sycomore::Quantity const q{9, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r1{3, {0.5,0,0,0,0,0,0}};
+    BOOST_CHECK(std::pow(q, 0.5) == r1);
+}

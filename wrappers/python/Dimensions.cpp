@@ -11,7 +11,7 @@ void wrap_Dimensions(pybind11::module & m)
     using namespace sycomore;
 
     class_<Dimensions>(m, "Dimensions")
-        .def(init<int,int,int,int,int,int,int>())
+        .def(init<double,double,double,double,double,double,double>())
         .def_readwrite("length", &Dimensions::length)
         .def_readwrite("mass", &Dimensions::mass)
         .def_readwrite("time", &Dimensions::time)

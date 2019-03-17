@@ -9,18 +9,18 @@ namespace sycomore
 class Dimensions
 {
 public:
-    int length;
-    int mass;
-    int time;
-    int electric_current;
-    int thermodynamic_temperature;
-    int amount_of_substance;
-    int luminous_intensity;
+    double length;
+    double mass;
+    double time;
+    double electric_current;
+    double thermodynamic_temperature;
+    double amount_of_substance;
+    double luminous_intensity;
 
     Dimensions(
-        int length=0, int mass=0, int time=0, int electric_current=0,
-        int thermodynamic_temperature=0, int amount_of_substance=0,
-        int luminous_intensity=0);
+        double length=0, double mass=0, double time=0, double electric_current=0,
+        double thermodynamic_temperature=0, double amount_of_substance=0,
+        double luminous_intensity=0);
 
     bool operator==(Dimensions const & other) const;
     bool operator!=(Dimensions const & other) const;
@@ -39,7 +39,7 @@ std::ostream & operator<<(std::ostream & stream, Dimensions const & d);
 namespace std
 {
 
-sycomore::Dimensions pow(sycomore::Dimensions const & d, int s);
+sycomore::Dimensions pow(sycomore::Dimensions const & d, double s);
 
 }
 

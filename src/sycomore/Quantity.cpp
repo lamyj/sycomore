@@ -196,3 +196,15 @@ std::ostream & operator<<(std::ostream & stream, Quantity const & q)
 }
 
 }
+
+namespace std
+{
+
+sycomore::Quantity pow(sycomore::Quantity q, double e)
+{
+    q.dimensions = std::pow(q.dimensions, e);
+    q.magnitude = std::pow(q.magnitude, e);
+    return q;
+}
+
+}

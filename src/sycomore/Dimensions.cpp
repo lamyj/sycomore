@@ -7,9 +7,9 @@ namespace sycomore
 
 Dimensions
 ::Dimensions(
-    int length, int mass, int time, int electric_current,
-    int thermodynamic_temperature, int amount_of_substance,
-    int luminous_intensity)
+    double length, double mass, double time, double electric_current,
+    double thermodynamic_temperature, double amount_of_substance,
+    double luminous_intensity)
 : length(length), mass(mass), time(time), electric_current(electric_current),
     thermodynamic_temperature(thermodynamic_temperature),
     amount_of_substance(amount_of_substance),
@@ -83,7 +83,7 @@ Dimensions operator/(Dimensions l, Dimensions const & r)
 
 std::ostream & operator<<(std::ostream & stream, Dimensions const & d)
 {
-    auto const print_dimension = [&](int dimension, std::string const & name) {
+    auto const print_dimension = [&](double dimension, std::string const & name) {
         if(dimension != 0)
         {
             stream << name;
@@ -111,7 +111,7 @@ std::ostream & operator<<(std::ostream & stream, Dimensions const & d)
 namespace std
 {
 
-sycomore::Dimensions pow(sycomore::Dimensions const & d, int s)
+sycomore::Dimensions pow(sycomore::Dimensions const & d, double s)
 {
     return {
         d.length*s, d.mass*s, d.time*s, d.electric_current*s,
