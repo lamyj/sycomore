@@ -4,36 +4,22 @@
 #include "sycomore/TimeInterval.h"
 #include "sycomore/units.h"
 
-BOOST_AUTO_TEST_CASE(ScalarScalarConstructor)
-{
-    sycomore::TimeInterval const interval(1., 2.);
-    BOOST_TEST(interval.duration == 1.);
-    BOOST_TEST(
-        interval.gradient_moment == sycomore::Array<sycomore::Real>({2,2,2}));
-}
-
 BOOST_AUTO_TEST_CASE(UnitScalarConstructor)
 {
     using namespace sycomore::units;
-    sycomore::TimeInterval const interval(1._ms, 2./dm);
-    BOOST_TEST(interval.duration == 1.e-3);
+    sycomore::TimeInterval const interval(1._ms, 2.*rad/dm);
+    BOOST_TEST(interval.get_duration() == 1.e-3*s);
     BOOST_TEST(
-        interval.gradient_moment == sycomore::Array<sycomore::Real>({20,20,20}));
-}
-
-BOOST_AUTO_TEST_CASE(ScalarVectorConstructor)
-{
-    sycomore::TimeInterval const interval(1., {2,3,4});
-    BOOST_TEST(interval.duration == 1.);
-    BOOST_TEST(
-        interval.gradient_moment == sycomore::Array<sycomore::Real>({2,3,4}));
+        interval.get_gradient_moment()
+        == sycomore::Array<sycomore::Quantity>({20*rad/m,20*rad/m,20*rad/m}));
 }
 
 BOOST_AUTO_TEST_CASE(UnitVectorConstructor)
 {
     using namespace sycomore::units;
     sycomore::TimeInterval const interval(1._ms, {2*rad/dm,4*rad/m,8*rad/dam});
-    BOOST_TEST(interval.duration == 1.e-3);
+    BOOST_TEST(interval.get_duration() == 1.e-3*s);
     BOOST_TEST(
-        interval.gradient_moment == sycomore::Array<sycomore::Real>({20,4,0.8}));
+        interval.get_gradient_moment()
+        == sycomore::Array<sycomore::Quantity>({20*rad/m,4*rad/m,0.8*rad/m}));
 }

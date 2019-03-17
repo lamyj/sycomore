@@ -36,8 +36,7 @@ BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-14))
         sycomore::sinc_envelope(t0), 1/t0, slice_thickness, "rf");
 
     sycomore::TimeInterval const refocalization(
-        (TR-pulse_duration).convert_to(sycomore::units::s)/2.,
-        -sinc_pulse.get_gradient_moment()/2);
+        (TR-pulse_duration)/2., -sinc_pulse.get_gradient_moment()/2);
 
     auto const sampling_locations = sycomore::linspace(
         sycomore::Point{0_m, 0_m, 2*slice_thickness},

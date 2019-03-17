@@ -8,7 +8,8 @@
 #include "sycomore/sycomore.h"
 
 template<typename T>
-void wrap_Array(
+pybind11::class_<sycomore::Array<T>>
+wrap_Array(
     pybind11::module & m, pybind11::handle python_type,
     std::string const & suffix)
 {
@@ -16,7 +17,7 @@ void wrap_Array(
     using namespace sycomore;
 
     auto const name = "_Array"+suffix;
-    auto const array = class_<Array<T>>(m, name.c_str(), buffer_protocol())
+    auto array = class_<Array<T>>(m, name.c_str(), buffer_protocol())
         .def(init<>())
         .def(init(
             [](sequence s) {
@@ -73,6 +74,8 @@ void wrap_Array(
             });
 
     m.attr("Array")[python_type] = array;
+
+    return array;
 }
 
 void wrap_Array(pybind11::module & m)
@@ -86,9 +89,14 @@ void wrap_Array(pybind11::module & m)
     auto uint_ = module::import("numpy").attr("uint32");
 
     wrap_Array<Real>(m, float_().get_type(), "Real");
-    wrap_Array<int>(m, int_, "Int");
-    wrap_Array<unsigned int>(m, uint_, "UInt");
-    wrap_Array<Quantity>(m, m.attr("Quantity"), "Quantity");
+    wrap_Array<int32_t>(m, int_, "Int");
+    wrap_Array<uint32_t>(m, uint_, "UInt");
+    wrap_Array<Quantity>(m, m.attr("Quantity"), "Quantity")
+        .def(self *= double())
+        .def(self /= double())
+        .def(self * double())
+        .def(double() * self)
+        .def(self / double());
 
     m.attr("Index") = m.attr("Array")[int_];
     m.attr("Shape") = m.attr("Array")[uint_];

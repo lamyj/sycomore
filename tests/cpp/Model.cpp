@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(Pulse)
     using namespace sycomore::units;
 
     sycomore::Species const species(1_s, 0.1_s);
-    sycomore::Model model(species, {0,0,1}, {{"dummy", {0}}});
+    sycomore::Model model(species, {0,0,1}, {{"dummy", {0*s}}});
 
     sycomore::Pulse const pulse{41_deg, 27_deg};
     model.apply_pulse(pulse);
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
 
     sycomore::Species const species{std::log(2)*Hz, std::log(2)*Hz};
     // Dummy time intervals to build a 2D model
-    sycomore::Model model(species, {0, 0, 1}, {{"foo", {1}}, {"bar", {1}}});
+    sycomore::Model model(species, {0, 0, 1}, {{"foo", {1*s}}, {"bar", {1*s}}});
 
     // Resulting complex magnetization: 1/2, sqrt(2)/2, 1/2
     model.apply_pulse({45_deg, 90_deg});
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(CleanUp)
 
     sycomore::Species const species{std::log(2)*Hz, std::log(2)*Hz};
     // Dummy time intervals to build a 2D model
-    sycomore::Model model(species, {0, 0, 1}, {{"short", {1}}, {"long", {2}}});
+    sycomore::Model model(species, {0, 0, 1}, {{"short", {1*s}}, {"long", {2*s}}});
     model.set_epsilon(1.5*1./(1<<4));
 
     // Resulting complex magnetization: 1/2, sqrt(2)/2, 1/2

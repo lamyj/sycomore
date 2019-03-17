@@ -82,8 +82,8 @@ int main()
     
     std::cout 
         << "Transversal magnetization at echo: " 
-        << echo_signal.transversal() 
-        << "; longitudinal magnetization at end of TR: " << end_tr_signal.z
+        << sycomore::transversal(echo_signal)
+        << "; longitudinal magnetization at end of TR: " << end_tr_signal[2]
         << "\n";
 }
 ```
@@ -138,8 +138,7 @@ int main()
         water, {0,0,1}, {
             {excitation.get_name(), excitation.get_time_interval()},
             {"slice_rephasing", {
-                (TE-pulse_duration).convert_to(s)/2., 
-                -excitation.get_gradient_moment()/2}},
+                (TE-pulse_duration)/2., -excitation.get_gradient_moment()/2}},
             {"half_echo", {(TE-pulse_duration)/2.}},
             {"idle", {TR-TE-pulse_duration}}
     });

@@ -43,9 +43,10 @@ if(BUILD_TESTING)
     add_subdirectory("tests")
 endif()
 
- if(BUILD_EXAMPLES)
-     add_subdirectory("examples")
- endif()
+if(BUILD_EXAMPLES)
+    add_subdirectory("examples")
+endif()
+
 if(BUILD_PYTHON_WRAPPERS)
     add_subdirectory("wrappers/python")
 endif()

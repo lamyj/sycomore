@@ -5,9 +5,10 @@
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    sycomore::Pulse const pulse(1, 2);
-    BOOST_REQUIRE_EQUAL(pulse.angle, 1);
-    BOOST_REQUIRE_EQUAL(pulse.phase, 2);
+    using namespace sycomore::units;
+    sycomore::Pulse const pulse(1*rad, 2*rad);
+    BOOST_REQUIRE_EQUAL(pulse.get_angle(), 1*rad);
+    BOOST_REQUIRE_EQUAL(pulse.get_phase(), 2*rad);
 }
 
 BOOST_AUTO_TEST_CASE(RotationMatrix, *boost::unit_test::tolerance(1e-15))

@@ -7,36 +7,65 @@ namespace sycomore
 {
 
 TimeInterval
-::TimeInterval(Real duration, Real gradient_moment)
-: TimeInterval(duration, {gradient_moment, gradient_moment, gradient_moment})
-{
-    // Nothing else.
-}
-
-TimeInterval
 ::TimeInterval(Quantity const & duration, Quantity const & gradient_moment)
-: TimeInterval(duration.convert_to(units::s),
-    gradient_moment.convert_to(1/units::m))
 {
-    // Nothing else.
+    this->set_duration(duration);
+    this->set_gradient_moment({gradient_moment, gradient_moment, gradient_moment});
 }
 
 TimeInterval
-::TimeInterval(Real duration, Array<Real> gradient_moment)
-: duration(duration), gradient_moment(gradient_moment)
+::TimeInterval(
+    Quantity const & duration, Array<Quantity> const & gradient_moment)
 {
-    // Nothing else.
+    this->set_duration(duration);
+    this->set_gradient_moment(gradient_moment);
 }
 
+Quantity const &
 TimeInterval
-::TimeInterval(Quantity const & duration, Array<Quantity> const & gradient_moment_)
-: duration(duration.convert_to(units::s))
+::get_duration() const
 {
-    this->gradient_moment = Array<Real>(gradient_moment_.size());
-    for(size_t d=0; d<this->gradient_moment.size(); ++d)
+    return this->_duration;
+}
+
+void
+TimeInterval
+::set_duration(Quantity const & q)
+{
+    if(q.dimensions == Time)
     {
-        this->gradient_moment[d] = gradient_moment_[d].convert_to(1/units::m);
+        this->_duration = q;
     }
+    else
+    {
+        std::ostringstream message;
+        message << "Invalid duration dimensions: " << q.dimensions;
+        throw std::runtime_error(message.str());
+    }
+}
+
+Array<Quantity> const &
+TimeInterval
+::get_gradient_moment() const
+{
+    return this->_gradient_moment;
+}
+
+void
+TimeInterval
+::set_gradient_moment(Array<Quantity> const & a)
+{
+    for(auto && q:a)
+    {
+        if(q.dimensions != GradientMoment)
+        {
+            std::ostringstream message;
+            message << "Invalid gradient moment dimensions: " << q.dimensions;
+            throw std::runtime_error(message.str());
+        }
+    }
+
+    this->_gradient_moment = a;
 }
 
 bool
@@ -44,8 +73,8 @@ TimeInterval
 ::operator==(TimeInterval const & other) const
 {
     return (
-        this->duration == other.duration
-        && this->gradient_moment == other.gradient_moment);
+        this->_duration == other._duration
+        && this->_gradient_moment == other._gradient_moment);
 }
 
 bool

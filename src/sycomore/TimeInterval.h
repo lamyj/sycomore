@@ -9,22 +9,30 @@ namespace sycomore
 
 struct TimeInterval
 {
-    /// @brief Interval duration in seconds
-    Real duration;
-
-    /// @brief Gradient moment on x,y,z axes, in rad/m.
-    Array<Real> gradient_moment;
-
     // TODO: gradient shape
 
-    TimeInterval(Real duration=0, Real gradient_moment=0);
     TimeInterval(
-        Quantity const & duration, Quantity const & gradient_moment={0,GradientMoment});
-    TimeInterval(Real duration, Array<Real> gradient_moment);
-    TimeInterval(Quantity const & duration, Array<Quantity> const & gradient_moment);
+        Quantity const & duration=0*units::s,
+        Quantity const & gradient_moment=0*units::rad/units::m);
+    TimeInterval(
+        Quantity const & duration,
+        Array<Quantity> const & gradient_moment);
+
+    Quantity const & get_duration() const;
+    void set_duration(Quantity const & q);
+
+    Array<Quantity> const & get_gradient_moment() const;
+    void set_gradient_moment(Array<Quantity> const & a);
 
     bool operator==(TimeInterval const & other) const;
     bool operator!=(TimeInterval const & other) const;
+
+private:
+    /// @brief Interval duration
+    Quantity _duration;
+
+    /// @brief Gradient moment on x,y,z axes.
+    Array<Quantity> _gradient_moment;
 };
 
 }

@@ -9,7 +9,7 @@ class TestModel(unittest.TestCase):
         model = sycomore.Model(
             sycomore.Species(1*s, 0.1*s),
             sycomore.Magnetization(0, 0, 1),
-            [["dummy", sycomore.TimeInterval(0)]])
+            [["dummy", sycomore.TimeInterval(0*s)]])
 
         model.apply_pulse(sycomore.Pulse(41*deg, 27*deg))
 
@@ -30,8 +30,8 @@ class TestModel(unittest.TestCase):
         model = sycomore.Model(
             sycomore.Species(math.log(2)*Hz, math.log(2)*Hz),
             sycomore.Magnetization(0, 0, 1), [
-                ["foo", sycomore.TimeInterval(1)],
-                ["bar", sycomore.TimeInterval(1)]])
+                ["foo", sycomore.TimeInterval(1*s)],
+                ["bar", sycomore.TimeInterval(1*s)]])
 
         model.apply_pulse(sycomore.Pulse(45*deg, 90*deg))
 

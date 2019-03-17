@@ -29,8 +29,7 @@ class TestPulseProfile(unittest.TestCase):
             sycomore.sinc_envelope(t0), 1/t0, slice_thickness, "rf")
 
         refocalization = sycomore.TimeInterval(
-            (TR-pulse_duration).convert_to(s)/2.,
-            -sinc_pulse.get_gradient_moment()/2)
+            (TR-pulse_duration)/2., -sinc_pulse.get_gradient_moment()/2)
 
         sampling_locations = sycomore.linspace(
             sycomore.Point(0*m, 0*m, 2*slice_thickness), sampling_support_size)

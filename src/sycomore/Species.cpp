@@ -7,24 +7,173 @@ namespace sycomore
 {
 
 Species
-::Species(Real R1, Real R2, Real D, Real R2_prime, Real delta_omega, Real w)
-: R1(R1), R2(R2), D(D), R2_prime(R2_prime), delta_omega(delta_omega), w(w)
-{
-    // Nothing else.
-}
-
-Species
 ::Species(
     Quantity const & R1, Quantity const & R2, Quantity const & D,
     Quantity const & R2_prime, Quantity const & delta_omega, Real w)
-: D(D.convert_to(units::m*units::m/units::s)),
-    delta_omega(delta_omega.convert_to(units::rad/units::s)), w(w)
+: w(w)
 {
-    this->R1 = (R1.dimensions==Time ? 1/R1 : R1).convert_to(units::Hz);
-    this->R2 = (R2.dimensions==Time ? 1/R2 : R2).convert_to(units::Hz);
-    this->R2_prime =
-        (R2_prime.dimensions==Time ? 1/R2_prime : R2_prime).convert_to(
-            units::Hz);
+    this->set_R1(R1);
+    this->set_R2(R2);
+    this->set_D(D);
+    this->set_R2_prime(R2_prime);
+    this->set_delta_omega(delta_omega);
+}
+
+Quantity const &
+Species
+::get_R1() const
+{
+    return this->_R1;
+}
+
+void
+Species
+::set_R1(Quantity const & q)
+{
+    if(q.dimensions == Frequency)
+    {
+        this->_R1 = q;
+        this->_T1 = 1/q;
+    }
+    else if(q.dimensions == Time)
+    {
+        this->_R1 = 1/q;
+        this->_T1 = q;
+    }
+    else
+    {
+        std::ostringstream message;
+        message << "R1 must be duration or frequency, not " << q.dimensions;
+        throw std::runtime_error(message.str());
+    }
+}
+
+Quantity const &
+Species
+::get_T1() const
+{
+    return this->_T1;
+}
+
+Quantity const &
+Species
+::get_R2() const
+{
+    return this->_R2;
+}
+
+void
+Species
+::set_R2(Quantity const & q)
+{
+    if(q.dimensions == Frequency)
+    {
+        this->_R2 = q;
+        this->_T2 = 1/q;
+    }
+    else if(q.dimensions == Time)
+    {
+        this->_R2 = 1/q;
+        this->_T2 = q;
+    }
+    else
+    {
+        std::ostringstream message;
+        message << "R2 must be duration or frequency, not " << q.dimensions;
+        throw std::runtime_error(message.str());
+    }
+}
+
+Quantity const &
+Species
+::get_T2() const
+{
+    return this->_T2;
+}
+
+Quantity const &
+Species
+::get_R2_prime() const
+{
+    return this->_R2_prime;
+}
+
+Quantity const &
+Species
+::get_D() const
+{
+    return this->_D;
+}
+
+void
+Species
+::set_D(Quantity const & q)
+{
+    if(q.dimensions == Diffusion)
+    {
+        this->_D = q;
+    }
+    else
+    {
+        std::ostringstream message;
+        message << "D must be a diffusion coefficient, not " << q.dimensions;
+        throw std::runtime_error(message.str());
+    }
+}
+
+void
+Species
+::set_R2_prime(Quantity const & q)
+{
+    if(q.dimensions == Frequency)
+    {
+        this->_R2_prime = q;
+        this->_T2_prime = 1/q;
+    }
+    else if(q.dimensions == Time)
+    {
+        this->_R2_prime = 1/q;
+        this->_T2_prime = q;
+    }
+    else
+    {
+        std::ostringstream message;
+        message
+            << "R2_prime must be duration or frequency, not " << q.dimensions;
+        throw std::runtime_error(message.str());
+    }
+}
+
+Quantity const &
+Species
+::get_T2_prime() const
+{
+    return this->_T2_prime;
+}
+
+Quantity const &
+Species
+::get_delta_omega() const
+{
+    return this->_delta_omega;
+}
+
+void
+Species
+::set_delta_omega(Quantity const & q)
+{
+    if(q.dimensions == AngularFrequency)
+    {
+        this->_delta_omega = q;
+    }
+    else
+    {
+        std::ostringstream message;
+        message
+            << "delta_omega must be an angular frequency, not "
+            << q.dimensions;
+        throw std::runtime_error(message.str());
+    }
 }
 
 }

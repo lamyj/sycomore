@@ -15,7 +15,7 @@ namespace sycomore
 class HardPulseApproximation
 {
 public:
-    using Envelope = std::function<Real(Quantity const &)>;
+    using Envelope = std::function<Quantity(Quantity const &)>;
 
     HardPulseApproximation(
         Pulse const & model, std::vector<Quantity> const & support,
@@ -34,10 +34,9 @@ public:
     TimeInterval const & get_time_interval() const;
     std::string const & get_name() const;
 
-    Array<Real> get_gradient_moment() const;
+    Array<Quantity> get_gradient_moment() const;
 
     void set_phase(Quantity const & phase);
-    void set_phase(Real const & phase);
 
 private:
     std::vector<Pulse> _pulses;

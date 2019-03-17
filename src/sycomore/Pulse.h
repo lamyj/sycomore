@@ -16,18 +16,22 @@ class Pulse
 public:
     using RotationMatrix = Grid<Complex>;
 
-    /// @brief Flip angle in radians.
-    Real angle;
-
-    /// @brief Phase in radians.
-    Real phase;
-
-    Pulse(double angle, double phase);
-
     Pulse(Quantity const & angle, Quantity const & phase);
+
+    Quantity const & get_angle() const;
+    void set_angle(Quantity const & q);
+
+    Quantity const & get_phase() const;
+    void set_phase(Quantity const & q);
 
     /// @brief Return the rotation matrix for complex magnetization.
     RotationMatrix rotation_matrix() const;
+private:
+    /// @brief Flip angle.
+    Quantity _angle;
+
+    /// @brief Phase.
+    Quantity _phase;
 };
 
 }

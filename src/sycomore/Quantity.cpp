@@ -40,7 +40,7 @@ Quantity
     {
         std::ostringstream message;
         message
-            << "Unequal dimensions: "
+            << "Addition requires equal dimensions: "
             << this->dimensions << " != " << other.dimensions;
         throw std::runtime_error(message.str());
     }
@@ -56,7 +56,7 @@ Quantity
     {
         std::ostringstream message;
         message
-            << "Unequal dimensions: "
+            << "Subtraction requires equal dimensions: "
             << this->dimensions << " != " << other.dimensions;
         throw std::runtime_error(message.str());
     }
@@ -106,7 +106,7 @@ Quantity
     {
         std::ostringstream message;
         message
-            << "Unequal dimensions: "
+            << "Modulo requires equal dimensions: "
             << this->dimensions << " != " << other.dimensions;
         throw std::runtime_error(message.str());
     }
@@ -130,7 +130,7 @@ Quantity
     {
         std::ostringstream message;
         message
-            << "Unequal dimensions: "
+            << "Conversion requires equal dimensions: "
             << this->dimensions << " != " << destination.dimensions;
         throw std::runtime_error(message.str());
     }
@@ -143,7 +143,8 @@ bool operator<(Quantity const & l, Quantity const & r)
     {
         std::ostringstream message;
         message
-            << "Unequal dimensions: " << l.dimensions << " != " << r.dimensions;
+            << "Comparison requires equal dimensions: "
+            << l.dimensions << " != " << r.dimensions;
         throw std::runtime_error(message.str());
     }
     return l.magnitude < r.magnitude;

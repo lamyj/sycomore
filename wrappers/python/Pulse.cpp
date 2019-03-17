@@ -9,8 +9,7 @@ void wrap_Pulse(pybind11::module & m)
     using namespace sycomore;
 
     class_<Pulse>(m, "Pulse")
-        .def(init<Real, Real>())
         .def(init<Quantity, Quantity>())
-        .def_readwrite("angle", &Pulse::angle)
-        .def_readwrite("phase", &Pulse::phase);
+        .def_property("angle", &Pulse::get_angle, &Pulse::set_angle)
+        .def_property("phase", &Pulse::get_phase, &Pulse::set_phase);
 }

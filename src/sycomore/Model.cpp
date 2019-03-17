@@ -154,6 +154,8 @@ void
 Model
 ::apply_time_interval(std::string const & name)
 {
+    using namespace units;
+
     auto const start = std::chrono::high_resolution_clock::now();
 
     auto && mu = this->_dimensions.at(name);
@@ -199,15 +201,22 @@ Model
     }
 
     // Relaxation effects
-    auto const E_1 = std::exp(-this->_species.R1 * time_interval.duration);
-    auto const E_2 = std::exp(-this->_species.R2 * time_interval.duration);
+    auto const E_1 = std::exp(
+        (-this->_species.get_R1() * time_interval.get_duration()).magnitude);
+    auto const E_2 = std::exp(
+        (-this->_species.get_R2() * time_interval.get_duration()).magnitude);
 
     // Configuration-independent diffusion effects
-    auto && p_mu = time_interval.gradient_moment;
+    Array<Real> p_mu(time_interval.get_gradient_moment().size());
+    for(size_t i=0; i<p_mu.size(); ++i)
+    {
+        p_mu[i] = time_interval.get_gradient_moment()[i].convert_to(rad/m);
+    }
     auto const p_mu_norm_third = dot(p_mu, p_mu)/3;
-    auto const minus_D_tau = -this->_species.D*time_interval.duration;
-    auto const has_gradient = p_mu != Array<Real>(p_mu.size(), 0);
-    auto const do_diffusion = this->_species.D > 0 && has_gradient;
+    auto const minus_D_tau =
+        (-this->_species.get_D()*time_interval.get_duration()).convert_to(m*m);
+    auto const has_gradient = p_mu != Array<Real>(p_mu.size(), 0.);
+    auto const do_diffusion = this->_species.get_D() > 0*m*m/s && has_gradient;
 
     // Offsets on the mu axis
     auto && m_stride = this->_m.stride()[mu];
@@ -382,16 +391,17 @@ Model
 
     auto const omega =
         relative_frequency.convert_to(units::rad/units::s)
-        +this->_species.delta_omega;
+        +this->_species.get_delta_omega().convert_to(units::rad/units::s);
 
     auto const update_isochromat = [&](size_t const & offset) {
         auto && tau = this->_tau[offset];
 
-        Real const susceptibility = -this->_species.R2_prime * tau;
+        Real const susceptibility =
+            -this->_species.get_R2_prime().convert_to(units::s) * tau;
 
         Real const off_resonance = omega * tau;
 
-        Real gradients_dephasing= 0;
+        Real gradients_dephasing = 0;
         if(!position_real.empty() && !std::isnan(this->_p[3*offset]))
         {
             Array<Real> const p(const_cast<Real*>(this->_p.data())+3*offset, 3);
@@ -454,7 +464,7 @@ Model
     tau = 0;
     for(size_t d=0; d<this->_dimensions.size(); ++d)
     {
-        auto && tau_eta = this->_time_intervals[d].duration;
+        auto && tau_eta = this->_time_intervals[d].get_duration().convert_to(units::s);
         tau += n[d] * tau_eta;
     }
 }
@@ -466,7 +476,13 @@ Model
     std::fill(p.begin(), p.end(), 0);
     for(size_t d=0; d<this->_dimensions.size(); ++d)
     {
-        auto && p_eta = this->_time_intervals[d].gradient_moment;
+        Array<Real> p_eta(this->_time_intervals[d].get_gradient_moment().size());
+        for(size_t i=0; i<p_eta.size(); ++i)
+        {
+            p_eta[i] =
+                this->_time_intervals[d].get_gradient_moment()[i].convert_to(
+                    units::rad/units::m);
+        }
         p += n[d] * p_eta;
     }
 }

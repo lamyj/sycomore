@@ -88,8 +88,7 @@ BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
         species, m0, {
             {"rf", sinc_pulse.get_time_interval()},
             {"half_echo", {
-                (TR-pulse_duration).convert_to(sycomore::units::s)/2.,
-                -sinc_pulse.get_gradient_moment()/2}}
+                (TR-pulse_duration)/2., -sinc_pulse.get_gradient_moment()/2}}
     });
 
     std::vector<sycomore::Magnetization> magnetization;

@@ -10,32 +10,57 @@ namespace sycomore
 class Species
 {
 public:
-    /// @brief R1 relaxation rate in s.
-    Real R1;
-
-    /// @brief R2 relaxation rate in s.
-    Real R2;
-
-    /// @brief Diffusivity in m^2 / s.
-    Real D;
-
-    /// @brief R2' relaxation rate in s.
-    Real R2_prime;
-
-    /// @brief Relative frequency in rad/s.
-    Real delta_omega;
-
     /// @brief Relative weight
     Real w;
 
     Species(
-        Real R1, Real R2,
-        Real D=0, Real R2_prime=0, Real delta_omega=0, Real w=1);
-
-    Species(
         Quantity const & R1, Quantity const & R2,
-        Quantity const & D={0, Diffusion}, Quantity const & R2_prime={0, Frequency},
+        Quantity const & D={0, Diffusion},
+        Quantity const & R2_prime={0, Frequency},
         Quantity const & delta_omega={0, AngularFrequency}, Real w=1);
+
+    Quantity const & get_R1() const;
+    void set_R1(Quantity const & q);
+    Quantity const & get_T1() const;
+
+    Quantity const & get_R2() const;
+    void set_R2(Quantity const & q);
+    Quantity const & get_T2() const;
+
+    Quantity const & get_D() const;
+    void set_D(Quantity const & q);
+
+    Quantity const & get_R2_prime() const;
+    void set_R2_prime(Quantity const & q);
+    Quantity const & get_T2_prime() const;
+
+    Quantity const & get_delta_omega() const;
+    void set_delta_omega(Quantity const & q);
+
+private:
+    /// @brief R1 relaxation rate.
+    Quantity _R1;
+
+    /// @brief R1 relaxation time.
+    Quantity _T1;
+
+    /// @brief R2 relaxation rate.
+    Quantity _R2;
+
+    /// @brief R2 relaxation time.
+    Quantity _T2;
+
+    /// @brief Diffusivity.
+    Quantity _D;
+
+    /// @brief R2' relaxation rate.
+    Quantity _R2_prime;
+
+    /// @brief R2' relaxation time.
+    Quantity _T2_prime;
+
+    /// @brief Relative frequency.
+    Quantity _delta_omega;
 };
 
 }

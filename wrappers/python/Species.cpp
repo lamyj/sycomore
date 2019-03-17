@@ -12,18 +12,19 @@ void wrap_Species(pybind11::module & m)
 
     class_<Species>(m, "Species")
         .def(
-            init<Real, Real, Real, Real, Real, Real>(),
-            arg("R1"), arg("R2"),
-            arg("D")=0, arg("R2_prime")=0, arg("delta_omega")=0, arg("w")=1)
-        .def(
             init<Quantity, Quantity, Quantity, Quantity, Quantity, Real>(),
             arg("R1"), arg("R2"),
             arg("D")=0*units::m*units::m/s, arg("R2_prime")=0_Hz,
             arg("delta_omega")=0*rad/s, arg("w")=1)
-        .def_readwrite("R1", &Species::R1)
-        .def_readwrite("R2", &Species::R2)
-        .def_readwrite("D", &Species::D)
-        .def_readwrite("R2_prime", &Species::R2_prime)
-        .def_readwrite("delta_omega", &Species::delta_omega)
+        .def_property("R1", &Species::get_R1, &Species::set_R1)
+        .def_property_readonly("T1", &Species::get_T1)
+        .def_property("R2", &Species::get_R2, &Species::set_R2)
+        .def_property_readonly("T2", &Species::get_T2)
+        .def_property("D", &Species::get_D, &Species::set_D)
+        .def_property(
+            "R2_prime", &Species::get_R2_prime, &Species::set_R2_prime)
+        .def_property_readonly("T2_prime", &Species::get_T2_prime)
+        .def_property(
+            "delta_omega", &Species::get_delta_omega, &Species::set_delta_omega)
         .def_readwrite("w", &Species::w);
 }

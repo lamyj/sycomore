@@ -20,14 +20,7 @@ void wrap_HardPulseApproximation(pybind11::module & m)
         .def("get_time_interval", &HardPulseApproximation::get_time_interval)
         .def("get_name", &HardPulseApproximation::get_name)
         .def("get_gradient_moment", &HardPulseApproximation::get_gradient_moment)
-        .def(
-            "set_phase",
-            static_cast<void (HardPulseApproximation::*)(Quantity const &)>(
-                &HardPulseApproximation::set_phase))
-        .def(
-            "set_phase",
-            static_cast<void (HardPulseApproximation::*)(Real const &)>(
-                &HardPulseApproximation::set_phase));
+        .def("set_phase", &HardPulseApproximation::set_phase);
 
     m.def("sinc_envelope", sinc_envelope);
 }

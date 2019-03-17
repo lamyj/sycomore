@@ -12,26 +12,69 @@ namespace sycomore
 {
 
 Pulse
-::Pulse(double angle, double phase)
-: angle(angle), phase(phase)
+::Pulse(Quantity const & angle, Quantity const & phase)
 {
-    // Nothing else.
+    this->set_angle(angle);
+    this->set_phase(phase);
 }
 
+Quantity const &
 Pulse
-::Pulse(Quantity const & angle, Quantity const & phase)
-: Pulse(angle.convert_to(units::rad), phase.convert_to(units::rad))
+::get_angle() const
 {
-    // Nothing else.
+    return this->_angle;
+}
+
+void
+Pulse
+::set_angle(Quantity const & q)
+{
+    if(q.dimensions == Angle)
+    {
+        this->_angle= q;
+    }
+    else
+    {
+        std::ostringstream message;
+        message << "Invalid angle dimensions: " << q.dimensions;
+        throw std::runtime_error(message.str());
+    }
+}
+
+Quantity const &
+Pulse
+::get_phase() const
+{
+    return this->_phase;
+}
+
+void
+Pulse
+::set_phase(Quantity const & q)
+{
+    if(q.dimensions == Angle)
+    {
+        this->_phase = q;
+    }
+    else
+    {
+        std::ostringstream message;
+        message << "Invalid phase dimensions: " << q.dimensions;
+        throw std::runtime_error(message.str());
+    }
 }
 
 Pulse::RotationMatrix
 Pulse
 ::rotation_matrix() const
 {
-    Real const c_alpha = std::cos(this->angle);
-    Real const s_alpha = std::sin(this->angle);
-    Complex const e_i_phi{std::cos(this->phase), std::sin(this->phase)};
+    using namespace units;
+
+    Real const c_alpha = std::cos(this->_angle.convert_to(rad));
+    Real const s_alpha = std::sin(this->_angle.convert_to(rad));
+    Complex const e_i_phi{
+        std::cos(this->_phase.convert_to(rad)),
+        std::sin(this->_phase.convert_to(rad))};
 
     RotationMatrix m({0,0}, {3,3}, 0);
     m[{0, 0}] = 0.5 * (1. + c_alpha);

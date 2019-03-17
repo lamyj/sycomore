@@ -21,13 +21,13 @@ int main()
     
     using namespace sycomore::units;
     
-    // Values in base SI values, default parameters (D=0, R2_prime=0, delta_omega=0)
-    sycomore::Species const s1(1.0, 0.1);
+    // Values using rates, default parameters (D=0, R2_prime=0, delta_omega=0)
+    sycomore::Species const s1(1.0*Hz, 0.1*Hz);
     
     // Values using times, user-specified diffusivity
     sycomore::Species const s2(1000_ms, 100_ms, 0.89_um*um/s);
     
-    // Values using rates
-    sycomore::Species const s3(1_Hz, 1/100_ms);
+    // Values using rates and times
+    sycomore::Species const s3(1_Hz, 100_ms);
 }
 ```

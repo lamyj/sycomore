@@ -22,23 +22,23 @@ int main()
 
     std::vector<std::pair<sycomore::Real, sycomore::Real>> signal;
 
-    sycomore::Real time=0;
+    sycomore::Quantity time=0*s;
     model.apply_pulse({90_deg, 0_deg});
     for(int echo=0; echo<train_length; ++echo)
     {
         model.apply_time_interval("half_echo");
-        time += half_echo.duration;
+        time += half_echo.get_duration();
 
         model.apply_pulse({180_deg, 0_deg});
 
         model.apply_time_interval("half_echo");
-        time += half_echo.duration;
+        time += half_echo.get_duration();
 
         auto const m = model.isochromat();
-        signal.emplace_back(time, sycomore::transversal(m));
+        signal.emplace_back(time.convert_to(s), sycomore::transversal(m));
     }
     model.apply_time_interval("idle");
-    time += idle.duration;
+    time += idle.get_duration();
 
 
     for(auto it = signal.begin(); it!=signal.end(); ++it)

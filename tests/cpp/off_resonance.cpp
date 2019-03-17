@@ -38,8 +38,7 @@ BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-12))
         species, m0, {
             {"rf", sinc_pulse.get_time_interval()},
             {"refocalization", {
-                (TR-pulse_duration).convert_to(sycomore::units::s)/2.,
-                -sinc_pulse.get_gradient_moment()/2}}
+                (TR-pulse_duration)/2., -sinc_pulse.get_gradient_moment()/2}}
     });
 
     model.apply_pulse(sinc_pulse);
