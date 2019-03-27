@@ -9,9 +9,11 @@ endif()
 file(GLOB_RECURSE header_files "*.h")
 file(GLOB_RECURSE source_files "*.cpp")
 file(GLOB_RECURSE template_files "*.txx")
+file(GLOB_RECURSE python_files "*.py")
 list(SORT header_files)
 list(SORT source_files)
 list(SORT template_files)
+list(SORT python_files)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 
@@ -32,3 +34,16 @@ install(
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin)
+
+add_custom_target(
+    libsycomore-python ${CMAKE_COMMAND} -E echo "Python files"
+    SOURCES ${python_files})
+
+execute_process(
+    COMMAND ${PYTHON_EXECUTABLE}
+      -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))"
+    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+install(DIRECTORY DESTINATION "${PYTHON_SITE_PACKAGES}")
+install(FILES ${python_files} DESTINATION "${PYTHON_SITE_PACKAGES}/sycomore")
