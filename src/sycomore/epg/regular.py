@@ -1,6 +1,6 @@
 import numpy
 from numpy import cos, exp, pi, sin
-from sycomore.units import *
+from sycomore.units import rad
 
 class State(object):
     def __init__(self, species, initial_magnetization=[0,0,1], initial_size=100):
@@ -14,7 +14,7 @@ class State(object):
     def magnetization(self):
         return self._magnetization[:,:self._size]
     
-    def apply_pulse(self, angle, phase=0*deg):
+    def apply_pulse(self, angle, phase=0*rad):
         a = angle.convert_to(rad)
         p = phase.convert_to(rad)
     

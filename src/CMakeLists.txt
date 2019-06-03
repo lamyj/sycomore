@@ -46,4 +46,8 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 install(DIRECTORY DESTINATION "${PYTHON_SITE_PACKAGES}")
-install(FILES ${python_files} DESTINATION "${PYTHON_SITE_PACKAGES}/sycomore")
+foreach(python_file ${python_files})
+    file(RELATIVE_PATH module ${CMAKE_CURRENT_SOURCE_DIR} ${python_file})
+    get_filename_component(module ${module} PATH)
+    install(FILES ${python_file} DESTINATION "${PYTHON_SITE_PACKAGES}/${module}")
+endforeach()
