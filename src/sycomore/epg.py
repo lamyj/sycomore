@@ -3,7 +3,8 @@ from numpy import cos, exp, pi, sin
 from sycomore.units import *
 
 class State(object):
-    def __init__(self, initial_magnetization=[0,0,1], initial_size=100):
+    def __init__(self, species, initial_magnetization=[0,0,1], initial_size=100):
+        self.species = species
         # Columns of F̃_k, F̃^*_{-k}, Z̃_k 
         self._magnetization = numpy.zeros((3, initial_size), dtype=numpy.complex)
         self._magnetization[:,0] = initial_magnetization
@@ -25,7 +26,7 @@ class State(object):
         
         self._magnetization[:,:self._size] = M @ self.magnetization
     
-    def apply_gradient(self):
+    def apply_gradient(self, *args):
         # TODO: resize factor
         if self._size >= self._magnetization.shape[1]:
             self._magnetization = numpy.concatenate(
@@ -41,9 +42,9 @@ class State(object):
         
         self._size += 1
     
-    def apply_relaxation(self, species, duration):
-        E_1 = exp((-duration/species.T1).magnitude)
-        E_2 = exp((-duration/species.T2).magnitude)
+    def apply_relaxation(self, duration):
+        E_1 = exp((-duration/self.species.T1).magnitude)
+        E_2 = exp((-duration/self.species.T2).magnitude)
         E = numpy.diag([E_2, E_2, E_1])
         self._magnetization[:,:self._size] = E @ self.magnetization
         self._magnetization[2,0] += 1-E_1 # WARNING: assumes M0=1
