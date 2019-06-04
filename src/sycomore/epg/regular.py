@@ -1,6 +1,7 @@
 import numpy
-from numpy import cos, exp, pi, sin
 from sycomore.units import rad
+
+from . import operators
 
 class State(object):
     def __init__(self, species, initial_magnetization=[0,0,1], initial_size=100):
@@ -15,15 +16,7 @@ class State(object):
         return self._magnetization[:,:self._size]
     
     def apply_pulse(self, angle, phase=0*rad):
-        a = angle.convert_to(rad)
-        p = phase.convert_to(rad)
-    
-        M = numpy.asarray([
-            [cos(a/2)**2, exp(2j*p)*sin(a/2)**2, -1j*exp(1j*p)*sin(a)],
-            [exp(-2j*p)*sin(a/2)**2, cos(a/2)**2, 1j*exp(-1j*p)*sin(a)],
-            [-1j/2*exp(-1j*p)*sin(a), 1j/2*exp(1j*p)*sin(a), cos(a)]
-        ])
-        
+        T = operators.pulse(angle, phase)
         self._magnetization[:,:self._size] = M @ self.magnetization
     
     def apply_gradient(self, *args):
@@ -43,8 +36,14 @@ class State(object):
         self._size += 1
     
     def apply_relaxation(self, duration):
-        E_1 = exp((-duration/self.species.T1).magnitude)
-        E_2 = exp((-duration/self.species.T2).magnitude)
-        E = numpy.diag([E_2, E_2, E_1])
+        E, E_1 = operators.relaxation(self.species, duration)
         self._magnetization[:,:self._size] = E @ self.magnetization
         self._magnetization[2,0] += 1-E_1 # WARNING: assumes M0=1
+
+    def apply_diffusion(self, duration, gradient):
+        delta_k = self.gamma*gradient*duration
+        
+        for i in range(self.magnetization.shape[1]):
+            k = i*delta_k
+            D = operators.diffusion(self.species, duration, i*delta_k, delta_k)
+            numpy.matmul(D, self.magnetization[:,i], self.magnetization[:,i])
