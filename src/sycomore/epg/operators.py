@@ -21,17 +21,24 @@ def relaxation(species, duration):
     return E, E_1
 
 def diffusion(species, duration, k, delta_k):
+    """ k is an _array_ of values in order to speed up computations.
+    """
+    
     # NOTE: b_T differs between F̃^+ and F̃^{-*} since F̃^{-*}(k) is F(-k^*)
     
-    b_T_plus = duration*((k+delta_k/2)**2 + delta_k**2 / 12)
-    D_T_plus = exp((-b_T_plus*species.D).magnitude)
+    k = numpy.asarray([x.magnitude for x in k])
+    tau = duration.magnitude
+    delta_k = delta_k.magnitude
     
-    b_T_minus = duration*((-k+delta_k/2)**2 + delta_k**2 / 12)
-    D_T_minus = exp((-b_T_minus*species.D).magnitude)
+    D = numpy.zeros((len(k), 3, 3))
     
-    b_L = k**2 * duration
-    D_L = exp((-b_L*species.D).magnitude)
+    b_T_plus = tau*((k+delta_k/2)**2 + delta_k**2 / 12)
+    D[:,0,0] = exp(-b_T_plus*species.D.magnitude)
     
-    D = numpy.diag([D_T_plus, D_T_minus, D_L])
+    b_T_minus = tau*((-k+delta_k/2)**2 + delta_k**2 / 12)
+    D[:,1,1] = exp(-b_T_minus*species.D.magnitude)
+    
+    b_L = k**2 * tau
+    D[:,2,2] = exp(-b_L*species.D.magnitude)
     
     return D

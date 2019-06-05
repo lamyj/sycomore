@@ -28,8 +28,8 @@ class State(object):
     
     def apply_pulse(self, angle, phase=0*rad):
         T = operators.pulse(angle, phase)
-        for v in self.magnetization.values():
-            numpy.matmul(T, v, v)
+        for _, v in self.magnetization.items():
+            v[:] = T @ v
         
     def apply_time_interval(self, duration, gradient=0*T/m, threshold=0):
         # Note that since E does not depend on k, the E and S operators commute
@@ -44,11 +44,9 @@ class State(object):
         self.apply_gradient(duration, gradient)
         
         if threshold > 0:
-            low_population = []
-            for k, v in self.magnetization.items():
-                if all(numpy.absolute(x) < threshold for x in v):
-                    low_population.append(k)
-            for k in low_population:
+            is_low = lambda v: all(numpy.absolute(x) < threshold for x in v)
+            low_states = [k for k, v in self.magnetization.items() if is_low(v)]
+            for k in low_states:
                 del self.magnetization[k]
         
     def apply_gradient(self, duration, gradient):
@@ -80,14 +78,15 @@ class State(object):
     
     def apply_relaxation(self, duration):
         E, E_1 = operators.relaxation(self.species, duration)
-        for v in self.magnetization.values():
-            numpy.matmul(E, v, v)
+        for _, v in self.magnetization.items():
+            v[:] = E @ v
         self.magnetization[0][2] += 1-E_1 # WARNING: assumes M0=1
     
     def apply_diffusion(self, duration, gradient):
         delta_k = self.gamma*gradient*duration
         
-        for key, v in self.magnetization.items():
-            D = operators.diffusion(
-                self.species, duration, key*self.bin_width, delta_k)
-            numpy.matmul(D, v, v)
+        k = numpy.asarray([key*self.bin_width for key in self.magnetization])
+        D_operators = operators.diffusion(self.species, duration, k, delta_k)
+        
+        for (_, v), D in zip(self.magnetization.items(), D_operators):
+            v[:] = D @ v

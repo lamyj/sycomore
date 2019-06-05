@@ -60,7 +60,9 @@ class State(object):
     def apply_diffusion(self, duration, gradient):
         delta_k = self.gamma*gradient*duration
         
+        k = numpy.asarray(
+            [i*delta_k for i in range(self.magnetization.shape[1])])
+        D = operators.diffusion(self.species, duration, k, delta_k)
+        
         for i in range(self.magnetization.shape[1]):
-            k = i*delta_k
-            D = operators.diffusion(self.species, duration, i*delta_k, delta_k)
-            self.magnetization[:,i] = D @ self.magnetization[:,i]
+            self.magnetization[:,i] = D[i] @ self.magnetization[:,i]
