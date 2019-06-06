@@ -70,5 +70,5 @@ class State(object):
             [i*delta_k for i in range(self.magnetization.shape[1])])
         D = operators.diffusion(self.species, duration, k, delta_k)
         
-        for i in range(self.magnetization.shape[1]):
-            self.magnetization[:,i] = D[i] @ self.magnetization[:,i]
+        self._magnetization[:,:self._size] = numpy.einsum(
+            "kij,jk->ik", D, self._magnetization[:,:self._size])
