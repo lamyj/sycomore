@@ -53,11 +53,17 @@ class State(object):
         self._size += 1
     
     def apply_relaxation(self, duration):
+        if self.species.R1.magnitude == 0 and self.species.R2.magnitude == 0:
+            return
+        
         E, E_1 = operators.relaxation(self.species, duration)
         self._magnetization[:,:self._size] = E @ self.magnetization
         self._magnetization[2,0] += 1-E_1 # WARNING: assumes M0=1
 
     def apply_diffusion(self, duration, gradient):
+        if self.species.D.magnitude == 0:
+            return
+        
         delta_k = self.gamma*gradient*duration
         
         k = numpy.asarray(
