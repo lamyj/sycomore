@@ -1,3 +1,4 @@
+import pickle
 import unittest
 
 import sycomore
@@ -163,6 +164,10 @@ class TestQuantity(unittest.TestCase):
         q = sycomore.Quantity(9, sycomore.Dimensions(1,0,0,0,0,0,0))
         r = sycomore.Quantity(3, sycomore.Dimensions(0.5,0,0,0,0,0,0))
         self.assertEqual(q**0.5, r)
+
+    def test_pickle(self):
+        q = sycomore.Quantity(0.5, sycomore.Dimensions(7,6,5,4,3,2,1))
+        self.assertEqual(pickle.loads(pickle.dumps(q)), q)
 
 #    def test_hash(self):
 #        quantities = set()
