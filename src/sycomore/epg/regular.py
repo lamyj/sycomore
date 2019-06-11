@@ -34,7 +34,8 @@ class State(object):
         
         self.apply_relaxation(duration)
         self.apply_diffusion(duration, gradient)
-        self.apply_gradient()
+        if duration.magnitude != 0 and gradient.magnitude != 0:
+            self.apply_gradient()
     
     def apply_gradient(self, *args):
         # TODO: resize factor
