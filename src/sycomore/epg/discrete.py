@@ -11,8 +11,11 @@ class State(object):
             gamma=2*pi*rad * 42.57747892*MHz/T, bin_width=1*rad/m):
         
         self.species = species
-        self.magnetization = {
-            0: numpy.asarray(initial_magnetization, dtype=complex)}
+        
+        self.magnetization = numpy.zeros(1, [("k", int), ("v", complex, (3,))])
+        # FIXME: ensure initial_magnetization has the correct complex conjugate 
+        # form on F̃^+ and F̃^{-*}
+        self.magnetization[0] = (0, initial_magnetization)
         
         self.gamma = gamma
         self.bin_width = bin_width
@@ -20,16 +23,16 @@ class State(object):
         self.empty = numpy.zeros(3, dtype=complex)
     
     def as_data_frame(self, decimals=3):
-        data_frame = pandas.DataFrame.from_dict({
-            k: numpy.around(v, decimals) for k,v in self.magnetization.items()})
+        data_frame = pandas.DataFrame.from_dict(dict(zip(
+            self.magnetization["k"], self.magnetization["v"].round(decimals))))
         data_frame.index = ["F+", "F-", "Z"]
         data_frame.sort_index(axis=1, inplace=True)
         return data_frame
     
     def apply_pulse(self, angle, phase=0*rad):
         T = operators.pulse(angle, phase)
-        for _, v in self.magnetization.items():
-            v[:] = T @ v
+        self.magnetization["v"] = numpy.einsum(
+            "ij,kj->ki", T, self.magnetization["v"])
         
     def apply_time_interval(self, duration, gradient=0*T/m, threshold=0):
         # Note that since E does not depend on k, the E and S operators commute
@@ -44,10 +47,10 @@ class State(object):
         self.apply_gradient(duration, gradient)
         
         if threshold > 0:
-            is_low = lambda v: all(numpy.absolute(x) < threshold for x in v)
-            low_states = [k for k, v in self.magnetization.items() if is_low(v)]
-            for k in low_states:
-                del self.magnetization[k]
+            abs = numpy.absolute(self.magnetization["v"])
+            keep = numpy.any(abs>threshold, axis=1)
+            keep[0] = True
+            self.magnetization = self.magnetization[keep]
         
     def apply_gradient(self, duration, gradient):
         # This assumes a constant gradient in the integral: 
@@ -58,21 +61,40 @@ class State(object):
         if delta_k == 0:
             return
         
-        # Every state that will be generated
-        keys = set()
-        keys.update(k+delta_k for k in self.magnetization) # F̃(k), F̃^*(-k)
-        keys.update(k for k in self.magnetization) # Z̃(k)
+        # Unfold the F̃-states
+        F = numpy.zeros(
+            2*len(self.magnetization)-1, [("k", int), ("v", complex)])
+        zero_index = None
+        for i, (k, v) in enumerate(self.magnetization):
+            F["k"][i+len(self.magnetization)-1] = k
+            F["v"][i+len(self.magnetization)-1] = v[0]
+            
+            F["k"][len(self.magnetization)-1-i] = -k
+            F["v"][len(self.magnetization)-1-i] = v[1].conj()
         
-        # Shift the populations
-        magnetization = {}
-        for k in keys:
-            magnetization[k] = numpy.asarray([
-                self.magnetization.get(k-delta_k, self.empty)[0], 
-                self.magnetization.get(k+delta_k, self.empty)[1], 
-                self.magnetization.get(k, self.empty)[2]])
+        # Shift according to Δk
+        F["k"] += delta_k
         
-        # Update F̃(+0) using F̃^*(-0)
-        magnetization[0][0] = numpy.conj(magnetization[0][1])
+        # Fold the F̃-states
+        Z_orders = self.magnetization["k"]
+        orders = numpy.unique(numpy.hstack([numpy.abs(F["k"]), Z_orders]))
+        
+        magnetization = numpy.zeros(len(orders), self.magnetization.dtype)
+        magnetization["k"] = orders
+        
+        zero_index = numpy.nonzero(F["k"]==0)[0]
+        positive_indices = numpy.nonzero(F["k"]>0)[0]
+        negative_indices = numpy.nonzero(F["k"]<0)[0]
+
+        positive_orders = F["k"][positive_indices]
+        negative_orders = F["k"][negative_indices]
+        
+        magnetization["v"][orders.searchsorted(positive_orders),0] = F["v"][positive_indices]
+        magnetization["v"][orders.searchsorted(-negative_orders),1] = F["v"][negative_indices].conj()
+        if len(zero_index) != 0:
+            magnetization["v"][0,0] = F["v"][zero_index[0]]
+            magnetization["v"][0,1] = F["v"][zero_index[0]].conj()
+        magnetization["v"][orders.searchsorted(Z_orders),2] = self.magnetization["v"][:,2]
         
         self.magnetization = magnetization
     
@@ -81,9 +103,9 @@ class State(object):
             return
         
         E, E_1 = operators.relaxation(self.species, duration)
-        for _, v in self.magnetization.items():
-            v[:] = E @ v
-        self.magnetization[0][2] += 1-E_1 # WARNING: assumes M0=1
+        self.magnetization["v"] = numpy.einsum(
+            "ij,kj->ki", E, self.magnetization["v"])
+        self.magnetization["v"][0,2] += 1-E_1 # WARNING: assumes M0=1
     
     def apply_diffusion(self, duration, gradient):
         if self.species.D.magnitude == 0:
@@ -91,8 +113,7 @@ class State(object):
         
         delta_k = self.gamma*gradient*duration
         
-        k = numpy.asarray([key*self.bin_width for key in self.magnetization])
-        D_operators = operators.diffusion(self.species, duration, k, delta_k)
-        
-        for (_, v), D in zip(self.magnetization.items(), D_operators):
-            v[:] = D @ v
+        k = self.magnetization["k"]*self.bin_width
+        D = operators.diffusion(self.species, duration, k, delta_k)
+        self.magnetization["v"] = numpy.einsum(
+            "kij,kj->ki", D, self.magnetization["v"])
