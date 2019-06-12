@@ -22,6 +22,10 @@ class State(object):
         
         self.empty = numpy.zeros(3, dtype=complex)
     
+    @property
+    def echo(self):
+        return self.magnetization["v"][0,0]
+    
     def as_data_frame(self, decimals=3):
         data_frame = pandas.DataFrame.from_dict(dict(zip(
             self.magnetization["k"], self.magnetization["v"].round(decimals))))

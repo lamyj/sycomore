@@ -20,6 +20,10 @@ class State(object):
     def magnetization(self):
         return self._magnetization[:,:self._size]
     
+    @property
+    def echo(self):
+        return self._magnetization[0,0]
+    
     def apply_pulse(self, angle, phase=0*rad):
         T = operators.pulse(angle, phase)
         self._magnetization[:,:self._size] = T @ self.magnetization
