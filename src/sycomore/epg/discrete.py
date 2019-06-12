@@ -1,7 +1,7 @@
 import numpy
 from numpy import pi
 import pandas
-from sycomore.units import rad, MHz, T, m
+from sycomore.units import Hz, rad, MHz, T, m, s
 
 from . import operators
 
@@ -68,13 +68,12 @@ class State(object):
         # Unfold the F̃-states
         F = numpy.zeros(
             2*len(self.magnetization)-1, [("k", int), ("v", complex)])
-        zero_index = None
-        for i, (k, v) in enumerate(self.magnetization):
-            F["k"][i+len(self.magnetization)-1] = k
-            F["v"][i+len(self.magnetization)-1] = v[0]
-            
-            F["k"][len(self.magnetization)-1-i] = -k
-            F["v"][len(self.magnetization)-1-i] = v[1].conj()
+        # F̃^+ on the right side
+        F["k"][len(self.magnetization)-1:] = self.magnetization["k"]
+        F["v"][len(self.magnetization)-1:] = self.magnetization["v"][:,0]
+        # F̃^{-*} on the left side, reversed order
+        F["k"][:len(self.magnetization)] = -self.magnetization["k"][::-1]
+        F["v"][:len(self.magnetization)] = self.magnetization["v"][::-1,1].conj()
         
         # Shift according to Δk
         F["k"] += delta_k
@@ -103,7 +102,7 @@ class State(object):
         self.magnetization = magnetization
     
     def apply_relaxation(self, duration):
-        if self.species.R1.magnitude == 0 and self.species.R2.magnitude == 0:
+        if self.species.R1 == 0*Hz and self.species.R2 == 0*Hz:
             return
         
         E, E_1 = operators.relaxation(self.species, duration)
@@ -112,7 +111,7 @@ class State(object):
         self.magnetization["v"][0,2] += 1-E_1 # WARNING: assumes M0=1
     
     def apply_diffusion(self, duration, gradient):
-        if self.species.D.magnitude == 0:
+        if self.species.D == 0*m**2/s:
             return
         
         delta_k = self.gamma*gradient*duration
