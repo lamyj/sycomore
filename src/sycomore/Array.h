@@ -39,6 +39,9 @@ public:
 
     /// @brief Test whether the array is a view or owns its data.
     bool is_view() const;
+    
+    T const * data() const;
+    T * data();
 
     /// @brief Read-only access, no bounds checking.
     T const & operator[](size_t i) const;

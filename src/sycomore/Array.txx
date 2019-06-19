@@ -150,6 +150,22 @@ Array<T>
 }
 
 template<typename T>
+T const *
+Array<T>
+::data() const
+{
+    return this->_data;
+}
+
+template<typename T>
+T *
+Array<T>
+::data()
+{
+    return this->_data;
+}
+
+template<typename T>
 T const &
 Array<T>
 ::operator[](size_t i) const
