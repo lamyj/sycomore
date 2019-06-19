@@ -41,7 +41,10 @@ std::vector<Complex>
 Regular
 ::magnetization(std::size_t state) const
 {
-    return {this->_magnetization[3*state], this->_magnetization[3*state+1], this->_magnetization[3*state+2]};
+    return {
+        this->_magnetization[3*state], 
+        this->_magnetization[3*state+1], 
+        this->_magnetization[3*state+2]};
 }
 
 Complex const &
@@ -125,6 +128,11 @@ void
 Regular
 ::apply_relaxation(Quantity const & duration)
 {
+    if(this->species.get_R1().magnitude == 0 && this->species.get_R2().magnitude == 0)
+    {
+        return;
+    }
+    
     auto const E = operators::relaxation(this->species, duration);
     
     #pragma omp parallel for
