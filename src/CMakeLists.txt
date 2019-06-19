@@ -28,7 +28,7 @@ set_target_properties(libsycomore PROPERTIES
 
 install(
     DIRECTORY sycomore/ DESTINATION include/sycomore
-    FILES_MATCHING PATTERN "*.h")
+    FILES_MATCHING PATTERN "*.h" PATTERN "*.txx")
 install(
     TARGETS libsycomore
     ARCHIVE DESTINATION lib
