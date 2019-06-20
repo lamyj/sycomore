@@ -1,7 +1,7 @@
 #include "Discrete.h"
 
 #include <algorithm>
-#include <set>
+#include <complex>
 #include <vector>
 
 #include "sycomore/epg/operators.h"
@@ -50,6 +50,14 @@ Discrete
         this->_states[3*order],
         this->_states[3*order+1],
         this->_states[3*order+2]};
+}
+
+std::vector<Complex>
+Discrete
+::state(Quantity const & order) const
+{
+    std::size_t const k = int64_t(std::round((order/this->_bin_width).magnitude));
+    return this->state(k);
 }
 
 std::vector<Complex> const &
@@ -105,11 +113,27 @@ Discrete
     
     if(threshold > 0)
     {
-        // TODO
-        // abs = numpy.absolute(self.magnetization["v"])
-        // keep = numpy.any(abs>threshold, axis=1)
-        // keep[0] = True
-        // self.magnetization = self.magnetization[keep]
+        auto const threshold_squared = std::pow(threshold, 2);
+        std::vector<int64_t> orders; orders.reserve(this->_orders.size());
+        std::vector<Complex> states; states.reserve(this->_states.size());
+
+        for(std::size_t index=0; index<this->_orders.size(); ++index)
+        {
+            auto const magnitude_squared =
+                std::pow(std::abs(this->_states[3*index+0]), 2)
+                +std::pow(std::abs(this->_states[3*index+1]), 2)
+                +std::pow(std::abs(this->_states[3*index+2]), 2);
+            if(magnitude_squared >= threshold_squared)
+            {
+                orders.push_back(this->_orders[index]);
+                states.push_back(this->_states[3*index+0]);
+                states.push_back(this->_states[3*index+1]);
+                states.push_back(this->_states[3*index+2]);
+            }
+        }
+
+        this->_orders = std::move(orders);
+        this->_states = std::move(states);
     }
 }
 
@@ -149,50 +173,62 @@ Discrete
         k += delta_k;
     }
     
-    // Fold the F̃-states
+    // Z̃-orders do not change
     auto const Z_orders = this->_orders;
-    std::set<int64_t> orders;
+
+    // Fold the F̃-states: build the new orders (using a vector provides quicker
+    // iteration later than using a set) …
+    std::vector<int64_t> orders;
     for(auto && order: F_orders)
     {
-        orders.insert(std::abs(order));
+        orders.push_back(std::abs(order));
     }
-    orders.insert(Z_orders.begin(), Z_orders.end());
+    orders.insert(orders.end(), Z_orders.begin(), Z_orders.end());
+    std::sort(orders.begin(), orders.end());
+    auto const last = std::unique(orders.begin(), orders.end());
+    orders.erase(last, orders.end());
     
-    std::vector<Complex> magnetization(3*orders.size(), 0);
-    
-    uint destination_index=0;
-    for(auto && order: orders)
+    // … then build the new states …
+    std::vector<Complex> states(3*orders.size(), 0);
+    #pragma omp parallel for
+    for(
+        std::size_t destination_index=0;
+        destination_index < orders.size(); ++destination_index)
     {
+        auto const order = orders[destination_index];
+
+        // Look for F̃(+k)
         auto F_orders_it = std::lower_bound(
             F_orders.begin(), F_orders.end(), order);
         if(F_orders_it != F_orders.end() && *F_orders_it <= order)
         {
             auto source_index = F_orders_it-F_orders.begin();
-            magnetization[3*destination_index+0] = F[source_index];
+            states[3*destination_index+0] = F[source_index];
         }
         
+        // Look for F̃^*(-k)
         F_orders_it = std::lower_bound(
             F_orders.begin(), F_orders.end(), -order);
         if(F_orders_it != F_orders.end() && *F_orders_it <= -order)
         {
             auto source_index = F_orders_it-F_orders.begin();
-            magnetization[3*destination_index+1] = std::conj(F[source_index]);
+            states[3*destination_index+1] = std::conj(F[source_index]);
         }
         
+        // Look for Z̃(k)
         auto const Z_orders_it = std::lower_bound(
             Z_orders.begin(), Z_orders.end(), order);
         if(Z_orders_it != Z_orders.end() && *Z_orders_it == order)
         {
             auto const source_index = Z_orders_it-Z_orders.begin();
-            magnetization[3*destination_index+2] = this->_states[3*source_index+2];
+            states[3*destination_index+2] = this->_states[3*source_index+2];
         }
-        
-        ++destination_index;
     }
-    magnetization[1] = std::conj(magnetization[0]);
+    // … and finally update F̃^*(-0)
+    states[1] = std::conj(states[0]);
     
-    this->_states = magnetization;
-    this->_orders = {orders.begin(), orders.end()};
+    this->_states = std::move(states);
+    this->_orders = std::move(orders);
 }
 
 void
