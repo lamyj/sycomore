@@ -18,14 +18,14 @@ namespace epg
 Regular
 ::Regular(
     Species const & species, Magnetization const & initial_magnetization, 
-    unsigned int initial_size, Quantity gamma)
-: species(species), gamma(gamma), _magnetization(3*initial_size, 0)
+    unsigned int initial_size)
+: species(species), _states(3*initial_size, 0)
 {
     // Store magnetization as lines of F̃_k, F̃^*_{-k}, Z̃_k
     auto const magnetization = as_complex_magnetization(initial_magnetization);
-    this->_magnetization[0] = std::sqrt(2)*magnetization.p;
-    this->_magnetization[1] = std::sqrt(2)*magnetization.m;
-    this->_magnetization[2] = magnetization.z;
+    this->_states[0] = std::sqrt(2)*magnetization.p;
+    this->_states[1] = std::sqrt(2)*magnetization.m;
+    this->_states[2] = magnetization.z;
     
     this->_states_count = 1;
 }
@@ -39,19 +39,27 @@ Regular
 
 std::vector<Complex>
 Regular
-::magnetization(std::size_t state) const
+::state(std::size_t order) const
 {
     return {
-        this->_magnetization[3*state], 
-        this->_magnetization[3*state+1], 
-        this->_magnetization[3*state+2]};
+        this->_states[3*order], 
+        this->_states[3*order+1], 
+        this->_states[3*order+2]};
+}
+
+std::vector<Complex>
+Regular
+::states() const
+{
+    return std::vector<Complex>{
+        this->_states.begin(), this->_states.begin()+3*this->_states_count};
 }
 
 Complex const &
 Regular
 ::echo() const
 {
-    return this->_magnetization[0];
+    return this->_states[0];
 }
 
 void
@@ -61,19 +69,19 @@ Regular
     auto const T = operators::pulse(angle, phase);
     
     #pragma omp parallel for
-    for(int s=0; s<this->_states_count; ++s)
+    for(int order=0; order<this->_states_count; ++order)
     {
         std::vector<Complex> result(3, 0);
         for(int r=0; r<3; ++r)
         {
             for(int c=0; c<3; ++c)
             {
-                result[r] += T[3*r+c] * this->_magnetization[3*s+c];
+                result[r] += T[3*r+c] * this->_states[3*order+c];
             }
         }
         
         std::memcpy(
-            this->_magnetization.data()+3*s, result.data(), 3*sizeof(Complex));
+            this->_states.data()+3*order, result.data(), 3*sizeof(Complex));
     }
 }
 
@@ -101,25 +109,25 @@ Regular
 ::apply_gradient()
 {
     // TODO: resize factor
-    if(3*this->_states_count >= this->_magnetization.size())
+    if(3*this->_states_count >= this->_states.size())
     {
-        this->_magnetization.resize(this->_magnetization.size()+3*100, 0);
+        this->_states.resize(this->_states.size()+3*100, 0);
     }
     
     // Shift positive F̃ states right
-    for(int s=this->_states_count-1; s>=0; --s)
+    for(int order=this->_states_count-1; order>=0; --order)
     {
-        this->_magnetization[3*(s+1)] = this->_magnetization[3*s];
+        this->_states[3*(order+1)] = this->_states[3*order];
     }
     
     // Shift negative F̃^* states left
-    for(int s=1; s<=this->_states_count; ++s)
+    for(int order=1; order<=this->_states_count; ++order)
     {
-        this->_magnetization[1+3*(s-1)] = this->_magnetization[1+3*s];
+        this->_states[1+3*(order-1)] = this->_states[1+3*order];
     }
     
     // Update F̃_{+0} using F̃^*_{-0}
-    this->_magnetization[0] = std::conj(this->_magnetization[1]);
+    this->_states[0] = std::conj(this->_states[1]);
     
     ++this->_states_count;
 }
@@ -136,14 +144,14 @@ Regular
     auto const E = operators::relaxation(this->species, duration);
     
     #pragma omp parallel for
-    for(int s=0; s<this->_states_count; ++s)
+    for(int order=0; order<this->_states_count; ++order)
     {
-        this->_magnetization[0+3*s] *= E.second;
-        this->_magnetization[1+3*s] *= E.second;
-        this->_magnetization[2+3*s] *= E.first;
+        this->_states[0+3*order] *= E.second;
+        this->_states[1+3*order] *= E.second;
+        this->_states[2+3*order] *= E.first;
     }
     
-    this->_magnetization[2] += 1.-E.first; // WARNING: assumes M0=1
+    this->_states[2] += 1.-E.first; // WARNING: assumes M0=1
 }
 
 void
@@ -155,16 +163,16 @@ Regular
         return;
     }
     
-    auto const delta_k = this->gamma*gradient*duration;
+    auto const delta_k = sycomore::gamma*gradient*duration;
     
     #pragma omp parallel for
-    for(int s=0; s<this->_states_count; ++s)
+    for(int order=0; order<this->_states_count; ++order)
     {
-        auto const k = s*delta_k;
+        auto const k = order*delta_k;
         auto const D = operators::diffusion(this->species, duration, k, delta_k);
-        this->_magnetization[0+3*s] *= std::get<0>(D);
-        this->_magnetization[1+3*s] *= std::get<1>(D);
-        this->_magnetization[2+3*s] *= std::get<2>(D);
+        this->_states[0+3*order] *= std::get<0>(D);
+        this->_states[1+3*order] *= std::get<1>(D);
+        this->_states[2+3*order] *= std::get<2>(D);
     }
 }
 

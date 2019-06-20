@@ -14,17 +14,22 @@ namespace sycomore
 namespace epg
 {
 
+/**
+ * @brief Regular EPG model, where the gradient moment is assumed to be
+ * identical during each time interval.
+ *
+ * In this model, the orders of the model are consecutive positive integers
+ * starting at 0.
+ */
 class Regular
 {
 public:
     Species species;
-    Quantity gamma;
     
     Regular(
-        Species const & species, 
+        Species const & species,
         Magnetization const & initial_magnetization={0,0,1}, 
-        unsigned int initial_size=100, 
-        Quantity gamma=2*M_PI*units::rad * 42.57747892*units::MHz/units::T);
+        unsigned int initial_size=100);
     
     Regular(Regular const &) = default;
     Regular(Regular &&) = default;
@@ -32,19 +37,42 @@ public:
     Regular & operator=(Regular &&) = default;
     ~Regular() = default;
     
+    /// @brief Return the number of states in the model.
     std::size_t const states_count() const;
-    std::vector<Complex> magnetization(std::size_t state) const;
+
+    /// @brief Return a given state of the model.
+    std::vector<Complex> state(std::size_t order) const;
+
+    /**
+     * @brief Return all states in the model, where each state is stored as
+     * F̃_k, F̃^*_{-k}, Z̃_k, in order of increasing order.
+     */
+    std::vector<Complex> states() const;
+
+    /// @brief Return the echo signal, i.e. F̃_0
     Complex const & echo() const;
     
+    /// @brief Apply an RF hard pulse.
     void apply_pulse(Quantity angle, Quantity phase=0*units::rad);
+
+    /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
     void apply_time_interval(
         Quantity const & duration, 
         Quantity const & gradient=0*units::T/units::m);
+
+    /// @brief Apply a gradient; in regular EPG, this shifts all orders by 1.
     void apply_gradient();
+
+    /// @brief Simulate the relaxation during given duration.
     void apply_relaxation(Quantity const & duration);
+
+    /**
+     * @brief Simulate diffusion during given duration with given gradient
+     * amplitude.
+     */
     void apply_diffusion(Quantity const & duration, Quantity const & gradient);
 private:
-    std::vector<Complex> _magnetization;
+    std::vector<Complex> _states;
     unsigned int _states_count;
 };
 

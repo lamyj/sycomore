@@ -14,17 +14,22 @@ namespace sycomore
 namespace epg
 {
 
+/**
+ * @brief Discrete EPG model, where the gradient moments may vary across time
+ * intervals.
+ *
+ * In this model, the orders of the model are stored in bins of user-specified
+ * width (hence the term "discrete"), expressed in rad/m.
+ */
 class Discrete
 {
 public:
     Species species;
-    Quantity gamma;
     
     Discrete(
         Species const & species, 
         Magnetization const & initial_magnetization={0,0,1}, 
-        Quantity bin_width=1*units::rad/units::m, 
-        Quantity gamma=2*M_PI*units::rad * 42.57747892*units::MHz/units::T);
+        Quantity bin_width=1*units::rad/units::m);
     
     Discrete(Discrete const &) = default;
     Discrete(Discrete &&) = default;
@@ -32,20 +37,46 @@ public:
     Discrete & operator=(Discrete &&) = default;
     ~Discrete() = default;
     
-    std::vector<int64_t> const & orders() const;
-    std::vector<Complex> magnetization(std::size_t state_index) const;
+    /// @brief Return the orders of the model.
+    std::vector<Quantity> orders() const;
+
+    /// @brief Return a given state of the model.
+    std::vector<Complex> state(std::size_t bin) const;
+
+    /// @brief Return a given state of the model.
+    std::vector<Complex> state(Quantity const & order) const;
+
+    /**
+     * @brief Return all states in the model, where each state is stored as
+     * F̃(k), F̃^*(-k), Z̃(k), in order of increasing order.
+     */
+    std::vector<Complex> const & states() const;
+
+    /// @brief Return the echo signal, i.e. F̃_0
     Complex const & echo() const;
     
+    /// @brief Apply an RF hard pulse.
     void apply_pulse(Quantity angle, Quantity phase=0*units::rad);
+
+    /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
     void apply_time_interval(
         Quantity const & duration, 
         Quantity const & gradient=0*units::T/units::m, Real threshold=0);
+
+    /// @brief Apply a gradient; in regular EPG, this shifts all orders by 1.
     void apply_gradient(Quantity const & duration, Quantity const & gradient);
+
+    /// @brief Simulate the relaxation during given duration.
     void apply_relaxation(Quantity const & duration);
+
+    /**
+     * @brief Simulate diffusion during given duration with given gradient
+     * amplitude.
+     */
     void apply_diffusion(Quantity const & duration, Quantity const & gradient);
 
 private:
-    std::vector<Complex> _magnetization;
+    std::vector<Complex> _states;
     Quantity _bin_width;
     std::vector<int64_t> _orders;
 };

@@ -1,5 +1,6 @@
 #include "Discrete.h"
 
+#include <algorithm>
 #include <set>
 #include <vector>
 
@@ -18,40 +19,51 @@ namespace epg
 Discrete
 ::Discrete(
     Species const & species, Magnetization const & initial_magnetization, 
-    Quantity bin_width, Quantity gamma)
-: species(species), _bin_width(bin_width), gamma(gamma), _magnetization(3, 0)
+    Quantity bin_width)
+: species(species), _bin_width(bin_width), _states(3, 0)
 {
     // Store magnetization as lines of F̃, F̃^*_, Z̃
     auto const magnetization = as_complex_magnetization(initial_magnetization);
-    this->_magnetization[0] = std::sqrt(2)*magnetization.p;
-    this->_magnetization[1] = std::sqrt(2)*magnetization.m;
-    this->_magnetization[2] = magnetization.z;
+    this->_states[0] = std::sqrt(2)*magnetization.p;
+    this->_states[1] = std::sqrt(2)*magnetization.m;
+    this->_states[2] = magnetization.z;
     
     this->_orders.push_back(0);
 }
 
-std::vector<int64_t> const &
+std::vector<Quantity>
 Discrete
 ::orders() const
 {
-    return this->_orders;
+    std::vector<Quantity> orders(this->_orders.size());
+    std::transform(
+        this->_orders.begin(), this->_orders.end(), orders.begin(),
+        [&](decltype(this->_orders[0]) k){ return k*this->_bin_width; });
+    return orders;
 }
 
 std::vector<Complex>
 Discrete
-::magnetization(std::size_t state_index) const
+::state(std::size_t order) const
 {
     return {
-        this->_magnetization[3*state_index], 
-        this->_magnetization[3*state_index+1], 
-        this->_magnetization[3*state_index+2]};
+        this->_states[3*order],
+        this->_states[3*order+1],
+        this->_states[3*order+2]};
+}
+
+std::vector<Complex> const &
+Discrete
+::states() const
+{
+    return this->_states;
 }
 
 Complex const &
 Discrete
 ::echo() const
 {
-    return this->_magnetization[0];
+    return this->_states[0];
 }
 
 void
@@ -61,19 +73,19 @@ Discrete
     auto const T = operators::pulse(angle, phase);
     
     #pragma omp parallel for
-    for(int s=0; s<this->_orders.size(); ++s)
+    for(int order=0; order<this->_orders.size(); ++order)
     {
         std::vector<Complex> result(3, 0);
         for(int r=0; r<3; ++r)
         {
             for(int c=0; c<3; ++c)
             {
-                result[r] += T[3*r+c] * this->_magnetization[3*s+c];
+                result[r] += T[3*r+c] * this->_states[3*order+c];
             }
         }
         
         std::memcpy(
-            this->_magnetization.data()+3*s, result.data(), 3*sizeof(Complex));
+            this->_states.data()+3*order, result.data(), 3*sizeof(Complex));
     }
 }
 
@@ -108,7 +120,7 @@ Discrete
     // This assumes a constant gradient in the integral: 
     // k(t) = γ ∫_0^t G(t') dt' = γ⋅t⋅G
     auto const delta_k = int64_t(std::round(
-        (this->gamma*gradient*duration / this->_bin_width).magnitude));
+        (sycomore::gamma*gradient*duration / this->_bin_width).magnitude));
     
     if(delta_k == 0)
     {
@@ -122,13 +134,13 @@ Discrete
     for(int64_t i=0; i<this->_orders.size(); ++i)
     {
         F_orders[this->_orders.size()-1 + i] = this->_orders[i];
-        F[this->_orders.size()-1 + i] = this->_magnetization[3*i];
+        F[this->_orders.size()-1 + i] = this->_states[3*i];
     }
     // F̃^{-*} on the left side, reversed order
     for(int64_t i=0; i<this->_orders.size(); ++i)
     {
         F_orders[this->_orders.size()-1 - i] = -this->_orders[i];
-        F[this->_orders.size()-1 - i] = std::conj(this->_magnetization[3*i+1]);
+        F[this->_orders.size()-1 - i] = std::conj(this->_states[3*i+1]);
     }
     
     // Shift according to Δk
@@ -172,14 +184,14 @@ Discrete
         if(Z_orders_it != Z_orders.end() && *Z_orders_it == order)
         {
             auto const source_index = Z_orders_it-Z_orders.begin();
-            magnetization[3*destination_index+2] = this->_magnetization[3*source_index+2];
+            magnetization[3*destination_index+2] = this->_states[3*source_index+2];
         }
         
         ++destination_index;
     }
     magnetization[1] = std::conj(magnetization[0]);
     
-    this->_magnetization = magnetization;
+    this->_states = magnetization;
     this->_orders = {orders.begin(), orders.end()};
 }
 
@@ -195,14 +207,14 @@ Discrete
     auto const E = operators::relaxation(this->species, duration);
     
     #pragma omp parallel for
-    for(int s=0; s<this->_orders.size(); ++s)
+    for(int order=0; order<this->_orders.size(); ++order)
     {
-        this->_magnetization[0+3*s] *= E.second;
-        this->_magnetization[1+3*s] *= E.second;
-        this->_magnetization[2+3*s] *= E.first;
+        this->_states[0+3*order] *= E.second;
+        this->_states[1+3*order] *= E.second;
+        this->_states[2+3*order] *= E.first;
     }
     
-    this->_magnetization[2] += 1.-E.first; // WARNING: assumes M0=1
+    this->_states[2] += 1.-E.first; // WARNING: assumes M0=1
 }
 
 void
@@ -214,16 +226,16 @@ Discrete
         return;
     }
     
-    auto const delta_k = this->gamma*gradient*duration;
+    auto const delta_k = sycomore::gamma*gradient*duration;
     
     #pragma omp parallel for
-    for(int s=0; s<this->_orders.size(); ++s)
+    for(int i=0; i<this->_orders.size(); ++i)
     {
-        auto const k = this->_orders[s] * this->_bin_width;
+        auto const k = this->_orders[i] * this->_bin_width;
         auto const D = operators::diffusion(this->species, duration, k, delta_k);
-        this->_magnetization[0+3*s] *= std::get<0>(D);
-        this->_magnetization[1+3*s] *= std::get<1>(D);
-        this->_magnetization[2+3*s] *= std::get<2>(D);
+        this->_states[0+3*i] *= std::get<0>(D);
+        this->_states[1+3*i] *= std::get<1>(D);
+        this->_states[2+3*i] *= std::get<2>(D);
     }
 }
 
