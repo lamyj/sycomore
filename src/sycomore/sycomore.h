@@ -47,6 +47,9 @@ std::vector<T> linspace(T span, size_t size)
     return linspace(-span/2., span/2., size);
 }
 
+/// @brief Gyromagnetic ratio of 1H
+Quantity const gamma=2*M_PI*units::rad * 42.57747892*units::MHz/units::T;
+
 }
 
 #endif // _a5b5eb59_d6dc_4067_b736_f03a01085d12

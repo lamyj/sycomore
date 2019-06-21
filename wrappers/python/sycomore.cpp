@@ -20,6 +20,7 @@ void wrap_Species(pybind11::module &);
 void wrap_TimeInterval(pybind11::module &);
 
 void wrap_Model(pybind11::module &);
+void wrap_epg(pybind11::module &);
 
 PYBIND11_MODULE(_sycomore, _sycomore)
 {
@@ -40,6 +41,7 @@ PYBIND11_MODULE(_sycomore, _sycomore)
     wrap_TimeInterval(_sycomore);
 
     wrap_Model(_sycomore);
+    wrap_epg(_sycomore);
 
     using namespace pybind11;
     using namespace sycomore;
