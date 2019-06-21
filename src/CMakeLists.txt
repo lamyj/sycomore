@@ -45,7 +45,6 @@ execute_process(
     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-install(DIRECTORY DESTINATION "${PYTHON_SITE_PACKAGES}")
 foreach(python_file ${python_files})
     file(RELATIVE_PATH module ${CMAKE_CURRENT_SOURCE_DIR} ${python_file})
     get_filename_component(module ${module} PATH)

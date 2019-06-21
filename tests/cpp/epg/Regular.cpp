@@ -5,6 +5,13 @@
 #include "sycomore/Species.h"
 #include "sycomore/units.h"
 
+#define TEST_COMPLEX_EQUAL(v1, v2) \
+    { \
+        sycomore::Complex const c1(v1), c2(v2); \
+        BOOST_TEST(c1.real() == c2.real()); \
+        BOOST_TEST(c1.imag() == c2.imag()); \
+    }
+
 BOOST_AUTO_TEST_CASE(Empty)
 {
     using namespace sycomore::units;
@@ -28,14 +35,11 @@ BOOST_AUTO_TEST_CASE(Pulse, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(model.states_count() == 1);
     auto const state = model.state(0);
     
-    BOOST_TEST(state[0].real() == 0.2857626571584661);
-    BOOST_TEST(state[0].imag() == -0.6732146319308543);
-    
-    BOOST_TEST(state[1].real() == 0.2857626571584661);
-    BOOST_TEST(state[1].imag() == +0.6732146319308543);
-    
-    BOOST_TEST(state[2].real() == 0.6819983600624985);
-    BOOST_TEST(state[2].imag() == 0);
+    TEST_COMPLEX_EQUAL(
+        state[0], sycomore::Complex(0.2857626571584661, -0.6732146319308543));
+    TEST_COMPLEX_EQUAL(
+        state[1], sycomore::Complex(0.2857626571584661, +0.6732146319308543));
+    TEST_COMPLEX_EQUAL(state[2], 0.6819983600624985);
 
     std::vector<sycomore::Complex> const states{
         {0.2857626571584661, -0.6732146319308543},
@@ -45,8 +49,7 @@ BOOST_AUTO_TEST_CASE(Pulse, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(model.states().size() == states.size());
     for(int i=0; i<model.states().size(); ++i)
     {
-        BOOST_TEST(model.states()[i].real() == states[i].real());
-        BOOST_TEST(model.states()[i].imag() == states[i].imag());
+        TEST_COMPLEX_EQUAL(model.states()[i], states[i]);
     }
 }
 
@@ -62,15 +65,15 @@ BOOST_AUTO_TEST_CASE(Gradient, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(model.states_count() == 2);
     
     auto const state_0 = model.state(0);
-    BOOST_TEST(state_0[0] == 0.);
-    BOOST_TEST(state_0[1] == 0.);
-    BOOST_TEST(state_0[2] == 0.6819983600624985);
+    TEST_COMPLEX_EQUAL(state_0[0], 0.);
+    TEST_COMPLEX_EQUAL(state_0[1], 0.);
+    TEST_COMPLEX_EQUAL(state_0[2], 0.6819983600624985);
     
     auto const state_1 = model.state(1);
-    BOOST_TEST(state_1[0].real() == 0.2857626571584661);
-    BOOST_TEST(state_1[0].imag() == -0.6732146319308543);
-    BOOST_TEST(state_1[1] == 0.);
-    BOOST_TEST(state_1[2] == 0.);
+    TEST_COMPLEX_EQUAL(
+        state_1[0], sycomore::Complex(0.2857626571584661, -0.6732146319308543));
+    TEST_COMPLEX_EQUAL(state_1[1], 0.);
+    TEST_COMPLEX_EQUAL(state_1[2], 0.);
 
     std::vector<sycomore::Complex> const states{
         0, 0, 0.6819983600624985,
@@ -79,8 +82,7 @@ BOOST_AUTO_TEST_CASE(Gradient, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(model.states().size() == states.size());
     for(int i=0; i<model.states().size(); ++i)
     {
-        BOOST_TEST(model.states()[i].real() == states[i].real());
-        BOOST_TEST(model.states()[i].imag() == states[i].imag());
+        TEST_COMPLEX_EQUAL(model.states()[i], states[i]);
     }
 }
 
@@ -97,16 +99,16 @@ BOOST_AUTO_TEST_CASE(Relaxation, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(model.states_count() == 2);
     
     auto const state_0 = model.state(0);
-    BOOST_TEST(state_0[0] == 0.);
-    BOOST_TEST(state_0[1] == 0.);
-    BOOST_TEST(state_0[2] == 0.6851625292479138);
+    TEST_COMPLEX_EQUAL(state_0[0], 0.);
+    TEST_COMPLEX_EQUAL(state_0[1], 0.);
+    TEST_COMPLEX_EQUAL(state_0[2], 0.6851625292479138);
     
     auto const state_1 = model.state(1);
     
-    BOOST_TEST(state_1[0].real() == 0.2585687448743616);
-    BOOST_TEST(state_1[0].imag() == -0.6091497893403431);
-    BOOST_TEST(state_1[1] == 0.);
-    BOOST_TEST(state_1[2] == 0.);
+    TEST_COMPLEX_EQUAL(
+        state_1[0], sycomore::Complex(0.2585687448743616, -0.6091497893403431));
+    TEST_COMPLEX_EQUAL(state_1[1], 0.);
+    TEST_COMPLEX_EQUAL(state_1[2], 0.);
 
     std::vector<sycomore::Complex> const states{
         0, 0, 0.6851625292479138,
@@ -115,8 +117,7 @@ BOOST_AUTO_TEST_CASE(Relaxation, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(model.states().size() == states.size());
     for(int i=0; i<model.states().size(); ++i)
     {
-        BOOST_TEST(model.states()[i].real() == states[i].real());
-        BOOST_TEST(model.states()[i].imag() == states[i].imag());
+        TEST_COMPLEX_EQUAL(model.states()[i], states[i]);
     }
 }
 
@@ -134,16 +135,16 @@ BOOST_AUTO_TEST_CASE(Diffusion, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(model.states_count() == 2);
     
     auto const state_0 = model.state(0);
-    BOOST_TEST(state_0[0] == 0.);
-    BOOST_TEST(state_0[1] == 0.);
-    BOOST_TEST(state_0[2] == 0.6851625292479138);
+    TEST_COMPLEX_EQUAL(state_0[0], 0.);
+    TEST_COMPLEX_EQUAL(state_0[1], 0.);
+    TEST_COMPLEX_EQUAL(state_0[2], 0.6851625292479138);
     
     auto const state_1 = model.state(1);
     
-    BOOST_TEST(state_1[0].real() == 0.25805111586158685);
-    BOOST_TEST(state_1[0].imag() == -0.6079303318059787);
-    BOOST_TEST(state_1[1] == 0.);
-    BOOST_TEST(state_1[2] == 0.);
+    TEST_COMPLEX_EQUAL(
+        state_1[0], sycomore::Complex(0.25805111586158685, -0.6079303318059787));
+    TEST_COMPLEX_EQUAL(state_1[1], 0.);
+    TEST_COMPLEX_EQUAL(state_1[2], 0.);
 
     std::vector<sycomore::Complex> const states{
         0, 0, 0.6851625292479138,
@@ -152,8 +153,7 @@ BOOST_AUTO_TEST_CASE(Diffusion, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(model.states().size() == states.size());
     for(int i=0; i<model.states().size(); ++i)
     {
-        BOOST_TEST(model.states()[i].real() == states[i].real());
-        BOOST_TEST(model.states()[i].imag() == states[i].imag());
+        TEST_COMPLEX_EQUAL(model.states()[i], states[i]);
     }
 }
 
@@ -169,16 +169,16 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(model.states_count() == 2);
     
     auto const state_0 = model.state(0);
-    BOOST_TEST(state_0[0] == 0.);
-    BOOST_TEST(state_0[1] == 0.);
-    BOOST_TEST(state_0[2] == 0.6851625292479138);
+    TEST_COMPLEX_EQUAL(state_0[0], 0.);
+    TEST_COMPLEX_EQUAL(state_0[1], 0.);
+    TEST_COMPLEX_EQUAL(state_0[2], 0.6851625292479138);
     
     auto const state_1 = model.state(1);
     
-    BOOST_TEST(state_1[0].real() == 0.2584947343504123);
-    BOOST_TEST(state_1[0].imag() == -0.6089754314724013);
-    BOOST_TEST(state_1[1] == 0.);
-    BOOST_TEST(state_1[2] == 0.);
+    TEST_COMPLEX_EQUAL(
+        state_1[0], sycomore::Complex(0.2584947343504123, -0.6089754314724013));
+    TEST_COMPLEX_EQUAL(state_1[1], 0.);
+    TEST_COMPLEX_EQUAL(state_1[2], 0.);
 
     std::vector<sycomore::Complex> const states{
         0, 0, 0.6851625292479138,
@@ -187,7 +187,6 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     BOOST_TEST(model.states().size() == states.size());
     for(int i=0; i<model.states().size(); ++i)
     {
-        BOOST_TEST(model.states()[i].real() == states[i].real());
-        BOOST_TEST(model.states()[i].imag() == states[i].imag());
+        TEST_COMPLEX_EQUAL(model.states()[i], states[i]);
     }
 }
