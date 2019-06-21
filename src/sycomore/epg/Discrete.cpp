@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <complex>
+#include <cstring>
 #include <vector>
 
 #include "sycomore/epg/operators.h"

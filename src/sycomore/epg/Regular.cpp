@@ -1,5 +1,8 @@
 #include "Regular.h"
 
+#include <cstring>
+#include <vector>
+
 #include "sycomore/Array.h"
 #include "sycomore/epg/operators.h"
 #include "sycomore/Grid.h"
