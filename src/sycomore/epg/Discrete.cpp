@@ -172,10 +172,9 @@ Discrete
     {
         k += delta_k;
     }
-    
-    // Z̃-orders do not change
-    auto const Z_orders = this->_orders;
 
+    // Z̃-orders do not change: we can reuse this->_orders / this->_states
+    
     // Fold the F̃-states: build the new orders (using a vector provides quicker
     // iteration later than using a set) …
     std::vector<int64_t> orders;
@@ -183,47 +182,50 @@ Discrete
     {
         orders.push_back(std::abs(order));
     }
-    orders.insert(orders.end(), Z_orders.begin(), Z_orders.end());
+    orders.insert(orders.end(), this->_orders.begin(), this->_orders.end());
     std::sort(orders.begin(), orders.end());
     auto const last = std::unique(orders.begin(), orders.end());
     orders.erase(last, orders.end());
-    
+
     // … then build the new states …
     std::vector<Complex> states(3*orders.size(), 0);
-    #pragma omp parallel for
-    for(
-        std::size_t destination_index=0;
-        destination_index < orders.size(); ++destination_index)
-    {
-        auto const order = orders[destination_index];
 
-        // Look for F̃(+k)
-        auto F_orders_it = std::lower_bound(
-            F_orders.begin(), F_orders.end(), order);
-        if(F_orders_it != F_orders.end() && *F_orders_it <= order)
+    // Find the smallest positive F̃-order, move towards large orders
+    auto F_plus_order_it = std::lower_bound(F_orders.cbegin(), F_orders.cend(), 0);
+    auto F_plus_state_it = F.cbegin()+(F_plus_order_it-F_orders.cbegin());
+
+    // The largest negative F̃-order, move towards smaller orders
+    std::vector<int64_t>::const_reverse_iterator F_minus_order_it(F_plus_order_it);
+    auto F_minus_state_it = F.crbegin()+(F_minus_order_it-F_orders.crbegin());
+
+    auto Z_order_it = this->_orders.cbegin();
+    auto Z_state_it = this->_states.begin()+2;
+
+    for(std::size_t index=0; index < orders.size(); ++index)
+    {
+        // If one of the iterators matches the order, fill the corresponding
+        // state and advance
+
+        if(F_plus_order_it != F_orders.cend() && *F_plus_order_it == orders[index])
         {
-            auto source_index = F_orders_it-F_orders.begin();
-            states[3*destination_index+0] = F[source_index];
+            states[3*index+0] = *F_plus_state_it;
+            ++F_plus_order_it;
+            ++F_plus_state_it;
         }
-        
-        // Look for F̃^*(-k)
-        F_orders_it = std::lower_bound(
-            F_orders.begin(), F_orders.end(), -order);
-        if(F_orders_it != F_orders.end() && *F_orders_it <= -order)
+        if(F_minus_order_it != F_orders.crend() && *F_minus_order_it == -orders[index])
         {
-            auto source_index = F_orders_it-F_orders.begin();
-            states[3*destination_index+1] = std::conj(F[source_index]);
+            states[3*index+1] = std::conj(*F_minus_state_it);
+            ++F_minus_order_it;
+            ++F_minus_state_it;
         }
-        
-        // Look for Z̃(k)
-        auto const Z_orders_it = std::lower_bound(
-            Z_orders.begin(), Z_orders.end(), order);
-        if(Z_orders_it != Z_orders.end() && *Z_orders_it == order)
+        if(Z_order_it != this->_orders.cend() && *Z_order_it == orders[index])
         {
-            auto const source_index = Z_orders_it-Z_orders.begin();
-            states[3*destination_index+2] = this->_states[3*source_index+2];
+            states[3*index+2] = *Z_state_it;
+            ++Z_order_it;
+            Z_state_it += 3;
         }
     }
+
     // … and finally update F̃^*(-0)
     states[1] = std::conj(states[0]);
     
