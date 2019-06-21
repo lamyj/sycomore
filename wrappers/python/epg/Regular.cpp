@@ -33,10 +33,8 @@ void wrap_epg_Regular(pybind11::module & m)
         .def(
             "apply_time_interval", &Regular::apply_time_interval,
             arg("duration"), arg("gradient")=0*units::T/units::m)
-        .def("apply_gradient", &Regular::apply_gradient)
-        .def("apply_relaxation", &Regular::apply_relaxation, arg("duration"))
-        .def(
-            "apply_diffusion", &Regular::apply_diffusion,
-            arg("duration"), arg("gradient"))
+        .def("shift", &Regular::shift)
+        .def("relaxation", &Regular::relaxation, arg("duration"))
+        .def("diffusion", &Regular::diffusion, arg("duration"), arg("gradient"))
     ;
 }

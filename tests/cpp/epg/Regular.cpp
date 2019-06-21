@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(Gradient, *boost::unit_test::tolerance(1e-9))
         
     sycomore::epg::Regular model(species);
     model.apply_pulse(47*deg, 23*deg);
-    model.apply_gradient();
+    model.shift();
     
     BOOST_TEST(model.states_count() == 2);
     
@@ -91,8 +91,8 @@ BOOST_AUTO_TEST_CASE(Relaxation, *boost::unit_test::tolerance(1e-9))
         
     sycomore::epg::Regular model(species);
     model.apply_pulse(47*deg, 23*deg);
-    model.apply_gradient();
-    model.apply_relaxation(10*ms);
+    model.shift();
+    model.relaxation(10*ms);
     
     BOOST_TEST(model.states_count() == 2);
     
@@ -127,9 +127,9 @@ BOOST_AUTO_TEST_CASE(Diffusion, *boost::unit_test::tolerance(1e-9))
         
     sycomore::epg::Regular model(species);
     model.apply_pulse(47*deg, 23*deg);
-    model.apply_gradient();
-    model.apply_relaxation(10*ms);
-    model.apply_diffusion(10*ms, 2*mT/m);
+    model.shift();
+    model.relaxation(10*ms);
+    model.diffusion(10*ms, 2*mT/m);
     
     BOOST_TEST(model.states_count() == 2);
     

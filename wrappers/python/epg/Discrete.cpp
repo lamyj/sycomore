@@ -45,12 +45,8 @@ void wrap_epg_Discrete(pybind11::module & m)
             "apply_time_interval", &Discrete::apply_time_interval,
             arg("duration"), arg("gradient")=0*units::T/units::m,
             arg("threshold")=0.)
-        .def(
-            "apply_gradient", &Discrete::apply_gradient,
-            arg("duration"), arg("gradient"))
-        .def("apply_relaxation", &Discrete::apply_relaxation, arg("duration"))
-        .def(
-            "apply_diffusion", &Discrete::apply_diffusion,
-            arg("duration"), arg("gradient"))
+        .def("shift", &Discrete::shift, arg("duration"), arg("gradient"))
+        .def("relaxation", &Discrete::relaxation, arg("duration"))
+        .def("diffusion", &Discrete::diffusion, arg("duration"), arg("gradient"))
     ;
 }

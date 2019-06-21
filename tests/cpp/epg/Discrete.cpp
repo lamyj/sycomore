@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(PositiveGradient, *boost::unit_test::tolerance(1e-9))
 
     sycomore::epg::Discrete model(species);
     model.apply_pulse(47*deg, 23*deg);
-    model.apply_gradient(10*ms, 2*mT/m);
+    model.shift(10*ms, 2*mT/m);
     
     BOOST_TEST((
         model.orders() == std::vector<sycomore::Quantity>{0*rad/m, 5350*rad/m}));
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(NegativeGradient, *boost::unit_test::tolerance(1e-9))
 
     sycomore::epg::Discrete model(species);
     model.apply_pulse(47*deg, 23*deg);
-    model.apply_gradient(10*ms, -2*mT/m);
+    model.shift(10*ms, -2*mT/m);
     
     BOOST_TEST((
         model.orders() == std::vector<sycomore::Quantity>{0*rad/m, 5350*rad/m}));
@@ -126,9 +126,9 @@ BOOST_AUTO_TEST_CASE(MultipleGradient, *boost::unit_test::tolerance(1e-9))
 
     sycomore::epg::Discrete model(species);
     model.apply_pulse(47*deg, 23*deg);
-    model.apply_gradient(10*ms, -2*mT/m);
+    model.shift(10*ms, -2*mT/m);
     model.apply_pulse(47*deg, 23*deg);
-    model.apply_gradient(10*ms, 1*mT/m);
+    model.shift(10*ms, 1*mT/m);
     
     BOOST_TEST((
         model.orders() == std::vector<sycomore::Quantity>{
@@ -184,8 +184,8 @@ BOOST_AUTO_TEST_CASE(Relaxation, *boost::unit_test::tolerance(1e-9))
 
     sycomore::epg::Discrete model(species);
     model.apply_pulse(47*deg, 23*deg);
-    model.apply_gradient(10*ms, 2*mT/m);
-    model.apply_relaxation(10*ms);
+    model.shift(10*ms, 2*mT/m);
+    model.relaxation(10*ms);
 
     BOOST_TEST((
         model.orders() == std::vector<sycomore::Quantity>{0*rad/m, 5350*rad/m}));
@@ -221,9 +221,9 @@ BOOST_AUTO_TEST_CASE(Diffusion, *boost::unit_test::tolerance(1e-9))
 
     sycomore::epg::Discrete model(species);
     model.apply_pulse(47*deg, 23*deg);
-    model.apply_gradient(10*ms, 2*mT/m);
-    model.apply_relaxation(10*ms);
-    model.apply_diffusion(10*ms, 2*mT/m);
+    model.shift(10*ms, 2*mT/m);
+    model.relaxation(10*ms);
+    model.diffusion(10*ms, 2*mT/m);
 
     BOOST_TEST((
         model.orders() == std::vector<sycomore::Quantity>{0*rad/m, 5350*rad/m}));

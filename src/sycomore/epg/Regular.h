@@ -61,16 +61,16 @@ public:
         Quantity const & gradient=0*units::T/units::m);
 
     /// @brief Apply a gradient; in regular EPG, this shifts all orders by 1.
-    void apply_gradient();
+    void shift();
 
     /// @brief Simulate the relaxation during given duration.
-    void apply_relaxation(Quantity const & duration);
+    void relaxation(Quantity const & duration);
 
     /**
      * @brief Simulate diffusion during given duration with given gradient
      * amplitude.
      */
-    void apply_diffusion(Quantity const & duration, Quantity const & gradient);
+    void diffusion(Quantity const & duration, Quantity const & gradient);
 private:
     std::vector<Complex> _states;
     unsigned int _states_count;

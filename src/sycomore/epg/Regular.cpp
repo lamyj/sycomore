@@ -96,17 +96,17 @@ Regular
     // to apply the gradient operator after the diffusion operator. Otherwise
     // states would be dephased by D(k+Δk, Δk) instead of D(k, Δk)
     
-    this->apply_relaxation(duration);
-    this->apply_diffusion(duration, gradient);
+    this->relaxation(duration);
+    this->diffusion(duration, gradient);
     if(duration.magnitude != 0 && gradient.magnitude != 0)
     {
-        this->apply_gradient();
+        this->shift();
     }
 }
 
 void
 Regular
-::apply_gradient()
+::shift()
 {
     // TODO: resize factor
     if(3*this->_states_count >= this->_states.size())
@@ -134,7 +134,7 @@ Regular
 
 void
 Regular
-::apply_relaxation(Quantity const & duration)
+::relaxation(Quantity const & duration)
 {
     if(this->species.get_R1().magnitude == 0 && this->species.get_R2().magnitude == 0)
     {
@@ -156,7 +156,7 @@ Regular
 
 void
 Regular
-::apply_diffusion(Quantity const & duration, Quantity const & gradient)
+::diffusion(Quantity const & duration, Quantity const & gradient)
 {
     if(this->species.get_D().magnitude == 0)
     {

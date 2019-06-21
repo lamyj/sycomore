@@ -107,9 +107,9 @@ Discrete
         return;
     }
     
-    this->apply_relaxation(duration);
-    this->apply_diffusion(duration, gradient);
-    this->apply_gradient(duration, gradient);
+    this->relaxation(duration);
+    this->diffusion(duration, gradient);
+    this->shift(duration, gradient);
     
     if(threshold > 0)
     {
@@ -139,7 +139,7 @@ Discrete
 
 void
 Discrete
-::apply_gradient(Quantity const & duration, Quantity const & gradient)
+::shift(Quantity const & duration, Quantity const & gradient)
 {
     // This assumes a constant gradient in the integral: 
     // k(t) = γ ∫_0^t G(t') dt' = γ⋅t⋅G
@@ -235,7 +235,7 @@ Discrete
 
 void
 Discrete
-::apply_relaxation(Quantity const & duration)
+::relaxation(Quantity const & duration)
 {
     if(this->species.get_R1().magnitude == 0 && this->species.get_R2().magnitude == 0)
     {
@@ -257,7 +257,7 @@ Discrete
 
 void
 Discrete
-::apply_diffusion(Quantity const & duration, Quantity const & gradient)
+::diffusion(Quantity const & duration, Quantity const & gradient)
 {
     if(this->species.get_D().magnitude == 0)
     {
