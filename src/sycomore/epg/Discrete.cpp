@@ -178,12 +178,12 @@ Discrete
     
     // Fold the F̃-states: build the new orders (using a vector provides quicker
     // iteration later than using a set) …
-    std::vector<int64_t> orders;
-    for(auto && order: F_orders)
-    {
-        orders.push_back(std::abs(order));
-    }
-    orders.insert(orders.end(), this->_orders.begin(), this->_orders.end());
+    std::vector<int64_t> orders(F_orders.size()+this->_orders.size());
+    std::transform(
+        F_orders.begin(), F_orders.end(), orders.begin(), std::abs<int64_t>);
+    std::memcpy(
+        orders.data()+F_orders.size(), this->_orders.data(),
+        this->_orders.size()*sizeof(int64_t));
     std::sort(orders.begin(), orders.end());
     auto const last = std::unique(orders.begin(), orders.end());
     orders.erase(last, orders.end());
@@ -200,7 +200,7 @@ Discrete
     auto F_minus_state_it = F.crbegin()+(F_minus_order_it-F_orders.crbegin());
 
     auto Z_order_it = this->_orders.cbegin();
-    auto Z_state_it = this->_states.begin()+2;
+    auto Z_state_it = this->_states.cbegin()+2;
 
     for(std::size_t index=0; index < orders.size(); ++index)
     {
