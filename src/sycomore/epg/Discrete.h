@@ -78,7 +78,7 @@ public:
 private:
     std::vector<Complex> _states;
     Quantity _bin_width;
-    std::vector<int64_t> _orders;
+    std::vector<long long> _orders;
 };
     
 }

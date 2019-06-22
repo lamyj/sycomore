@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <complex>
+#include <cstdlib>
 #include <cstring>
 #include <vector>
 
@@ -57,7 +58,8 @@ std::vector<Complex>
 Discrete
 ::state(Quantity const & order) const
 {
-    std::size_t const k = int64_t(std::round((order/this->_bin_width).magnitude));
+    std::size_t const k = (long long)(
+        std::round((order/this->_bin_width).magnitude));
     return this->state(k);
 }
 
@@ -115,7 +117,7 @@ Discrete
     if(threshold > 0)
     {
         auto const threshold_squared = std::pow(threshold, 2);
-        std::vector<int64_t> orders; orders.reserve(this->_orders.size());
+        std::vector<long long> orders; orders.reserve(this->_orders.size());
         std::vector<Complex> states; states.reserve(this->_states.size());
 
         for(std::size_t index=0; index<this->_orders.size(); ++index)
@@ -144,7 +146,7 @@ Discrete
 {
     // This assumes a constant gradient in the integral: 
     // k(t) = γ ∫_0^t G(t') dt' = γ⋅t⋅G
-    auto const delta_k = int64_t(std::round(
+    auto const delta_k = (long long)(std::round(
         (sycomore::gamma*gradient*duration / this->_bin_width).magnitude));
     
     if(delta_k == 0)
@@ -153,16 +155,16 @@ Discrete
     }
     
     // Unfold the F̃-states
-    std::vector<int64_t> F_orders(2*this->_orders.size()-1, 0);
+    std::vector<long long> F_orders(2*this->_orders.size()-1, 0);
     std::vector<Complex> F(2*this->_orders.size()-1, 0);
     // F̃^+ on the right side
-    for(int64_t i=0; i<this->_orders.size(); ++i)
+    for(long long i=0; i<this->_orders.size(); ++i)
     {
         F_orders[this->_orders.size()-1 + i] = this->_orders[i];
         F[this->_orders.size()-1 + i] = this->_states[3*i];
     }
     // F̃^{-*} on the left side, reversed order
-    for(int64_t i=0; i<this->_orders.size(); ++i)
+    for(long long i=0; i<this->_orders.size(); ++i)
     {
         F_orders[this->_orders.size()-1 - i] = -this->_orders[i];
         F[this->_orders.size()-1 - i] = std::conj(this->_states[3*i+1]);
@@ -178,12 +180,12 @@ Discrete
     
     // Fold the F̃-states: build the new orders (using a vector provides quicker
     // iteration later than using a set) …
-    std::vector<int64_t> orders(F_orders.size()+this->_orders.size());
+    std::vector<long long> orders(F_orders.size()+this->_orders.size());
     std::transform(
-        F_orders.begin(), F_orders.end(), orders.begin(), std::abs<int64_t>);
+        F_orders.begin(), F_orders.end(), orders.begin(), std::llabs);
     std::memcpy(
         orders.data()+F_orders.size(), this->_orders.data(),
-        this->_orders.size()*sizeof(int64_t));
+        this->_orders.size()*sizeof(long long));
     std::sort(orders.begin(), orders.end());
     auto const last = std::unique(orders.begin(), orders.end());
     orders.erase(last, orders.end());
@@ -196,7 +198,7 @@ Discrete
     auto F_plus_state_it = F.cbegin()+(F_plus_order_it-F_orders.cbegin());
 
     // The largest negative F̃-order, move towards smaller orders
-    std::vector<int64_t>::const_reverse_iterator F_minus_order_it(F_plus_order_it);
+    std::vector<long long>::const_reverse_iterator F_minus_order_it(F_plus_order_it);
     auto F_minus_state_it = F.crbegin()+(F_minus_order_it-F_orders.crbegin());
 
     auto Z_order_it = this->_orders.cbegin();
