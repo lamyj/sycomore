@@ -1,7 +1,12 @@
 from ._sycomore import *
 
+extensions = ["epg", "units"]
 import sys
-units.__name__ = "sycomore.units"
-sys.modules["sycomore.units"] = units
+for extension in extensions:
+    module = globals()[extension]
+    name = "sycomore.{}".format(extension)
 
-from . import bloch, epg
+    module.__name__ = name
+    sys.modules[name] = module
+
+from . import bloch
