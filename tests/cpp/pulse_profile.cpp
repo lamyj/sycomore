@@ -13,7 +13,7 @@
 
 using namespace sycomore::units;
 
-BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-14))
+BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-9))
 {
     sycomore::Species const species(0_Hz, 0_Hz, 0_um*um/ms);
     sycomore::Magnetization const m0{0,0,1};

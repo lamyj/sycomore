@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_REQUIRE_EQUAL(pulse.get_phase(), 2*rad);
 }
 
-BOOST_AUTO_TEST_CASE(RotationMatrix, *boost::unit_test::tolerance(1e-15))
+BOOST_AUTO_TEST_CASE(RotationMatrix, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
     sycomore::Pulse const pulse{41_deg, 27_deg};

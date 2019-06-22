@@ -37,7 +37,7 @@ sycomore::Quantity const Fixture::pulse_duration=1_ms;
 sycomore::Quantity const Fixture::TR=500_ms;
 sycomore::Quantity const Fixture::slice_thickness=1_mm;
 
-BOOST_FIXTURE_TEST_CASE(Ideal, Fixture, *boost::unit_test::tolerance(1e-15))
+BOOST_FIXTURE_TEST_CASE(Ideal, Fixture, *boost::unit_test::tolerance(1e-9))
 {
     sycomore::Model model(species, m0, {{"echo", {TR/2.}}});
 
@@ -76,7 +76,7 @@ BOOST_FIXTURE_TEST_CASE(Ideal, Fixture, *boost::unit_test::tolerance(1e-15))
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-14))
+BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-9))
 {
     auto const t0 = pulse_duration/(2*zero_crossings);
     sycomore::HardPulseApproximation sinc_pulse(
