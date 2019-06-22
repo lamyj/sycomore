@@ -397,7 +397,7 @@ Model
         auto && tau = this->_tau[offset];
 
         Real const susceptibility =
-            -this->_species.get_R2_prime().convert_to(units::s) * tau;
+            -this->_species.get_R2_prime().convert_to(units::Hz) * tau;
 
         Real const off_resonance = omega * tau;
 
