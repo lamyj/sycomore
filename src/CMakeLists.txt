@@ -19,7 +19,7 @@ list(SORT python_files)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 
 add_library(libsycomore ${source_files} ${header_files} ${template_files})
-if(APPLE)
+if(APPLE AND OPENMP_FOUND)
     target_link_libraries(libsycomore omp)
 endif()
 set_target_properties(libsycomore PROPERTIES OUTPUT_NAME sycomore)

@@ -10,8 +10,6 @@
 #include <utility>
 #include <vector>
 
-#include <omp.h>
-
 #include "sycomore/Grid.h"
 #include "sycomore/GridScanner.h"
 #include "sycomore/magnetization.h"
