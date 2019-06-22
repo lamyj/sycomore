@@ -6,7 +6,7 @@
 #include <fstream>
 
 #include <sycomore/magnetization.h>
-#include <sycomore/Model.h>
+#include <sycomore/como/Model.h>
 #include <sycomore/Pulse.h>
 #include <sycomore/sycomore.h>
 #include <sycomore/units.h>
@@ -39,7 +39,7 @@ sycomore::Quantity const Fixture::slice_thickness=1_mm;
 
 BOOST_FIXTURE_TEST_CASE(Ideal, Fixture, *boost::unit_test::tolerance(1e-9))
 {
-    sycomore::Model model(species, m0, {{"echo", {TR/2.}}});
+    sycomore::como::Model model(species, m0, {{"echo", {TR/2.}}});
 
     std::vector<sycomore::Magnetization> magnetization;
     for(int i=0; i<TR_count; ++i)
@@ -84,7 +84,7 @@ BOOST_FIXTURE_TEST_CASE(Real, Fixture, *boost::unit_test::tolerance(1e-9))
         sycomore::linspace(pulse_duration, pulse_support_size),
         sycomore::sinc_envelope(t0), 1/t0, slice_thickness, "rf");
 
-    sycomore::Model model(
+    sycomore::como::Model model(
         species, m0, {
             {"rf", sinc_pulse.get_time_interval()},
             {"half_echo", {

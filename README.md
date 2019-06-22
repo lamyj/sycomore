@@ -29,7 +29,7 @@ The following code simulates a single repetition of a simple [RARE](examples/rar
 #include <iostream>
 
 #include <sycomore/magnetization.h>
-#include <sycomore/Model.h>
+#include <sycomore/como/Model.h>
 #include <sycomore/Pulse.h>
 #include <sycomore/Species.h>
 #include <sycomore/sycomore.h>
@@ -45,7 +45,7 @@ int main()
     auto const train_length = 40;
     sycomore::TimeInterval const half_echo(TE/2);
     sycomore::TimeInterval const idle(TR-train_length*TE);
-    sycomore::Model model(
+    sycomore::como::Model model(
         gray_matter, {0,0,1}, {{"half_echo", half_echo}, {"idle", idle}});
 
     std::vector<std::pair<sycomore::Real, sycomore::Real>> signal;

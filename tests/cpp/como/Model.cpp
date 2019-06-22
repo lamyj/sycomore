@@ -1,8 +1,8 @@
-#define BOOST_TEST_MODULE Model
+#define BOOST_TEST_MODULE como_Model
 #include <boost/test/unit_test.hpp>
 
+#include "sycomore/como/Model.h"
 #include "sycomore/GridScanner.h"
-#include "sycomore/Model.h"
 #include "sycomore/Species.h"
 #include "sycomore/TimeInterval.h"
 
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
     sycomore::Species const species(1_s, 0.1_s);
     sycomore::TimeInterval const echo(10_ms);
 
-    sycomore::Model const model(species, {0,0,1}, {{"echo", echo}});
+    sycomore::como::Model const model(species, {0,0,1}, {{"echo", echo}});
 
     BOOST_TEST((
         model.dimensions() == std::map<std::string, size_t>{{"echo", 0}}));
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(Pulse)
     using namespace sycomore::units;
 
     sycomore::Species const species(1_s, 0.1_s);
-    sycomore::Model model(species, {0,0,1}, {{"dummy", {0*s}}});
+    sycomore::como::Model model(species, {0,0,1}, {{"dummy", {0*s}}});
 
     sycomore::Pulse const pulse{41_deg, 27_deg};
     model.apply_pulse(pulse);
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
 
     sycomore::Species const species{std::log(2)*Hz, std::log(2)*Hz};
     // Dummy time intervals to build a 2D model
-    sycomore::Model model(species, {0, 0, 1}, {{"foo", {1*s}}, {"bar", {1*s}}});
+    sycomore::como::Model model(species, {0, 0, 1}, {{"foo", {1*s}}, {"bar", {1*s}}});
 
     // Resulting complex magnetization: 1/2, sqrt(2)/2, 1/2
     model.apply_pulse({45_deg, 90_deg});
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(Diffusion)
     sycomore::Species const species{0_Hz, 0_Hz, 1_um*um/ms};
     sycomore::TimeInterval const echo{500_ms, 0.1*rad/um};
 
-    sycomore::Model model(species, {0,0,1}, {{"echo", echo}});
+    sycomore::como::Model model(species, {0,0,1}, {{"echo", echo}});
 
     model.apply_pulse({40_deg, 0_deg});
     model.apply_time_interval("echo");
@@ -217,7 +217,8 @@ BOOST_AUTO_TEST_CASE(CleanUp)
 
     sycomore::Species const species{std::log(2)*Hz, std::log(2)*Hz};
     // Dummy time intervals to build a 2D model
-    sycomore::Model model(species, {0, 0, 1}, {{"short", {1*s}}, {"long", {2*s}}});
+    sycomore::como::Model model(
+        species, {0, 0, 1}, {{"short", {1*s}}, {"long", {2*s}}});
     model.set_epsilon(1.5*1./(1<<4));
 
     // Resulting complex magnetization: 1/2, sqrt(2)/2, 1/2

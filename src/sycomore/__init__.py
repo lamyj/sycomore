@@ -1,6 +1,6 @@
 from ._sycomore import *
 
-extensions = ["epg", "units"]
+extensions = ["como", "epg", "units"]
 import sys
 for extension in extensions:
     module = globals()[extension]

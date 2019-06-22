@@ -6,7 +6,7 @@
 
 #include <sycomore/HardPulseApproximation.h>
 #include <sycomore/magnetization.h>
-#include <sycomore/Model.h>
+#include <sycomore/como/Model.h>
 #include <sycomore/Pulse.h>
 #include <sycomore/sycomore.h>
 #include <sycomore/units.h>
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(PulseProfile, *boost::unit_test::tolerance(1e-9))
         sycomore::Point{0_m, 0_m, 2*slice_thickness},
         sampling_support_size);
 
-    sycomore::Model model(
+    sycomore::como::Model model(
         species, m0, {
             {"rf", sinc_pulse.get_time_interval()},
             {"refocalization", refocalization}

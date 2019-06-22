@@ -1,12 +1,13 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "sycomore/Model.h"
+#include "sycomore/como/Model.h"
 
-void wrap_Model(pybind11::module & m)
+void wrap_como_Model(pybind11::module & m)
 {
     using namespace pybind11;
     using namespace sycomore;
+    using namespace sycomore::como;
     using namespace sycomore::units;
 
     class_<Model>(m, "Model")

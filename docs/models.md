@@ -5,7 +5,7 @@ Once [species](species.md), [pulses](pulses.md), and [time intervals](time_inter
 The creation of a configuration model requires a `Species` object, the corresponding initial magnetization, and at least one time interval:
 
 ```cpp
-#include <sycomore/Model.h>
+#include <sycomore/como/Model.h>
 #include <sycomore/Pulse.h>
 #include <sycomore/Species.h>
 #include <sycomore/TimeInterval.h>
@@ -19,21 +19,21 @@ int main()
     sycomore::TimeInterval const half_echo(20_ms);
     sycomore::Magnetization const m0{0,0,1};
     
-    sycomore::Model model(water, m0, {{"half_echo", half_echo}});
+    sycomore::como::Model model(water, m0, {{"half_echo", half_echo}});
 }
 ```
 
 Note that the last parameter uses an initializer list to build a `std::map<std::string, sycomore::TimeInterval>`: each time interval corresponds to a dimension of the configuration model and are thus refered to by name when applying them (see following examples). Initializer lists may in fact be used for every argument; users are free to chose the syntax they find most readable:
 
 ```cpp
-#include <sycomore/Model.h>
+#include <sycomore/como/Model.h>
 #include <sycomore/units.h>
 
 int main()
 {
     using namespace sycomore::units;
     
-    sycomore::Model model(
+    sycomore::como::Model model(
       {4000_ms, 2000_ms, 2.317_um*um/s}, 
       {0,0,1}, 
       {{"half_echo", {500_ms}}});
@@ -47,7 +47,7 @@ The pulses and time intervals (with or without gradients) in a sequence can be s
 ```cpp
 #include <iostream>
 
-#include <sycomore/Model.h>
+#include <sycomore/como/Model.h>
 #include <sycomore/Pulse.h>
 #include <sycomore/Species.h>
 #include <sycomore/TimeInterval.h>
@@ -68,7 +68,7 @@ int main()
     sycomore::Pulse const excitation(90_deg, 0_deg);
     sycomore::Pulse const refocalization(180_deg, 0_deg);
     
-    sycomore::Model model(
+    sycomore::como::Model model(
         water, {0,0,1}, {{"half_echo", half_echo}, {"idle", idle}});
     
     model.apply_pulse(excitation);
@@ -99,7 +99,7 @@ The `isochromat` function return a `Magnetization` object, i.e. a 3D vector with
 The previous example can be easily adapted to use a slice-selective sinc pulse with a slice-rephasing gradient.
 
 ```cpp
-#include <sycomore/Model.h>
+#include <sycomore/como/Model.h>
 #include <sycomore/Pulse.h>
 #include <sycomore/Species.h>
 #include <sycomore/TimeInterval.h>
@@ -134,7 +134,7 @@ int main()
     // Slice-rephasing gradient lobe: without ramps on the gradient, and with a
     // sinc pulse, the area of the rephasing gradient is -1/2 the area of the 
     // slice selection gradient.
-    sycomore::Model model(
+    sycomore::como::Model model(
         water, {0,0,1}, {
             {excitation.get_name(), excitation.get_time_interval()},
             {"slice_rephasing", {

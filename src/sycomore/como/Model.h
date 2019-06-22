@@ -18,6 +18,9 @@
 namespace sycomore
 {
 
+namespace como
+{
+
 class Model
 {
 public:
@@ -124,6 +127,8 @@ private:
 
     void _cleanup();
 };
+
+}
 
 }
 

@@ -29,7 +29,7 @@ class TestOffResonance(unittest.TestCase):
         refocalization = sycomore.TimeInterval(
             (TR-pulse_duration)/2., -sinc_pulse.get_gradient_moment()/2)
 
-        model = sycomore.Model(
+        model = sycomore.como.Model(
             species, m0, [
                 ["rf", sinc_pulse.get_time_interval()],
                 ["refocalization", refocalization]])

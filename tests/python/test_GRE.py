@@ -22,7 +22,7 @@ class TestGRE(unittest.TestCase):
         self.TR_count = 10
 
     def test_ideal(self):
-        model = sycomore.Model(
+        model = sycomore.como.Model(
             self.species, self.m0,
             [["half_echo", sycomore.TimeInterval(self.TR/2.)]])
 
@@ -59,7 +59,7 @@ class TestGRE(unittest.TestCase):
             (self.TR-self.pulse_duration)/2.,
             -sinc_pulse.get_gradient_moment()/2)
 
-        model = sycomore.Model(
+        model = sycomore.como.Model(
             self.species, self.m0, [
                 ["rf", sinc_pulse.get_time_interval()],
                 ["half_echo", half_echo]])

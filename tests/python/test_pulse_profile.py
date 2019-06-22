@@ -34,7 +34,7 @@ class TestPulseProfile(unittest.TestCase):
         sampling_locations = sycomore.linspace(
             sycomore.Point(0*m, 0*m, 2*slice_thickness), sampling_support_size)
 
-        model = sycomore.Model(
+        model = sycomore.como.Model(
             species, m0, [
                 ["rf", sinc_pulse.get_time_interval()],
                 ["refocalization", refocalization]])

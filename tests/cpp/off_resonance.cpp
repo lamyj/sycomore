@@ -5,7 +5,7 @@
 #include <fstream>
 
 #include <sycomore/magnetization.h>
-#include <sycomore/Model.h>
+#include <sycomore/como/Model.h>
 #include <sycomore/Pulse.h>
 #include <sycomore/sycomore.h>
 #include <sycomore/units.h>
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-9))
 
     auto const frequencies = sycomore::linspace(60._rad/ms, 201);
 
-    sycomore::Model model(
+    sycomore::como::Model model(
         species, m0, {
             {"rf", sinc_pulse.get_time_interval()},
             {"refocalization", {

@@ -21,6 +21,9 @@
 namespace sycomore
 {
 
+namespace como
+{
+
 Model
 ::Model(
     Species const & species, Magnetization const & magnetization,
@@ -612,6 +615,8 @@ Model
         shape[i] = 1+2*std::max(std::abs(first[i]), std::abs(last[i]));
     }
     this->_bounding_box = {origin, shape};
+}
+
 }
 
 }

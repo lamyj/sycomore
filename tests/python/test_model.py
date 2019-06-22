@@ -6,7 +6,7 @@ from sycomore.units import *
 
 class TestModel(unittest.TestCase):
     def test_pulse(self):
-        model = sycomore.Model(
+        model = sycomore.como.Model(
             sycomore.Species(1*s, 0.1*s),
             sycomore.Magnetization(0, 0, 1),
             [["dummy", sycomore.TimeInterval(0*s)]])
@@ -27,7 +27,7 @@ class TestModel(unittest.TestCase):
                 self.assertAlmostEqual(grid[index].m, 0)
 
     def test_time_interval(self):
-        model = sycomore.Model(
+        model = sycomore.como.Model(
             sycomore.Species(math.log(2)*Hz, math.log(2)*Hz),
             sycomore.Magnetization(0, 0, 1), [
                 ["foo", sycomore.TimeInterval(1*s)],
@@ -89,7 +89,7 @@ class TestModel(unittest.TestCase):
         self.assertAlmostEqual(isochromat[2], 0.5+0.25*(1+math.sqrt(2)/2))
 
     def test_diffusion(self):
-        model = sycomore.Model(
+        model = sycomore.como.Model(
             sycomore.Species(0*Hz, 0*Hz, 1*um*um/ms),
             sycomore.Magnetization(0, 0, 1), [
                 ["foo", sycomore.TimeInterval(500*ms, 0.1*rad/um)]])
