@@ -16,6 +16,7 @@ void wrap_epg_Regular(pybind11::module & m)
             init<Species, Magnetization, unsigned int>(),
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
             arg("initial_size")=100)
+        .def_readwrite("species", &Regular::species)
         .def_property_readonly("states_count", &Regular::states_count)
         .def("state", &Regular::state, arg("order"))
         .def_property_readonly(
