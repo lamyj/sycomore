@@ -16,8 +16,9 @@ pages:
   script:
     - apt-get update
     - apt-get install -y python3-pip
-    - pip3 install mkdocs
-    - mkdocs build -d public
+    - pip3 install sphinx
+    - make -C docs html
+    - mv docs/_build/html/ public/
   artifacts:
     paths:
       - public
