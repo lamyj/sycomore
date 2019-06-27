@@ -16,7 +16,7 @@ pages:
   script:
     - apt-get update
     - apt-get install -y python3-pip
-    - pip3 install sphinx
+    - pip3 install sphinx sphinx_rtd_theme
     - make -C docs html
     - mv docs/_build/html/ public/
   artifacts:
@@ -32,7 +32,9 @@ build_stretch:
   after_script:
     - apt-get update
     - apt-get install -y python3-pip
-    - pip3 install sphinx
+    - pip3 install sphinx sphinx_rtd_theme
+    - export LD_LIBRARY_PATH=install/lib
+    - export PYTHONPATH=install/lib/python3/dist-packages/
     - make -C docs doctest
 
 build_bionic:
