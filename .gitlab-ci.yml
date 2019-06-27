@@ -33,8 +33,6 @@ build_stretch:
     - apt-get update
     - apt-get install -y python3-pip
     - pip3 install sphinx sphinx_rtd_theme
-    - export LD_LIBRARY_PATH=install/lib
-    - export PYTHONPATH=install/lib/python3/dist-packages/
     - make -C docs html
     - python3 docs/check_code_samples.py build 
 
