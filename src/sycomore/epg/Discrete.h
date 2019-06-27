@@ -63,7 +63,10 @@ public:
         Quantity const & duration, 
         Quantity const & gradient=0*units::T/units::m, Real threshold=0);
 
-    /// @brief Apply a gradient; in regular EPG, this shifts all orders by 1.
+    /**
+     * @brief Apply a gradient; in discrete EPG, this shifts all orders by
+     * specified value.
+     */
     void shift(Quantity const & duration, Quantity const & gradient);
 
     /// @brief Simulate the relaxation during given duration.

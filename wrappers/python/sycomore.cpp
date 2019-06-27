@@ -46,6 +46,8 @@ PYBIND11_MODULE(_sycomore, _sycomore)
     using namespace pybind11;
     using namespace sycomore;
 
+    _sycomore.attr("gamma") = sycomore::gamma;
+
     _sycomore.def(
         "linspace",
         static_cast<std::vector<Quantity> (*) (Quantity, Quantity, size_t)>(
