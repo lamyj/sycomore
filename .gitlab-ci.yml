@@ -31,8 +31,9 @@ build_stretch:
   # Check the code samples in the documentation
   after_script:
     - apt-get update
-    - apt-get install -y python3-bs4 python3-markdown
-    - python3 docs/check_code_samples.py build/
+    - apt-get install -y python3-pip
+    - pip3 install sphinx
+    - make -C docs doctest
 
 build_bionic:
   extends: .build_template

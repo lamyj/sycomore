@@ -1,6 +1,8 @@
 Common features
 ===============
 
+.. _units:
+
 Units
 -----
 
@@ -33,7 +35,7 @@ Sycomore provides a unit system so that users do not have to convert their quant
 Species
 -------
 
-A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its diffusivity *D* and its relative resonance frequency Δω. It is described by the :class:`Species` class. |R1| and |R2| are mandatory parameters, all others are optional and are equal to 0 if unspecified. Using the :doc:`unit system<units>`, relaxation rates and relaxation times may be used interchangeably.
+A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its diffusivity *D* and its relative resonance frequency Δω. It is described by the :class:`Species` class. |R1| and |R2| are mandatory parameters, all others are optional and are equal to 0 if unspecified. Using the :ref:`unit system<units>`, relaxation rates and relaxation times may be used interchangeably.
 
 .. code-block:: python
     
