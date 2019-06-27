@@ -5,7 +5,7 @@ In the regular EPG model, the dephasing order is reduced to a unitless integer :
 
 The following code sample simulates the evolution of the signal in an `RF spoiling`_ experiment.
 
-.. testcode::
+.. code-block:: python
     
     import numpy
     import sycomore

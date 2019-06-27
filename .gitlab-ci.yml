@@ -35,7 +35,8 @@ build_stretch:
     - pip3 install sphinx sphinx_rtd_theme
     - export LD_LIBRARY_PATH=install/lib
     - export PYTHONPATH=install/lib/python3/dist-packages/
-    - make -C docs doctest
+    - make -C docs html
+    - python3 docs/check_code_samples.py build 
 
 build_bionic:
   extends: .build_template
