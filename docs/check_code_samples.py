@@ -77,7 +77,7 @@ def check_file(doctree, configuration):
             action(path, configuration)
         except Exception:
             print(doctree)
-            print(block.astext().encode())
+            print(block.astext())
             raise
         os.unlink(path)
 
@@ -95,12 +95,12 @@ def check_cpp(path, configuration):
 def check_python(path, configuration):
     python_prefix = subprocess.check_output([
         configuration["python"], "-c", 
-        "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))"])
+        "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))"]).strip()
     
     environment = os.environ.copy()
     environment["LD_LIBRARY_PATH"] = os.path.join(configuration["install"], "lib")
     environment["PYTHONPATH"] = os.path.join(configuration["install"], python_prefix.decode())
-    subprocess.check_call([configuration["python"], path])
+    subprocess.check_call([configuration["python"], path], env=environment)
 
 if __name__ == "__main__":
     sys.exit(main())
