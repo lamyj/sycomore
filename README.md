@@ -1,98 +1,56 @@
 # Sycomore &mdash; an MRI simulation toolkit
 
-Sycomore is an MRI simulation toolkit using the configuration model formalism. Inspired by Carl Ganter's [CoMoTk](https://github.com/cganter/CoMoTk), Sycomore is fast and is usable both through its native C++ API and through a similar Python API. Sycomore includes:
-
-- Radiofrequency pulses
-- Gradients
-- Off-resonance effects
-- Susceptiblity effects
-- Slice profiles
+Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase Graphs (EPG) (both regular and discrete), and Configuration Models. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime and further acceleration through [OpenMP](https://www.openmp.org/).
 
 ## Installation
 
-Sycomore requires a C++11 compiler. To take full advantage of your CPU, [OpenMP](https://www.openmp.org/) is strongly recommended. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test](https://www.boost.org/doc/libs/release/libs/test/). Sycomore uses [CMake](https://cmake.org/), so the simplest way to build it would be to create a `build` directory inside the source directory, run `cmake`, then run `make`:
+Sycomore requires a C++11 compiler, Python (≥ 3.5) and [pybind11](http://pybind11.readthedocs.io/). To take full advantage of your CPU, OpenMP is strongly recommended. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test](https://www.boost.org/doc/libs/release/libs/test/). Sycomore uses [CMake](https://cmake.org/), so the simplest way to build it would be to create a *build* directory inside the source directory, run *cmake*, then run *make*:
 
-```sh
+```shell
 mkdir build
 cd build
 cmake ..
 make
 ```
 
-Additional details are provided in the [documentation](docs/installation.md).
+Additional details are provided in the [documentation](docs/installation.rst).
 
 ## Usage
 
-The following code simulates a single repetition of a simple [RARE](examples/rare.cpp) sequence and prints the time and transverse magnetization of each echo.
-
-```cpp
-#include <iostream>
-
-#include <sycomore/magnetization.h>
-#include <sycomore/como/Model.h>
-#include <sycomore/Pulse.h>
-#include <sycomore/Species.h>
-#include <sycomore/sycomore.h>
-#include <sycomore/units.h>
-
-int main()
-{
-    using namespace sycomore::units;
-
-    sycomore::Species const gray_matter(1000_ms, 100_ms, 1_um*um/ms);
-    auto const TR = 500_ms;
-    auto const TE = 4_ms;
-    auto const train_length = 40;
-    sycomore::TimeInterval const half_echo(TE/2);
-    sycomore::TimeInterval const idle(TR-train_length*TE);
-    sycomore::como::Model model(
-        gray_matter, {0,0,1}, {{"half_echo", half_echo}, {"idle", idle}});
-
-    std::vector<std::pair<sycomore::Real, sycomore::Real>> signal;
-
-    sycomore::Real time=0;
-    model.apply_pulse({90_deg, 0_deg});
-    for(int echo=0; echo<train_length; ++echo)
-    {
-        model.apply_time_interval("half_echo");
-        time += half_echo.duration;
-
-        model.apply_pulse({180_deg, 0_deg});
-
-        model.apply_time_interval("half_echo");
-        time += half_echo.duration;
-
-        auto const m = model.isochromat();
-        signal.emplace_back(time, m.transversal());
-    }
-    model.apply_time_interval("idle");
-    time += idle.duration;
-
-
-    for(auto it = signal.begin(); it!=signal.end(); ++it)
-    {
-        std::cout << it->first << " " << it->second << "\n";
-    }
-}
-```
-
-We can then witness the expected T<sub>2</sub> decay, here with Python and Matplotlib:
+The following code simulates a single repetition of a simple RARE sequence and plots the transverse magnetization of each echo.
 
 ```python
-import sys
-
 import matplotlib.pyplot
 import numpy
+import sycomore
+from sycomore.units import *
 
-data = numpy.loadtxt("signal.txt")
-simulated, = matplotlib.pyplot.plot(
-    data[:,0], data[:,1], ".", label="Simulated")
-expected, = matplotlib.pyplot.plot(
-    data[:,0], numpy.exp(-data[:,0]/0.1), label="T_2 decay")
+species = sycomore.Species(1000*ms, 100*ms, 1*um**2/ms)
+TE = 4*ms
+train_length = 40
+
+model = sycomore.epg.Regular(species)
+data = numpy.zeros(train_length, dtype=[("time", sycomore.Quantity), ("signal", complex)])
+
+model.apply_pulse(90*deg)
+for echo in range(train_length):
+    model.apply_time_interval(TE/2)
+    model.apply_pulse(180*deg)
+    model.apply_time_interval(TE/2)
+    
+    data[echo] = (((1+echo)*TE), model.echo)
+
+times = [x.convert_to(ms) for x in data["time"]]
+magnitude = numpy.abs(data["signal"])
+matplotlib.pyplot.plot(times, magnitude, ".", label="Simulated")
+matplotlib.pyplot.plot(
+    times, [numpy.exp(-(x*species.R2).magnitude) for x in data["time"]],
+    label="$T_2$ decay")
+
 matplotlib.pyplot.ylim(0,1)
-matplotlib.pyplot.xlabel("Time (s)")
-matplotlib.pyplot.ylabel("Signal")
-matplotlib.pyplot.legend(handles=[simulated, expected])
+matplotlib.pyplot.xlabel("Time (ms)")
+matplotlib.pyplot.ylabel("Magnitude")
+matplotlib.pyplot.legend()
 matplotlib.pyplot.show()
 ```
 
@@ -100,7 +58,7 @@ matplotlib.pyplot.show()
 
 The features and data structures are described in the documentation:
 
-- [Units](docs/units.md)
-- [Species](docs/species.md)
-- [RF pulses](docs/pulses.md)
-- [Time intervals](docs/time_intervals.md)
+- [Common features](docs/common_features.rst)
+- [Bloch simulation](docs/bloch.rst)
+- [Extended Phase Graphs](docs/epg/index.rst)
+- [Configuration Models](docs/como.rst)

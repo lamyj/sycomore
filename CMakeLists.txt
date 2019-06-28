@@ -24,11 +24,10 @@ elseif(COMPILER_SUPPORTS_CXX0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
-file(GLOB_RECURSE docs mkdocs.yml docs/*)
+file(GLOB_RECURSE docs docs/*)
 add_custom_target(
     Documentation ${CMAKE_COMMAND} -E echo "Documentation"
     SOURCES README.md ${docs})
-set_target_properties(Documentation PROPERTIES FOLDER "Utils")
 
 file(GLOB_RECURSE ContinuousIntegration .gitlab-ci.yml .ci/*)
 add_custom_target(
