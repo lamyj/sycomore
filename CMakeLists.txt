@@ -2,11 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project("sycomore")
 
-set(sycomore_MAJOR_VERSION 0)
-set(sycomore_MINOR_VERSION 4)
-set(sycomore_PATCH_VERSION 0)
-set(sycomore_VERSION
-    ${sycomore_MAJOR_VERSION}.${sycomore_MINOR_VERSION}.${sycomore_PATCH_VERSION})
+set(sycomore_VERSION 0.5.0)
+string(REGEX MATCH "^[0-9]+" sycomore_MAJOR_VERSION "${sycomore_VERSION}")
 
 option(BUILD_SHARED_LIBS "Build Sycomore with shared libraries." ON)
 option(BUILD_TESTING "Build unit tests." ON)
