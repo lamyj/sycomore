@@ -10,6 +10,8 @@ option(BUILD_TESTING "Build unit tests." ON)
 option(BUILD_EXAMPLES "Build the examples directory." ON)
 option(BUILD_PYTHON_WRAPPERS "Build the Python Wrappers." ON)
 
+option(USE_OPENMP "Compile with OpenMP support." ON)
+
 include(CTest)
 
 # Add the C++0x or C++11 flag

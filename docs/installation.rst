@@ -13,6 +13,8 @@ Sycomore requires a C++11 compiler, Python (≥ 3.5) and `pybind11`_. To take fu
   cmake ..
   make
 
+To build without OpenMP support, pass *-D USE_OPENMP=OFF* to the CMake call.
+
 The compilation can take advantage of a multi-core CPU either by using `make`_ with the *-jN* flag (where *N* is the number of concurrent tasks, i.e. the number of cores) or by using `Ninja`_. Once the compilation succeeds, the units tests can be run from the build directory:
 
 .. code-block:: shell
