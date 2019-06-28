@@ -9,6 +9,9 @@ option(BUILD_SHARED_LIBS "Build Sycomore with shared libraries." ON)
 option(BUILD_TESTING "Build unit tests." ON)
 option(BUILD_EXAMPLES "Build the examples directory." ON)
 option(BUILD_PYTHON_WRAPPERS "Build the Python Wrappers." ON)
+option(
+    BUILD_STANDALONE_PYTHON_WRAPPERS
+    "Build the Python Wrappers as a standalone library." OFF)
 
 option(USE_OPENMP "Compile with OpenMP support." ON)
 
@@ -36,6 +39,9 @@ add_custom_target(
 set_target_properties(ContinuousIntegration PROPERTIES FOLDER "Utils")
 
 add_subdirectory("src")
+if(BUILD_PYTHON_WRAPPERS)
+    add_subdirectory("wrappers/python")
+endif()
 
 if(BUILD_TESTING)
     add_subdirectory("tests")
@@ -43,8 +49,4 @@ endif()
 
 if(BUILD_EXAMPLES)
     add_subdirectory("examples")
-endif()
-
-if(BUILD_PYTHON_WRAPPERS)
-    add_subdirectory("wrappers/python")
 endif()
