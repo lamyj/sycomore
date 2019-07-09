@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <pybind11/stl.h>
 
 #include "sycomore/epg/Discrete.h"
 #include "sycomore/magnetization.h"
@@ -34,7 +35,7 @@ void wrap_epg_Discrete(pybind11::module & m)
             "states", [](Discrete const & model){
                 auto const states_cpp = model.states();
                 std::vector<std::size_t> const shape{model.orders().size(),3};
-                Complex const * data = states_cpp.data();
+                auto && data = states_cpp.data();
                 array_t<Complex> states_py(shape, data);
                 return states_py;
             })
