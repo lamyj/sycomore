@@ -59,6 +59,12 @@ namespace std
 
 sycomore::Quantity pow(sycomore::Quantity q, double e);
 
+template<>
+struct hash<sycomore::Quantity>
+{
+    size_t operator()(sycomore::Quantity const & q) const;
+};
+
 }
 
 #endif // _bd3de17b_e4fa_4e7f_8d72_8ac9df01606f

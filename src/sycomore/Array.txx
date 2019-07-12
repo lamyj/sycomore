@@ -475,4 +475,12 @@ sycomore::Array<T> abs(sycomore::Array<T> const & a)
     return result;
 }
 
+template<typename T>
+size_t
+hash<sycomore::Array<T>>
+::operator()(sycomore::Array<T> const & index) const
+{
+    return sycomore::hash_range(index.cbegin(), index.cend());
+}
+
 }

@@ -4,7 +4,9 @@
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
+
 #include "sycomore/Dimensions.h"
+#include "sycomore/hash.h"
 
 namespace sycomore
 {
@@ -206,6 +208,25 @@ sycomore::Quantity pow(sycomore::Quantity q, double e)
     q.dimensions = std::pow(q.dimensions, e);
     q.magnitude = std::pow(q.magnitude, e);
     return q;
+}
+
+//template<>
+size_t
+hash<sycomore::Quantity>
+::operator()(sycomore::Quantity const & q) const
+{
+    size_t seed=0;
+    hash<double> hasher;
+    sycomore::combine_hashes(seed, hasher(q.magnitude));
+    sycomore::combine_hashes(seed, hasher(q.dimensions.length));
+    sycomore::combine_hashes(seed, hasher(q.dimensions.mass));
+    sycomore::combine_hashes(seed, hasher(q.dimensions.time));
+    sycomore::combine_hashes(seed, hasher(q.dimensions.electric_current));
+    sycomore::combine_hashes(seed, hasher(q.dimensions.thermodynamic_temperature));
+    sycomore::combine_hashes(seed, hasher(q.dimensions.amount_of_substance));
+    sycomore::combine_hashes(seed, hasher(q.dimensions.luminous_intensity));
+
+    return seed;
 }
 
 }

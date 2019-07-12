@@ -6,6 +6,8 @@
 #include <ostream>
 #include <utility>
 
+#include <sycomore/hash.h>
+
 namespace sycomore
 {
 
@@ -165,6 +167,12 @@ namespace std
 
 template<typename T>
 sycomore::Array<T> abs(sycomore::Array<T> const & a);
+
+template<typename T>
+struct hash<sycomore::Array<T>>
+{
+    size_t operator()(sycomore::Array<T> const & index) const;
+};
 
 }
 
