@@ -43,6 +43,9 @@ public:
     T const * data() const;
     T * data();
 
+    template<typename T2>
+    Array<T2> astype() const;
+
     /// @brief Read-only access, no bounds checking.
     T const & operator[](size_t i) const;
 
@@ -154,6 +157,14 @@ dot(Array<T1> const & l, Array<T2> const & r);
 
 template<typename T>
 std::ostream & operator<<(std::ostream & stream, Array<T> const & index);
+
+}
+
+namespace std
+{
+
+template<typename T>
+sycomore::Array<T> abs(sycomore::Array<T> const & a);
 
 }
 

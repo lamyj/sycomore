@@ -166,6 +166,24 @@ Array<T>
 }
 
 template<typename T>
+template<typename T2>
+Array<T2>
+Array<T>
+::astype() const
+{
+    Array<T2> result(this->size());
+    auto source = this->data();
+    auto destination = result.data();
+    for(std::size_t i=0; i<this->size(); ++i)
+    {
+        *destination = static_cast<T>(*source);
+        ++source;
+        ++destination;
+    }
+    return result;
+}
+
+template<typename T>
 T const &
 Array<T>
 ::operator[](size_t i) const
@@ -439,6 +457,22 @@ std::ostream & operator<<(std::ostream & stream, Array<T> const & array)
     }
     stream << ")";
     return stream;
+}
+
+}
+
+namespace std
+{
+
+template<typename T>
+sycomore::Array<T> abs(sycomore::Array<T> const & a)
+{
+    sycomore::Array<T> result(a);
+    for(auto & x: result)
+    {
+        x = std::abs(x);
+    }
+    return result;
 }
 
 }

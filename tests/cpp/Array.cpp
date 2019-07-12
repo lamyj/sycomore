@@ -105,6 +105,14 @@ BOOST_AUTO_TEST_CASE(MoveAssignment)
     }
 }
 
+BOOST_AUTO_TEST_CASE(Cast)
+{
+    sycomore::Array<unsigned int> const array{1,2,3};
+    sycomore::Array<int> const e = array.astype<int>();
+    BOOST_TEST(e.size() == 3);
+    BOOST_TEST(e[0] == 1); BOOST_TEST(e[1] == 2); BOOST_TEST(e[2] == 3);
+}
+
 BOOST_AUTO_TEST_CASE(MutatingPlusScalar)
 {
     sycomore::Array<int> array{1,2,3};
@@ -272,4 +280,11 @@ BOOST_AUTO_TEST_CASE(DotSizeMismatch)
 {
     sycomore::Array<int> a1{1,2,3}, a2{5,4}; auto const x = dot(a1, a2);
     BOOST_TEST(x == 13);
+}
+
+BOOST_AUTO_TEST_CASE(Abs)
+{
+    sycomore::Array<int> a{-1,2,-3}; auto const e = std::abs(a);
+    BOOST_TEST(e.size() == 3);
+    BOOST_TEST(e[0] == 1); BOOST_TEST(e[1] == 2); BOOST_TEST(e[2] == 3);
 }
