@@ -1,0 +1,89 @@
+#ifndef _fcca9c67_7c2f_4a9d_abbb_718dc5fd0057
+#define _fcca9c67_7c2f_4a9d_abbb_718dc5fd0057
+
+#include <algorithm>
+#include <unordered_map>
+
+#include "sycomore/Array.h"
+#include "sycomore/magnetization.h"
+#include "sycomore/Quantity.h"
+#include "sycomore/Species.h"
+#include "sycomore/sycomore.h"
+
+namespace sycomore
+{
+
+namespace epg
+{
+
+/**
+ * @brief Discrete EPG in three dimensions.
+ *
+ * @note To keep the "folded" aspect of 1D EPG (i.e. the states being stored as
+ * (F̃_{+}(-k), F̃^{*}_{-}(-k), Z̃(k)) with k>=), the 3D EPG must store the states
+ * of a half-space bounded by an arbitrary plane including the origin. This
+ * arbitrary plane is chosen as the x=0 plane.
+ */
+class Discrete3D
+{
+public:
+    Species species;
+
+    Discrete3D(
+        Species const & species,
+        Magnetization const & initial_magnetization={0,0,1},
+        Quantity bin_width=1*units::rad/units::m);
+
+    Discrete3D(Discrete3D const &) = default;
+    Discrete3D(Discrete3D &&) = default;
+    Discrete3D & operator=(Discrete3D const &) = default;
+    Discrete3D & operator=(Discrete3D &&) = default;
+    ~Discrete3D() = default;
+
+    /// @brief Return a given state of the model.
+    std::vector<Complex> state(Array<Quantity> const & order) const;
+
+    /**
+     * @brief Return all states in the model, where each state is stored as
+     * F̃(k), Z̃(k).
+     */
+    std::unordered_map<Array<Quantity>, std::vector<Complex>> states() const;
+
+    /// @brief Return the echo signal, i.e. F̃_0
+    Complex const & echo() const;
+
+    /// @brief Apply an RF hard pulse.
+    void apply_pulse(Quantity angle, Quantity phase=0*units::rad);
+
+    /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
+    void apply_time_interval(
+        Quantity const & duration,
+        Array<Quantity> const & gradient={
+            0*units::T/units::m,0*units::T/units::m,0*units::T/units::m,},
+        Real threshold=0);
+
+    /**
+     * @brief Apply a gradient; in discrete EPG, this shifts all orders by
+     * specified value.
+     */
+    void shift(Quantity const & duration, Array<Quantity> const & gradient);
+
+    /// @brief Simulate the relaxation during given duration.
+    void relaxation(Quantity const & duration);
+
+    /**
+     * @brief Simulate diffusion during given duration with given gradient
+     * amplitude.
+     */
+    void diffusion(Quantity const & duration, Array<Quantity> const & gradient);
+
+private:
+    std::unordered_map<Array<int64_t>, std::vector<Complex>> _states;
+    Quantity _bin_width;
+};
+
+}
+
+}
+
+#endif // _fcca9c67_7c2f_4a9d_abbb_718dc5fd0057
