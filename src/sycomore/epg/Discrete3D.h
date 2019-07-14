@@ -1,8 +1,7 @@
 #ifndef _fcca9c67_7c2f_4a9d_abbb_718dc5fd0057
 #define _fcca9c67_7c2f_4a9d_abbb_718dc5fd0057
 
-#include <algorithm>
-#include <unordered_map>
+#include <vector>
 
 #include "sycomore/Array.h"
 #include "sycomore/magnetization.h"
@@ -27,6 +26,9 @@ namespace epg
 class Discrete3D
 {
 public:
+    using Order = Array<Quantity>;
+    using State = std::vector<Complex>;
+
     Species species;
 
     Discrete3D(
@@ -40,14 +42,20 @@ public:
     Discrete3D & operator=(Discrete3D &&) = default;
     ~Discrete3D() = default;
 
+    /// @brief Return the number of states of the model.
+    std::size_t size() const;
+
+    /// @brief Return the orders of the model.
+    std::vector<Order> orders() const;
+
     /// @brief Return a given state of the model.
-    std::vector<Complex> state(Array<Quantity> const & order) const;
+    State state(Order const & order) const;
 
     /**
      * @brief Return all states in the model, where each state is stored as
      * F̃(k), Z̃(k).
      */
-    std::unordered_map<Array<Quantity>, std::vector<Complex>> states() const;
+    std::vector<State> states() const;
 
     /// @brief Return the echo signal, i.e. F̃_0
     Complex const & echo() const;
@@ -78,7 +86,10 @@ public:
     void diffusion(Quantity const & duration, Array<Quantity> const & gradient);
 
 private:
-    std::unordered_map<Array<int64_t>, std::vector<Complex>> _states;
+    using Bin = Array<int64_t>;
+    std::vector<Bin::value_type> _orders;
+    std::vector<State::value_type> _states;
+    decltype(_states)::iterator _zero_it;
     Quantity _bin_width;
 };
 
