@@ -18,18 +18,22 @@ void test_model(
     std::vector<sycomore::epg::Discrete3D::State> const & expected_states)
 {
     auto && orders = model.orders();
-    BOOST_TEST(orders == expected_orders);
+    BOOST_REQUIRE(orders.size() == 3*expected_orders.size());
 
     auto && states = model.states();
-    BOOST_TEST(states.size() == expected_states.size());
+    BOOST_REQUIRE(states.size() == 3*expected_states.size());
 
-    BOOST_TEST(orders.size() == states.size());
-
-    for(std::size_t i=0; i<states.size(); ++i)
+    for(std::size_t i=0; i<model.size(); ++i)
     {
+        auto && expected_order = expected_orders[i];
+        sycomore::epg::Discrete3D::Order const order{
+            orders[3*i+0], orders[3*i+1], orders[3*i+2]};
+        BOOST_TEST(order == expected_order);
+
         auto && expected_state = expected_states[i];
         {
-            auto && state = states[i];
+            sycomore::epg::Discrete3D::State const state{
+                states[3*i+0], states[3*i+1], states[3*i+2]};
             BOOST_TEST(state.size() == expected_state.size());
             for(std::size_t j=0; j<state.size(); ++j)
             {
@@ -37,7 +41,6 @@ void test_model(
             }
         }
         {
-            auto && order = orders[i];
             auto && state = model.state(order);
             BOOST_TEST(state.size() == expected_state.size());
             for(std::size_t j=0; j<state.size(); ++j)
@@ -56,7 +59,7 @@ sycomore::Species const species(
     1000*sycomore::units::ms, 100*sycomore::units::ms,
     3*sycomore::units::um*sycomore::units::um/sycomore::units::ms);
 
-BOOST_AUTO_TEST_CASE(Empty)
+BOOST_AUTO_TEST_CASE(Empty, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
 

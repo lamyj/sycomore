@@ -13,8 +13,6 @@
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
 
-//#include <iostream>
-
 namespace sycomore
 {
 
@@ -40,52 +38,51 @@ Discrete3D
     return this->_orders.size() / 3;
 }
 
-std::vector<Discrete3D::Order>
+std::vector<Quantity>
 Discrete3D
 ::orders() const
 {
-    std::vector<Order> result(this->size());
-    for(std::size_t i=0; i<result.size(); ++i)
-    {
-        result[i] = {
-            this->_orders[3*i+0]*this->_bin_width,
-            this->_orders[3*i+1]*this->_bin_width,
-            this->_orders[3*i+2]*this->_bin_width};
-    }
-    return result;
+    std::vector<Quantity> orders(this->_orders.size());
+    std::transform(
+        this->_orders.begin(), this->_orders.end(), orders.begin(),
+        [&](decltype(this->_orders[0]) k){ return k*this->_bin_width; });
+    return orders;
 }
 
 Discrete3D::State
 Discrete3D
 ::state(Order const & order) const
 {
-    auto const orders = this->orders();
-    auto const it = std::find(orders.begin(), orders.end(), order);
-    if(it == orders.end())
+    Bin bin(order.size());
+    for(std::size_t i=0; i<bin.size(); ++i)
+    {
+        bin[i] = (order[i]/this->_bin_width).magnitude;
+    }
+    auto it=this->_orders.begin();
+    for(; it!=this->_orders.end(); it+=3)
+    {
+        if(bin == Bin{it[0], it[1], it[2]})
+        {
+            break;
+        }
+    }
+    if(it == this->_orders.end())
     {
         std::ostringstream message;
         message << "No such order: " << order;
         throw std::runtime_error(message.str());
     }
 
-    auto const index = it-orders.begin();
+    auto const index = it-this->_orders.begin();
     return {
-        this->_states[3*index+0],
-        this->_states[3*index+1],
-        this->_states[3*index+2]};
+        this->_states[index+0], this->_states[index+1], this->_states[index+2]};
 }
 
-std::vector<Discrete3D::State>
+std::vector<Complex> const &
 Discrete3D
 ::states() const
 {
-    std::vector<State> result(this->size());
-    for(std::size_t i=0; i<result.size(); ++i)
-    {
-        result[i] = {
-            this->_states[3*i+0], this->_states[3*i+1], this->_states[3*i+2]};
-    }
-    return result;
+    return this->_states;
 }
 
 Complex const &
@@ -200,15 +197,6 @@ Discrete3D
         F_states[this->size()-1 - i] = std::conj(this->_states[3*i+1]);
     }
 
-//    std::cout << "Unfolded states\n";
-//    for(std::size_t i=0; i<F_states.size(); ++i)
-//    {
-//        std::cout
-//            << "  "
-//            << F_orders[3*i+0] << " " << F_orders[3*i+1] << " " << F_orders[3*i+2] << ": "
-//            << F_states[i] << "\n";
-//    }
-
     // Shift according to Δk
     for(std::size_t i=0; i<F_states.size(); ++i)
     {
@@ -217,15 +205,6 @@ Discrete3D
             F_orders[3*i+j] += delta_k[j];
         }
     }
-
-//    std::cout << "Shifted states\n";
-//    for(std::size_t i=0; i<F_states.size(); ++i)
-//    {
-//        std::cout
-//            << "  "
-//            << F_orders[3*i+0] << " " << F_orders[3*i+1] << " " << F_orders[3*i+2] << ": "
-//            << F_states[i] << "\n";
-//    }
 
     // Find the location of the negative and positive orders.
     // NOTE The non-const iterator is required in order to build F_plus_order
@@ -253,19 +232,11 @@ Discrete3D
         }
     }
 
-//    std::cout << "F_plus_it: ";
-//    if(F_plus_it.first == F_orders.end()) { std::cout << "end\n"; }
-//    else { auto it=F_plus_it.first; std::cout << *(it+0) << " " << *(it+1) << " " << *(it+2) << "\n"; }
-//    std::cout << "F_minus_it: ";
-//    if(F_minus_it.first < F_orders.begin()) { std::cout << "none\n"; }
-//    else { auto it=F_minus_it.first; std::cout << *(it+0) << " " << *(it+1) << " " << *(it+2) << "\n"; }
-
     // NOTE The non-const iterator is required in order to build Z_order as a
     // view in the loop
     std::pair<decltype(this->_orders.begin()), decltype(this->_states.begin())> Z_it(
         this->_orders.begin(), this->_states.begin());
 
-//    std::cout << "\n";
     decltype(this->_orders) orders; orders.reserve(3*(this->size()+F_states.size()/2));
     decltype(this->_states) states; states.reserve(3*(this->size()+F_states.size()/2));
     while(!(
@@ -283,9 +254,6 @@ Discrete3D
             : Bin();
         auto const Z_order =
             Z_it.first != this->_orders.end() ? Bin(&*Z_it.first, 3) : Bin();
-//        std::cout
-//            << "F+: " << F_plus_order << ", F-: " << F_minus_order
-//            << ", Z: " << Z_order << "\n";
 
         // Find the orders which have the minimum value.
         auto const do_F_plus =
@@ -301,14 +269,9 @@ Discrete3D
             && (F_plus_order.empty() || Z_order <= F_plus_order)
             && (F_minus_order.empty() || Z_order <= F_minus_order);
 
-//        std::cout
-//            << "Do F+: " << do_F_plus << ", do F-: " << do_F_minus
-//            << ", do Z: " << do_Z << "\n";
-
         auto && order =
             do_F_plus ? F_plus_order : (do_F_minus ? F_minus_order: Z_order);
 
-//        std::cout << "Fill order " << order << "\n";
         for(auto && x: order)
         {
             orders.push_back(x);
@@ -316,7 +279,6 @@ Discrete3D
 
         if(do_F_plus)
         {
-//            state[0] = *F_plus_it.second;
             states.push_back(*F_plus_it.second);
             F_plus_it.first += 3;
             ++F_plus_it.second;
@@ -328,7 +290,6 @@ Discrete3D
 
         if(do_F_minus)
         {
-//            state[1] = std::conj(*F_minus_it.second);
             states.push_back(std::conj(*F_minus_it.second));
             F_minus_it.first -= 3;
             --F_minus_it.second;
@@ -340,7 +301,6 @@ Discrete3D
 
         if(do_Z)
         {
-//            state[2] = *(Z_it.second+2);
             states.push_back(*(Z_it.second+2));
             Z_it.first += 3;
             Z_it.second += 3;
@@ -349,8 +309,6 @@ Discrete3D
         {
             states.push_back(0);
         }
-
-//        std::cout << "New state: " << state[0] << " " << state[1] << " " << state[2] << "\n\n";
     }
 
     this->_orders = std::move(orders);
@@ -390,7 +348,6 @@ Discrete3D
     }
 
     this->_zero_it[2] += 1.-E.first; // WARNING: assumes M0=1
-//    *(this->_zero_it+2) += 1.-E.first; // WARNING: assumes M0=1
 }
 
 void

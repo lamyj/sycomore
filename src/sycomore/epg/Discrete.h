@@ -24,6 +24,9 @@ namespace epg
 class Discrete
 {
 public:
+    using Order = Quantity;
+    using State = std::vector<Complex>;
+
     Species species;
     
     Discrete(
@@ -36,6 +39,9 @@ public:
     Discrete & operator=(Discrete const &) = default;
     Discrete & operator=(Discrete &&) = default;
     ~Discrete() = default;
+
+    /// @brief Return the number of states of the model.
+    std::size_t size() const;
     
     /// @brief Return the orders of the model.
     std::vector<Quantity> orders() const;

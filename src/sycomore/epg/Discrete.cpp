@@ -33,6 +33,13 @@ Discrete
     this->_orders.push_back(0);
 }
 
+std::size_t
+Discrete
+::size() const
+{
+    return this->_orders.size();
+}
+
 std::vector<Quantity>
 Discrete
 ::orders() const
@@ -58,9 +65,21 @@ std::vector<Complex>
 Discrete
 ::state(Quantity const & order) const
 {
-    std::size_t const k = (long long)(
-        std::round((order/this->_bin_width).magnitude));
-    return this->state(k);
+    using namespace sycomore::units;
+
+    std::size_t const k = std::round(
+        order.convert_to(rad/m)/this->_bin_width.convert_to(rad/m));
+
+    auto const it = std::find(this->_orders.begin(), this->_orders.end(), k);
+    if(it == this->_orders.end())
+    {
+        std::ostringstream message;
+        message << "No such order: " << order;
+        throw std::runtime_error(message.str());
+    }
+
+    auto const index = it-this->_orders.begin();
+    return this->state(index);
 }
 
 std::vector<Complex> const &

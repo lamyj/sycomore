@@ -46,7 +46,7 @@ public:
     std::size_t size() const;
 
     /// @brief Return the orders of the model.
-    std::vector<Order> orders() const;
+    std::vector<Quantity> orders() const;
 
     /// @brief Return a given state of the model.
     State state(Order const & order) const;
@@ -55,7 +55,7 @@ public:
      * @brief Return all states in the model, where each state is stored as
      * F̃(k), Z̃(k).
      */
-    std::vector<State> states() const;
+    std::vector<Complex> const & states() const;
 
     /// @brief Return the echo signal, i.e. F̃_0
     Complex const & echo() const;
@@ -88,7 +88,7 @@ public:
 private:
     using Bin = Array<int64_t>;
     std::vector<Bin::value_type> _orders;
-    std::vector<State::value_type> _states;
+    std::vector<Complex> _states;
     decltype(_states)::iterator _zero_it;
     Quantity _bin_width;
 };
