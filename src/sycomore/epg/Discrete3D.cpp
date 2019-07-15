@@ -53,10 +53,13 @@ Discrete3D::State
 Discrete3D
 ::state(Order const & order) const
 {
+    using namespace sycomore::units;
+
+    auto const bin_width = this->_bin_width.convert_to(rad/m);
     Bin bin(order.size());
     for(std::size_t i=0; i<bin.size(); ++i)
     {
-        bin[i] = (order[i]/this->_bin_width).magnitude;
+        bin[i] = order[i].convert_to(rad/m)/bin_width;
     }
     auto it=this->_orders.begin();
     for(; it!=this->_orders.end(); it+=3)
@@ -220,6 +223,7 @@ Discrete3D
             break;
         }
     }
+    // NOTE Since we use -order, we cannot build a view
     std::pair<decltype(F_orders.begin()), decltype(F_states.begin())> F_minus_it(
         F_orders.begin()-3, F_states.begin()-1);
     for(auto it = F_orders.end()-3; it >= F_orders.begin(); it -= 3)
@@ -354,62 +358,88 @@ void
 Discrete3D
 ::diffusion(Quantity const & duration, Array<Quantity> const & gradient)
 {
+    using namespace sycomore::units;
+
     if(this->species.get_D().magnitude == 0)
     {
         return;
     }
 
-    auto const delta_k = sycomore::gamma*gradient*duration;
+    std::vector<Real> const delta_k{
+        (sycomore::gamma*gradient[0]*duration).convert_to(rad/m),
+        (sycomore::gamma*gradient[1]*duration).convert_to(rad/m),
+        (sycomore::gamma*gradient[2]*duration).convert_to(rad/m)
+    };
+
+    // FIXME
+    // this->species.D should be a tensor
+    Real D[9];
+    std::fill(D, D+9, 0);
+    D[0] = D[4] = D[8] = this->species.get_D().convert_to(m*m/s);
+    auto const tau = duration.convert_to(s);
+    auto const bin_width = this->_bin_width.convert_to(rad/m);
 
     #pragma omp parallel for
     for(std::size_t order=0; order<this->size(); ++order)
     {
-        Bin const bin(this->_orders.data()+3*order, 3);
-        auto const k1 = bin * this->_bin_width;
-        auto const k2_plus = k1+delta_k;
-        auto const k2_minus = -k1+delta_k;
+        // NOTE: this is not really k1, but rather k1/bin_width. However,
+        // not declaring a new variable to store k1 is much faster.
+        auto const k1=this->_orders.data()+3*order;
 
         // Weigel 2010, eq. 26
-        Quantity b_L[3][3];
+        Real b_L[9];
+        int i=0;
         for(std::size_t m=0; m<3; ++m)
         {
-            for(std::size_t n=0; n<3; ++n)
+            for(std::size_t n=0; n<3; ++n, ++i)
             {
-                b_L[m][n] = k1[m]*k1[n]*duration;
+                b_L[i] = (k1[m]*bin_width)*(k1[n]*bin_width)*tau;
             }
         }
 
-        // Weigel 2010, eq. 30
-        Quantity b_T_plus[3][3];
-        Quantity b_T_minus[3][3];
+        // Weigel 2010, eq. 30. Use delta_k instead of k2-k1, and factorize tau.
+        Real b_T_plus[9];
+        Real b_T_minus[9];
+        i=0;
         for(std::size_t m=0; m<3; ++m)
         {
-            for(std::size_t n=0; n<3; ++n)
+            for(std::size_t n=0; n<3; ++n, ++i)
             {
-                b_T_plus[m][n] =
-                    b_L[m][n]
-                    + 0.5*k1[m]*(k2_plus[n]-k1[n])*duration
-                    + 0.5*k1[n]*(k2_plus[m]-k1[m])*duration
-                    + 1./3.*(k2_plus[m]-k1[m])*(k2_plus[n]-k1[n])*duration;
-                b_T_minus[m][n] =
-                    b_L[m][n]
-                    + 0.5*k1[m]*(k2_minus[n]-k1[n])*duration
-                    + 0.5*k1[n]*(k2_minus[m]-k1[m])*duration
-                    + 1./3.*(k2_minus[m]-k1[m])*(k2_minus[n]-k1[n])*duration;
+                b_T_plus[i] =
+                    b_L[i] + tau * (
+                          1./2.*(k1[m]*bin_width)*delta_k[n]
+                        + 1./2.*(k1[n]*bin_width)*delta_k[m]
+                        + 1./3.*delta_k[m]*bin_width*delta_k[n]);
+                b_T_minus[i] =
+                    b_L[i] + tau * (
+                          1./2.*(-k1[m]*bin_width)*delta_k[n]
+                        + 1./2.*(-k1[n]*bin_width)*delta_k[m]
+                        + 1./3.*delta_k[m]*delta_k[n]);
             }
         }
 
-        // FIXME
-        // this->species.D should be a tensor
-        auto const D_T_plus = exp(
-            (-(b_T_plus[0][0]+b_T_plus[1][1]+b_T_plus[2][2])*this->species.get_D()).magnitude);
-        auto const D_T_minus = exp(
-            (-(b_T_minus[0][0]+b_T_minus[1][1]+b_T_minus[2][2])*this->species.get_D()).magnitude);
-        auto const D_L = exp(
-            (-(b_L[0][0]+b_L[1][1]+b_L[2][2])*this->species.get_D()).magnitude);
+        i=0;
+        Real b_L_D[9]; std::fill(b_L_D, b_L_D+9, 0);
+        Real b_T_plus_D[9]; std::fill(b_T_plus_D, b_T_plus_D+9, 0);
+        Real b_T_minus_D[9]; std::fill(b_T_minus_D, b_T_minus_D+9, 0);
+        for(std::size_t m=0; m<3; ++m)
+        {
+            for(std::size_t n=0; n<3; ++n, ++i)
+            {
+                for(std::size_t k=0; k<3; ++k)
+                {
+                    b_L_D[i] += b_L[3*m+k]*D[3*k+n];
+                    b_T_plus_D[i] += b_T_plus[3*m+k]*D[3*k+n];
+                    b_T_minus_D[i] += b_T_minus[3*m+k]*D[3*k+n];
+                }
+            }
+        }
+        auto const D_T_plus = exp(-(b_T_plus_D[0]+b_T_plus_D[4]+b_T_plus_D[8]));
+        auto const D_T_minus = exp(-(b_T_minus_D[0]+b_T_minus_D[4]+b_T_minus_D[8]));
+        auto const D_L = exp(-(b_L_D[0]+b_L_D[4]+b_L_D[8]));
 
         this->_states[3*order+0] *= D_T_plus;
-        this->_states[3*order+1] *= D_T_plus;
+        this->_states[3*order+1] *= D_T_minus;
         this->_states[3*order+2] *= D_L;
     }
 }
