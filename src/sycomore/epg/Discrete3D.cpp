@@ -360,7 +360,7 @@ Discrete3D
 {
     using namespace sycomore::units;
 
-    if(this->species.get_D().magnitude == 0)
+    if(this->species.get_D()[0].magnitude == 0)
     {
         return;
     }
@@ -374,8 +374,10 @@ Discrete3D
     // FIXME
     // this->species.D should be a tensor
     Real D[9];
-    std::fill(D, D+9, 0);
-    D[0] = D[4] = D[8] = this->species.get_D().convert_to(m*m/s);
+    for(std::size_t i=0; i<9; ++i)
+    {
+        D[i] = this->species.get_D()[i].convert_to(m*m/s);
+    }
     auto const tau = duration.convert_to(s);
     auto const bin_width = this->_bin_width.convert_to(rad/m);
 

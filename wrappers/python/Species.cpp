@@ -1,8 +1,28 @@
+#include <algorithm>
+
 #include <pybind11/pybind11.h>
 
+#include "sycomore/Array.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
 #include "sycomore/units.h"
+
+void set_D(sycomore::Species & species, pybind11::object const & value)
+{
+    if(pybind11::isinstance<pybind11::sequence>(value))
+    {
+        sycomore::Array<sycomore::Quantity> array(pybind11::len(value));
+        std::transform(
+            value.begin(), value.end(), array.begin(),
+            [](pybind11::handle const & x) {
+                return x.cast<sycomore::Quantity>(); });
+        species.set_D(array);
+    }
+    else
+    {
+        species.set_D(value.cast<sycomore::Quantity>());
+    }
+}
 
 void wrap_Species(pybind11::module & m)
 {
@@ -20,7 +40,7 @@ void wrap_Species(pybind11::module & m)
         .def_property_readonly("T1", &Species::get_T1)
         .def_property("R2", &Species::get_R2, &Species::set_R2)
         .def_property_readonly("T2", &Species::get_T2)
-        .def_property("D", &Species::get_D, &Species::set_D)
+        .def_property("D", &Species::get_D, set_D)
         .def_property(
             "R2_prime", &Species::get_R2_prime, &Species::set_R2_prime)
         .def_property_readonly("T2_prime", &Species::get_T2_prime)

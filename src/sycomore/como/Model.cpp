@@ -215,9 +215,9 @@ Model
     }
     auto const p_mu_norm_third = dot(p_mu, p_mu)/3;
     auto const minus_D_tau =
-        (-this->_species.get_D()*time_interval.get_duration()).convert_to(m*m);
+        (-this->_species.get_D()[0]*time_interval.get_duration()).convert_to(m*m);
     auto const has_gradient = p_mu != Array<Real>(p_mu.size(), 0.);
-    auto const do_diffusion = this->_species.get_D() > 0*m*m/s && has_gradient;
+    auto const do_diffusion = this->_species.get_D()[0] > 0*m*m/s && has_gradient;
 
     // Offsets on the mu axis
     auto && m_stride = this->_m.stride()[mu];

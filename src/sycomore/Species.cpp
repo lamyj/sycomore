@@ -98,7 +98,7 @@ Species
     return this->_R2_prime;
 }
 
-Quantity const &
+Array<Quantity> const &
 Species
 ::get_D() const
 {
@@ -109,15 +109,42 @@ void
 Species
 ::set_D(Quantity const & q)
 {
+    using namespace units;
+
     if(q.dimensions == Diffusion)
     {
-        this->_D = q;
+        this->_D = {
+            q,       0*m*m/s, 0*m*m/s,
+            0*m*m/s, q,       0*m*m/s,
+            0*m*m/s, 0*m*m/s, q};
     }
     else
     {
         std::ostringstream message;
         message << "D must be a diffusion coefficient, not " << q.dimensions;
         throw std::runtime_error(message.str());
+    }
+}
+
+void
+Species
+::set_D(Array<Quantity> const & q)
+{
+    this->_D = Array<Quantity>(q.size());
+    for(std::size_t i=0; i<q.size(); ++i)
+    {
+        if(q[i].dimensions == Diffusion)
+        {
+            this->_D[i] = q[i];
+        }
+        else
+        {
+            std::ostringstream message;
+            message
+                << "D[" << i << "] must be a diffusion coefficient, not "
+                << q[i].dimensions;
+            throw std::runtime_error(message.str());
+        }
     }
 }
 

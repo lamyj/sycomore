@@ -161,7 +161,7 @@ void
 Regular
 ::diffusion(Quantity const & duration, Quantity const & gradient)
 {
-    if(this->species.get_D().magnitude == 0)
+    if(this->species.get_D()[0].magnitude == 0)
     {
         return;
     }

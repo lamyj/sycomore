@@ -27,8 +27,9 @@ public:
     void set_R2(Quantity const & q);
     Quantity const & get_T2() const;
 
-    Quantity const & get_D() const;
+    Array<Quantity> const & get_D() const;
     void set_D(Quantity const & q);
+    void set_D(Array<Quantity> const & q);
 
     Quantity const & get_R2_prime() const;
     void set_R2_prime(Quantity const & q);
@@ -51,7 +52,7 @@ private:
     Quantity _T2;
 
     /// @brief Diffusivity.
-    Quantity _D;
+    Array<Quantity> _D;
 
     /// @brief R2' relaxation rate.
     Quantity _R2_prime;

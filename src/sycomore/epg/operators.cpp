@@ -53,7 +53,7 @@ diffusion(
     auto const k = k_.magnitude;
     auto const tau = duration.magnitude;
     auto const delta_k = delta_k_.magnitude;
-    auto const d = species.get_D().magnitude;
+    auto const d = species.get_D()[0].magnitude;
         
     auto const b_T_plus = tau*(pow(k+delta_k/2, 2) + pow(delta_k, 2) / 12);
     auto const D_T_plus = exp(-b_T_plus*d);
