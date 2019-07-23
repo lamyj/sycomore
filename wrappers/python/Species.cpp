@@ -36,6 +36,11 @@ void wrap_Species(pybind11::module & m)
             arg("R1"), arg("R2"),
             arg("D")=0*units::m*units::m/s, arg("R2_prime")=0_Hz,
             arg("delta_omega")=0*rad/s, arg("w")=1)
+        .def(
+            init<Quantity, Quantity, Array<Quantity>, Quantity, Quantity, Real>(),
+            arg("R1"), arg("R2"),
+            arg("D")=0*units::m*units::m/s, arg("R2_prime")=0_Hz,
+            arg("delta_omega")=0*rad/s, arg("w")=1)
         .def_property("R1", &Species::get_R1, &Species::set_R1)
         .def_property_readonly("T1", &Species::get_T1)
         .def_property("R2", &Species::get_R2, &Species::set_R2)

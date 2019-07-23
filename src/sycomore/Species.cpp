@@ -7,8 +7,30 @@ namespace sycomore
 {
 
 Species
+::Species(Quantity const & R1, Quantity const & R2)
+: Species(R1, R2, 0*units::m*units::m/units::s)
+{
+    // Nothing else. This constructor only exists to disambiguate between
+    // the isotropic diffusio version and the anisotropic one.
+}
+
+
+Species
 ::Species(
     Quantity const & R1, Quantity const & R2, Quantity const & D,
+    Quantity const & R2_prime, Quantity const & delta_omega, Real w)
+: w(w)
+{
+    this->set_R1(R1);
+    this->set_R2(R2);
+    this->set_D(D);
+    this->set_R2_prime(R2_prime);
+    this->set_delta_omega(delta_omega);
+}
+
+Species
+::Species(
+    Quantity const & R1, Quantity const & R2, Array<Quantity> const & D,
     Quantity const & R2_prime, Quantity const & delta_omega, Real w)
 : w(w)
 {
@@ -130,6 +152,12 @@ void
 Species
 ::set_D(Array<Quantity> const & q)
 {
+    if(q.size() != 9)
+    {
+        std::ostringstream message;
+        message<< "Diffusion tensor must have 9 elements, not " << q.size();
+        throw std::runtime_error(message.str());
+    }
     this->_D = Array<Quantity>(q.size());
     for(std::size_t i=0; i<q.size(); ++i)
     {

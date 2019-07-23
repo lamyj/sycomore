@@ -46,6 +46,26 @@ A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its d
     species = sycomore.Species(1000*ms, 100*ms)
     species = sycomore.Species(1*Hz, 10*Hz)
 
+The diffusivity can be assigned either as a scalar (for isotropic diffusion) or as a tensor (for anistropic diffusion), but will always be returned as a tensor:
+
+.. code-block:: python
+  
+  import sycomore
+  from sycomore.units import *
+  
+  species = sycomore.Species(1000*ms, 100*ms)
+  # Assign the diffusion coefficient as a scalar
+  species.D = 3*um**2/s
+  # The diffusion coefficient is stored on the diagonal of the tensor
+  print(species.D[0])
+  
+  # Assign the diffusion coefficient as a tensor
+  species.D = [
+    3*um**2/s, 0*um**2/s, 0*um**2/s,
+    0*um**2/s, 2*um**2/s, 0*um**2/s,
+    0*um**2/s, 0*um**2/s, 1*um**2/s]
+  print(species.D)
+
 Reference
 ---------
 
@@ -79,7 +99,7 @@ Reference
   
   .. attribute:: D
     
-    Diffusion coefficient
+    Diffusion tensor
   
   .. attribute:: R2_prime
   

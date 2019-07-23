@@ -13,9 +13,17 @@ public:
     /// @brief Relative weight
     Real w;
 
+    Species(Quantity const & R1, Quantity const & R2);
+
     Species(
         Quantity const & R1, Quantity const & R2,
-        Quantity const & D={0, Diffusion},
+        Quantity const & D,
+        Quantity const & R2_prime={0, Frequency},
+        Quantity const & delta_omega={0, AngularFrequency}, Real w=1);
+
+    Species(
+        Quantity const & R1, Quantity const & R2,
+        Array<Quantity> const & D,
         Quantity const & R2_prime={0, Frequency},
         Quantity const & delta_omega={0, AngularFrequency}, Real w=1);
 
