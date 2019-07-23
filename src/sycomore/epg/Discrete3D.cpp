@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -53,6 +54,13 @@ Discrete3D::State
 Discrete3D
 ::state(Order const & order) const
 {
+    if(order.size() != 3)
+    {
+        std::ostringstream message;
+        message<< "Order must have 3 elements, not " << order.size();
+        throw std::runtime_error(message.str());
+    }
+
     using namespace sycomore::units;
 
     auto const bin_width = this->_bin_width.convert_to(rad/m);
@@ -371,8 +379,6 @@ Discrete3D
         (sycomore::gamma*gradient[2]*duration).convert_to(rad/m)
     };
 
-    // FIXME
-    // this->species.D should be a tensor
     Real D[9];
     for(std::size_t i=0; i<9; ++i)
     {
