@@ -30,7 +30,7 @@ Sycomore provides a unit system so that users do not have to convert their quant
     duration = 1*h
     duration_in_seconds = duration.convert_to(s) # Equals to 3600
 
-.. note:: Take when importing all units name (``from sycomore.units import *``), as some names may clash with your code. In a long module with many variables, it is better to import only the required units (e.g. ``from sycomore.units import mT, m, ms``)
+.. note:: Take caution when importing all units name (``from sycomore.units import *``), as some names may clash with your code. In a long module with many variables, it is better to import only the required units (e.g. ``from sycomore.units import mT, m, ms``)
 
 Species
 -------
