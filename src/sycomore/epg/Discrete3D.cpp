@@ -181,11 +181,21 @@ void
 Discrete3D
 ::shift(Quantity const & duration, Array<Quantity> const & gradient)
 {
+    // WARNING: this does not work if delta_k is zero
     auto const delta_k_q = sycomore::gamma*gradient*duration;
     Bin delta_k(delta_k_q.size());
+    bool all_zero = true;
     for(std::size_t i=0; i<delta_k.size(); ++i)
     {
         delta_k[i] = std::round((delta_k_q[i]/this->_bin_width).magnitude);
+        if(delta_k[i] != 0)
+        {
+            all_zero = false;
+        }
+    }
+    if(all_zero)
+    {
+        return;
     }
 
     // Unfold the F̃ states
@@ -368,7 +378,16 @@ Discrete3D
 {
     using namespace sycomore::units;
 
-    if(this->species.get_D()[0].magnitude == 0)
+    bool all_zero=true;
+    for(std::size_t i=0; i<9; ++i)
+    {
+        if(this->species.get_D()[i].magnitude != 0)
+        {
+            all_zero = false;
+            break;
+        }
+    }
+    if(all_zero)
     {
         return;
     }
@@ -426,29 +445,19 @@ Discrete3D
             }
         }
 
-        i=0;
-        Real b_L_D[9]; std::fill(b_L_D, b_L_D+9, 0);
-        Real b_T_plus_D[9]; std::fill(b_T_plus_D, b_T_plus_D+9, 0);
-        Real b_T_minus_D[9]; std::fill(b_T_minus_D, b_T_minus_D+9, 0);
-        for(std::size_t m=0; m<3; ++m)
+        // NOTE eq. 32 and 33 in Weigel 2010 use the trace of a product of two
+        // matrices. This is equal to the sum of entry-wise product of elements.
+        Real b_T_plus_D=0, b_T_minus_D=0, b_L_D=0;
+        for(std::size_t i=0; i<9; ++i)
         {
-            for(std::size_t n=0; n<3; ++n, ++i)
-            {
-                for(std::size_t k=0; k<3; ++k)
-                {
-                    b_L_D[i] += b_L[3*m+k]*D[3*k+n];
-                    b_T_plus_D[i] += b_T_plus[3*m+k]*D[3*k+n];
-                    b_T_minus_D[i] += b_T_minus[3*m+k]*D[3*k+n];
-                }
-            }
+            b_T_plus_D += b_T_plus[i]*D[i];
+            b_T_minus_D += b_T_minus[i]*D[i];
+            b_L_D += b_L[i]*D[i];
         }
-        auto const D_T_plus = exp(-(b_T_plus_D[0]+b_T_plus_D[4]+b_T_plus_D[8]));
-        auto const D_T_minus = exp(-(b_T_minus_D[0]+b_T_minus_D[4]+b_T_minus_D[8]));
-        auto const D_L = exp(-(b_L_D[0]+b_L_D[4]+b_L_D[8]));
 
-        this->_states[3*order+0] *= D_T_plus;
-        this->_states[3*order+1] *= D_T_minus;
-        this->_states[3*order+2] *= D_L;
+        this->_states[3*order+0] *= exp(-b_T_plus_D);
+        this->_states[3*order+1] *= exp(-b_T_minus_D);
+        this->_states[3*order+2] *= exp(-b_L_D);
     }
 }
 
