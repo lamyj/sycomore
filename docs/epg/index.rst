@@ -17,6 +17,6 @@ Sycomore provides two EPG models: a regular one, where all gradient moments thro
 .. _diffusion: 
 .. _non-regular sequences: https://doi.org/10.1016/j.jmr.2010.05.011
 .. _Echoes—how to generate, recognize, use or avoid them: https://doi.org/10.1002/cmr.1820030302
-.. _magnetization transfer: TODO
+.. _magnetization transfer: https://onlinelibrary.wiley.com/doi/full/10.1002/mrm.27040
 .. _motion: https://doi.org/10.1002/jmri.24619
 .. _Multiecho imaging sequences with low refocusing flip angles: https://doi.org/10.1016/0022-2364(88)90128-X
