@@ -32,21 +32,34 @@ class TestSpecies(unittest.TestCase):
         self.assertEqual(species.w, 1)
 
     def test_D_scalar(self):
+        D_scalar = 1*um*um/ms
+        D_tensor = [
+            1*um*um/ms, 0*um*um/ms, 0*um*um/ms,
+            0*um*um/ms, 1*um*um/ms, 0*um*um/ms,
+            0*um*um/ms, 0*um*um/ms, 1*um*um/ms]
+
+        species = sycomore.Species(1*ms, 100*ms, D_scalar)
+        self.assertSequenceEqual(species.D, D_tensor)
+
         species = sycomore.Species(1*ms, 100*ms)
-        species.D = 1*um*um/ms
-        self.assertSequenceEqual(
-            species.D, [
-                1*um*um/ms, 0*um*um/ms, 0*um*um/ms,
-                0*um*um/ms, 1*um*um/ms, 0*um*um/ms,
-                0*um*um/ms, 0*um*um/ms, 1*um*um/ms])
+        species.D = D_scalar
+        self.assertSequenceEqual(species.D, D_tensor)
 
     def test_D_tensor(self):
-        species = sycomore.Species(1*ms, 100*ms)
+
         D = [
             1*um*um/ms, 4*um*um/ms, 7*um*um/ms,
             2*um*um/ms, 5*um*um/ms, 8*um*um/ms,
             3*um*um/ms, 6*um*um/ms, 9*um*um/ms]
 
+        species = sycomore.Species(
+            1*ms, 100*ms, sycomore.Array[sycomore.Quantity](D))
+        self.assertSequenceEqual(species.D, D)
+
+        species = sycomore.Species(1*ms, 100*ms, D)
+        self.assertSequenceEqual(species.D, D)
+
+        species = sycomore.Species(1*ms, 100*ms)
         species.D = sycomore.Array[sycomore.Quantity](D)
         self.assertSequenceEqual(species.D, D)
 

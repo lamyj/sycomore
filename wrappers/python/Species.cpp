@@ -7,6 +7,9 @@
 #include "sycomore/Species.h"
 #include "sycomore/units.h"
 
+namespace
+{
+
 void set_D(sycomore::Species & species, pybind11::object const & value)
 {
     if(pybind11::isinstance<pybind11::sequence>(value))
@@ -24,6 +27,19 @@ void set_D(sycomore::Species & species, pybind11::object const & value)
     }
 }
 
+sycomore::Species constructor(
+    sycomore::Quantity const & R1, sycomore::Quantity const & R2,
+    pybind11::object D, sycomore::Quantity const & R2_prime,
+    sycomore::Quantity const & delta_omega, sycomore::Real w)
+{
+    sycomore::Species species(
+        R1, R2, {0, sycomore::Diffusion}, R2_prime, delta_omega, w);
+    set_D(species, D);
+    return species;
+}
+
+}
+
 void wrap_Species(pybind11::module & m)
 {
     using namespace pybind11;
@@ -32,12 +48,7 @@ void wrap_Species(pybind11::module & m)
 
     class_<Species>(m, "Species")
         .def(
-            init<Quantity, Quantity, Quantity, Quantity, Quantity, Real>(),
-            arg("R1"), arg("R2"),
-            arg("D")=0*units::m*units::m/s, arg("R2_prime")=0_Hz,
-            arg("delta_omega")=0*rad/s, arg("w")=1)
-        .def(
-            init<Quantity, Quantity, Array<Quantity>, Quantity, Quantity, Real>(),
+            init(&constructor),
             arg("R1"), arg("R2"),
             arg("D")=0*units::m*units::m/s, arg("R2_prime")=0_Hz,
             arg("delta_omega")=0*rad/s, arg("w")=1)
