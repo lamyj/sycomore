@@ -77,8 +77,9 @@ The following code sample simulates a PGSE diffusion sequence in an anisotropic 
           sphere.points[index] = [x*attenuation[index]**6 for x in point]
   sphere.point_data.scalars = attenuation
 
-  # Plot the result
-  surface = mayavi.mlab.pipeline.surface(sphere)
+  # Recompute the normals of the surface and plot the result
+  normals = mayavi.tools.pipeline.poly_data_normals(sphere)
+  surface = mayavi.mlab.pipeline.surface(normals)
   surface.module_manager.scalar_lut_manager.use_default_range = False
   surface.module_manager.scalar_lut_manager.data_range = [
       attenuation.min(), attenuation.max()]
