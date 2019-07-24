@@ -50,5 +50,6 @@ void wrap_epg_Discrete(pybind11::module & m)
         .def("shift", &Discrete::shift, arg("duration"), arg("gradient"))
         .def("relaxation", &Discrete::relaxation, arg("duration"))
         .def("diffusion", &Discrete::diffusion, arg("duration"), arg("gradient"))
+        .def("__len__", &Discrete::size)
     ;
 }
