@@ -1,6 +1,6 @@
 # Sycomore &mdash; an MRI simulation toolkit
 
-Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase Graphs (EPG) (both regular and discrete), and Configuration Models. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime and further acceleration through [OpenMP](https://www.openmp.org/).
+Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase Graphs (EPG) (both regular and discrete, including 3D), and Configuration Models. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime and further acceleration through [OpenMP](https://www.openmp.org/).
 
 ## Installation
 
