@@ -55,7 +55,7 @@ The previous code will generate a large number of states, which will translate t
 Reference
 ---------
 
-.. class:: Discrete(species, initial_magnetization=Magnetization(0,0,1), bin_width=1*rad/m)
+.. class:: sycomore.epg.Discrete(species, initial_magnetization=Magnetization(0,0,1), bin_width=1*rad/m)
   
   .. attribute:: species
     

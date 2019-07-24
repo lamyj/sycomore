@@ -44,7 +44,7 @@ Once the echo signal has been gathered for all repetitions, its magnitude and ph
 Reference
 ---------
 
-.. class:: Regular(species, initial_magnetization=Magnetization(0,0,1), initial_size=100)
+.. class:: sycomore.epg.Regular(species, initial_magnetization=Magnetization(0,0,1), initial_size=100)
   
   .. attribute:: species
     
