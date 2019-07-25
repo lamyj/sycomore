@@ -55,9 +55,11 @@ class build_ext(setuptools.command.build_ext.build_ext):
         
         self.announce("Running CMake in {}".format(self.build_temp), 3)
         
+        # WARNING: install_prefix needs to be absolute
+        install_prefix = os.path.abspath(self.build_lib)
         # WARNING: we need to build in build_temp, self.spawn cannot change cwd
         subprocess.check_call(
-            [self.cmake, "-DCMAKE_INSTALL_PREFIX={}".format(self.build_lib)]
+            [self.cmake, "-DCMAKE_INSTALL_PREFIX={}".format(install_prefix)]
             + self.extra_cmake_options
             + [str(here)],
             cwd=self.build_temp)
