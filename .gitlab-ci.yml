@@ -49,7 +49,7 @@ build_wheel:
   image: quay.io/pypa/manylinux2010_x86_64
   variables:
     OS: manylinux
-artifacts:
-    name: wheel
-    paths:
-      - "*whl"
+  artifacts:
+      name: wheel
+      paths:
+        - "*whl"
