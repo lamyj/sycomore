@@ -35,9 +35,10 @@ if(APPLE)
 endif()
 
 if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
-    target_link_libraries(pysycomore libsycomore)
-elseif(APPLE AND OPENMP_FOUND)
-    target_link_libraries(pysycomore omp)
+    target_link_libraries(pysycomore PUBLIC libsycomore)
+    if(APPLE AND OPENMP_FOUND)
+        target_link_libraries(pysycomore PUBLIC omp)
+    endif()
 endif()
 
 add_custom_target(

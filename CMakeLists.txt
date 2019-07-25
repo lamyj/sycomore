@@ -12,8 +12,17 @@ option(BUILD_PYTHON_WRAPPERS "Build the Python Wrappers." ON)
 option(
     BUILD_STANDALONE_PYTHON_WRAPPERS
     "Build the Python Wrappers as a standalone library." OFF)
-
 option(USE_OPENMP "Compile with OpenMP support." ON)
+
+if(NOT BUILD_PYTHON_WRAPPERS AND BUILD_STANDALONE_PYTHON_WRAPPERS)
+    message(WARNING "Standalone Python wrappers requested: setting BUILD_PYTHON_WRAPPERS to ON")
+    set(BUILD_PYTHON_WRAPPERS ON CACHE BOOL "Build the Python Wrappers." FORCE)
+endif()
+
+if(USE_OPENMP AND BUILD_STANDALONE_PYTHON_WRAPPERS)
+    message(WARNING "Standalone Python wrappers requested: setting USE_OPENMP to OFF")
+    set(USE_OPENMP OFF CACHE BOOL "Compile with OpenMP support." FORCE)
+endif()
 
 include(CTest)
 
@@ -38,7 +47,10 @@ add_custom_target(
     SOURCES ${ContinuousIntegration})
 set_target_properties(ContinuousIntegration PROPERTIES FOLDER "Utils")
 
-add_subdirectory("src")
+if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
+    add_subdirectory("src")
+endif()
+
 if(BUILD_PYTHON_WRAPPERS)
     add_subdirectory("wrappers/python")
 endif()
