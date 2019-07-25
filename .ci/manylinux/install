@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -ev
+
+cd /tmp
+git clone https://github.com/pybind/pybind11.git
+cd pybind11
+git checkout $(git tag | tail -n 1)
+cmake -DPYBIND11_TEST=OFF ./
+make install
+
+cd -

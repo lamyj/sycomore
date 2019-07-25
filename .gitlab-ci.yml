@@ -3,9 +3,9 @@
   variables:
     WORKSPACE: $CI_PROJECT_DIR
   script:
-    - ./.ci/deb/install
-    - ./.ci/deb/build
-    - ./.ci/deb/post_build
+    - ./.ci/${OS}/install
+    - ./.ci/${OS}/build
+    - ./.ci/${OS}/post_build
 
 pages:
   stage: build
@@ -28,6 +28,8 @@ pages:
 build_stretch:
   extends: .build_template
   image: debian:stretch
+  variables:
+    OS: deb
   # Check the code samples in the documentation
   after_script:
     - apt-get update
@@ -39,3 +41,15 @@ build_stretch:
 build_bionic:
   extends: .build_template
   image: ubuntu:bionic
+  variables:
+    OS: deb
+
+build_wheel:
+  extends: .build_template
+  image: quay.io/pypa/manylinux2010_x86_64
+  variables:
+    OS: manylinux
+artifacts:
+    name: wheel
+    paths:
+      - "*whl"
