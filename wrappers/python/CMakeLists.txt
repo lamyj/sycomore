@@ -45,11 +45,15 @@ add_custom_target(
     pysycomore-pure ${CMAKE_COMMAND} -E echo "Pure-python files"
     SOURCES ${python_files})
 
-execute_process(
-    COMMAND ${PYTHON_EXECUTABLE}
-      -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))"
-    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
+    execute_process(
+        COMMAND ${PYTHON_EXECUTABLE}
+          -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))"
+        OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+else()
+    set(PYTHON_SITE_PACKAGES ".")
+endif()
 
 install(DIRECTORY DESTINATION "${PYTHON_SITE_PACKAGES}")
 install(TARGETS pysycomore DESTINATION "${PYTHON_SITE_PACKAGES}/sycomore")

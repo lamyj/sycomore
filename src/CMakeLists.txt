@@ -44,11 +44,15 @@ add_custom_target(
     libsycomore-python ${CMAKE_COMMAND} -E echo "Python files"
     SOURCES ${python_files})
 
-execute_process(
-    COMMAND ${PYTHON_EXECUTABLE}
-      -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))"
-    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
+    execute_process(
+        COMMAND ${PYTHON_EXECUTABLE}
+          -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))"
+        OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+else()
+    set(PYTHON_SITE_PACKAGES ".")
+endif()
 
 foreach(python_file ${python_files})
     file(RELATIVE_PATH module ${CMAKE_CURRENT_SOURCE_DIR} ${python_file})
