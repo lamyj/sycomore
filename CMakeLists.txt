@@ -47,9 +47,7 @@ add_custom_target(
     SOURCES ${ContinuousIntegration})
 set_target_properties(ContinuousIntegration PROPERTIES FOLDER "Utils")
 
-if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
-    add_subdirectory("src")
-endif()
+add_subdirectory("src")
 
 if(BUILD_PYTHON_WRAPPERS)
     add_subdirectory("wrappers/python")
