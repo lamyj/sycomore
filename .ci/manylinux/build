@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -ev
+
+export WORKSPACE=${WORKSPACE:?}
+
+for PYBIN in /opt/python/cp3[5-9]*/bin; do
+    echo "Building wheel with" ${PYBIN}
+    "${PYBIN}/pip" wheel ${WORKSPACE}
+done

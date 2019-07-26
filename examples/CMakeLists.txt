@@ -1,4 +1,5 @@
 option(INSTALL_EXAMPLES "Install the examples" OFF)
 
-add_subdirectory("cpp")
-
+if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
+    add_subdirectory("cpp")
+endif()
