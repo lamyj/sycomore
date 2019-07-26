@@ -127,4 +127,5 @@ setuptools.setup(
     python_requires=">=3.5",
     ext_modules=[setuptools.Extension("_sycomore", sources)],
     cmdclass={"build_ext": build_ext},
+    install_requires=["numpy"],
 )
