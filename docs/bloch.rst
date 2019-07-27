@@ -1,7 +1,7 @@
 Bloch simulation
 ================
 
-The Bloch simulation in Sycomore is based on Hargreaves's 2001 paper `Characterization and Reduction of the TransientResponse in Steady-State MR Imaging`_ where limiting cases of the full spin behavior (instantaneous RF pulse, "pure" relaxation, "pure" precession, etc.) are expressed as matrices. The matrices representing building blocks of a sequence are multiplied amongst them, forming a single matrix operator for a repetition. Iterating this process yields a fast simulation of the evolution of a single isochromat and the eigenanalysis of the resulting matrix yields important insights on the steady-state of the sequence.
+The Bloch simulation in Sycomore is based on Hargreaves's 2001 paper `Characterization and Reduction of the Transient Response in Steady-State MR Imaging`_ where limiting cases of the full spin behavior (instantaneous RF pulse, "pure" relaxation, "pure" precession, etc.) are expressed as matrices. The matrices representing building blocks of a sequence are multiplied amongst them, forming a single matrix operator for a repetition. Iterating this process yields a fast simulation of the evolution of a single isochromat and the eigenanalysis of the resulting matrix yields important insights on the steady-state of the sequence.
 
 Homogeneous coordinates
 -----------------------
@@ -37,7 +37,6 @@ Contrary to :doc:`Extended Phase Graphs (EPG)<epg/index>` which simulate at voxe
 
 .. code-block:: python
   
-  import matplotlib.pyplot
   import numpy
   import sycomore
   from sycomore.units import *
@@ -92,26 +91,6 @@ Contrary to :doc:`Extended Phase Graphs (EPG)<epg/index>` which simulate at voxe
   signals = [m[:,0]+1j*m[:,1] for m in magnetizations]
   phases = numpy.angle(signals)
 
-  figure = matplotlib.pyplot.figure(tight_layout=True, figsize=(8,8))
-
-  magnitude = figure.add_subplot(2, 1, 1)
-  magnitude.plot(times, numpy.abs(numpy.average(signals, axis=0)))
-  magnitude.set_ylim([0,1])
-  magnitude.set_ylabel("Magnitude")
-
-  phase = figure.add_subplot(2, 1, 2, sharex=magnitude)
-  phase.plot(times, numpy.min(phases, axis=0), linewidth=1, color="C0")
-  phase.plot(times, numpy.max(phases, axis=0), linewidth=1, color="C0")
-  phase.fill_between(
-      times, numpy.min(phases, axis=0), numpy.max(phases, axis=0),
-      alpha=0.5)
-  phase.set_xlabel("Time (s)")
-  phase.set_xlim([times[0], times[-1]])
-  phase.set_ylim([-numpy.pi, numpy.pi])
-  phase.set_ylabel("Phase (rad)")
-
-  matplotlib.pyplot.show()
-
 .. figure:: fse_bloch.png
   :alt: Fast Spin Echo using Bloch simulation
   
@@ -138,5 +117,5 @@ Reference
   "Pure" precession.
 
 
-.. _Characterization and Reduction of the TransientResponse in Steady-State MR Imaging: https://doi.org/10.1002/mrm.1170
+.. _Characterization and Reduction of the Transient Response in Steady-State MR Imaging: https://doi.org/10.1002/mrm.1170
 .. _homogeneous form: https://en.wikipedia.org/wiki/Homogeneous_coordinates
