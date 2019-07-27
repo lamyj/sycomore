@@ -1,5 +1,7 @@
 import numpy
-from sycomore.units import *
+from .units import *
+
+from . import gamma
 
 def pulse(angle, phase):
     M = numpy.identity(4)
@@ -10,10 +12,23 @@ def pulse(angle, phase):
     
     return M
 
-def time_interval(species, duration):
-    return (
-        relaxation(species, duration) 
-        @ phase_accumulation(duration*species.delta_omega))
+def time_interval(
+        species, duration, delta_omega=0*Hz, 
+        gradient_amplitude=0*T/m, position=0*m):
+    
+    E = relaxation(species, duration)
+    
+    delta_omega = (
+        # Field-related dephasing
+        delta_omega 
+        # Species-related dephasing, e.g. chemical shift or susceptibility
+        + species.delta_omega 
+        # Gradient-related dephasing
+        + gamma*numpy.dot(gradient_amplitude, position)
+    )
+    F = phase_accumulation(duration * 2*numpy.pi*rad * delta_omega)
+    
+    return F @ E
 
 def relaxation(species, duration):
     E_1 = numpy.exp((-duration*species.R1).magnitude)
