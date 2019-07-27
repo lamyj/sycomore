@@ -116,7 +116,7 @@ setuptools.setup(
         
         "Programming Language :: Python :: 3",
         
-        "Topic :: Scientific/Engineering :: Medical Science Apps",
+        "Topic :: Scientific/Engineering :: Medical Science Apps.",
         "Topic :: Scientific/Engineering :: Physics",
     ],
     
