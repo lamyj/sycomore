@@ -69,7 +69,7 @@ The diffusivity can be assigned either as a scalar (for isotropic diffusion) or 
 Reference
 ---------
 
-.. class:: Quantity()
+.. class:: sycomore.Quantity()
   
   .. attribute:: magnitude
     
@@ -79,7 +79,7 @@ Reference
     
     Return the scalar value of the quantity converted to the given unit.
 
-.. class:: Species(R1, R2, D=0*m**2/s, R2_prime=0*Hz, delta_omega=0*rad/s)
+.. class:: sycomore.Species(R1, R2, D=0*m**2/s, R2_prime=0*Hz, delta_omega=0*rad/s)
   
   .. attribute:: R1
       

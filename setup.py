@@ -1,5 +1,3 @@
-# https://github.com/pypa/python-manylinux-demo/blob/master/setup.py
-
 import os
 import pathlib
 import re
