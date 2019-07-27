@@ -87,9 +87,14 @@ version = version.group(1)
 
 long_description = (here/"README.md").read_text()
 
-sources = subprocess.check_output(
-        ["git", "ls-tree", "-r", "--name-only", "HEAD"]
-    ).decode().splitlines()
+if (here/".git").is_file():
+    sources = subprocess.check_output(
+            ["git", "ls-tree", "-r", "--name-only", "HEAD"]
+        ).decode().splitlines()
+else:
+    sources = []
+    for dirpath, dirnames, filenames in os.walk(str(here)):
+        sources.extend(os.path.join(dirpath, x) for x in filenames)
 
 setuptools.setup(
     name="sycomore",
