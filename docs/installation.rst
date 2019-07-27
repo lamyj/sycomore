@@ -1,6 +1,17 @@
 Installing Sycomore
 ===================
 
+Packaged
+--------
+
+A packaged version of Sycomore is available on `pypi`_, either in source form or in compiled (`wheel`_) form (Linux only):
+
+.. code-block:: shell
+  
+  pip3 install sycomore
+
+Note that for platforms where no wheel version is available, you will need a C++11 compiler, `CMake`_ and `pybind11`_ to successfully build Sycomore.
+
 From source
 -----------
 
@@ -75,4 +86,6 @@ The documentation of the `-ffast-math option in Clang`_ is rather terse, but the
 .. _OpenMP: https://www.openmp.org/
 .. _other optimizations turned on by -ffast-math: https://gcc.gnu.org/onlinedocs/gcc-8.2.0/gcc/Optimize-Options.html#index-ffast-math
 .. _pybind11: http://pybind11.readthedocs.io/
+.. _pypi: https://pypi.org/project/sycomore/
 .. _source code: https://github.com/llvm-mirror/clang/blob/release_80/lib/Driver/ToolChains/Clang.cpp#L2278-L2288
+.. _wheel: https://pythonwheels.com/
