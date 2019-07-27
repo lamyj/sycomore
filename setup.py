@@ -88,7 +88,7 @@ version = version.group(1)
 long_description = (here/"README.md").read_text()
 
 sources = subprocess.check_output(
-        ["git", "ls-tree", "-r", "--name-only", "master"]
+        ["git", "ls-tree", "-r", "--name-only", "HEAD"]
     ).decode().splitlines()
 
 setuptools.setup(
