@@ -179,5 +179,16 @@ class TestQuantity(unittest.TestCase):
         else:
             self.assertEqual(pickle.loads(pickle.dumps(q)), q)
 
+    def test_hash(self):
+        quantities = set()
+
+        quantities.add(sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0)))
+        quantities.add(sycomore.Quantity(2, sycomore.Dimensions(0,1,0,0,0,0,0)))
+        quantities.add(sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0)))
+        self.assertEqual(len(quantities), 3)
+        
+        quantities.add(sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0)))
+        self.assertEqual(len(quantities), 3)
+
 if __name__ == "__main__":
     unittest.main()
