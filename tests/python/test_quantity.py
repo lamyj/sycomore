@@ -1,4 +1,8 @@
-import pickle
+import sys
+if sys.version_info[0] == 2:
+    import cPickle
+else:
+    import pickle
 import unittest
 
 import sycomore
@@ -167,18 +171,13 @@ class TestQuantity(unittest.TestCase):
 
     def test_pickle(self):
         q = sycomore.Quantity(0.5, sycomore.Dimensions(7,6,5,4,3,2,1))
-        self.assertEqual(pickle.loads(pickle.dumps(q)), q)
-
-#    def test_hash(self):
-#        quantities = set()
-
-#        quantities.add(sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0)))
-#        quantities.add(sycomore.Quantity(2, sycomore.Dimensions(0,1,0,0,0,0,0)))
-#        quantities.add(sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0)))
-#        self.assertEqual(len(quantities), 3)
-
-#        quantities.add(sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0)))
-#        self.assertEqual(len(quantities), 3)
+        if sys.version_info[0] == 2:
+            # WARNING: when running with Python2, only cPickle with version >= 2
+            # works. Refer to the last paragraph of 
+            # https://pybind11.readthedocs.io/en/stable/advanced/classes.html?highlight=pickle#pickling-support
+            self.assertEqual(cPickle.loads(cPickle.dumps(q, -1)), q)
+        else:
+            self.assertEqual(pickle.loads(pickle.dumps(q)), q)
 
 if __name__ == "__main__":
     unittest.main()

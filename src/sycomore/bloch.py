@@ -8,7 +8,7 @@ def pulse(angle, phase):
     
     Rz = axis_angle_to_matrix([0,0,1], -phase.convert_to(rad))
     Rx = axis_angle_to_matrix([1,0,0], angle.convert_to(rad))
-    M[:3,:3] = numpy.linalg.inv(Rz) @ Rx @ Rz
+    M[:3,:3] = numpy.matmul(numpy.linalg.inv(Rz), numpy.matmul(Rx, Rz))
     
     return M
 
@@ -28,7 +28,7 @@ def time_interval(
     )
     F = phase_accumulation(duration * 2*numpy.pi*rad * delta_omega)
     
-    return F @ E
+    return numpy.matmul(F, E)
 
 def relaxation(species, duration):
     E_1 = numpy.exp((-duration*species.R1).magnitude)
