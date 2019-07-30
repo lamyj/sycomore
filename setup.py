@@ -94,6 +94,11 @@ else:
     for dirpath, dirnames, filenames in os.walk(str(here)):
         sources.extend(os.path.join(dirpath, x) for x in filenames)
 
+def test_suite():
+    test_loader = unittest.TestLoader()
+    test_suite = test_loader.discover("tests/python", pattern="test_*.py")
+    return test_suite
+
 setuptools.setup(
     name="sycomore",
     version=version,
@@ -132,4 +137,5 @@ setuptools.setup(
     ext_modules=[setuptools.Extension("_sycomore", sources)],
     cmdclass={"build_ext": build_ext},
     install_requires=["numpy"],
+    test_suite="setup.my_test_suite",
 )
