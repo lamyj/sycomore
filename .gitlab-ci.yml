@@ -50,6 +50,5 @@ build_wheel:
   variables:
     OS: manylinux
   artifacts:
-      name: wheel
       paths:
-        - "sycomore*whl"
+        - "dist/*"

@@ -1,14 +1,12 @@
 import os
-import pathlib
 import re
-import shutil
 import subprocess
 import sys
 
 import setuptools
 import setuptools.command.build_ext
 
-here = pathlib.Path(__file__).parent.absolute()
+here = os.path.abspath(os.path.dirname(__file__))
 
 class build_ext(setuptools.command.build_ext.build_ext):
     user_options = setuptools.command.build_ext.build_ext.user_options + [
@@ -16,7 +14,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
     ]
 
     def __init__(self, dist):
-        super().__init__(dist)
+        setuptools.command.build_ext.build_ext.__init__(self, dist)
         self.extra_cmake_options = [
             "-DCMAKE_BUILD_TYPE:STRING=Release",
             "-DBUILD_TESTING:BOOL=OFF",
@@ -27,11 +25,11 @@ class build_ext(setuptools.command.build_ext.build_ext):
         ]
     
     def initialize_options(self):
-        super().initialize_options()
-        self.cmake = shutil.which("cmake")
+        setuptools.command.build_ext.build_ext.initialize_options(self)
+        self.cmake = subprocess.check_output(["which", "cmake"]).strip().decode()
     
     def finalize_options(self):
-        super().finalize_options()
+        setuptools.command.build_ext.build_ext.finalize_options(self)
 
         if self.cmake is None:
             raise Exception("CMake not located in PATH")
@@ -49,7 +47,8 @@ class build_ext(setuptools.command.build_ext.build_ext):
         self._install(ext)
     
     def _configure(self, extension):
-        os.makedirs(self.build_temp, exist_ok=True)
+        if not os.path.isdir(self.build_temp):
+            os.makedirs(self.build_temp)
         
         self.announce("Running CMake in {}".format(self.build_temp), 3)
         
@@ -64,8 +63,6 @@ class build_ext(setuptools.command.build_ext.build_ext):
     
     def _build(self, extension):
         command = [self.cmake, "--build", self.build_temp]
-        if self.parallel:
-            command.extend(["-j", str(self.parallel)])
         
         self.announce("Building in {}".format(self.build_temp), 3)
         
@@ -77,15 +74,15 @@ class build_ext(setuptools.command.build_ext.build_ext):
         self.spawn([
             self.cmake, "--build", self.build_temp, "--target", "install"])
 
-version = re.search(
-    r"set\(sycomore_VERSION (.+?)\)", (here/"CMakeLists.txt").read_text())
+with open(os.path.join(here, "CMakeLists.txt")) as fd:
+    version = re.search(r"set\(sycomore_VERSION (.+?)\)", fd.read())
 if not version:
     raise Exception("Could not get version from CMakeLists.txt")
 version = version.group(1)
 
-long_description = (here/"README.md").read_text()
+long_description = open(os.path.join(here, "README.md")).read()
 
-if (here/".git").is_file():
+if os.path.isfile(os.path.join(here, ".git")):
     sources = subprocess.check_output(
             ["git", "ls-tree", "-r", "--name-only", "HEAD"]
         ).decode().splitlines()
@@ -93,11 +90,6 @@ else:
     sources = []
     for dirpath, dirnames, filenames in os.walk(str(here)):
         sources.extend(os.path.join(dirpath, x) for x in filenames)
-
-def test_suite():
-    test_loader = unittest.TestLoader()
-    test_suite = test_loader.discover("tests/python", pattern="test_*.py")
-    return test_suite
 
 setuptools.setup(
     name="sycomore",
@@ -123,6 +115,7 @@ setuptools.setup(
         
         "License :: OSI Approved :: MIT License",
         
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
         
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
@@ -133,9 +126,9 @@ setuptools.setup(
     
     packages=["sycomore"],
     package_dir={"sycomore": "src"},
-    python_requires=">=3.5",
+    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,",
     ext_modules=[setuptools.Extension("_sycomore", sources)],
     cmdclass={"build_ext": build_ext},
-    install_requires=["numpy"],
-    test_suite="setup.my_test_suite",
+    # WARNING: numpy >= 1.17 requires >= 3.5
+    install_requires=["numpy" if sys.version >= "3.5" else "numpy<=1.16.4"],
 )

@@ -10,3 +10,4 @@ cmake -DPYBIND11_TEST=OFF ./
 make install
 
 cd -
+rm -rf /tmp/pybind11

@@ -4,7 +4,20 @@ set -ev
 
 export WORKSPACE=${WORKSPACE:?}
 
-for PYBIN in /opt/python/cp3[5-9]*/bin; do
+cd ${WORKSPACE}
+export SYCOMORE_TEST_DATA=${WORKSPACE}/tests/data
+
+for PYBIN in /opt/python/cp27*/bin /opt/python/cp3[4-9]*/bin; do
     echo "Building wheel with" ${PYBIN}
-    "${PYBIN}/pip" wheel ${WORKSPACE}
+    
+    PYTHON="${PYBIN}/python"
+    
+    "${PYTHON}" setup.py -q bdist
+    
+    export PYTHONPATH=$("${PYTHON}" -c 'import sysconfig; import sys; print("build/lib.{}-{}.{}".format(sysconfig.get_platform(), *sys.version_info[:2]))')
+    "${PYBIN}/pip" install $("${PYTHON}" -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
+    "${PYTHON}" -m unittest discover -s tests/python/
+    unset PYTHONPATH
+    
+    "${PYTHON}" setup.py -q bdist_wheel
 done
