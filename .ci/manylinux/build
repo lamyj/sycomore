@@ -21,3 +21,7 @@ for PYBIN in /opt/python/cp27*/bin /opt/python/cp3[4-9]*/bin; do
     
     "${PYTHON}" setup.py -q bdist_wheel
 done
+
+for WHEEL in ${WORKSPACE}/dist/*linux_x86_64.whl; do
+  auditwheel repair --plat manylinux2010_x86_64 -w ${WORKSPACE}/dist/ ${WHEEL}
+done

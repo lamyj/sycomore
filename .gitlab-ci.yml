@@ -51,4 +51,4 @@ build_wheel:
     OS: manylinux
   artifacts:
       paths:
-        - "dist/*"
+        - "dist/*manylinux*whl"
