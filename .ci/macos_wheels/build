@@ -16,9 +16,6 @@ for PYTHON_VERSION in $(pyenv versions --bare); do
     
     python setup.py -q bdist
     
-    NUMPY=$(python -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
-    pip install ${NUMPY} wheel
-    
     export PYTHONPATH=$(python -c 'import sysconfig; import sys; print("build/lib.{}-{}.{}".format(sysconfig.get_platform(), *sys.version_info[:2]))')
     python -m unittest discover -s tests/python/
     unset PYTHONPATH

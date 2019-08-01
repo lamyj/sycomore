@@ -8,3 +8,11 @@ pyenv install -s 3.4.10
 pyenv install -s 3.5.7
 pyenv install -s 3.6.9
 pyenv install -s 3.7.4
+
+eval "$(pyenv init -)"
+for PYTHON_VERSION in $(pyenv versions --bare); do
+    pyenv shell ${PYTHON_VERSION}
+
+    NUMPY=$(python -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
+    pip install -U ${NUMPY} setuptools wheel
+done
