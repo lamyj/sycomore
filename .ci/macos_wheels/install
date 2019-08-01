@@ -20,6 +20,7 @@ for PACKAGE in openssl pybind11 pyenv readline sqlite3 xz zlib; do
     fi
 done
 
+pyenv install -s 2.7.16
 pyenv install -s 3.4.10
 pyenv install -s 3.5.7
 pyenv install -s 3.6.9
