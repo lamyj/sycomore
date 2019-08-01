@@ -16,6 +16,8 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import os
+import re
 
 # -- Project information -----------------------------------------------------
 
@@ -24,7 +26,12 @@ copyright = '2019, Julien Lamy'
 author = 'Julien Lamy'
 
 # The short X.Y version
-version = '0.6.2'
+here = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(here, "..", "CMakeLists.txt")) as fd:
+    version = re.search(r"set\(sycomore_VERSION (.+?)\)", fd.read())
+if not version:
+    raise Exception("Could not get version from CMakeLists.txt")
+version = version.group(1)
 # The full version, including alpha/beta/rc tags
 release = version
 
