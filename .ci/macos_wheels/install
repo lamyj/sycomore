@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -ev
+
+brew install openssl pybind11 pyenv readline sqlite3 xz zlib
+
+pyenv install -s 3.4.10
+pyenv install -s 3.5.7
+pyenv install -s 3.6.9
+pyenv install -s 3.7.4

@@ -2,21 +2,26 @@
 
 set -ev
 
-PREFIX=/Library/Frameworks/Python.framework/Versions
+export WORKSPACE=${WORKSPACE:?}
 
-for PYBIN in ${PREFIX}/2.7/bin ${PREFIX}/3.[6-9]*/bin; do
-    echo "Building wheel with" ${PYBIN}
-  
-    PYTHON=$(ls ${PYBIN}/python?.?)
-    PIP="${PYTHON} -m pip"
+cd ${WORKSPACE}
+export SYCOMORE_TEST_DATA=${WORKSPACE}/tests/data
+
+eval "$(pyenv init -)"
+
+for PYTHON_VERSION in $(pyenv versions --bare); do
+    echo "Building wheel with" ${PYTHON_VERSION}
     
-    ${PYTHON} setup.py -q bdist
+    pyenv shell ${PYTHON_VERSION}
     
-    export PYTHONPATH=$(${PYTHON} -c 'import sysconfig; import sys; print("build/lib.{}-{}.{}".format(sysconfig.get_platform(), *sys.version_info[:2]))')
-    ${PIP} install $(${PYTHON} -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
-    ${PYTHON} -m unittest discover -s tests/python/
+    python setup.py -q bdist
+    
+    NUMPY=$(python -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
+    pip install ${NUMPY} wheel
+    
+    export PYTHONPATH=$(python -c 'import sysconfig; import sys; print("build/lib.{}-{}.{}".format(sysconfig.get_platform(), *sys.version_info[:2]))')
+    python -m unittest discover -s tests/python/
     unset PYTHONPATH
     
-    ${PIP} install wheel
-    ${PYTHON} setup.py -q bdist_wheel
+    python setup.py -q bdist_wheel
 done
