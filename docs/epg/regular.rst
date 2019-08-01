@@ -88,4 +88,4 @@ Reference
 
 .. _numpy.abs: https://docs.scipy.org/doc/numpy/reference/generated/numpy.absolute.html
 .. _numpy.angle: https://docs.scipy.org/doc/numpy/reference/generated/numpy.angle.html
-.. _RF spoiling: https://dx.doi.org/10.1002/mrm.1910210210
+.. _RF- & gradient spoiled GRE: https://dx.doi.org/10.1002/mrm.1910210210
