@@ -4,7 +4,7 @@ Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase
 
 ## Installation
 
-Sycomore requires a C++11 compiler, Python (≥ 3.5) and [pybind11](http://pybind11.readthedocs.io/). To take full advantage of your CPU, OpenMP is strongly recommended. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test](https://www.boost.org/doc/libs/release/libs/test/). Sycomore uses [CMake](https://cmake.org/), so the simplest way to build it would be to create a *build* directory inside the source directory, run *cmake*, then run *make*:
+Sycomore requires a C++11 compiler, Python (>= 3.5) and [pybind11](http://pybind11.readthedocs.io/). To take full advantage of your CPU, OpenMP is strongly recommended. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test](https://www.boost.org/doc/libs/release/libs/test/). Sycomore uses [CMake](https://cmake.org/), so the simplest way to build it would be to create a *build* directory inside the source directory, run *cmake*, then run *make*:
 
 ```shell
 mkdir build
