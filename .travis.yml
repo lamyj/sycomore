@@ -1,0 +1,24 @@
+language: minimal
+
+matrix:
+  include:
+    - os: linux
+      sudo: required
+      env: CI_TYPE=deb
+    - os: osx
+      osx_image: xcode11
+      env: PYTHON=python3 CI_TYPE=brew
+    # - os: windows
+    #   before_install:
+    #     - choco install python
+    #     - python -m pip install --upgrade pip
+    #   env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+
+script: |
+  if [ ${CI_TYPE} == "linux" ]; then
+    sudo ./.ci/${CI_TYPE}/install
+  else
+    ./.ci/${CI_TYPE}/install
+  fi
+  ./.ci/${CI_TYPE}/build
+  ./.ci/${CI_TYPE}/post_build
