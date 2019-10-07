@@ -13,7 +13,7 @@ cmake ..
 make
 ```
 
-Additional details are provided in the [documentation](docs/installation.rst).
+Additional details are provided in the [documentation](https://sycomore.readthedocs.io/en/latest/installation.html).
 
 ## Usage
 
@@ -58,7 +58,7 @@ matplotlib.pyplot.show()
 
 The features and data structures are described in the documentation:
 
-- [Common features](docs/common_features.rst)
-- [Bloch simulation](docs/bloch.rst)
-- [Extended Phase Graphs](docs/epg/index.rst)
-- [Configuration Models](docs/como.rst)
+- [Common features](https://sycomore.readthedocs.io/en/latest/common_features.html)
+- [Bloch simulation](https://sycomore.readthedocs.io/en/latest/bloch.html)
+- [Extended Phase Graphs](https://sycomore.readthedocs.io/en/latest/epg/index.html)
+- [Configuration Models](https://sycomore.readthedocs.io/en/latest/como.html)

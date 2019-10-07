@@ -99,7 +99,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     
-    url="https://iris.icube.unistra.fr/lamy/sycomore",
+    url="https://sycomore.readthedocs.io/",
     
     author="Julien Lamy",
     author_email="lamy@unistra.fr",
