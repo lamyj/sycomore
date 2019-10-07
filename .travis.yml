@@ -2,7 +2,8 @@ language: minimal
 
 matrix:
   include:
-    - os: linux
+    - name: "Debian 9 (Stretch)"
+      os: linux
       sudo: required
       services:
         - docker
@@ -16,7 +17,23 @@ matrix:
       after_success:
         - docker kill debian_stretch
     
-    - os: osx
+    - name: "Ubuntu 18.04 (Bionic Beaver)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - PYTHON=python3 
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e PYTHON=${PYTHON} -e WORKSPACE=${WORKSPACE} ubuntu_bionic"
+      before_install:
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name ubuntu_bionic --rm ubuntu:bionic
+      after_success:
+        - docker kill ubuntu_bionic
+    
+    - name: "macOS 10.14 (Mojave)"
+      os: osx
       osx_image: xcode11
       env: 
         - CI_TYPE=brew 
