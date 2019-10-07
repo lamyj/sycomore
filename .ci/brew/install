@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -ev
+
+export PYTHON=${PYTHON:-python}
+
+for PACKAGE in boost cmake libopenmp pybind11; do
+    VERSIONS=$(brew ls --versions ${PACKAGE} || true)
+    if [ -z "${VERSIONS}" ]; then
+        COMMAND="install"
+    else
+        OUTDATED=$(brew outdated ${PACKAGE} || true)
+        if [ -z "${OUTDATED}" ]; then
+            COMMAND=""
+        else
+            COMMAND="upgrade"
+        fi
+    fi
+    
+    if [ -n "${COMMAND}" ]; then
+        brew ${COMMAND} ${PACKAGE}
+    fi
+done
+
+NUMPY=$(python -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
+python -m pip install -U ${NUMPY}

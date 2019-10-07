@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -ev
+
+export WORKSPACE=${WORKSPACE:?}
+export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
+export INSTALL_DIR="${WORKSPACE}/${INSTALL_DIR:-install}"
+
+mkdir -p ${BUILD_DIR}
+mkdir -p ${INSTALL_DIR}
+
+cd ${BUILD_DIR}
+
+OpenMP_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/include"
+
+cmake \
+  -D CMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_CXX_FLAGS="-march=native -ffast-math" \
+  -DOpenMP_C_FLAGS="${OpenMP_FLAGS}" -DOpenMP_CXX_FLAGS="${OpenMP_FLAGS}" \
+  -DOpenMP_C_LIB_NAMES="omp" -DOpenMP_CXX_LIB_NAMES="omp" \
+  -DOpenMP_omp_LIBRARY=/usr/local/lib/libomp.dylib \
+  ${CMAKE_OPTIONS} \
+  ../
+
+make ${MAKE_OPTIONS} install
