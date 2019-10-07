@@ -4,7 +4,18 @@ matrix:
   include:
     - os: linux
       sudo: required
-      env: CI_TYPE=deb
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - PYTHON=python3 
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e PYTHON=${PYTHON} -e WORKSPACE=${WORKSPACE} debian_stretch"
+      before_install:
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name debian_stretch --rm debian:stretch
+      after_success:
+        - docker kill debian_stretch
+    
     - os: osx
       osx_image: xcode11
       env: 
@@ -14,7 +25,7 @@ matrix:
         # FIXME: link error with libomp
         - CMAKE_OPTIONS="-DUSE_OPENMP:BOOL=OFF -DPYTHON_EXECUTABLE=${PYTHON}"
         - RUNNER=""
-
+    
     # - os: windows
     #   before_install:
     #     - choco install python
@@ -22,10 +33,6 @@ matrix:
     #   env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
 
 script: |
-  if [ ${CI_TYPE} == "linux" ]; then
-    sudo ./.ci/${CI_TYPE}/install
-  else
-    ./.ci/${CI_TYPE}/install
-  fi
-  ./.ci/${CI_TYPE}/build
-  ./.ci/${CI_TYPE}/post_build
+  ${RUNNER} ./.ci/${CI_TYPE}/install
+  ${RUNNER} ./.ci/${CI_TYPE}/build
+  ${RUNNER} ./.ci/${CI_TYPE}/post_build
