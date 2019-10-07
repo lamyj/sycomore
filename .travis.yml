@@ -7,7 +7,14 @@ matrix:
       env: CI_TYPE=deb
     - os: osx
       osx_image: xcode11
-      env: PYTHON=python3 CI_TYPE=brew
+      env: 
+        - CI_TYPE=brew 
+        - PYTHON=/usr/local/bin/python3
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        # FIXME: link error with libomp
+        - CMAKE_OPTIONS="-DUSE_OPENMP:BOOL=OFF -DPYTHON_EXECUTABLE=${PYTHON}"
+        - RUNNER=""
+
     # - os: windows
     #   before_install:
     #     - choco install python

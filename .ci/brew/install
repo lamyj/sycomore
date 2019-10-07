@@ -4,7 +4,7 @@ set -ev
 
 export PYTHON=${PYTHON:-python}
 
-for PACKAGE in boost cmake libopenmp pybind11; do
+for PACKAGE in boost cmake libomp pybind11; do
     VERSIONS=$(brew ls --versions ${PACKAGE} || true)
     if [ -z "${VERSIONS}" ]; then
         COMMAND="install"
@@ -22,5 +22,5 @@ for PACKAGE in boost cmake libopenmp pybind11; do
     fi
 done
 
-NUMPY=$(python -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
-python -m pip install -U ${NUMPY}
+NUMPY=$(${PYTHON} -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
+${PYTHON} -m pip install -U ${NUMPY}
