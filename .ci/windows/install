@@ -1,15 +1,14 @@
-#!/bin/sh
+echo on
 
-set -ev
+REM WARNING: assume boost, cmake, and python are installed (this is the case 
+REM with appveyor)
 
-# WARNING: assume boost, cmake, and python are installed (this is the case with 
-# appveyor)
-# TODO: OpenMP, pybind11
+REM TODO: OpenMP, pybind11
 
-# Make sure Python works
+REM  Make sure Python works
 python -c 'import sys; print(sys.platform, sys.version)'
 
 python -m pip install --upgrade pip
 
-NUMPY=$(python -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
-python -m pip install -U ${NUMPY}
+REM NUMPY=$(python -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
+REM python -m pip install -U ${NUMPY}
