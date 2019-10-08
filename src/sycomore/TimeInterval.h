@@ -1,13 +1,15 @@
 #ifndef _b442b891_b0a6_4ecd_9de5_e4cfc7e52a74
 #define _b442b891_b0a6_4ecd_9de5_e4cfc7e52a74
 
-#include "sycomore/sycomore.h"
+#include "sycomore/Array.h"
+#include "sycomore/Quantity.h"
+#include "sycomore/sycomore_api.h"
 #include "sycomore/units.h"
 
 namespace sycomore
 {
 
-struct TimeInterval
+struct SYCOMORE_API TimeInterval
 {
     // TODO: gradient shape
 

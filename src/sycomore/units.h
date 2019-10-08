@@ -6,6 +6,7 @@
 
 #include "sycomore/Dimensions.h"
 #include "sycomore/Quantity.h"
+#include "sycomore/sycomore_api.h"
 
 namespace sycomore
 {
@@ -19,9 +20,9 @@ namespace units
  */
 
 #define SYCOMORE_DECLARE_UNIT(dimensions, name, factor) \
-    Quantity const name{factor, dimensions}; \
-    Quantity operator "" _##name(unsigned long long v); \
-    Quantity operator "" _##name(long double v);
+    SYCOMORE_API extern Quantity const name; \
+    SYCOMORE_API Quantity operator "" _##name(unsigned long long v); \
+    SYCOMORE_API Quantity operator "" _##name(long double v);
 
 #define SYCOMORE_DECLARE_UNITS(Type, name) \
     SYCOMORE_DECLARE_UNIT(Type, Y##name, 1e24) \
@@ -87,8 +88,6 @@ SYCOMORE_DECLARE_UNITS(LuminousIntensity, cd)
  */
 
 SYCOMORE_DECLARE_UNITS(Angle, rad);
-// WARNING M_PI is not C++-standard, but is POSIX-standard.
-// On Windows, define _USE_MATH_DEFINES
 SYCOMORE_DECLARE_UNIT(Angle, deg, M_PI/180.);
 
 SYCOMORE_DECLARE_UNITS(SolidAngle, sr);
@@ -104,7 +103,19 @@ SYCOMORE_DECLARE_UNITS(Capacitance, F);
 SYCOMORE_DECLARE_UNITS(Resistance, Ohm);
 SYCOMORE_DECLARE_UNITS(ElectricalConductance, S);
 SYCOMORE_DECLARE_UNITS(MagneticFlux, Wb);
+
+// WARNING: _MT is a macro on Windows
+#ifdef _WIN32
+#pragma push_macro("_MT")
+#undef _MT
+#endif
+
 SYCOMORE_DECLARE_UNITS(MagneticFluxDensity, T);
+
+#ifdef _WIN32
+#pragma pop_macro("_MT")
+#endif
+
 SYCOMORE_DECLARE_UNIT(MagneticFluxDensity, G, 1e-4);
 SYCOMORE_DECLARE_UNITS(Inductance, H);
 SYCOMORE_DECLARE_UNITS(LuminousFlux, lm);

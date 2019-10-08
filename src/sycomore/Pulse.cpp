@@ -7,6 +7,7 @@
 
 #include "sycomore/Grid.h"
 #include "sycomore/sycomore.h"
+#include "sycomore/units.h"
 
 namespace sycomore
 {

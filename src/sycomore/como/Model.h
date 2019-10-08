@@ -13,6 +13,7 @@
 #include "sycomore/Pulse.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
+#include "sycomore/sycomore_api.h"
 #include "sycomore/TimeInterval.h"
 
 namespace sycomore
@@ -21,7 +22,7 @@ namespace sycomore
 namespace como
 {
 
-class Model
+class SYCOMORE_API Model
 {
 public:
     /**

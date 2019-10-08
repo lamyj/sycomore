@@ -6,7 +6,9 @@
 #include <vector>
 
 #include "sycomore/Array.h"
-#include "sycomore/units.h"
+#include "sycomore/Dimensions.h"
+#include "sycomore/Quantity.h"
+#include "sycomore/sycomore_api.h"
 
 namespace sycomore
 {
@@ -20,13 +22,13 @@ using Stride = Array<uint32_t>;
 
 using Point = Array<Quantity>;
 
-auto const Diffusion = std::pow(Length, 2)/Time;
+SYCOMORE_API extern Dimensions const Diffusion;
 
 // NOTE: gradient moment is gamma * integral(g(t)*dt), with gamma in
 // [rad * T^-1 * s^-1] and g(t) in [T * m^-1] (thus integral(g(t)*dt)
 // in [T * m^-1 * s]). Gradient moment is then in [rad * m^-1], i.e. accumulated
 // phase per length.
-auto const GradientMoment = Angle/Length;
+SYCOMORE_API extern Dimensions const GradientMoment;
 
 template<typename T>
 std::vector<T> linspace(T min, T max, size_t size)
@@ -48,7 +50,7 @@ std::vector<T> linspace(T span, size_t size)
 }
 
 /// @brief Gyromagnetic ratio of 1H
-Quantity const gamma=2*M_PI*units::rad * 42.57747892*units::MHz/units::T;
+SYCOMORE_API extern Quantity const gamma;
 
 }
 

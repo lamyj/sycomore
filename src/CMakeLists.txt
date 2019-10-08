@@ -17,6 +17,11 @@ if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
     list(SORT template_files)
 
     include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
+    
+    if(WIN32)
+        add_definitions(-DBUILDING_SYCOMORE)
+    endif()
+
 
     add_library(libsycomore ${source_files} ${header_files} ${template_files})
     if(APPLE AND OPENMP_FOUND)

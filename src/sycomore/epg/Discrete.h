@@ -6,6 +6,8 @@
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
+#include "sycomore/sycomore.h"
+#include "sycomore/sycomore_api.h"
 #include "sycomore/units.h"
 
 namespace sycomore
@@ -21,7 +23,7 @@ namespace epg
  * In this model, the orders of the model are stored in bins of user-specified
  * width (hence the term "discrete"), expressed in rad/m.
  */
-class Discrete
+class SYCOMORE_API Discrete
 {
 public:
     using Order = Quantity;

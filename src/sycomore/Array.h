@@ -7,6 +7,7 @@
 #include <utility>
 
 #include <sycomore/hash.h>
+#include "sycomore/sycomore_api.h"
 
 namespace sycomore
 {

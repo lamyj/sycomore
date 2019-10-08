@@ -8,6 +8,8 @@
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
+#include "sycomore/sycomore_api.h"
+#include "sycomore/units.h"
 
 namespace sycomore
 {
@@ -23,7 +25,7 @@ namespace epg
  * of a half-space bounded by an arbitrary plane including the origin. This
  * arbitrary plane is chosen as the x=0 plane.
  */
-class Discrete3D
+class SYCOMORE_API Discrete3D
 {
 public:
     using Order = Array<Quantity>;

@@ -7,6 +7,9 @@
 
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
+#include "sycomore/sycomore.h"
+#include "sycomore/sycomore_api.h"
+#include "sycomore/units.h"
 
 namespace sycomore
 {
@@ -17,12 +20,12 @@ namespace epg
 namespace operators
 {
 
-std::vector<Complex> pulse(Quantity angle, Quantity phase);
+SYCOMORE_API std::vector<Complex> pulse(Quantity angle, Quantity phase);
 
-std::pair<Real, Real> relaxation(
+SYCOMORE_API std::pair<Real, Real> relaxation(
     Species const & species, Quantity const & duration);
 
-std::tuple<Real, Real, Real> diffusion(
+SYCOMORE_API std::tuple<Real, Real, Real> diffusion(
     Species const & species, Quantity const & duration, Quantity const & k, 
     Quantity const & delta_k);
 

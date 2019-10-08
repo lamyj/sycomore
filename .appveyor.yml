@@ -1,11 +1,16 @@
 version: '{build}'
 image: Visual Studio 2017
 environment:
-  WORKSPACE: %APPVEYOR_BUILD_FOLDER%
+  PATH: C:\Python37;C:\Python37\Scripts;$(PATH)
+  PYTHON: C:\Python37\python.exe
+  WORKSPACE: $(APPVEYOR_BUILD_FOLDER)
 install:
-  - cmd: .\.ci\windows\install
-# build_script:
-#   - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-#   - cmd: .\.ci\windows\build
-# test_script:
-#   - cmd: .\.ci\windows\post_build
+  - call .\.ci\windows\install.cmd
+build_script:
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - call .\.ci\windows\build.cmd
+test_script:
+  - call .\.ci\windows\post_build.cmd
+
+# on_finish:
+#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

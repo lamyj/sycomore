@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "sycomore/Pulse.h"
+#include "sycomore/units.h"
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {

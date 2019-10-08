@@ -68,14 +68,16 @@ BOOST_AUTO_TEST_CASE(ScanOrder)
     unsigned int i=0;
     for(auto && index: sycomore::GridScanner(grid.origin(), grid.shape()))
     {
-        grid[index.first] = {i, i, i};
+        grid[index.first] = {
+            sycomore::Real(i), sycomore::Real(i), sycomore::Real(i)};
         ++i;
     }
 
     auto && data = grid.data();
     for(unsigned int i=0; i<grid.stride()[grid.dimension()]; ++i)
     {
-        BOOST_REQUIRE(*data == sycomore::ComplexMagnetization({i,i,i}));
+        BOOST_REQUIRE(*data == sycomore::ComplexMagnetization({
+            sycomore::Real(i), sycomore::Real(i), sycomore::Real(i)}));
         ++data;
     }
 }

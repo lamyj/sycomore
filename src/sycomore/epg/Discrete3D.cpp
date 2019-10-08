@@ -407,8 +407,14 @@ Discrete3D
     auto const bin_width = this->_bin_width.convert_to(rad/m);
 
     #pragma omp parallel for
+#ifdef _WIN32
+    // WARNING: only signed integer types in OpenMP loops on Windows
+    for(int order=0; order<this->size(); ++order)
+    {
+#else
     for(std::size_t order=0; order<this->size(); ++order)
     {
+#endif
         // NOTE: this is not really k1, but rather k1/bin_width. However,
         // not declaring a new variable to store k1 is much faster.
         auto const k1=this->_orders.data()+3*order;

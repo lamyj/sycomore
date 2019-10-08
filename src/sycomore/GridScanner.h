@@ -4,11 +4,12 @@
 #include <utility>
 
 #include "sycomore/sycomore.h"
+#include "sycomore/sycomore_api.h"
 
 namespace sycomore
 {
 
-class GridScanner
+class SYCOMORE_API GridScanner
 {
 public:
     using iterator_category = std::forward_iterator_tag;

@@ -5,13 +5,14 @@
 #include <vector>
 
 #include "sycomore/Grid.h"
+#include "sycomore/Quantity.h"
 #include "sycomore/sycomore.h"
-#include "sycomore/units.h"
+#include "sycomore/sycomore_api.h"
 
 namespace sycomore
 {
 
-class Pulse
+class SYCOMORE_API Pulse
 {
 public:
     using RotationMatrix = Grid<Complex>;

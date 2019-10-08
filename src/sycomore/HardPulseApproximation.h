@@ -7,12 +7,13 @@
 
 #include "sycomore/Pulse.h"
 #include "sycomore/TimeInterval.h"
+#include "sycomore/sycomore_api.h"
 #include "sycomore/units.h"
 
 namespace sycomore
 {
 
-class HardPulseApproximation
+class SYCOMORE_API HardPulseApproximation
 {
 public:
     using Envelope = std::function<Quantity(Quantity const &)>;
@@ -44,7 +45,7 @@ private:
     std::string _name;
 };
 
-HardPulseApproximation::Envelope sinc_envelope(Quantity const & t0);
+SYCOMORE_API HardPulseApproximation::Envelope sinc_envelope(Quantity const & t0);
 
 }
 

@@ -2,11 +2,12 @@
 #define _84b1fab9_d85f_41d4_9251_3e1b61073ec5
 
 #include "sycomore/sycomore.h"
+#include "sycomore/sycomore_api.h"
 
 namespace sycomore
 {
 
-struct ComplexMagnetization
+struct SYCOMORE_API ComplexMagnetization
 {
     static ComplexMagnetization const zero;
 
@@ -23,9 +24,9 @@ struct ComplexMagnetization
 };
 using Magnetization = Array<Real>;
 
-Magnetization::value_type transversal(Magnetization const & m);
-ComplexMagnetization as_complex_magnetization(Magnetization const & m);
-Magnetization as_real_magnetization(ComplexMagnetization const & m);
+SYCOMORE_API Magnetization::value_type transversal(Magnetization const & m);
+SYCOMORE_API ComplexMagnetization as_complex_magnetization(Magnetization const & m);
+SYCOMORE_API Magnetization as_real_magnetization(ComplexMagnetization const & m);
 
 }
 

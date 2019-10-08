@@ -3,10 +3,12 @@
 
 #include <ostream>
 
+#include "sycomore/sycomore_api.h"
+
 namespace sycomore
 {
 
-class Dimensions
+class SYCOMORE_API Dimensions
 {
 public:
     double length;
@@ -29,17 +31,17 @@ public:
     Dimensions & operator/=(Dimensions const & other);
 };
 
-Dimensions operator*(Dimensions l, Dimensions const & r);
-Dimensions operator/(Dimensions l, Dimensions const & r);
+SYCOMORE_API extern Dimensions operator*(Dimensions l, Dimensions const & r);
+SYCOMORE_API extern Dimensions operator/(Dimensions l, Dimensions const & r);
 
-std::ostream & operator<<(std::ostream & stream, Dimensions const & d);
+SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Dimensions const & d);
 
 }
 
 namespace std
 {
 
-sycomore::Dimensions pow(sycomore::Dimensions const & d, double s);
+SYCOMORE_API sycomore::Dimensions pow(sycomore::Dimensions const & d, double s);
 
 }
 
@@ -50,49 +52,49 @@ namespace sycomore
  * @addtogroup BasicDimensions.
  * @{
  */
-Dimensions const Length{1, 0, 0, 0, 0, 0, 0};
-Dimensions const Mass{0, 1, 0, 0, 0, 0, 0};
-Dimensions const Time{0, 0, 1, 0, 0, 0, 0};
-Dimensions const ElectricCurrent{0, 0, 0, 1, 0, 0, 0};
-Dimensions const ThermodynamicTemperature{0, 0, 0, 0, 1, 0, 0};
-Dimensions const AmountOfSubstance{0, 0, 0, 0, 0, 1, 0};
-Dimensions const LuminousIntensity{0, 0, 0, 0, 0, 0, 1};
+SYCOMORE_API extern Dimensions const Length;
+SYCOMORE_API extern Dimensions const Mass;
+SYCOMORE_API extern Dimensions const Time;
+SYCOMORE_API extern Dimensions const ElectricCurrent;
+SYCOMORE_API extern Dimensions const ThermodynamicTemperature;
+SYCOMORE_API extern Dimensions const AmountOfSubstance;
+SYCOMORE_API extern Dimensions const LuminousIntensity;
 /// @}
 
 /**
  * @addtogroup DerivedDimensions
  * @{
  */
-Dimensions const Surface = std::pow(Length, 2);
-Dimensions const Volume = std::pow(Length, 3);
+SYCOMORE_API extern Dimensions const Surface;
+SYCOMORE_API extern Dimensions const Volume;
 
-Dimensions const Velocity = Length/Time;
-Dimensions const Acceleration = Velocity/Time;
+SYCOMORE_API extern Dimensions const Velocity;
+SYCOMORE_API extern Dimensions const Acceleration;
 
-Dimensions const Angle = Length/Length;
-Dimensions const SolidAngle = Surface/Surface;
+SYCOMORE_API extern Dimensions const Angle;
+SYCOMORE_API extern Dimensions const SolidAngle;
 
-Dimensions const Frequency = std::pow(Time, -1);
-Dimensions const Force = Mass*Length*std::pow(Time, -2);
-Dimensions const Pressure = Force/Surface;
-Dimensions const Energy = Force*Length;
-Dimensions const Power = Energy/Time;
-Dimensions const ElectricCharge = Time*ElectricCurrent;
-Dimensions const Voltage = Power/ElectricCurrent;
-Dimensions const Capacitance = ElectricCharge/Voltage;
-Dimensions const Resistance = Voltage/ElectricCurrent;
-Dimensions const ElectricalConductance = std::pow(Resistance, -1);
-Dimensions const MagneticFlux = Energy/ElectricCurrent;
-Dimensions const MagneticFluxDensity = MagneticFlux/Surface;
-Dimensions const Inductance = MagneticFlux/ElectricCurrent;
-Dimensions const LuminousFlux = LuminousIntensity/SolidAngle;
-Dimensions const Illuminance = LuminousFlux/Surface;
-Dimensions const Radioactivity = std::pow(Time, -1);
-Dimensions const AbsorbedDose = Energy/Mass;
-Dimensions const EquivalentDose = Energy/Mass;
-Dimensions const CatalyticActivity = AmountOfSubstance/Time;
+SYCOMORE_API extern Dimensions const Frequency;
+SYCOMORE_API extern Dimensions const Force;
+SYCOMORE_API extern Dimensions const Pressure;
+SYCOMORE_API extern Dimensions const Energy;
+SYCOMORE_API extern Dimensions const Power;
+SYCOMORE_API extern Dimensions const ElectricCharge;
+SYCOMORE_API extern Dimensions const Voltage;
+SYCOMORE_API extern Dimensions const Capacitance;
+SYCOMORE_API extern Dimensions const Resistance;
+SYCOMORE_API extern Dimensions const ElectricalConductance;
+SYCOMORE_API extern Dimensions const MagneticFlux;
+SYCOMORE_API extern Dimensions const MagneticFluxDensity;
+SYCOMORE_API extern Dimensions const Inductance;
+SYCOMORE_API extern Dimensions const LuminousFlux;
+SYCOMORE_API extern Dimensions const Illuminance;
+SYCOMORE_API extern Dimensions const Radioactivity;
+SYCOMORE_API extern Dimensions const AbsorbedDose;
+SYCOMORE_API extern Dimensions const EquivalentDose;
+SYCOMORE_API extern Dimensions const CatalyticActivity;
 
-Dimensions const AngularFrequency = Angle/Time;
+SYCOMORE_API extern Dimensions const AngularFrequency;
 
 /// @}
 

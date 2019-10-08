@@ -1,13 +1,15 @@
 #ifndef _0bc5dc9b_ebb8_4139_bd22_f07f58e07314
 #define _0bc5dc9b_ebb8_4139_bd22_f07f58e07314
 
+#include "sycomore/Array.h"
+#include "sycomore/Quantity.h"
 #include "sycomore/sycomore.h"
-#include "sycomore/units.h"
+#include "sycomore/sycomore_api.h"
 
 namespace sycomore
 {
 
-class Species
+class SYCOMORE_API Species
 {
 public:
     /// @brief Relative weight

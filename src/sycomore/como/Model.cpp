@@ -115,10 +115,17 @@ Model
     auto && R = R_m.data();
 
     #pragma omp parallel for
+#ifdef _WIN32
+    // WARNING: only signed integer types in OpenMP loops on Windows
+    for(int index=0; index<this->_m.stride()[this->_m.dimension()]; ++index)
+    {
+        auto it = this->_m.data()+index;
+#else
     for(
         auto it=this->_m.data();
         it<this->_m.data()+this->_m.stride()[this->_m.dimension()]; ++it)
     {
+#endif
         auto && m = *it;
 
         ComplexMagnetization const result{
@@ -239,10 +246,17 @@ Model
     std::vector<GridScanner::value_type> const scanner_data(
         scanner.begin(), scanner.end());
     #pragma omp parallel for
+#ifdef _WIN32
+    // WARNING: only signed integer types in OpenMP loops on Windows
+    for(int scanner_index=0; scanner_index<scanner_data.size(); ++scanner_index)
+    {
+        auto scanner_it = scanner_data.data()+scanner_index;
+#else
     for(
         auto scanner_it=scanner_data.begin(); scanner_it<scanner_data.end();
         ++scanner_it)
     {
+#endif
         // Position of the first point of the line
         auto && line_start_index = scanner_it->first;
         auto && line_start_offset = scanner_it->second;

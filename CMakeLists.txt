@@ -36,6 +36,10 @@ elseif(COMPILER_SUPPORTS_CXX0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
+if(WIN32)
+    add_definitions(-D_USE_MATH_DEFINES)
+endif()
+
 file(GLOB_RECURSE docs docs/*)
 add_custom_target(
     Documentation ${CMAKE_COMMAND} -E echo "Documentation"
