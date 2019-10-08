@@ -1,0 +1,11 @@
+version: '{build}'
+image: Visual Studio 2017
+environment:
+  WORKSPACE: ${APPVEYOR_BUILD_FOLDER}
+install:
+  - sh: ./.ci/windows/install
+build_script:
+  - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - sh: ./.ci/windows/build
+test_script:
+  - sh: ./.ci/windows/post_build

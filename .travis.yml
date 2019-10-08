@@ -43,11 +43,15 @@ matrix:
         - CMAKE_OPTIONS="-DUSE_OPENMP:BOOL=OFF -DPYTHON_EXECUTABLE=${PYTHON}"
         - RUNNER=""
     
-    # - os: windows
-    #   before_install:
-    #     - choco install python
-    #     - python -m pip install --upgrade pip
-    #   env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+    # - name: "Windows 10"
+    #   os: windows
+    #   # WARNING: Minimal is not supported on Windows
+    #   language: shell
+    #   env: 
+    #     - CI_TYPE=windows
+    #     - PATH=/c/Python37:/c/Python37/Scripts:$PATH
+    #     - WORKSPACE=${TRAVIS_BUILD_DIR}
+    #     - RUNNER=""
 
 script: |
   ${RUNNER} ./.ci/${CI_TYPE}/install
