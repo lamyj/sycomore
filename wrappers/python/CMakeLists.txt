@@ -48,8 +48,7 @@ add_custom_target(
 if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
     execute_process(
         COMMAND ${PYTHON_EXECUTABLE}
-          -c "\
-            import os; \
+          -c "import os; \
             from distutils.sysconfig import *; \
             print(get_python_lib(True, prefix='').replace(os.path.sep, '/'))"
         OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
