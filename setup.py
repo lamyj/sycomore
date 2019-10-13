@@ -10,7 +10,8 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 class build_ext(setuptools.command.build_ext.build_ext):
     user_options = setuptools.command.build_ext.build_ext.user_options + [
-        ("cmake=", None, "Location of CMake. Defaults of CMake in PATH")
+        ("cmake=", None, "Location of CMake. Defaults to CMake in PATH"),
+        ("pybind11=", None, "Location of pybind11. Defaults to autodetection"),
     ]
 
     def __init__(self, dist):
@@ -27,6 +28,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
     def initialize_options(self):
         setuptools.command.build_ext.build_ext.initialize_options(self)
         self.cmake = subprocess.check_output(["which", "cmake"]).strip().decode()
+        self.pybind11 = None
     
     def finalize_options(self):
         setuptools.command.build_ext.build_ext.finalize_options(self)
@@ -54,12 +56,17 @@ class build_ext(setuptools.command.build_ext.build_ext):
         
         # WARNING: install_prefix needs to be absolute
         install_prefix = os.path.abspath(self.build_lib)
-        # WARNING: we need to build in build_temp, self.spawn cannot change cwd
-        subprocess.check_call(
+        
+        command = (
             [self.cmake, "-DCMAKE_INSTALL_PREFIX={}".format(install_prefix)]
-            + self.extra_cmake_options
-            + [str(here)],
-            cwd=self.build_temp)
+            + self.extra_cmake_options)
+        if self.pybind11:
+            command += ["-Dpybind11_DIR={}".format(self.pybind11)]
+        command += [str(here)]
+        self.announce(" ".join(command), 3)
+        
+        # WARNING: we need to build in build_temp, self.spawn cannot change cwd
+        subprocess.check_call(command, cwd=self.build_temp)
     
     def _build(self, extension):
         command = [self.cmake, "--build", self.build_temp]
