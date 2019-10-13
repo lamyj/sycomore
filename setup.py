@@ -27,7 +27,10 @@ class build_ext(setuptools.command.build_ext.build_ext):
     
     def initialize_options(self):
         setuptools.command.build_ext.build_ext.initialize_options(self)
-        self.cmake = subprocess.check_output(["which", "cmake"]).strip().decode()
+        if sys.platform == "win32":
+            self.cmake = subprocess.check_output(["where", "cmake"]).strip().decode()
+        else:
+            self.cmake = subprocess.check_output(["which", "cmake"]).strip().decode()
         self.pybind11 = None
     
     def finalize_options(self):
