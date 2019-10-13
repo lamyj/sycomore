@@ -8,9 +8,10 @@ install:
   - call .\.ci\windows\install.cmd
 build_script:
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-  - call .\.ci\windows\build.cmd
+  #- call .\.ci\windows\build.cmd
 test_script:
-  - call .\.ci\windows\post_build.cmd
+  #- call .\.ci\windows\post_build.cmd
+  - "%PYTHON% -m pip install -U pip setuptools wheel"
   - "%PYTHON% setup.py build_ext --pybind11=C:\\Libraries\\pybind11 bdist_wheel"
 
 # on_finish:
