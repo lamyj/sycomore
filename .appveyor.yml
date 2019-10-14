@@ -2,12 +2,13 @@ version: '{build}'
 image: Visual Studio 2017
 environment:
   PATH: C:\Python37;C:\Python37\Scripts;$(PATH)
+  PLATFORM: x64
   PYTHON: C:\Python37\python.exe
   WORKSPACE: $(APPVEYOR_BUILD_FOLDER)
 install:
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %PLATFORM%
   - call .\.ci\windows\install.cmd
 build_script:
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
   - call .\.ci\windows\build.cmd
 test_script:
   - call .\.ci\windows\post_build.cmd

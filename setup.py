@@ -24,6 +24,10 @@ class build_ext(setuptools.command.build_ext.build_ext):
             "-DUSE_OPENMP:BOOL=OFF",
             "-DPYTHON_EXECUTABLE:FILEPATH={}".format(sys.executable),
         ]
+        if sys.platform == "win32":
+            platform_ = "x64" if sys.maxsize > 2**32 else "x86"
+            self.extra_cmake_options.append(
+                "-DCMAKE_GENERATOR_PLATFORM={}".format(platform_))
     
     def initialize_options(self):
         setuptools.command.build_ext.build_ext.initialize_options(self)
