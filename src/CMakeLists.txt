@@ -22,7 +22,6 @@ if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
         add_definitions(-DBUILDING_SYCOMORE)
     endif()
 
-
     add_library(libsycomore ${source_files} ${header_files} ${template_files})
     if(APPLE AND OPENMP_FOUND)
         target_link_libraries(libsycomore omp)
