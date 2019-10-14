@@ -8,11 +8,9 @@ install:
   - call .\.ci\windows\install.cmd
 build_script:
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-  #- call .\.ci\windows\build.cmd
+  - call .\.ci\windows\build.cmd
 test_script:
-  #- call .\.ci\windows\post_build.cmd
-  - "%PYTHON% -m pip install -U pip setuptools wheel"
-  - "%PYTHON% setup.py build_ext --pybind11=C:\\Libraries\\pybind11\\share\\cmake\\pybind11 bdist_wheel"
+  - call .\.ci\windows\post_build.cmd
 
 # on_finish:
 #   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
