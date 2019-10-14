@@ -12,7 +12,7 @@ build_script:
 test_script:
   #- call .\.ci\windows\post_build.cmd
   - "%PYTHON% -m pip install -U pip setuptools wheel"
-  - "%PYTHON% setup.py build_ext --pybind11=C:\\Libraries\\pybind11 bdist_wheel"
+  - "%PYTHON% setup.py build_ext --pybind11=C:\\Libraries\\pybind11\\share\\cmake\\pybind11 bdist_wheel"
 
 # on_finish:
 #   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
