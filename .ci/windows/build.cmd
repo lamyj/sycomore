@@ -11,6 +11,7 @@ cmake ^
   -DCMAKE_BUILD_TYPE=Release ^
   -Dpybind11_DIR="C:/Libraries/pybind11/share/cmake/pybind11" ^
   -DBOOST_ROOT="C:/Libraries/boost_1_67_0" ^
+  -DCMAKE_GENERATOR_PLATFORM=%PLATFORM% ^
   ${CMAKE_OPTIONS} ^
   ..
 

@@ -7,7 +7,7 @@ cd C:\projects
 git clone https://github.com/pybind/pybind11.git
 cd pybind11
 git checkout v2.4.2
-cmake -DPYBIND11_TEST=OFF -DCMAKE_INSTALL_PREFIX=C:\Libraries\pybind11 .
+cmake -DPYBIND11_TEST=OFF -DCMAKE_INSTALL_PREFIX=C:\Libraries\pybind11 -DCMAKE_GENERATOR_PLATFORM=%PLATFORM% .
 cmake --build . --config Release --target install
 
 %PYTHON% -m pip install --upgrade pip
