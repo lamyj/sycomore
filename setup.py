@@ -1,5 +1,6 @@
 import os
 import re
+import shlex
 import subprocess
 import sys
 
@@ -12,6 +13,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
     user_options = setuptools.command.build_ext.build_ext.user_options + [
         ("cmake=", None, "Location of CMake. Defaults to CMake in PATH"),
         ("pybind11=", None, "Location of pybind11. Defaults to autodetection"),
+        ("cmake-options=", None, "Extra CMake options"),
     ]
 
     def __init__(self, dist):
@@ -24,10 +26,6 @@ class build_ext(setuptools.command.build_ext.build_ext):
             "-DUSE_OPENMP:BOOL=OFF",
             "-DPYTHON_EXECUTABLE:FILEPATH={}".format(sys.executable),
         ]
-        if sys.platform == "win32":
-            platform_ = "x64" if sys.maxsize > 2**32 else "x86"
-            self.extra_cmake_options.append(
-                "-DCMAKE_GENERATOR_PLATFORM={}".format(platform_))
     
     def initialize_options(self):
         setuptools.command.build_ext.build_ext.initialize_options(self)
@@ -37,15 +35,19 @@ class build_ext(setuptools.command.build_ext.build_ext):
         else:
             self.cmake = subprocess.check_output(["which", "cmake"]).strip().decode()
         self.pybind11 = None
+        self.cmake_options = []
     
     def finalize_options(self):
         setuptools.command.build_ext.build_ext.finalize_options(self)
-
+        
         if self.cmake is None:
             raise Exception("CMake not located in PATH")
 
         if not os.path.exists(self.cmake):
             raise Exception("CMake not found at {}".format(self.cmake))
+        
+        if self.cmake_options:
+            self.cmake_options = shlex.split(self.cmake_options)
     
     def run(self):
         for extension in self.extensions:
@@ -70,6 +72,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
             + self.extra_cmake_options)
         if self.pybind11:
             command += ["-Dpybind11_DIR={}".format(self.pybind11)]
+        command +=  self.cmake_options
         command += [str(here)]
         self.announce(" ".join(command), 3)
         
