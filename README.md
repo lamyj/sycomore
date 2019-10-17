@@ -2,6 +2,8 @@
 
 [![Travis Build Status](https://travis-ci.com/lamyj/sycomore.svg?branch=master)](https://travis-ci.com/lamyj/sycomore)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/3malu4i0f9ycs7ab/branch/master?svg=true)](https://ci.appveyor.com/project/lamyj/sycomore/branch/master)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/sycomore)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/sycomore.svg)](https://anaconda.org/conda-forge/sycomore)
 
 Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase Graphs (EPG) (both regular and discrete, including 3D), and Configuration Models. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime and further acceleration through [OpenMP](https://www.openmp.org/).
 
