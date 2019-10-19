@@ -227,14 +227,18 @@ Discrete3D
         }
     }
 
-    // Find the location of the negative and positive orders.
+    // Find the location of the "negative" and "positive" orders.
+    // NOTE Since we unfold F to (+F, -F), the "positive" orders are mapped to 
+    // the upper quadrant (i.e. F_x <= F_y <= F_z) and the "negative" orders are
+    // mapped to the strict lower quadrant (i.e. F_x > F_z > F_z)
+    
     // NOTE The non-const iterator is required in order to build F_plus_order
     // as a view in the loop
     std::pair<decltype(F_orders.begin()), decltype(F_states.begin())> F_plus_it(
         F_orders.end(), F_states.end());
     for(auto it = F_orders.begin(); it != F_orders.end(); it += 3)
     {
-        if(*it >= 0)
+        if(*(it+0) <= *(it+1) && *(it+1) <= *(it+2))
         {
             F_plus_it.first = it;
             F_plus_it.second = F_states.begin()+(it-F_orders.begin())/3;
@@ -246,7 +250,7 @@ Discrete3D
         F_orders.begin()-3, F_states.begin()-1);
     for(auto it = F_orders.end()-3; it >= F_orders.begin(); it -= 3)
     {
-        if(*it < 0)
+        if(!(*(it+0) <= *(it+1) && *(it+1) <= *(it+2)))
         {
             F_minus_it.first = it;
             F_minus_it.second = F_states.begin()+(it-F_orders.begin())/3;
