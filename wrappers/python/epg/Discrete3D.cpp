@@ -19,6 +19,7 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             arg("bin_width")=1*units::rad/units::m)
         .def_readwrite("species", &Discrete3D::species)
         .def_property_readonly("orders", &Discrete3D::orders)
+        .def_property_readonly("bin_width", &Discrete3D::bin_width)
         .def("state", &Discrete3D::state, arg("order"))
         .def_property_readonly(
             "states", [](Discrete3D const & model){

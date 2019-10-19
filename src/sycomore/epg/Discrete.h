@@ -85,6 +85,9 @@ public:
      * amplitude.
      */
     void diffusion(Quantity const & duration, Quantity const & gradient);
+    
+    /// @brief Return the bin width.
+    Quantity const & bin_width() const;
 
 private:
     std::vector<Complex> _states;

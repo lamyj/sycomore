@@ -467,6 +467,13 @@ Discrete3D
     }
 }
 
+Quantity const & 
+Discrete3D
+::bin_width() const
+{
+    return this->_bin_width;
+}
+
 }
 
 }

@@ -86,6 +86,9 @@ public:
      * amplitude.
      */
     void diffusion(Quantity const & duration, Array<Quantity> const & gradient);
+    
+    /// @brief Return the bin width.
+    Quantity const & bin_width() const;
 
 private:
     using Bin = Array<int64_t>;

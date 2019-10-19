@@ -299,6 +299,13 @@ Discrete
     }
 }
 
+Quantity const & 
+Discrete
+::bin_width() const
+{
+    return this->_bin_width;
+}
+
 }
 
 }

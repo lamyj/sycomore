@@ -19,6 +19,7 @@ void wrap_epg_Discrete(pybind11::module & m)
             arg("bin_width")=1*units::rad/units::m)
         .def_readwrite("species", &Discrete::species)
         .def_property_readonly("orders", &Discrete::orders)
+        .def_property_readonly("bin_width", &Discrete::bin_width)
         .def(
             "state",
             static_cast<
