@@ -43,12 +43,3 @@ build_bionic:
   image: ubuntu:bionic
   variables:
     OS: deb
-
-build_wheel:
-  extends: .build_template
-  image: quay.io/pypa/manylinux2010_x86_64
-  variables:
-    OS: manylinux
-  artifacts:
-      paths:
-        - "dist/*manylinux*whl"
