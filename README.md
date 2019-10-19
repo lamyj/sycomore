@@ -18,10 +18,7 @@ Packaged versions of Sycomore are available on [pypi](https://pypi.org/project/s
 | macOS (≥ 9)      | 3.6, 3.7      | 3.6, 3.7      |
 | Windows          | not available | 3.5, 3.6, 3.7 |
 
-To install from [Anaconda](https://www.anaconda.com/distribution/), type `conda install -c conda-forge sycomore`. To install from [pypi](https://pypi.org/project/sycomore/), type `pip3 install sycomore` (or `pip install sycomore`). If you are installing from [pypi](https://pypi.org/project/sycomore/), note that:
-
-- Linux wheels are built using the `manylinux2010` tag: if your pip version is 18.1 or earlier, the pre-compiled packages (*wheels*) will not be picked up. You may upgrade your version of pip by running `pip3 install -U pip` (or `pip install -U pip`).
-- If no pre-compiled version is available for your platform, pip will try to install from the source archive.
+To install from [Anaconda](https://www.anaconda.com/distribution/), type `conda install -c conda-forge sycomore`. To install from [pypi](https://pypi.org/project/sycomore/), type `pip3 install sycomore` (or `pip install sycomore`). If you are installing from [pypi](https://pypi.org/project/sycomore/) and no pre-compiled version is available for your platform, pip will try to install from the source archive.
 
 If you need to install Sycomore from source, you will need a C++11 compiler, `CMake`_ and `pybind11`_ to successfully build Sycomore. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test](https://www.boost.org/doc/libs/release/libs/test/).
 
