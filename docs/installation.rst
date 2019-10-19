@@ -4,18 +4,27 @@ Installing Sycomore
 Packaged
 --------
 
-A packaged version of Sycomore is available on `pypi`_, either in source form or in compiled (`wheel`_) form (Linux only):
+Packaged versions of Sycomore are available on `pypi`_ and `Anaconda`_ for Linux, macOS and Windows. The following table summarizes the availability of packages according to the version of the Python interpreter.
 
-.. code-block:: shell
-  
-  pip3 install sycomore
++------------------+---------------+---------------+
+| Operating system | conda-forge   | PyPI          |
++==================+===============+===============+
+| Linux            | 3.6, 3.7      | 3.5, 3.6, 3.7 |
++------------------+---------------+---------------+
+| macOS (≥ 9)      | 3.6, 3.7      | 3.6, 3.7      |
++------------------+---------------+---------------+
+| Windows          | not available | 3.5, 3.6, 3.7 |
++------------------+---------------+---------------+
 
-Note that for platforms where no wheel version is available, you will need a C++11 compiler, `CMake`_ and `pybind11`_ to successfully build Sycomore.
+To install from `Anaconda`_, type ``conda install -c conda-forge sycomore``. To install from `pypi`_, type ``pip3 install sycomore`` (or ``pip install sycomore``). If you are installing from `pypi`_, note that:
+
+- Linux wheels are built using the ``manylinux2010`` tag: if your pip version is 18.1 or earlier, the pre-compiled packages (*wheels*) will not be picked up. You may upgrade your version of pip by running ``pip3 install -U pip`` (or ``pip install -U pip``).
+- If no pre-compiled version is available for your platform, pip will try to install from the source archive; in that you will need a C++11 compiler, `CMake`_ and `pybind11`_ to successfully build Sycomore.
 
 From source
 -----------
 
-Sycomore requires a C++11 compiler, Python (≥ 3.5) and `pybind11`_. To take full advantage of your CPU, `OpenMP`_ is strongly recommended. If you want to validate your build of Sycomore, you should run the unit tests, which require `Boost.Test`_. Sycomore uses `CMake`_, so the simplest way to build it would be to create a *build* directory inside the source directory, run *cmake*, then run *make*:
+Installing Sycomore from source requires a C++11 compiler, Python (≥ 3.5) and `pybind11`_. To take full advantage of your CPU, `OpenMP`_ is strongly recommended. If you want to validate your build of Sycomore, you should run the unit tests, which require `Boost.Test`_. Sycomore uses `CMake`_, so the simplest way to build it would be to create a *build* directory inside the source directory, run *cmake*, then run *make*:
 
 .. code-block:: shell
   
@@ -77,6 +86,7 @@ The documentation of the `-ffast-math option in Clang`_ is rather terse, but the
     -DOpenMP_omp_LIBRARY=/usr/local/lib/libomp.dylib \
     ../
 
+.. _Anaconda: https://www.anaconda.com/distribution/
 .. _Boost.Test: https://www.boost.org/doc/libs/release/libs/test/
 .. _CMake: https://cmake.org/
 .. _-ffast-math option in Clang: https://clang.llvm.org/docs/UsersManual.html#cmdoption-ffast-math
