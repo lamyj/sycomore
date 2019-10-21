@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <iostream>
+#include <map>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -197,27 +199,66 @@ Discrete3D
     {
         return;
     }
+    
+    // std::cout << "Before shift\n";
+    // for(int i=0; i<this->size(); ++i)
+    // {
+    //     std::cout 
+    //         << this->_orders[3*i] << " " << this->_orders[3*i+1] << " " << this->_orders[3*i+2] << ": " 
+    //         << this->_states[3*i] << " " << this->_states[3*i+1] << " " << this->_states[3*i+2] << "\n"; 
+    // }
+    // std::cout << "\n";
+    
+    /*
+     * The shift operator is the only operator which will create new orders, and
+     * which will move population from one state to another. Other operators 
+     * only change the population of each state independently. The shift 
+     * operator must then maintain the relative order of the states. Any order
+     * can be used, as long as F states (stored as a conjugate pair) can be
+     * unfolded and re-folded while keeping the order. In this implementation,
+     * we use the lexicographic order (F_x < F_y < F_z), and the orders vector
+     * will only contain orders in the upper quadrant (F_x <= F_y <= F_z).
+     * 
+     * The shift operator starts by unfolding the conjugate pairs of F states,
+     * creating a vector of size 2*N-1 from a vector of size N (the order 0 must
+     * not be unfolded). The same operation is applied to the vector of orders.
+     * These two unfolded vectors needs not be sorted.
+     *
+     * All orders are shifted by delta_k. For an arbitrary delta_k, this will
+     * break the order of sorted vector, hence the non-sorted requirement above.
+     *
+     * A map of the folded orders is then built, and split between this->_orders
+     * and this->_states.
+     */
 
     // Unfold the F̃ states
-    std::vector<decltype(this->_orders)::value_type> F_orders((2*this->size()-1)*3);
-    std::vector<decltype(this->_states)::value_type> F_states(2*this->size()-1);
+    std::vector<decltype(this->_orders)::value_type> F_orders((2*this->size())*3);
+    std::vector<decltype(this->_states)::value_type> F_states(2*this->size());
     for(std::size_t i=0; i<this->size(); ++i)
     {
-        // F̃^+ on the right side.
-        F_orders[3*(this->size()-1 + i)+0] = this->_orders[3*i+0];
-        F_orders[3*(this->size()-1 + i)+1] = this->_orders[3*i+1];
-        F_orders[3*(this->size()-1 + i)+2] = this->_orders[3*i+2];
-
-        F_states[this->size()-1 + i] = this->_states[3*i+0];
-
-        // F̃^{-*} on the left side, reversed order.
-        F_orders[3*(this->size()-1 - i)+0] = -this->_orders[3*i+0];
-        F_orders[3*(this->size()-1 - i)+1] = -this->_orders[3*i+1];
-        F_orders[3*(this->size()-1 - i)+2] = -this->_orders[3*i+2];
-
-        F_states[this->size()-1 - i] = std::conj(this->_states[3*i+1]);
+        // F̃^+ on the left side.
+        F_orders[3*i+0] = this->_orders[3*i+0];
+        F_orders[3*i+1] = this->_orders[3*i+1];
+        F_orders[3*i+2] = this->_orders[3*i+2];
+    
+        F_states[i] = this->_states[3*i+0];
+    
+        // F̃^{-*} on the right side.
+        F_orders[3*(this->size()+i)+0] = -this->_orders[3*i+0];
+        F_orders[3*(this->size()+i)+1] = -this->_orders[3*i+1];
+        F_orders[3*(this->size()+i)+2] = -this->_orders[3*i+2];
+        F_states[this->size()+i] = std::conj(this->_states[3*i+1]);
     }
-
+    
+    // std::cout << "Unfolded\n";
+    // for(int i=0; i<F_states.size(); ++i)
+    // {
+    //     std::cout 
+    //         << F_orders[3*i] << " " << F_orders[3*i+1] << " " << F_orders[3*i+2] << ": " 
+    //         << F_states[i] << "\n"; 
+    // }
+    // std::cout << "\n";
+    
     // Shift according to Δk
     for(std::size_t i=0; i<F_states.size(); ++i)
     {
@@ -226,119 +267,83 @@ Discrete3D
             F_orders[3*i+j] += delta_k[j];
         }
     }
-
-    // Find the location of the "negative" and "positive" orders.
-    // NOTE Since we unfold F to (+F, -F), the "positive" orders are mapped to 
-    // the upper quadrant (i.e. F_x <= F_y <= F_z) and the "negative" orders are
-    // mapped to the strict lower quadrant (i.e. F_x > F_z > F_z)
     
-    // NOTE The non-const iterator is required in order to build F_plus_order
-    // as a view in the loop
-    std::pair<decltype(F_orders.begin()), decltype(F_states.begin())> F_plus_it(
-        F_orders.end(), F_states.end());
-    for(auto it = F_orders.begin(); it != F_orders.end(); it += 3)
+    // Create the folded map for F and Z states, make sure the 0 state exists.
+    std::map<Bin, State> folded({{{0,0,0}, {0,0,0}}});
+    auto && F_orders_it = F_orders.begin();
+    auto && F_states_it = F_states.begin();
+    while(F_orders_it != F_orders.end())
     {
-        if(*(it+0) <= *(it+1) && *(it+1) <= *(it+2))
+        Bin order;
+        unsigned int location;
+        decltype(this->_states)::value_type value;
+        if(*F_orders_it <= *(F_orders_it+1) && *(F_orders_it+1) <= *(F_orders_it+2))
         {
-            F_plus_it.first = it;
-            F_plus_it.second = F_states.begin()+(it-F_orders.begin())/3;
-            break;
-        }
-    }
-    // NOTE Since we use -order, we cannot build a view
-    std::pair<decltype(F_orders.begin()), decltype(F_states.begin())> F_minus_it(
-        F_orders.begin()-3, F_states.begin()-1);
-    for(auto it = F_orders.end()-3; it >= F_orders.begin(); it -= 3)
-    {
-        if(!(*(it+0) <= *(it+1) && *(it+1) <= *(it+2)))
-        {
-            F_minus_it.first = it;
-            F_minus_it.second = F_states.begin()+(it-F_orders.begin())/3;
-            break;
-        }
-    }
-
-    // NOTE The non-const iterator is required in order to build Z_order as a
-    // view in the loop
-    std::pair<decltype(this->_orders.begin()), decltype(this->_states.begin())> Z_it(
-        this->_orders.begin(), this->_states.begin());
-
-    decltype(this->_orders) orders; orders.reserve(3*(this->size()+F_states.size()/2));
-    decltype(this->_states) states; states.reserve(3*(this->size()+F_states.size()/2));
-    while(!(
-        F_plus_it.first == F_orders.end()
-        && F_minus_it.first < F_orders.begin()
-        && Z_it.first == this->_orders.end()))
-    {
-        // Create the orders from the iterators
-        auto const F_plus_order =
-            F_plus_it.first != F_orders.end()
-            ? Bin(&*F_plus_it.first, 3) : Bin();
-        auto const F_minus_order =
-            F_minus_it.first >= F_orders.begin()
-            ? -Bin{*(F_minus_it.first+0), *(F_minus_it.first+1), *(F_minus_it.first+2)}
-            : Bin();
-        auto const Z_order =
-            Z_it.first != this->_orders.end() ? Bin(&*Z_it.first, 3) : Bin();
-
-        // Find the orders which have the minimum value.
-        auto const do_F_plus =
-            !F_plus_order.empty()
-            && (F_minus_order.empty() || F_plus_order <= F_minus_order)
-            && (Z_order.empty() || F_plus_order <= Z_order);
-        auto const do_F_minus =
-            !F_minus_order.empty()
-            && (F_plus_order.empty() || F_minus_order <= F_plus_order)
-            && (Z_order.empty() || F_minus_order <= Z_order);
-        auto const do_Z =
-            !Z_order.empty()
-            && (F_plus_order.empty() || Z_order <= F_plus_order)
-            && (F_minus_order.empty() || Z_order <= F_minus_order);
-
-        auto && order =
-            do_F_plus ? F_plus_order : (do_F_minus ? F_minus_order: Z_order);
-
-        for(auto && x: order)
-        {
-            orders.push_back(x);
-        }
-
-        if(do_F_plus)
-        {
-            states.push_back(*F_plus_it.second);
-            F_plus_it.first += 3;
-            ++F_plus_it.second;
+            // Upper quadrant: use as is
+            order = Bin(&*F_orders_it, 3);
+            location = 0;
+            value = *F_states_it;
         }
         else
         {
-            states.push_back(0);
+            // Lower quadrant: store conjugate
+            order = -Bin{*(F_orders_it+0), *(F_orders_it+1), *(F_orders_it+2)};
+            location = 1;
+            value = std::conj(*F_states_it);
         }
-
-        if(do_F_minus)
-        {
-            states.push_back(std::conj(*F_minus_it.second));
-            F_minus_it.first -= 3;
-            --F_minus_it.second;
-        }
-        else
-        {
-            states.push_back(0);
-        }
-
-        if(do_Z)
-        {
-            states.push_back(*(Z_it.second+2));
-            Z_it.first += 3;
-            Z_it.second += 3;
-        }
-        else
-        {
-            states.push_back(0);
-        }
+    
+        // Create empty value if needed
+        auto it = folded.insert({order, {0,0,0}}).first;
+    
+        it->second[location] = value;
+    
+        F_orders_it += 3;
+        ++F_states_it;
     }
-
-    this->_orders = std::move(orders);
-    this->_states = std::move(states);
+    auto && Z_orders_it = this->_orders.begin();
+    auto && Z_states_it = this->_states.begin();
+    while(Z_orders_it != this->_orders.end())
+    {
+        Bin const order(&*Z_orders_it, 3);
+        unsigned int const location=2;
+        decltype(this->_states)::value_type const value=*(Z_states_it+2);
+    
+        // Create empty value if needed
+        auto it = folded.insert({order, {0,0,0}}).first;
+    
+        it->second[location] = value;
+    
+        Z_orders_it += 3;
+        Z_states_it += 3;
+    }
+    
+    // std::cout << "Folded map\n";
+    // for(auto & item: folded)
+    // {
+    //     std::cout 
+    //         << item.first << ": "
+    //         << item.second[0] << " " << item.second[1] << " " << item.second[2] << "\n";
+    // }
+    // std::cout << "\n";
+    
+    this->_orders.resize(3*folded.size());
+    this->_states.resize(3*folded.size());
+    auto orders_it = this->_orders.begin();
+    auto states_it = this->_states.begin();
+    for(auto && item: folded)
+    {
+        orders_it = std::copy(item.first.begin(), item.first.end(), orders_it);
+        states_it = std::copy(item.second.begin(), item.second.end(), states_it);
+    }
+    
+    // std::cout << "Folded Model\n";
+    // for(int i=0; i<this->size(); ++i)
+    // {
+    //     std::cout 
+    //         << this->_orders[3*i] << " " << this->_orders[3*i+1] << " " << this->_orders[3*i+2] << ": " 
+    //         << this->_states[3*i] << " " << this->_states[3*i+1] << " " << this->_states[3*i+2] << "\n"; 
+    // }
+    // std::cout << "\n";
 
     // Update the iterator pointing to the echo magnetization.
     for(std::size_t i=0; i<this->size(); ++i)
