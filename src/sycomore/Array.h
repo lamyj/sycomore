@@ -20,9 +20,9 @@ public:
     using value_type = T;
 
     Array();
-    explicit Array(size_t count);
-    Array(size_t count, T const & value);
-    Array(T * pointer, size_t size);
+    explicit Array(std::size_t count);
+    Array(std::size_t count, T const & value);
+    Array(T * pointer, std::size_t size);
     Array(Array<T> const & other);
     Array(std::initializer_list<T> const & init);
 
@@ -35,7 +35,7 @@ public:
     ~Array();
 
     /// @brief Return the number of elements.
-    size_t size() const;
+    std::size_t size() const;
 
     /// @brief Test whether the array contains no element.
     bool empty() const;
@@ -50,10 +50,10 @@ public:
     Array<T2> astype() const;
 
     /// @brief Read-only access, no bounds checking.
-    T const & operator[](size_t i) const;
+    T const & operator[](std::size_t i) const;
 
     /// @brief Read-write access, no bounds checking.
-    T & operator[](size_t i);
+    T & operator[](std::size_t i);
 
     /// @addtogroup mutating_operators Mutating operators
     /// @{
@@ -87,7 +87,7 @@ public:
     /// @}
 private:
     /// @brief Number of elements in the array
-    size_t _size;
+    std::size_t _size;
 
     bool _is_view;
 
@@ -172,7 +172,7 @@ sycomore::Array<T> abs(sycomore::Array<T> const & a);
 template<typename T>
 struct hash<sycomore::Array<T>>
 {
-    size_t operator()(sycomore::Array<T> const & index) const;
+    std::size_t operator()(sycomore::Array<T> const & index) const;
 };
 
 }

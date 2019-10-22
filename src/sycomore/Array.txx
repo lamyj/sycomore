@@ -23,7 +23,7 @@ Array<T>
 
 template<typename T>
 Array<T>
-::Array(size_t count)
+::Array(std::size_t count)
 : _size(count), _is_view(false), _data(nullptr)
 {
     this->_data = new T[this->_size];
@@ -31,7 +31,7 @@ Array<T>
 
 template<typename T>
 Array<T>
-::Array(size_t count, T const & value)
+::Array(std::size_t count, T const & value)
 : Array(count)
 {
     std::fill(this->begin(), this->end(), value);
@@ -39,7 +39,7 @@ Array<T>
 
 template<typename T>
 Array<T>
-::Array(T * pointer, size_t size)
+::Array(T * pointer, std::size_t size)
 : _size(size), _is_view(true), _data(pointer)
 {
     // Nothing else.
@@ -126,7 +126,7 @@ Array<T>
 }
 
 template<typename T>
-size_t
+std::size_t
 Array<T>
 ::size() const
 {
@@ -186,7 +186,7 @@ Array<T>
 template<typename T>
 T const &
 Array<T>
-::operator[](size_t i) const
+::operator[](std::size_t i) const
 {
     return this->_data[i];
 }
@@ -194,7 +194,7 @@ Array<T>
 template<typename T>
 T &
 Array<T>
-::operator[](size_t i)
+::operator[](std::size_t i)
 {
     return this->_data[i];
 }
@@ -205,7 +205,7 @@ Array<T> & \
 Array<T> \
 ::operator op##=(value_type const & s) \
 { \
-    for(size_t i=0; i!=this->_size; ++i) \
+    for(std::size_t i=0; i!=this->_size; ++i) \
     { \
         this->_data[i] op##= s; \
     } \
@@ -229,7 +229,7 @@ Array<T> \
     { \
         throw std::runtime_error("Size mismatch"); \
     } \
-    for(size_t i=0; i!=this->_size; ++i) \
+    for(std::size_t i=0; i!=this->_size; ++i) \
     { \
         this->_data[i] op##= other._data[i]; \
     } \
@@ -299,7 +299,7 @@ bool operator==(Array<T> const & l, Array<T> const & r)
     }
     else
     {
-        for(size_t i=0; i!=l.size() && equal; ++i)
+        for(std::size_t i=0; i!=l.size() && equal; ++i)
         {
             if(l[i] != r[i])
             {
@@ -344,7 +344,7 @@ bool operator>=(Array<T> const & l, Array<T> const & r)
 template<typename T>
 Array<T> operator-(Array<T> l)
 {
-    for(size_t i=0; i!=l.size(); ++i)
+    for(std::size_t i=0; i!=l.size(); ++i)
     {
         l[i] = -l[i];
     }
@@ -357,7 +357,7 @@ Array<decltype(std::declval<T1>() op std::declval<T2>())> \
 operator op(Array<T1> const & a, T2 const & s) \
 { \
     Array<decltype(std::declval<T1>() op std::declval<T2>())> result(a.size()); \
-    for(size_t i=0; i<result.size(); ++i) \
+    for(std::size_t i=0; i<result.size(); ++i) \
     { \
         result[i] = a[i] op s; \
     } \
@@ -377,7 +377,7 @@ Array<decltype(std::declval<T1>() op std::declval<T2>())> \
 operator op(T1 const & s, Array<T2> const & a) \
 { \
     Array<decltype(std::declval<T1>() op std::declval<T2>())> result(a.size()); \
-    for(size_t i=0; i<result.size(); ++i) \
+    for(std::size_t i=0; i<result.size(); ++i) \
     { \
         result[i] = a[i] op s; \
     } \
@@ -395,7 +395,7 @@ Array<decltype(std::declval<T1>() op std::declval<T2>())> \
 operator op(Array<T1> const & l, Array<T2> const & r) \
 { \
     Array<decltype(std::declval<T1>() op std::declval<T2>())> x(std::min(l.size(), r.size())); \
-    for(size_t i=0; i!=x.size(); ++i) \
+    for(std::size_t i=0; i!=x.size(); ++i) \
     { \
         x[i] = l[i] op r[i]; \
     } \
@@ -411,7 +411,7 @@ template<typename T>
 Array<T> minimum(Array<T> const & l, Array<T> const & r)
 {
     Array<T> result(std::min(l.size(), r.size()));
-    for(size_t i=0; i!=result.size(); ++i)
+    for(std::size_t i=0; i!=result.size(); ++i)
     {
         result[i] = std::min(l[i], r[i]);
     }
@@ -422,7 +422,7 @@ template<typename T>
 Array<T> maximum(Array<T> const & l, Array<T> const & r)
 {
     Array<T> result(std::min(l.size(), r.size()));
-    for(size_t i=0; i!=result.size(); ++i)
+    for(std::size_t i=0; i!=result.size(); ++i)
     {
         result[i] = std::max(l[i], r[i]);
     }
@@ -435,7 +435,7 @@ dot(Array<T1> const & l, Array<T2> const & r)
 {
     decltype(std::declval<T1>()*std::declval<T2>()) result(0);
     auto const size=std::min(l.size(), r.size());
-    for(size_t i=0; i!=size; ++i)
+    for(std::size_t i=0; i!=size; ++i)
     {
         result += l[i]*r[i];
     }
@@ -476,7 +476,7 @@ sycomore::Array<T> abs(sycomore::Array<T> const & a)
 }
 
 template<typename T>
-size_t
+std::size_t
 hash<sycomore::Array<T>>
 ::operator()(sycomore::Array<T> const & index) const
 {

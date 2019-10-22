@@ -18,7 +18,7 @@ void wrap_como_Model(pybind11::module & m)
             {
                 std::vector<std::pair<std::string, TimeInterval>>
                     time_intervals_cpp;
-                for(size_t i=0; i<time_intervals_py.size(); ++i)
+                for(std::size_t i=0; i<time_intervals_py.size(); ++i)
                 {
                     auto item = time_intervals_py[i].cast<sequence>();
                     time_intervals_cpp.emplace_back(

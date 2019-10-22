@@ -104,7 +104,7 @@ GridScanner
 {
     ++this->_iterator.second;
 
-    for(size_t i=0, end(this->_iterator.first.size()); i<end; ++i)
+    for(std::size_t i=0, end(this->_iterator.first.size()); i<end; ++i)
     {
         ++this->_iterator.first[i];
         if(this->_iterator.first[i] == this->_region_end[i] && i!=end-1)

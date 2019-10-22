@@ -35,7 +35,7 @@ public:
         std::vector<std::pair<std::string, TimeInterval>> const & time_intervals);
 
     /// @brief Return the dimension index map.
-    std::map<std::string, size_t> const & dimensions() const;
+    std::map<std::string, std::size_t> const & dimensions() const;
 
     /// @brief Return the time intervals.
     std::vector<TimeInterval> const & time_intervals() const;
@@ -77,7 +77,7 @@ private:
     ComplexMagnetization _initial_magnetization;
 
     /// @brief Dimension index of time interval
-    std::map<std::string, size_t> _dimensions;
+    std::map<std::string, std::size_t> _dimensions;
 
     /// @brief Named time intervals.
     std::vector<TimeInterval> _time_intervals;

@@ -13,7 +13,7 @@ class SYCOMORE_API GridScanner
 {
 public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = std::pair<Index, size_t>;
+    using value_type = std::pair<Index, std::size_t>;
     using difference_type = std::ptrdiff_t;
     using pointer = value_type const *;
     using reference = value_type const &;
@@ -46,7 +46,7 @@ private:
     Stride _offset_increment;
 
     Index _end_index;
-    size_t _end_offset;
+    std::size_t _end_offset;
 };
 
 }

@@ -1,17 +1,29 @@
 version: '{build}'
-image: Visual Studio 2017
+image: 
+  - Visual Studio 2015
+  - Visual Studio 2017
 environment:
   PATH: C:\Python37-x64;C:\Python37-x64\Scripts;$(PATH)
   PLATFORM: x64
   PYTHON: C:\Python37-x64\python.exe
   WORKSPACE: $(APPVEYOR_BUILD_FOLDER)
+for:
+  - matrix:
+      only:
+        - image: Visual Studio 2015
+    environment:
+      VCVARS_PATH: "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat"
+      BOOST_PATH: "C:\\Libraries\\boost_1_67_0\\lib64-msvc-14.0"
+  - matrix:
+      only:
+        - image: Visual Studio 2017
+    environment:
+      VCVARS_PATH: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat"
+      BOOST_PATH: "C:\\Libraries\\boost_1_67_0\\lib64-msvc-14.1"
 install:
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %PLATFORM%
+  - call "%VCVARS_PATH%" %PLATFORM%
   - call .\.ci\windows\install.cmd
 build_script:
   - call .\.ci\windows\build.cmd
 test_script:
   - call .\.ci\windows\post_build.cmd
-
-# on_finish:
-#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

@@ -30,13 +30,13 @@ public:
     value_type const * data() const;
     value_type * data();
 
-    value_type & operator[](size_t offset);
-    value_type const & operator[](size_t offset) const;
+    value_type & operator[](std::size_t offset);
+    value_type const & operator[](std::size_t offset) const;
 
     value_type & operator[](Index const & index);
     value_type const & operator[](Index const & index) const;
 
-    size_t dimension() const;
+    std::size_t dimension() const;
     Index const & origin() const;
     Shape const & shape() const;
     Stride const & stride() const;

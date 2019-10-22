@@ -211,11 +211,11 @@ sycomore::Quantity pow(sycomore::Quantity q, double e)
 }
 
 //template<>
-size_t
+std::size_t
 hash<sycomore::Quantity>
 ::operator()(sycomore::Quantity const & q) const
 {
-    size_t seed=0;
+    std::size_t seed=0;
     hash<double> hasher;
     sycomore::combine_hashes(seed, hasher(q.magnitude));
     sycomore::combine_hashes(seed, hasher(q.dimensions.length));

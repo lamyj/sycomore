@@ -50,19 +50,19 @@ PYBIND11_MODULE(_sycomore, _sycomore)
 
     _sycomore.def(
         "linspace",
-        static_cast<std::vector<Quantity> (*) (Quantity, Quantity, size_t)>(
+        static_cast<std::vector<Quantity> (*) (Quantity, Quantity, std::size_t)>(
             linspace<Quantity>));
     _sycomore.def(
         "linspace",
-        static_cast<std::vector<Quantity> (*) (Quantity, size_t)>(
+        static_cast<std::vector<Quantity> (*) (Quantity, std::size_t)>(
             linspace<Quantity>));
 
     _sycomore.def(
         "linspace",
-        static_cast<std::vector<Point> (*) (Point, Point, size_t)>(
+        static_cast<std::vector<Point> (*) (Point, Point, std::size_t)>(
             linspace<Point>));
     _sycomore.def(
         "linspace",
-        static_cast<std::vector<Point> (*) (Point, size_t)>(
+        static_cast<std::vector<Point> (*) (Point, std::size_t)>(
             linspace<Point>));
 }

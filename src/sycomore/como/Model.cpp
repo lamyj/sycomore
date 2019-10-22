@@ -77,7 +77,7 @@ Model
     this->_F = Grid<Real>(F_origin, F_shape, NAN);
 }
 
-std::map<std::string, size_t> const &
+std::map<std::string, std::size_t> const &
 Model
 ::dimensions() const
 {
@@ -151,7 +151,7 @@ Model
     }
 
     this->apply_pulse(pulse.get_pulses()[0]);
-    for(size_t i=1; i!=pulse.get_pulses().size(); ++i)
+    for(std::size_t i=1; i!=pulse.get_pulses().size(); ++i)
     {
         this->apply_time_interval(pulse.get_name());
         this->apply_pulse(pulse.get_pulses()[i]);
@@ -216,7 +216,7 @@ Model
 
     // Configuration-independent diffusion effects
     Array<Real> p_mu(time_interval.get_gradient_moment().size());
-    for(size_t i=0; i<p_mu.size(); ++i)
+    for(std::size_t i=0; i<p_mu.size(); ++i)
     {
         p_mu[i] = time_interval.get_gradient_moment()[i].convert_to(rad/m);
     }
@@ -408,7 +408,7 @@ Model
         relative_frequency.convert_to(units::rad/units::s)
         +this->_species.get_delta_omega().convert_to(units::rad/units::s);
 
-    auto const update_isochromat = [&](size_t const & offset) {
+    auto const update_isochromat = [&](std::size_t const & offset) {
         auto && tau = this->_tau[offset];
 
         Real const susceptibility =
@@ -477,7 +477,7 @@ Model
 ::_compute_tau_n(Index const & n, Real & tau)
 {
     tau = 0;
-    for(size_t d=0; d<this->_dimensions.size(); ++d)
+    for(std::size_t d=0; d<this->_dimensions.size(); ++d)
     {
         auto && tau_eta = this->_time_intervals[d].get_duration().convert_to(units::s);
         tau += n[d] * tau_eta;
@@ -489,10 +489,10 @@ Model
 ::_compute_p_n(Index const & n, Array<Real> & p)
 {
     std::fill(p.begin(), p.end(), 0);
-    for(size_t d=0; d<this->_dimensions.size(); ++d)
+    for(std::size_t d=0; d<this->_dimensions.size(); ++d)
     {
         Array<Real> p_eta(this->_time_intervals[d].get_gradient_moment().size());
-        for(size_t i=0; i<p_eta.size(); ++i)
+        for(std::size_t i=0; i<p_eta.size(); ++i)
         {
             p_eta[i] =
                 this->_time_intervals[d].get_gradient_moment()[i].convert_to(
@@ -548,7 +548,7 @@ Model
     Index last(this->_m.dimension(), 0);
 
     auto update_boundary = [&](Index const & index) {
-        for(size_t d=0; d<this->_m.dimension(); ++d)
+        for(std::size_t d=0; d<this->_m.dimension(); ++d)
         {
             first[d] = std::min(first[d], index[d]);
             last[d] = std::max(last[d], index[d]);
@@ -579,7 +579,7 @@ Model
         }
 
         bool would_create_concavity = false;
-        for(size_t i=0; i<this->_m.dimension(); ++i)
+        for(std::size_t i=0; i<this->_m.dimension(); ++i)
         {
             int neighbors_count = 0;
 
@@ -623,7 +623,7 @@ Model
     // Keep a symmetric bounding box as assumed by apply_time_interval
     Index origin(this->_m.dimension());
     Shape shape(this->_m.dimension());
-    for(size_t i=0; i<shape.size(); ++i)
+    for(std::size_t i=0; i<shape.size(); ++i)
     {
         origin[i] = -std::max(std::abs(first[i]), std::abs(last[i]));
         shape[i] = 1+2*std::max(std::abs(first[i]), std::abs(last[i]));

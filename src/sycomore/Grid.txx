@@ -56,7 +56,7 @@ Grid<T>
 template<typename T>
 typename Grid<T>::value_type &
 Grid<T>
-::operator[](size_t offset)
+::operator[](std::size_t offset)
 {
     return this->_data[offset];
 }
@@ -64,7 +64,7 @@ Grid<T>
 template<typename T>
 typename Grid<T>::value_type const &
 Grid<T>
-::operator[](size_t offset) const
+::operator[](std::size_t offset) const
 {
     return this->_data[offset];
 }
@@ -88,7 +88,7 @@ Grid<T>
 }
 
 template<typename T>
-size_t
+std::size_t
 Grid<T>
 ::dimension() const
 {

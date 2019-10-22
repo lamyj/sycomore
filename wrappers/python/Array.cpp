@@ -22,7 +22,7 @@ wrap_Array(
         .def(init(
             [](sequence s) {
                 Array<T> array(s.size());
-                for(size_t i=0; i<array.size(); ++i)
+                for(std::size_t i=0; i<array.size(); ++i)
                 {
                     array[i] = s[i].cast<T>();
                 }
@@ -31,7 +31,7 @@ wrap_Array(
         .def(init(
             [](args s) {
                 Array<T> array(s.size());
-                for(size_t i=0; i<array.size(); ++i)
+                for(std::size_t i=0; i<array.size(); ++i)
                 {
                     array[i] = s[i].cast<T>();
                 }
@@ -46,8 +46,8 @@ wrap_Array(
         .def("__len__", &Array<T>::size)
         .def("empty", &Array<T>::empty)
         .def("__bool__", [](Array<T> const & a) { return !a.empty(); })
-        .def("__getitem__", [](Array<T> const & a, size_t i) { return a[i]; })
-        .def("__setitem__", [](Array<T> & a, size_t i, T v) { a[i]=v; })
+        .def("__getitem__", [](Array<T> const & a, std::size_t i) { return a[i]; })
+        .def("__setitem__", [](Array<T> & a, std::size_t i, T v) { a[i]=v; })
         .def(self == self)
         .def(self != self)
         .def(-self)

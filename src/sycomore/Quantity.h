@@ -63,7 +63,7 @@ SYCOMORE_API sycomore::Quantity pow(sycomore::Quantity q, double e);
 template<>
 struct SYCOMORE_API hash<sycomore::Quantity>
 {
-    size_t operator()(sycomore::Quantity const & q) const;
+    std::size_t operator()(sycomore::Quantity const & q) const;
 };
 
 }
