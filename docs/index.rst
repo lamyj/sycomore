@@ -3,19 +3,28 @@ Sycomore -- an MRI simulation toolkit
 
 Sycomore is an MRI simulation toolkit providing :doc:`Bloch simulation<bloch>`, :doc:`Extended Phase Graphs (EPG)<epg/index>` (both :doc:`regular<epg/regular>` and :doc:`discrete<epg/discrete>`), and :doc:`Configuration Models<como>`. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime and further acceleration through `OpenMP`_.
 
+Sycomore is free software, released under the `MIT license`_, and its source code is available on `GitHub`_.
+
+A sample web application, using Sycomore paired with `Bokeh`_ is available on `Heroku`_ (note that this is using the free Heroku hosting, and start-up times might be rather long; this does not impact the performance when the application is running): it presents classical MRI experiments (RARE, RF-spoiling, slice profile with a selective sinc pulse), using the different simulation models of Sycomore.
+
 Installation
 ------------
 
-Sycomore requires a C++11 compiler, Python (≥ 3.5) and `pybind11`_. To take full advantage of your CPU, OpenMP is strongly recommended. If you want to validate your build of Sycomore, you should run the unit tests, which require `Boost.Test`_. Sycomore uses `CMake`_, so the simplest way to build it would be to create a *build* directory inside the source directory, run *cmake*, then run *make*:
+Packaged versions of Sycomore are available on `pypi`_ and `Anaconda`_ for Linux, macOS and Windows. The following table summarizes the availability of packages according to the version of the Python interpreter.
 
-.. code-block:: shell
-  
-  mkdir build
-  cd build
-  cmake ..
-  make
++------------------+---------------+---------------+
+| Operating system | conda-forge   | PyPI          |
++==================+===============+===============+
+| Linux            | 3.6, 3.7      | 3.5, 3.6, 3.7 |
++------------------+---------------+---------------+
+| macOS (≥ 9)      | 3.6, 3.7      | 3.6, 3.7      |
++------------------+---------------+---------------+
+| Windows          | not available | 3.5, 3.6, 3.7 |
++------------------+---------------+---------------+
 
-Additional details are provided in the :doc:`documentation<installation>`.
+To install from `Anaconda`_, type ``conda install -c conda-forge sycomore``. To install from `pypi`_, type ``pip3 install sycomore`` (or ``pip install sycomore``). If you are installing from `pypi`_ and no pre-compiled version is available for your platform, pip will try to install from the source archive; in that case you will need a C++11 compiler, `CMake`_ and `pybind11`_ to successfully build Sycomore.
+
+Additional details, including building from source, are provided in the :doc:`documentation<installation>`.
  
 Usage
 -----
@@ -79,7 +88,13 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`search`
 
+.. _Anaconda: https://www.anaconda.com/distribution/
+.. _Bokeh: https://bokeh.org
 .. _Boost.Test: https://www.boost.org/doc/libs/release/libs/test/
 .. _CMake: https://cmake.org/
+.. _GitHub: https://github.com/lamyj/sycomore/
+.. _Heroku: https://sycomore.herokuapp.com/
+.. _MIT license: https://en.wikipedia.org/wiki/MIT_License
 .. _OpenMP: https://www.openmp.org/
 .. _pybind11: http://pybind11.readthedocs.io/
+.. _pypi: https://pypi.org/project/sycomore/

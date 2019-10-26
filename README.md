@@ -7,6 +7,10 @@
 
 Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase Graphs (EPG) (both regular and discrete, including 3D), and Configuration Models. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime and further acceleration through [OpenMP](https://www.openmp.org/).
 
+Sycomore is free software, released under the [MIT license](https://en.wikipedia.org/wiki/MIT_License), and its source code is available on [GitHub](https://github.com/lamyj/sycomore/).
+
+A sample web application, using Sycomore paired with [Bokeh](https://bokeh.org) is available on [Heroku](https://sycomore.herokuapp.com/) (note that this is using the free Heroku hosting, and start-up times might be rather long; this does not impact the performance when the application is running): it presents classical MRI experiments (RARE, RF-spoiling, slice profile with a selective sinc pulse), using the different simulation models of Sycomore.
+
 ## Installation
 
 Packaged versions of Sycomore are available on [pypi](https://pypi.org/project/sycomore/) and [Anaconda](https://www.anaconda.com/distribution/) for Linux, macOS and Windows. The following table summarizes the availability of packages according to the version of the Python interpreter.
