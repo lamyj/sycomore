@@ -17,6 +17,21 @@ matrix:
       after_success:
         - docker kill debian_stretch
     
+    - name: "Debian 10 (Buster)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - PYTHON=python3 
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e PYTHON=${PYTHON} -e WORKSPACE=${WORKSPACE} debian_buster"
+      before_install:
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name debian_buster --rm debian:buster
+      after_success:
+        - docker kill debian_buster
+    
     - name: "Ubuntu 18.04 (Bionic Beaver)"
       os: linux
       sudo: required
@@ -42,16 +57,6 @@ matrix:
         # FIXME: link error with libomp
         - CMAKE_OPTIONS="-DUSE_OPENMP:BOOL=OFF -DPYTHON_EXECUTABLE=${PYTHON}"
         - RUNNER=""
-    
-    # - name: "Windows 10"
-    #   os: windows
-    #   # WARNING: Minimal is not supported on Windows
-    #   language: shell
-    #   env: 
-    #     - CI_TYPE=windows
-    #     - PATH=/c/Python37:/c/Python37/Scripts:$PATH
-    #     - WORKSPACE=${TRAVIS_BUILD_DIR}
-    #     - RUNNER=""
 
 script: |
   ${RUNNER} ./.ci/${CI_TYPE}/install
