@@ -30,7 +30,7 @@ Additional details are provided in the [documentation](https://sycomore.readthed
 
 ## Usage
 
-The following code simulates a single repetition of a simple RARE sequence and plots the transverse magnetization of each echo.
+The following code simulates a single repetition of a simple [RARE sequence](https://doi.org/10.1002/mrm.1910030602) using [regular EPG](https://sycomore.readthedocs.io/en/latest/epg/regular.html) and plots the transverse magnetization of each echo.
 
 ```python
 import matplotlib.pyplot

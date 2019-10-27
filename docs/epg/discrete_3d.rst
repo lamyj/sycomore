@@ -102,7 +102,7 @@ Reference
   .. attribute:: orders
     
     The sequence of orders currently stored by the model, in the same order as
-    the :attr:`states` member. This attribute is read-only.
+    the :attr:`states` member. This attribute is read-only, 3×N array of dephasing (in rad/m).
   
   .. attribute:: states
     

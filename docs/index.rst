@@ -25,11 +25,13 @@ Packaged versions of Sycomore are available on `pypi`_ and `Anaconda`_ for Linux
 To install from `Anaconda`_, type ``conda install -c conda-forge sycomore``. To install from `pypi`_, type ``pip3 install sycomore`` (or ``pip install sycomore``). If you are installing from `pypi`_ and no pre-compiled version is available for your platform, pip will try to install from the source archive; in that case you will need a C++11 compiler, `CMake`_ and `pybind11`_ to successfully build Sycomore.
 
 Additional details, including building from source, are provided in the :doc:`documentation<installation>`.
+
+As of November 2019, compatibility with Python 2 is still possible: however due to the `end of life of Python 2`_, ensuring this compatibility is not a goal of Sycomore, and no such package is distributed.
  
 Usage
 -----
 
-The following code simulates a single repetition of a simple RARE sequence and plots the transverse magnetization of each echo.
+The following code simulates a single repetition of a simple `RARE sequence`_ with :doc:`regular EPG<epg/regular>` and plots the transverse magnetization of each echo.
 
 .. code-block:: python
   
@@ -86,15 +88,16 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`search`
 
 .. _Anaconda: https://www.anaconda.com/distribution/
 .. _Bokeh: https://bokeh.org
 .. _Boost.Test: https://www.boost.org/doc/libs/release/libs/test/
 .. _CMake: https://cmake.org/
+.. _end of life of Python 2: https://www.python.org/dev/peps/pep-0373/
 .. _GitHub: https://github.com/lamyj/sycomore/
 .. _Heroku: https://sycomore.herokuapp.com/
 .. _MIT license: https://en.wikipedia.org/wiki/MIT_License
 .. _OpenMP: https://www.openmp.org/
 .. _pybind11: http://pybind11.readthedocs.io/
 .. _pypi: https://pypi.org/project/sycomore/
+.. _RARE sequence: https://doi.org/10.1002/mrm.1910030602

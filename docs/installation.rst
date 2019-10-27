@@ -18,6 +18,8 @@ Packaged versions of Sycomore are available on `pypi`_ and `Anaconda`_ for Linux
 
 To install from `Anaconda`_, type ``conda install -c conda-forge sycomore``. To install from `pypi`_, type ``pip3 install sycomore`` (or ``pip install sycomore``). If you are installing from `pypi`_ and no pre-compiled version is available for your platform, pip will try to install from the source archive; in that case you will need a C++11 compiler, `CMake`_ and `pybind11`_ to successfully build Sycomore.
 
+As of November 2019, compatibility with Python 2 is still possible: however due to the `end of life of Python 2`_, ensuring this compatibility is not a goal of Sycomore, and no such package is distributed.
+
 From source
 -----------
 
@@ -30,7 +32,14 @@ Installing Sycomore from source requires a C++11 compiler, Python (≥ 3.5) and 
   cmake ..
   make
 
-To build without OpenMP support, pass *-D USE_OPENMP=OFF* to the CMake call.
+In addition to the common CMake options (e.g. *CMAKE_BUILD_TYPE* or *CMAKE_INSTALL_PREFIX*), Sycomore may be built with the following options:
+
+- *BUILD_SHARED_LIBS* controls the generation of static libraries or share libraries; defaults to *ON*, i.e. building shared libraries
+- *BUILD_TESTING* controls the build of the C++ unit test executables; defaults to *ON*, i.e. the unit tests are compiled
+- *BUILD_EXAMPLES* controls the build of the C++ example executables; defaults to *ON*, i.e. the examples are compiled
+- *BUILD_PYTHON_WRAPPERS* controls the build of the Python wrappers; defaults to *ON*, i.e. the Python wrappers are built
+- *BUILD_STANDALONE_PYTHON_WRAPPERS*, controls whether a standalone Python library is built, wihtout any pure C++ compatibility; defaults to *OFF*, i.e. both the C++ and Python libraries are built
+- *USE_OPENMP*, to compile with or without OpenMP support; defaults to *ON*, unless *BUILD_STANDALONE_PYTHON_WRAPPERS* is set to *ON*
 
 The compilation can take advantage of a multi-core CPU either by using `make`_ with the *-jN* flag (where *N* is the number of concurrent tasks, i.e. the number of cores) or by using `Ninja`_. Once the compilation succeeds, the units tests can be run from the build directory:
 
@@ -39,7 +48,7 @@ The compilation can take advantage of a multi-core CPU either by using `make`_ w
   export SYCOMORE_TEST_DATA=$(pwd)/../tests/data
   ctest -T Test
 
-This code benefits a lot of compilers optimization. It is recommended to build a *Release* version and use extra compiler flags to speed-up the simulations. Moreover, using OpenMP on macOS requires additional flags. Details of these flags on Linux and macOS are provided in the next sections.
+This code benefits hugely from compiler optimizations. It is recommended to build a *Release* version and use extra compiler flags to speed-up the simulations. Moreover, using OpenMP on macOS requires additional flags. Details of these flags on Linux and macOS are provided in the next sections.
 
 Debian
 ......
@@ -50,7 +59,7 @@ The following call to *apt-get* will install all dependencies:
   
   apt-get install -y cmake g++ libboost-dev libboost-test-dev python3-pybind11
 
-When compiling with GCC on Debian 9, *-ffast-math* enables *-ffinite-math-only*, which breaks some parts of Sycomore (the application of a time interval with gradients or the computation of isochromat with off-resonance effects). All `other optimizations turned on by -ffast-math`_ can however be used and the recommended call to CMake is:
+When compiling with GCC on Debian 9 (stretch) and Debian 10 (buster), *-ffast-math* enables *-ffinite-math-only*, which breaks some parts of Sycomore (the application of a time interval with gradients or the computation of isochromat with off-resonance effects). All `other optimizations turned on by -ffast-math`_ can however be used and the recommended call to CMake is:
 
 .. code-block:: shell
   
@@ -86,6 +95,7 @@ The documentation of the `-ffast-math option in Clang`_ is rather terse, but the
 .. _Anaconda: https://www.anaconda.com/distribution/
 .. _Boost.Test: https://www.boost.org/doc/libs/release/libs/test/
 .. _CMake: https://cmake.org/
+.. _end of life of Python 2: https://www.python.org/dev/peps/pep-0373/
 .. _-ffast-math option in Clang: https://clang.llvm.org/docs/UsersManual.html#cmdoption-ffast-math
 .. _make: https://www.gnu.org/software/make/
 .. _Ninja: https://ninja-build.org/

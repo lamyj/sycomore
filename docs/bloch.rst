@@ -31,9 +31,9 @@ The composition of the geometric transforms described by those homogeneous matri
 Usage
 -----
 
-The basic operators of Bloch simulation are :func:`sycomore.bloch.pulse` and :func:`sycomore.bloch.time_interval`. They both use the :class:`sycomore.Species` class, and the :ref:`units` system.
+The basic operators of Bloch simulation are :func:`sycomore.bloch.pulse` and :func:`sycomore.bloch.time_interval`. They both use the :class:`sycomore.Species` class and the :ref:`units<units>` system.
 
-Contrary to :doc:`Extended Phase Graphs (EPG)<epg/index>` which simulate at voxel-level, Bloch simulation works on a single isochromat. It is however possible to explicitely use Bloch simulation for a whole voxel. The following example shows the simulation of a Fast-Spin-Echo sequence with 50 different positions in a voxel: the fanning-out and fanning-in of phases is clearly-visible on both the phase and the magnitude plots.
+Contrary to :doc:`Extended Phase Graphs (EPG)<epg/index>` which simulate at voxel-level, Bloch simulation works on a single isochromat. It is however possible to explicitely use Bloch simulation for a whole voxel. The following example shows the simulation of a RARE sequence with 50 different positions in a voxel: the fanning-out and fanning-in of phases is clearly visible on both the phase and the magnitude plots.
 
 .. code-block:: python
   

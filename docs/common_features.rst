@@ -6,9 +6,9 @@ Common features
 Units
 -----
 
-MRI simulations deal with various quantities: times, frequencies and angular frequencies, magnetic field strength, gradient moments, etc. All those quantities use different usual prefixes, but not always the same: relaxation time and sequence timing are usually expressed in milliseconds, while the gyromagnetic ratio is expressed in *MHz/T* (i.e. inverse of microseconds) gradients moments are expressed in *mT/m ms* and slice thickness in millimeters (on clinical scanners) or micrometers (on pre-clinical scanners). This wealth of units makes it very easy to get quantities wrong by a factor of 1000 or more.
+MRI simulations deal with various quantities: times, frequencies and angular frequencies, magnetic field strength, gradient moments, etc. All those quantities use different usual prefixes, but not always the same: relaxation time and sequence timing are usually expressed in milliseconds, while the gyromagnetic ratio is expressed in *MHz/T* (i.e. inverse of microseconds) gradients moments are expressed in *mT/m⋅ms* and slice thickness in millimeters (on clinical scanners) or micrometers (on pre-clinical scanners). This wealth of units makes it very easy to get quantities wrong by a factor of 1000 or more.
 
-Sycomore provides a unit system so that users do not have to convert their quantities to a specific unit. Units may be declared by multiplying or dividing by the unit name (e.g. *500\*ms*). Those two syntaxes can be mixed in order to use more complex units (e.g. *267.522\*MHz/T*). Unit objects follow the usual arithmetic rules, and all SI `base units`_, `derived units`_ and `prefixes`_. 
+Sycomore provides a unit system so that users do not have to convert their quantities to a specific unit. Units may be declared by multiplying or dividing by the unit name (e.g. *500\*ms*). Those two syntaxes can be mixed in order to use more complex units (e.g. *267.522\*MHz/T*). Unit objects follow the usual arithmetic rules, and all SI `base units`_, `derived units`_ and `prefixes`_ are defined. 
 
 :class:`Quantity` objects contain their value in the base SI unit and may be converted to a compatible unit. Common arithmetic operations (addition, subtraction, multiplication, division, power) are implemented. The following code sample summarizes these features.
 
@@ -42,9 +42,10 @@ A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its d
     import sycomore
     from sycomore.units import *
     
-    # Create a Species from either relaxation times or relaxation rates
+    # Create a Species from either relaxation times, relaxation rates or both
     species = sycomore.Species(1000*ms, 100*ms)
     species = sycomore.Species(1*Hz, 10*Hz)
+    species = sycomore.Species(1000*ms, 10*Hz)
 
 The diffusivity can be assigned either as a scalar (for isotropic diffusion) or as a tensor (for anistropic diffusion), but will always be returned as a tensor:
 
@@ -102,8 +103,12 @@ Reference
     Diffusion tensor
   
   .. attribute:: R2_prime
+    
+    The part of the apparent transversal relaxation R\ :sub:`2`:sup:`*` attributed to the magnetic field inhomogeneity
   
   .. attribute:: T2_prime
+    
+    The time associated to the R2_prime rate
   
   .. attribute:: delta_omega
     
