@@ -21,7 +21,6 @@ class build_ext(setuptools.command.build_ext.build_ext):
         self.extra_cmake_options = [
             "-DCMAKE_BUILD_TYPE:STRING=Release",
             "-DBUILD_TESTING:BOOL=OFF",
-            "-DBUILD_EXAMPLES:BOOL=OFF",
             "-DBUILD_STANDALONE_PYTHON_WRAPPERS:BOOL=ON",
             "-DUSE_OPENMP:BOOL=OFF",
             "-DPYTHON_EXECUTABLE:FILEPATH={}".format(sys.executable),

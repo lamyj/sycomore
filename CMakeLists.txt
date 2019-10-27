@@ -7,7 +7,6 @@ string(REGEX MATCH "^[0-9]+" sycomore_MAJOR_VERSION "${sycomore_VERSION}")
 
 option(BUILD_SHARED_LIBS "Build Sycomore with shared libraries." ON)
 option(BUILD_TESTING "Build unit tests." ON)
-option(BUILD_EXAMPLES "Build the examples directory." ON)
 option(BUILD_PYTHON_WRAPPERS "Build the Python Wrappers." ON)
 option(
     BUILD_STANDALONE_PYTHON_WRAPPERS
@@ -59,8 +58,4 @@ endif()
 
 if(BUILD_TESTING)
     add_subdirectory("tests")
-endif()
-
-if(BUILD_EXAMPLES)
-    add_subdirectory("examples")
 endif()

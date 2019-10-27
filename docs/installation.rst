@@ -36,7 +36,6 @@ In addition to the common CMake options (e.g. *CMAKE_BUILD_TYPE* or *CMAKE_INSTA
 
 - *BUILD_SHARED_LIBS* controls the generation of static libraries or share libraries; defaults to *ON*, i.e. building shared libraries
 - *BUILD_TESTING* controls the build of the C++ unit test executables; defaults to *ON*, i.e. the unit tests are compiled
-- *BUILD_EXAMPLES* controls the build of the C++ example executables; defaults to *ON*, i.e. the examples are compiled
 - *BUILD_PYTHON_WRAPPERS* controls the build of the Python wrappers; defaults to *ON*, i.e. the Python wrappers are built
 - *BUILD_STANDALONE_PYTHON_WRAPPERS*, controls whether a standalone Python library is built, wihtout any pure C++ compatibility; defaults to *OFF*, i.e. both the C++ and Python libraries are built
 - *USE_OPENMP*, to compile with or without OpenMP support; defaults to *ON*, unless *BUILD_STANDALONE_PYTHON_WRAPPERS* is set to *ON*
