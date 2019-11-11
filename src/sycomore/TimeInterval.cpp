@@ -7,18 +7,18 @@ namespace sycomore
 {
 
 TimeInterval
-::TimeInterval(Quantity const & duration, Quantity const & gradient_moment)
+::TimeInterval(Quantity const & duration, Quantity const & gradient)
 {
     this->set_duration(duration);
-    this->set_gradient_moment({gradient_moment, gradient_moment, gradient_moment});
+    this->set_gradient({gradient, gradient, gradient});
 }
 
 TimeInterval
 ::TimeInterval(
-    Quantity const & duration, Array<Quantity> const & gradient_moment)
+    Quantity const & duration, Array<Quantity> const & gradient)
 {
     this->set_duration(duration);
-    this->set_gradient_moment(gradient_moment);
+    this->set_gradient(gradient);
 }
 
 Quantity const &
@@ -44,11 +44,55 @@ TimeInterval
     }
 }
 
-Array<Quantity> const &
+void
+TimeInterval
+::set_gradient(Quantity const & q)
+{
+    this->set_gradient({q,q,q});
+}
+
+void
+TimeInterval
+::set_gradient(Array<Quantity> const & a)
+{
+    if(a.empty())
+    {
+        throw std::runtime_error("Cannot set gradient from empty array");
+    }
+    auto const & q = a[0];
+    
+    if(q.dimensions == (units::T/units::m).dimensions)
+    {
+        this->set_gradient_amplitude(a);
+    }
+    else if(q.dimensions == (units::T/units::m*units::s).dimensions)
+    {
+        this->set_gradient_area(a);
+    }
+    else if(q.dimensions == (units::rad/units::m).dimensions)
+    {
+        this->set_gradient_dephasing(a);
+    }
+    else
+    {
+        std::ostringstream message;
+        message << "Invalid gradient specification: " << q.dimensions;
+        throw std::runtime_error(message.str());
+    }
+}
+
+Array<Quantity>
 TimeInterval
 ::get_gradient_moment() const
 {
-    return this->_gradient_moment;
+    return sycomore::gamma*this->_duration*this->_gradient_amplitude;
+}
+
+void
+TimeInterval
+::set_gradient_moment(Quantity const & q)
+{
+    this->set_gradient_moment({q,q,q});
 }
 
 void
@@ -64,8 +108,105 @@ TimeInterval
             throw std::runtime_error(message.str());
         }
     }
+    
+    if(this->_duration == 0*units::s)
+    {
+        this->set_gradient_amplitude(0*units::T/units::m);
+    }
+    else
+    {
+        this->set_gradient_amplitude(a/(this->_duration*sycomore::gamma));
+    }
+}
 
-    this->_gradient_moment = a;
+Array<Quantity> const &
+TimeInterval
+::get_gradient_amplitude() const
+{
+    return this->_gradient_amplitude;
+}
+
+void
+TimeInterval
+::set_gradient_amplitude(Quantity const & q)
+{
+    this->set_gradient_amplitude({q,q,q});
+}
+
+void
+TimeInterval
+::set_gradient_amplitude(Array<Quantity> const & a)
+{
+    for(auto && q:a)
+    {
+        if(q.dimensions != (units::T/units::m).dimensions)
+        {
+            std::ostringstream message;
+            message << "Invalid gradient amplitude dimensions: " << q.dimensions;
+            throw std::runtime_error(message.str());
+        }
+    }
+
+    this->_gradient_amplitude = a;
+}
+
+Array<Quantity>
+TimeInterval
+::get_gradient_area() const
+{
+    return this->_duration*this->_gradient_amplitude;
+}
+
+void
+TimeInterval
+::set_gradient_area(Quantity const & q)
+{
+    this->set_gradient_area({q,q,q});
+}
+
+void
+TimeInterval
+::set_gradient_area(Array<Quantity> const & a)
+{
+    for(auto && q:a)
+    {
+        if(q.dimensions != (units::T/units::m*units::s).dimensions)
+        {
+            std::ostringstream message;
+            message << "Invalid gradient area dimensions: " << q.dimensions;
+            throw std::runtime_error(message.str());
+        }
+    }
+
+    if(this->_duration == 0*units::s)
+    {
+        this->set_gradient_amplitude(0*units::T/units::m);
+    }
+    else
+    {
+        this->set_gradient_amplitude(a/this->_duration);
+    }
+}
+
+Array<Quantity>
+TimeInterval
+::get_gradient_dephasing() const
+{
+    return this->get_gradient_moment();
+}
+
+void
+TimeInterval
+::set_gradient_dephasing(Quantity const & q)
+{
+    this->set_gradient_dephasing({q,q,q});
+}
+
+void
+TimeInterval
+::set_gradient_dephasing(Array<Quantity> const & a)
+{
+    this->set_gradient_moment(a);
 }
 
 bool
@@ -74,7 +215,7 @@ TimeInterval
 {
     return (
         this->_duration == other._duration
-        && this->_gradient_moment == other._gradient_moment);
+        && this->_gradient_amplitude == other._gradient_amplitude);
 }
 
 bool

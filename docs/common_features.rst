@@ -67,6 +67,25 @@ The diffusivity can be assigned either as a scalar (for isotropic diffusion) or 
     0*um**2/s, 0*um**2/s, 1*um**2/s]
   print(species.D)
 
+Time intervals
+--------------
+
+A time interval is specified by its duration and an optional magnetic field gradient. The gradient can be either as a scalar or as a 3D array, and can describe the amplitude (in *T/m*), the area (in *T/m\*s*) or the dephasing (in *rad/m*). A :func:`set_gradient` function is available for generic modification of the gradient.
+
+.. code-block:: python
+
+  import sycomore
+  from sycomore.units import *
+  
+  # Scalar gradient, defined by its amplitude
+  interval = sycomore.TimeInterval(1*ms, 20*mT/m)
+  print(
+    interval.duration, 
+    interval.gradient_amplitude, 
+    interval.gradient_area/interval.duration,
+    interval.gradient_dephasing/(sycomore.gamma*interval.duration))
+
+
 Reference
 ---------
 
@@ -113,6 +132,32 @@ Reference
   .. attribute:: delta_omega
     
     Frequency offset
+
+.. class:: sycomore.TimeInterval(duration, gradient=0*T/m)
+  
+  .. attribute:: duration
+      
+      Duration of the time interval
+  
+  .. attribute:: gradient_amplitude
+      
+      Amplitude of the gradient
+  
+  .. attribute:: gradient_area
+      
+      Area of the gradient (duration×amplitude)
+  
+  .. attribute:: gradient_dephasing
+      
+      Dephasing caused by the gradient (γ×duration×amplitude)
+  
+  .. attribute:: gradient_moment
+      
+      Alias for dephasing
+  
+  .. function:: set_gradient
+      
+      Set the gradient of the time interval, either as amplitude, area or dephasing
 
 .. |R1| replace:: R\ :sub:`1`
 .. |R2| replace:: R\ :sub:`2`
