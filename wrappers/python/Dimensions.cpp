@@ -11,7 +11,12 @@ void wrap_Dimensions(pybind11::module & m)
     using namespace sycomore;
 
     class_<Dimensions>(m, "Dimensions")
-        .def(init<double,double,double,double,double,double,double>())
+        .def(
+            init<double,double,double,double,double,double,double>(),
+            arg("length")=0, arg("mass")=0, arg("time")=0, 
+            arg("electric_current")=0, arg("thermodynamic_temperature")=0,
+            arg("amount_of_substance")=0, arg("luminous_intensity")=0
+        )
         .def_readwrite("length", &Dimensions::length)
         .def_readwrite("mass", &Dimensions::mass)
         .def_readwrite("time", &Dimensions::time)

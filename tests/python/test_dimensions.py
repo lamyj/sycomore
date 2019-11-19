@@ -3,6 +3,14 @@ import unittest
 import sycomore
 
 class TestDimensions(unittest.TestCase):
+    def test_default_constructor(self):
+        d = sycomore.Dimensions()
+        self.assertEqual(d, sycomore.Dimensions(0,0,0,0,0,0,0))
+    
+    def test_partial_constructor(self):
+        d = sycomore.Dimensions(time=2)
+        self.assertEqual(d, sycomore.Dimensions(0,0,2,0,0,0,0))
+    
     def test_comparison(self):
         self.assertTrue(sycomore.Length == sycomore.Length)
         self.assertTrue(sycomore.Length != sycomore.Time)
