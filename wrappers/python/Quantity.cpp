@@ -17,9 +17,14 @@ void wrap_Quantity(pybind11::module & m)
 
     class_<Quantity>(m, "Quantity")
         .def(init<double, Dimensions>())
-        .def_readwrite("magnitude", &Quantity::magnitude)
+        .def_readwrite(
+            "magnitude", &Quantity::magnitude, 
+            "The magnitude of the quantity, in SI units.")
         .def_readwrite("dimensions", &Quantity::dimensions)
-        .def("convert_to", &Quantity::convert_to)
+        .def(
+            "convert_to", &Quantity::convert_to, 
+            "Return the scalar value of the quantity converted to the given "
+            "unit.")
         .def(self == self)
         .def(self != self)
         .def(self += self)

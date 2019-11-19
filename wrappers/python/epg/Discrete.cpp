@@ -11,27 +11,38 @@ void wrap_epg_Discrete(pybind11::module & m)
     using namespace pybind11;
     using namespace sycomore;
     using namespace sycomore::epg;
-
-    class_<Discrete>(m, "Discrete")
+    
+    class_<Discrete>(m, "Discrete", 
+        "Discrete EPG model, where the gradient moments may vary across time "
+        "intervals."
+        "\n"
+        "In this model, the orders of the model are stored in bins of "
+        "user-specified width (hence the term \"discrete\"), expressed in "
+        "rad/m.")
         .def(
             init<Species, Magnetization, Quantity>(),
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
             arg("bin_width")=1*units::rad/units::m)
         .def_readwrite("species", &Discrete::species)
-        .def_property_readonly("orders", &Discrete::orders)
+        .def_property_readonly(
+            "orders", &Discrete::orders, 
+            "The sequence of orders currently stored by the model, in the same "
+            "order as the states member. This attribute is read-only.")
         .def_property_readonly("bin_width", &Discrete::bin_width)
         .def(
             "state",
             static_cast<
                     std::vector<Complex> (Discrete::*)(std::size_t) const
                 >(&Discrete::state),
-            arg("bin"))
+            arg("bin"),
+            "Magnetization at a given state, expressed by its *index*")
         .def(
             "state",
             static_cast<
                     std::vector<Complex> (Discrete::*)(Quantity const &) const
                 >(&Discrete::state),
-            arg("order"))
+            arg("order"),
+            "Magnetization at a given state, expressed by its *order*.")
         .def_property_readonly(
             "states", [](Discrete const & model){
                 auto const states_cpp = model.states();
@@ -39,18 +50,33 @@ void wrap_epg_Discrete(pybind11::module & m)
                 auto && data = states_cpp.data();
                 array_t<Complex> states_py(shape, data);
                 return states_py;
-            })
-        .def_property_readonly("echo", &Discrete::echo)
+            },
+            "The sequence of states currently stored by the model, in the same "
+            "order as the orders member. This attribute is a read-only, 3×N "
+            "array of complex numbers.")
+        .def_property_readonly(
+            "echo", &Discrete::echo, "The echo signal, i.e. F̃_0.")
         .def(
             "apply_pulse", &Discrete::apply_pulse,
-            arg("angle"), arg("phase")=0*units::rad)
+            arg("angle"), arg("phase")=0*units::rad,
+            "Apply an RF hard pulse.")
         .def(
             "apply_time_interval", &Discrete::apply_time_interval,
             arg("duration"), arg("gradient")=0*units::T/units::m,
-            arg("threshold")=0.)
-        .def("shift", &Discrete::shift, arg("duration"), arg("gradient"))
-        .def("relaxation", &Discrete::relaxation, arg("duration"))
-        .def("diffusion", &Discrete::diffusion, arg("duration"), arg("gradient"))
-        .def("__len__", &Discrete::size)
+            arg("threshold")=0.,
+            "Apply a time interval, i.e. relaxation, diffusion, and gradient. " 
+            "States with a population lower than *threshold* will be removed.")
+        .def(
+            "shift", &Discrete::shift, arg("duration"), arg("gradient"),
+            "Apply a gradient; in discrete EPG, this shifts all orders by" 
+            "specified value.")
+        .def(
+            "relaxation", &Discrete::relaxation, arg("duration"),
+            "Simulate the relaxation during given duration.")
+        .def(
+            "diffusion", &Discrete::diffusion, arg("duration"), arg("gradient"),
+            "Simulate diffusion during given duration with given gradient ",
+            "amplitude.")
+        .def("__len__", &Discrete::size, "Number of states of the model.")
     ;
 }

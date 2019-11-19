@@ -44,47 +44,8 @@ Once the echo signal has been gathered for all repetitions, its magnitude and ph
 Reference
 ---------
 
-.. class:: sycomore.epg.Regular(species, initial_magnetization=Magnetization(0,0,1), initial_size=100)
-  
-  .. attribute:: species
-    
-    The species being simulated
-  
-  .. attribute:: states_count
-    
-    The number of states currently stored by the model. This attribute is read-only.
-  
-  .. attribute:: states
-    
-    The sequence of states currently stored by the model. This attribute is a read-only, 3×N array of complex numbers.
-  
-  .. attribute:: echo
-    
-    The echo signal, i.e. :math:`\tilde{F}_0` (read-only).
-  
-  .. method:: state(index)
-    
-    Return the magnetization at a given state, expressed by its *index*.
-  
-  .. method:: apply_pulse(angle, phase=0*rad)
-    
-    Apply an RF hard pulse.
-  
-  .. method:: apply_time_interval(duration, gradient=0*T/m)
-    
-    Apply a time interval, i.e. relaxation, diffusion, and gradient.
-  
-  .. method:: shift()
-    
-    Apply a gradient; in regular EPG, this shifts all orders by 1.
-  
-  .. method:: relaxation(duration, gradient)
-    
-    Simulate the relaxation during given duration.
-  
-  .. method:: diffusion(duration, gradient)
-    
-    Simulate diffusion during given duration with given gradient amplitude.
+.. autoclass:: sycomore.epg.Regular
+  :members:
 
 .. _numpy.abs: https://docs.scipy.org/doc/numpy/reference/generated/numpy.absolute.html
 .. _numpy.angle: https://docs.scipy.org/doc/numpy/reference/generated/numpy.angle.html

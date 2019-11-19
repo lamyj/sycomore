@@ -52,15 +52,28 @@ void wrap_Species(pybind11::module & m)
             arg("R1"), arg("R2"),
             arg("D")=0*units::m*units::m/s, arg("R2_prime")=0_Hz,
             arg("delta_omega")=0*rad/s, arg("w")=1)
-        .def_property("R1", &Species::get_R1, &Species::set_R1)
-        .def_property_readonly("T1", &Species::get_T1)
-        .def_property("R2", &Species::get_R2, &Species::set_R2)
-        .def_property_readonly("T2", &Species::get_T2)
-        .def_property("D", &Species::get_D, set_D)
         .def_property(
-            "R2_prime", &Species::get_R2_prime, &Species::set_R2_prime)
-        .def_property_readonly("T2_prime", &Species::get_T2_prime)
+            "R1", &Species::get_R1, &Species::set_R1,
+            "Longitudinal relaxation rate.")
+        .def_property_readonly(
+            "T1", &Species::get_T1, "Longitudinal relaxation time.")
         .def_property(
-            "delta_omega", &Species::get_delta_omega, &Species::set_delta_omega)
-        .def_readwrite("w", &Species::w);
+            "R2", &Species::get_R2, &Species::set_R2, 
+            "Transversal relaxation rate.")
+        .def_property_readonly(
+            "T2", &Species::get_T2, "Transversal relaxation time.")
+        .def_property(
+            "D", &Species::get_D, set_D, "Diffusion tensor.")
+        .def_property(
+            "R2_prime", &Species::get_R2_prime, &Species::set_R2_prime,
+            "The part of the apparent transversal relaxation rate R2* "
+            "attributed to the magnetic field inhomogeneity")
+        .def_property_readonly(
+            "T2_prime", &Species::get_T2_prime,
+            "The part of the apparent transversal relaxation time T2* "
+            "attributed to the magnetic field inhomogeneity")
+        .def_property(
+            "delta_omega", &Species::get_delta_omega, &Species::set_delta_omega,
+            "Frequency offset.")
+        .def_readwrite("w", &Species::w, "Relative weight.");
 }

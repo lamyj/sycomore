@@ -14,6 +14,7 @@ class SYCOMORE_API Quantity
 public:
     /// @brief Magnitude of the quantity in base units.
     double magnitude;
+    
     Dimensions dimensions;
 
     Quantity(double magnitude={}, Dimensions const & dimensions={});
@@ -30,6 +31,10 @@ public:
     Quantity & operator%=(Quantity const & other);
     Quantity & operator%=(double scalar);
 
+    /**
+     * @brief Return the scalar value of the quantity converted to the given 
+     * unit.
+    */
     double convert_to(Quantity const & destination) const;
 };
 

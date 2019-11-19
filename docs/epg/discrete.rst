@@ -55,52 +55,7 @@ The previous code will generate a large number of states, which will translate t
 Reference
 ---------
 
-.. class:: sycomore.epg.Discrete(species, initial_magnetization=Magnetization(0,0,1), bin_width=1*rad/m)
-  
-  .. attribute:: species
-    
-    The species being simulated
-  
-  .. attribute:: orders
-    
-    The sequence of orders currently stored by the model, in the same order as
-    the :attr:`states` member. This attribute is read-only.
-  
-  .. attribute:: states
-    
-    The sequence of states currently stored by the model, in the same order as
-    the :attr:`orders` member. This attribute is a read-only, 3×N array of complex numbers.
-  
-  .. attribute:: echo
-    
-    The echo signal, i.e. :math:`\tilde{F}_0` (read-only).
-  
-  .. method:: state(index)
-    
-    Return the magnetization at a given state, expressed by its *index*.
-  
-  .. method:: state(order)
-    
-    Return the magnetization at a given state, expressed by its *order*.
-
-  .. method:: apply_pulse(angle, phase=0*rad)
-    
-    Apply an RF hard pulse.
-  
-  .. method:: apply_time_interval(duration, gradient=0*T/m, threshold=0.)
-    
-    Apply a time interval, i.e. relaxation, diffusion, and gradient. States with a population lower than *threshold* will be removed.
-  
-  .. method:: shift(duration, gradient)
-    
-    Apply a gradient; in discrete EPG, this shifts all orders by specified value.
-  
-  .. method:: relaxation(duration, gradient)
-    
-    Simulate the relaxation during given duration.
-  
-  .. method:: diffusion(duration, gradient)
-    
-    Simulate diffusion during given duration with given gradient amplitude.
+.. autoclass:: sycomore.epg.Discrete
+  :members:
 
 .. _DW-DESS: https://doi.org/10.1002/mrm.23275

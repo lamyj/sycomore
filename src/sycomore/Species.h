@@ -29,23 +29,46 @@ public:
         Quantity const & R2_prime={0, Frequency},
         Quantity const & delta_omega={0, AngularFrequency}, Real w=1);
 
+    /// @brief Return the longitudinal relaxation rate.
     Quantity const & get_R1() const;
+    /// @brief Set the longitudinal relaxation rate or time.
     void set_R1(Quantity const & q);
+    /// @brief Return the longitudinal relaxation time.
     Quantity const & get_T1() const;
 
+    /// @brief Return the transversal relaxation rate.
     Quantity const & get_R2() const;
+    /// @brief Set the transversal relaxation rate or time.
     void set_R2(Quantity const & q);
+    /// @brief Return the transversal relaxation time.
     Quantity const & get_T2() const;
 
+    /// @brief Return the diffusion tensor.
     Array<Quantity> const & get_D() const;
+    /// @brief Set the diffusion coefficient (i.e. diagonal diffusion tensor).
     void set_D(Quantity const & q);
+    /// @brief Set the diffusion tensor.
     void set_D(Array<Quantity> const & q);
 
+    /**
+     * @brief Return the part of the apparent transversal relaxation rate R2* 
+     * attributed to the magnetic field inhomogeneity.
+     */
     Quantity const & get_R2_prime() const;
+    /**
+     * @brief Set the part of the apparent transversal relaxation rate or time  
+     * attributed to the magnetic field inhomogeneity.
+     */
     void set_R2_prime(Quantity const & q);
+    /**
+     * @brief Return the part of the apparent transversal relaxation time T2* 
+     * attributed to the magnetic field inhomogeneity.
+     */
     Quantity const & get_T2_prime() const;
 
+    /// @brief Return the frequency offset.
     Quantity const & get_delta_omega() const;
+    /// @brief Set the frequency offset.
     void set_delta_omega(Quantity const & q);
 
 private:

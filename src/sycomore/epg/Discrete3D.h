@@ -18,12 +18,8 @@ namespace epg
 {
 
 /**
- * @brief Discrete EPG in three dimensions.
- *
- * @note To keep the "folded" aspect of 1D EPG (i.e. the states being stored as
- * (F̃_{+}(-k), F̃^{*}_{-}(-k), Z̃(k)) with k>=), the 3D EPG must store the states
- * of a half-space bounded by an arbitrary plane including the origin. This
- * arbitrary plane is chosen as the x=0 plane.
+ * @brief Discrete EPG in which the gradients may be specified in three 
+ * dimensions.
  */
 class SYCOMORE_API Discrete3D
 {
