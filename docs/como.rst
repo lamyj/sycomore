@@ -34,7 +34,26 @@ The following code sample simulates a GRE sequence in which the readout is locat
 Reference
 ---------
 
-.. autoclass:: sycomore.como.Model
-  :members:
+.. class:: sycomore.como.Model(species, magnetization, time_intervals)
+  
+  .. attribute:: epsilon
+    
+    The threshold magnetization for clean-up (default to 0)
+  
+  .. method:: apply_pulse(pulse)
+    
+    Apply an RF hard pulse or hard pulse approximation.
+  
+  .. method:: apply_time_interval(name)
+    
+    Apply a time interval to the model.
+  
+  .. method:: magnetization()
+    
+    Return the complex magnetizations.
+  
+  .. method:: isochromat(configurations=set(), position=Point(), relative_frequency=0*rad/s)
+    
+    Return the isochromat for the given configurations. If no configuration is specified, all configurations are used.
 
 .. _Ganter's 2018 communication: http://archive.ismrm.org/2018/5663.html

@@ -89,14 +89,75 @@ A time interval is specified by its duration and an optional magnetic field grad
 Reference
 ---------
 
-.. autoclass:: sycomore.Quantity
-  :members:
+.. class:: sycomore.Quantity()
+  
+  .. attribute:: magnitude
+    
+    The magnitude of the quantity, in SI units.
+  
+  .. method:: convert_to(unit)
+    
+    Return the scalar value of the quantity converted to the given unit.
 
-.. autoclass:: sycomore.Species
-  :members:
+.. class:: sycomore.Species(R1, R2, D=0*m**2/s, R2_prime=0*Hz, delta_omega=0*rad/s)
+  
+  .. attribute:: R1
+      
+      Longitudinal relaxation rate
+  
+  .. attribute:: T1
+      
+      Longitudinal relaxation time
+  
+  .. attribute:: R2
+      
+      Transversal relaxation rate
+  
+  .. attribute:: T2
+      
+      Transversal relaxation time
+  
+  .. attribute:: D
+    
+    Diffusion tensor
+  
+  .. attribute:: R2_prime
+    
+    The part of the apparent transversal relaxation rate R\ :sub:`2`:sup:`*` attributed to the magnetic field inhomogeneity
+  
+  .. attribute:: T2_prime
+    
+    The part of the apparent transversal relaxation time T\ :sub:`2`:sup:`*` attributed to the magnetic field inhomogeneity
+  
+  .. attribute:: delta_omega
+    
+    Frequency offset
 
-.. autoclass:: sycomore.TimeInterval
-  :members:
+.. class:: sycomore.TimeInterval(duration, gradient=0*T/m)
+  
+  .. attribute:: duration
+      
+      Duration of the time interval
+  
+  .. attribute:: gradient_amplitude
+      
+      Amplitude of the gradient
+  
+  .. attribute:: gradient_area
+      
+      Area of the gradient (duration×amplitude)
+  
+  .. attribute:: gradient_dephasing
+      
+      Dephasing caused by the gradient (γ×duration×amplitude)
+  
+  .. attribute:: gradient_moment
+      
+      Alias for dephasing
+  
+  .. function:: set_gradient
+      
+      Set the gradient of the time interval, either as amplitude, area or dephasing
 
 .. |R1| replace:: R\ :sub:`1`
 .. |R2| replace:: R\ :sub:`2`
