@@ -53,9 +53,10 @@ matrix:
       env: 
         - CI_TYPE=brew 
         - PYTHON=/usr/local/bin/python3
+        - PYTHON_LIBRARY=/usr/local/opt/python/Frameworks/Python.framework/Versions/3.7/lib/libpython3.7m.dylib
         - WORKSPACE=${TRAVIS_BUILD_DIR}
         # FIXME: link error with libomp
-        - CMAKE_OPTIONS="-DUSE_OPENMP:BOOL=OFF -DPYTHON_EXECUTABLE=${PYTHON}"
+        - CMAKE_OPTIONS="-DUSE_OPENMP=OFF -DPYTHON_EXECUTABLE=${PYTHON} -DPYTHON_LIBRARY=${PYTHON_LIBRARY}"
         - RUNNER=""
 
 script: |
