@@ -204,3 +204,63 @@ BOOST_AUTO_TEST_CASE(Power)
     sycomore::Quantity const r1{3, {0.5,0,0,0,0,0,0}};
     BOOST_CHECK(std::pow(q, 0.5) == r1);
 }
+
+BOOST_AUTO_TEST_CASE(Round)
+{
+    sycomore::Quantity const q1{9.2, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r1{9, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(std::round(q1) == r1);
+    
+    sycomore::Quantity const q2{-9.7, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r2{-10, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(std::round(q2) == r2);
+    
+    sycomore::Quantity const q3{9, {-1.5,0,0,0,0,0,0}};
+    sycomore::Quantity const r3{9, {-1.5,0,0,0,0,0,0}};
+    BOOST_CHECK(std::round(q3) == r3);
+}
+
+BOOST_AUTO_TEST_CASE(Trunc)
+{
+    sycomore::Quantity const q1{9.2, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r1{9, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(std::trunc(q1) == r1);
+    
+    sycomore::Quantity const q2{-9.7, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r2{-9, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(std::trunc(q2) == r2);
+    
+    sycomore::Quantity const q3{9, {-1.5,0,0,0,0,0,0}};
+    sycomore::Quantity const r3{9, {-1.5,0,0,0,0,0,0}};
+    BOOST_CHECK(std::trunc(q3) == r3);
+}
+
+BOOST_AUTO_TEST_CASE(Floor)
+{
+    sycomore::Quantity const q1{9.2, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r1{9, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(std::floor(q1) == r1);
+    
+    sycomore::Quantity const q2{-9.7, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r2{-10, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(std::floor(q2) == r2);
+    
+    sycomore::Quantity const q3{9, {-1.5,0,0,0,0,0,0}};
+    sycomore::Quantity const r3{9, {-1.5,0,0,0,0,0,0}};
+    BOOST_CHECK(std::floor(q3) == r3);
+}
+
+BOOST_AUTO_TEST_CASE(Ceil)
+{
+    sycomore::Quantity const q1{9.2, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r1{10, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(std::ceil(q1) == r1);
+    
+    sycomore::Quantity const q2{-9.7, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r2{-9, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(std::ceil(q2) == r2);
+    
+    sycomore::Quantity const q3{9, {-1.5,0,0,0,0,0,0}};
+    sycomore::Quantity const r3{9, {-1.5,0,0,0,0,0,0}};
+    BOOST_CHECK(std::ceil(q3) == r3);
+}

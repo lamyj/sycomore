@@ -1,3 +1,4 @@
+import math
 import sys
 if sys.version_info[0] == 2:
     import cPickle
@@ -177,6 +178,58 @@ class TestQuantity(unittest.TestCase):
         q = sycomore.Quantity(9, sycomore.Dimensions(1,0,0,0,0,0,0))
         r = sycomore.Quantity(3, sycomore.Dimensions(0.5,0,0,0,0,0,0))
         self.assertEqual(q**0.5, r)
+
+    def test_round(self):
+        q1 = sycomore.Quantity(9.2, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r1 = sycomore.Quantity(9, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(round(q1), r1)
+        
+        q2 = sycomore.Quantity(-9.7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r2 = sycomore.Quantity(-10, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(round(q2), r2)
+        
+        q3 = sycomore.Quantity(9, sycomore.Dimensions(-1.5,0,0,0,0,0,0))
+        r3 = sycomore.Quantity(9, sycomore.Dimensions(-1.5,0,0,0,0,0,0))
+        self.assertEqual(round(q3), r3)
+
+    def test_trunc(self):
+        q1 = sycomore.Quantity(9.2, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r1 = sycomore.Quantity(9, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(math.trunc(q1), r1)
+        
+        q2 = sycomore.Quantity(-9.7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r2 = sycomore.Quantity(-9, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(math.trunc(q2), r2)
+        
+        q3 = sycomore.Quantity(9, sycomore.Dimensions(-1.5,0,0,0,0,0,0))
+        r3 = sycomore.Quantity(9, sycomore.Dimensions(-1.5,0,0,0,0,0,0))
+        self.assertEqual(math.trunc(q3), r3)
+    
+    def test_floor(self):
+        q1 = sycomore.Quantity(9.2, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r1 = sycomore.Quantity(9, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(math.floor(q1), r1)
+        
+        q2 = sycomore.Quantity(-9.7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r2 = sycomore.Quantity(-10, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(math.floor(q2), r2)
+        
+        q3 = sycomore.Quantity(9, sycomore.Dimensions(-1.5,0,0,0,0,0,0))
+        r3 = sycomore.Quantity(9, sycomore.Dimensions(-1.5,0,0,0,0,0,0))
+        self.assertEqual(math.floor(q3), r3)
+    
+    def test_ceil(self):
+        q1 = sycomore.Quantity(9.2, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r1 = sycomore.Quantity(10, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(math.ceil(q1), r1)
+        
+        q2 = sycomore.Quantity(-9.7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r2 = sycomore.Quantity(-9, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(math.ceil(q2), r2)
+        
+        q3 = sycomore.Quantity(9, sycomore.Dimensions(-1.5,0,0,0,0,0,0))
+        r3 = sycomore.Quantity(9, sycomore.Dimensions(-1.5,0,0,0,0,0,0))
+        self.assertEqual(math.ceil(q3), r3)
 
     def test_pickle(self):
         q = sycomore.Quantity(0.5, sycomore.Dimensions(7,6,5,4,3,2,1))

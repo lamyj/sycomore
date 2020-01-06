@@ -66,6 +66,11 @@ namespace std
 SYCOMORE_API sycomore::Quantity abs(sycomore::Quantity q);
 SYCOMORE_API sycomore::Quantity pow(sycomore::Quantity q, double e);
 
+SYCOMORE_API sycomore::Quantity round(sycomore::Quantity q);
+SYCOMORE_API sycomore::Quantity trunc(sycomore::Quantity q);
+SYCOMORE_API sycomore::Quantity floor(sycomore::Quantity q);
+SYCOMORE_API sycomore::Quantity ceil(sycomore::Quantity q);
+
 template<>
 struct SYCOMORE_API hash<sycomore::Quantity>
 {

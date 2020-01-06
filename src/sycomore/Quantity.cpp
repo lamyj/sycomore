@@ -216,6 +216,30 @@ sycomore::Quantity pow(sycomore::Quantity q, double e)
     return q;
 }
 
+sycomore::Quantity round(sycomore::Quantity q)
+{
+    q.magnitude = std::round(q.magnitude);
+    return q;
+}
+
+sycomore::Quantity trunc(sycomore::Quantity q)
+{
+    q.magnitude = std::trunc(q.magnitude);
+    return q;
+}
+
+sycomore::Quantity floor(sycomore::Quantity q)
+{
+    q.magnitude = std::floor(q.magnitude);
+    return q;
+}
+
+sycomore::Quantity ceil(sycomore::Quantity q)
+{
+    q.magnitude = std::ceil(q.magnitude);
+    return q;
+}
+
 //template<>
 std::size_t
 hash<sycomore::Quantity>
