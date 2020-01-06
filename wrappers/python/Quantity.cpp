@@ -40,6 +40,32 @@ pybind11::object divmod(pybind11::object const & l, pybind11::object const & r)
     return pybind11::make_tuple(l.attr("__floordiv__")(r), l.attr("__mod__")(r));
 }
 
+using UnaryFunction = double (*)(double);
+template<UnaryFunction function>
+sycomore::Quantity apply_unary_function(sycomore::Quantity const & q)
+{
+    if(q.dimensions != sycomore::Dimensions())
+    {
+        throw std::runtime_error("Defined only for scalars");
+    }
+    return sycomore::Quantity(function(q.magnitude), q.dimensions);
+}
+
+using BinaryFunction = double (*)(double, double);
+template<BinaryFunction function>
+sycomore::Quantity apply_binary_function(
+    sycomore::Quantity const & q1, sycomore::Quantity const & q2)
+{
+    if(
+        q1.dimensions != sycomore::Dimensions() 
+        || q2.dimensions != sycomore::Dimensions())
+    {
+        throw std::runtime_error("Defined only for scalars");
+    }
+    return sycomore::Quantity(
+        function(q1.magnitude, q2.magnitude), sycomore::Dimensions());
+}
+
 }
 
 void wrap_Quantity(pybind11::module & m)
@@ -47,7 +73,7 @@ void wrap_Quantity(pybind11::module & m)
     using namespace pybind11;
     using namespace sycomore;
 
-    class_<Quantity>(m, "Quantity")
+    auto QuantityClass = class_<Quantity>(m, "Quantity")
         .def(init<double, Dimensions>())
         .def_readwrite(
             "magnitude", &Quantity::magnitude, 
@@ -123,5 +149,56 @@ void wrap_Quantity(pybind11::module & m)
                     t[7].cast<double>());
                 return Quantity(t[0].cast<double>(), dimensions);
             }
-        ));
+        ))
+        
+        
+        // https://docs.scipy.org/doc/numpy/reference/ufuncs.html#math-operations
+        // add, subtract, multiply, divide, floor_divide, true_divide, square,
+        // reciprocal, power, absolute, negative, positive, greater, 
+        // greater_equal, less, less_equal, equal, not_equal, maximum, minimum, 
+        // clip, fmax, fmin, ceil, trunc, floor, remainder, mod, gcd, lcm use 
+        // the previously-defined functions
+        //
+        // conjugate, logical_and, logical_not, logical_or, logical_xor, 
+        // bitwise_and, bitwise_or, bitwise_xor, invert, left_shift, 
+        // right_shift, degrees, rad2deg, radians, deg2rad, isnat are not 
+        // applicable
+        
+        // Math operations
+        // logaddexp, logaddexp2, fmod, divmod, sign, heaviside
+        .def("fmod", [](Quantity const & l, Quantity const & r) { return l%r; })
+        .def("fmod", [](Quantity const & l, double r) { return l%r; })
+        .def("fabs", static_cast<Quantity(*)(Quantity)>(std::abs))
+        .def("rint", static_cast<Quantity(*)(Quantity)>(std::round))
+        .def("exp", apply_unary_function<std::exp>)
+        .def("exp2", apply_unary_function<std::exp2>)
+        .def("log", apply_unary_function<std::log>)
+        .def("log2", apply_unary_function<std::log2>)
+        .def("log10", apply_unary_function<std::log10>)
+        .def("expm1", apply_unary_function<std::expm1>)
+        .def("log1p", apply_unary_function<std::log1p>)
+        .def("sqrt", [](Quantity const & q) { return std::pow(q, 0.5); })
+        .def("cbrt", [](Quantity const & q) { return std::pow(q, 1./3.); })
+        
+        // Trigonometric functions
+        .def("sin", apply_unary_function<std::sin>)
+        .def("cos", apply_unary_function<std::cos>)
+        .def("tan", apply_unary_function<std::tan>)
+        .def("arcsin", apply_unary_function<std::asin>)
+        .def("arccos", apply_unary_function<std::acos>)
+        .def("arctan", apply_unary_function<std::atan>)
+        .def("arctan2", apply_binary_function<std::atan2>)
+        .def("hypot", apply_binary_function<std::hypot>)
+        .def("sinh", apply_unary_function<std::sinh>)
+        .def("cosh", apply_unary_function<std::cosh>)
+        .def("tanh", apply_unary_function<std::tanh>)
+        .def("arcsinh", apply_unary_function<std::asinh>)
+        .def("arccosh", apply_unary_function<std::acosh>)
+        .def("arctanh", apply_unary_function<std::atanh>)
+        
+        // Floating functions
+        // isfinite, isinf, isnan, signbit, copysign, nextafter, spacing, ldexp,
+        // frexp
+    ;
+    
 }

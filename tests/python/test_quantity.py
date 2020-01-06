@@ -6,6 +6,8 @@ else:
     import pickle
 import unittest
 
+import numpy
+
 import sycomore
 
 class TestQuantity(unittest.TestCase):
@@ -292,6 +294,67 @@ class TestQuantity(unittest.TestCase):
         
         quantities.add(sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0)))
         self.assertEqual(len(quantities), 3)
+    
+    def test_ufuncs(self):
+        quantity_functions = [
+            "add", "subtract", "multiply", "divide", 
+            # TODO? logaddexp, logaddexp2 
+            "true_divide", "floor_divide", "negative", "positive",
+            "remainder", "mod", "fmod", 
+            # TODO divmod
+            "absolute", "fabs",
+            # TODO? sign, heaviside
+            # Not applicable: conj, conjugate
+            "sqrt", "square", "cbrt", "reciprocal",
+            # Not applicable: deg2rad, rad2deg
+            # Not applicable: bitwise_and, bitwise_or, bitwise_xor, invert, 
+            # left_shift, right_shift
+            # Not applicable: logical_and, logical_or, logical_xor, logical_not
+            "maximum", "minimum", "fmax", "fmin",
+            # TODO? isfinite, isinf
+            # Not applicable: isnat
+            # TODO? signbit, copysign, nextafter, spacing, modf, ldexp, frexp
+            "floor", "ceil", "trunc"
+        ]
+        quantity_functions = list(zip(
+            quantity_functions, len(quantity_functions)*[False]))
+        
+        scalar_only_functions = [
+            "exp", "exp2", "log", "log2", "log10", "expm1", "log1p",
+            # TODO? "gcd", "lcm",
+            "sin", "cos", "tan", "arcsin", "arccos", "arctan", "arctan2",
+        ]
+        scalar_only_functions = list(zip(
+            scalar_only_functions, len(scalar_only_functions)*[True]))
+        
+        Scalar = sycomore.Quantity(1, sycomore.Dimensions())
+        quantities = [0.123*Scalar, 3*Scalar]
+        for name, scalar_only in quantity_functions+scalar_only_functions:
+            function = getattr(numpy, name)
+            arguments = quantities[:function.nin]
+            scalar_arguments = [q.magnitude for q in arguments]
+            result = function(*arguments)
+            self.assertEqual(result, Scalar*function(*scalar_arguments))
+            
+            non_scalar_arguments = [q*sycomore.units.m for q in arguments]
+            if not scalar_only:
+                function(*non_scalar_arguments)
+            else:
+                with self.assertRaises(Exception):
+                    function(*non_scalar_arguments)
+        
+        comparators = [
+            "greater", "greater_equal", "less", "less_equal", 
+            "not_equal", "equal"]
+        for name in comparators:
+            function = getattr(numpy, name)
+            self.assertEqual(
+                function(*quantities[:2]),
+                function(*[q.magnitude for q in quantities[:2]]))
+        
+        # power has a different signature
+        result = numpy.power(4*sycomore.units.m**6, 0.5)
+        self.assertEqual(result, 2*sycomore.units.m**3)
 
 if __name__ == "__main__":
     unittest.main()
