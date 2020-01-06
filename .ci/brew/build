@@ -13,10 +13,6 @@ cd ${BUILD_DIR}
 
 OpenMP_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/include"
 
-ls -l /usr/local/bin/python*
-find /usr/local -name "python3"
-find /usr/local -name "libpython3*.dylib"
-
 cmake \
   -D CMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
   -DCMAKE_BUILD_TYPE=Release \
