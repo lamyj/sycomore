@@ -164,6 +164,15 @@ class TestQuantity(unittest.TestCase):
         r = sycomore.Quantity(1, sycomore.Dimensions(1,0,0,0,0,0,0))
         self.assertEqual(q%3, r)
 
+    def test_abs(self):
+        q1 = sycomore.Quantity(-9, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r1 = sycomore.Quantity(9, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(abs(q1), r1)
+        
+        q2 = sycomore.Quantity(9, sycomore.Dimensions(-1,0,0,0,0,0,0))
+        r2 = sycomore.Quantity(9, sycomore.Dimensions(-1,0,0,0,0,0,0))
+        self.assertEqual(abs(q2), r2)
+
     def test_pow(self):
         q = sycomore.Quantity(9, sycomore.Dimensions(1,0,0,0,0,0,0))
         r = sycomore.Quantity(3, sycomore.Dimensions(0.5,0,0,0,0,0,0))

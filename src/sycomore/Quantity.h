@@ -63,6 +63,7 @@ SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Quantity const & q
 namespace std
 {
 
+SYCOMORE_API sycomore::Quantity abs(sycomore::Quantity q);
 SYCOMORE_API sycomore::Quantity pow(sycomore::Quantity q, double e);
 
 template<>

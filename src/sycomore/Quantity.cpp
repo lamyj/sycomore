@@ -203,6 +203,12 @@ std::ostream & operator<<(std::ostream & stream, Quantity const & q)
 namespace std
 {
 
+sycomore::Quantity abs(sycomore::Quantity q)
+{
+    q.magnitude = std::abs(q.magnitude);
+    return q;
+}
+
 sycomore::Quantity pow(sycomore::Quantity q, double e)
 {
     q.dimensions = std::pow(q.dimensions, e);
