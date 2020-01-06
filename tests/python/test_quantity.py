@@ -330,7 +330,9 @@ class TestQuantity(unittest.TestCase):
         Scalar = sycomore.Quantity(1, sycomore.Dimensions())
         quantities = [0.123*Scalar, 3*Scalar]
         for name, scalar_only in quantity_functions+scalar_only_functions:
-            function = getattr(numpy, name)
+            function = getattr(numpy, name, None)
+            if function is None:
+                continue
             arguments = quantities[:function.nin]
             scalar_arguments = [q.magnitude for q in arguments]
             result = function(*arguments)
