@@ -21,6 +21,8 @@ for PACKAGE in boost cmake libomp pybind11; do
         brew ${COMMAND} ${PACKAGE}
     fi
 done
+# Cannot link correctly due to python@2: overwrite conflicting links
+brew link --overwrite python
 
 NUMPY=$(${PYTHON} -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
 ${PYTHON} -m pip install -U ${NUMPY}
