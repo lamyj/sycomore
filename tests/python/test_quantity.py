@@ -336,7 +336,8 @@ class TestQuantity(unittest.TestCase):
             arguments = quantities[:function.nin]
             scalar_arguments = [q.magnitude for q in arguments]
             result = function(*arguments)
-            self.assertEqual(result, Scalar*function(*scalar_arguments))
+            numpy.testing.assert_almost_equal(
+                result.magnitude, function(*scalar_arguments))
             
             non_scalar_arguments = [q*sycomore.units.m for q in arguments]
             if not scalar_only:
