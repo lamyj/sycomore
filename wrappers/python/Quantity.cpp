@@ -10,6 +10,38 @@
 
 #include <iostream>
 
+namespace
+{
+
+sycomore::Quantity floordiv(
+    sycomore::Quantity l, sycomore::Quantity const & r)
+{
+    l /= r;
+    l.magnitude = std::floor(l.magnitude);
+    return l;
+}
+
+sycomore::Quantity floordiv(sycomore::Quantity q, double s)
+{
+    q /= s;
+    q.magnitude = std::floor(q.magnitude);
+    return q;
+}
+
+sycomore::Quantity rfloordiv(sycomore::Quantity const & q, double s)
+{
+    auto r = s/q;
+    r.magnitude = std::floor(r.magnitude);
+    return r;
+}
+
+pybind11::object divmod(pybind11::object const & l, pybind11::object const & r)
+{
+    return pybind11::make_tuple(l.attr("__floordiv__")(r), l.attr("__mod__")(r));
+}
+
+}
+
 void wrap_Quantity(pybind11::module & m)
 {
     using namespace pybind11;
@@ -45,8 +77,12 @@ void wrap_Quantity(pybind11::module & m)
         .def(self / self)
         .def(self / double())
         .def(double() / self)
+        .def("__floordiv__", static_cast<Quantity(*)(Quantity, Quantity const &)>(floordiv))
+        .def("__floordiv__", static_cast<Quantity(*)(Quantity, double)>(floordiv))
+        .def("__rfloordiv__", static_cast<Quantity(*)(Quantity const &, double)>(rfloordiv))
         .def(self % self)
         .def(self % double())
+        .def("__divmod__", divmod)
         .def("__abs__", static_cast<Quantity(*)(Quantity)>(std::abs))
         .def("__pow__", static_cast<Quantity(*)(Quantity, double)>(std::pow))
         .def("__round__", static_cast<Quantity(*)(Quantity)>(std::round))

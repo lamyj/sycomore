@@ -82,6 +82,19 @@ class TestQuantity(unittest.TestCase):
         r = sycomore.Quantity(0.5, sycomore.Dimensions(1,0,0,0,0,0,0))
         q /= 4
         self.assertEqual(q, r)
+    
+    def test_floordiv_in_place(self):
+        q1 = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        q2 = sycomore.Quantity(3, sycomore.Dimensions(0,1,0,0,0,0,0))
+        r = sycomore.Quantity(2, sycomore.Dimensions(1,-1,0,0,0,0,0))
+        q1 //= q2
+        self.assertEqual(q1, r)
+
+    def test_scalar_floordiv_in_place(self):
+        q = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r = sycomore.Quantity(7//3, sycomore.Dimensions(1,0,0,0,0,0,0))
+        q //= 3
+        self.assertEqual(q, r)
 
     def test_modulo_in_place(self):
         q1 = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
@@ -154,6 +167,19 @@ class TestQuantity(unittest.TestCase):
         self.assertEqual(q/4, r1)
         self.assertEqual(3/q, r2)
 
+    def test_floordiv(self):
+        q1 = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        q2 = sycomore.Quantity(3, sycomore.Dimensions(0,1,0,0,0,0,0))
+        r = sycomore.Quantity(7//3, sycomore.Dimensions(1,-1,0,0,0,0,0))
+        self.assertEqual(q1//q2, r)
+    
+    def test_floordiv_scalar(self):
+        q = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r1 = sycomore.Quantity(7//3, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r2 = sycomore.Quantity(15//7, sycomore.Dimensions(-1,0,0,0,0,0,0))
+        self.assertEqual(q//3, r1)
+        self.assertEqual(15//q, r2)
+
     def test_modulo(self):
         q1 = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
         q2 = sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0))
@@ -164,7 +190,22 @@ class TestQuantity(unittest.TestCase):
         q = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
         r = sycomore.Quantity(1, sycomore.Dimensions(1,0,0,0,0,0,0))
         self.assertEqual(q%3, r)
-
+    
+    def test_divmod(self):
+        q1 = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        q2 = sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r = (
+            sycomore.Quantity(2, sycomore.Dimensions(0,0,0,0,0,0,0)),
+            sycomore.Quantity(1, sycomore.Dimensions(1,0,0,0,0,0,0)))
+        self.assertEqual(divmod(q1, q2), r)
+    
+    def test_divmod_scalar(self):
+        q = sycomore.Quantity(7, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r = (
+            sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0)),
+            sycomore.Quantity(1, sycomore.Dimensions(1,0,0,0,0,0,0)))
+        self.assertEqual(divmod(q, 3), r)
+    
     def test_abs(self):
         q1 = sycomore.Quantity(-9, sycomore.Dimensions(1,0,0,0,0,0,0))
         r1 = sycomore.Quantity(9, sycomore.Dimensions(1,0,0,0,0,0,0))
