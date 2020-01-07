@@ -8,46 +8,86 @@ BOOST_AUTO_TEST_CASE(Comparison)
     sycomore::Quantity const q1{2, {1,0,0,0,0,0,0}};
     sycomore::Quantity const q2{3, {1,0,0,0,0,0,0}};
     sycomore::Quantity const q3{2, {0,1,0,0,0,0,0}};
+    sycomore::Quantity const scalar{2, {0,0,0,0,0,0,0}};
+    
     BOOST_CHECK(q1 == q1);
     BOOST_CHECK(!(q1 == q2));
     BOOST_CHECK(!(q1 == q3));
+    BOOST_CHECK(scalar == 2);
+    BOOST_CHECK(2 == scalar);
+    BOOST_CHECK(!(scalar == 3));
+    BOOST_CHECK(!(3 == scalar));
 
     BOOST_CHECK(!(q1 != q1));
     BOOST_CHECK(q1 != q2);
     BOOST_CHECK(q1 != q3);
+    BOOST_CHECK(!(scalar != 2));
+    BOOST_CHECK(!(2 != scalar));
+    BOOST_CHECK(scalar != 3);
+    BOOST_CHECK(3 !=scalar);
 
     BOOST_CHECK(q1 < q2);
+    BOOST_CHECK(scalar < 3);
+    BOOST_CHECK(1 < scalar);
     BOOST_CHECK(!(q2 <= q1));
+    BOOST_CHECK(scalar <= 2);
+    BOOST_CHECK(2 <= scalar);
     BOOST_CHECK(!(q1 > q2));
+    BOOST_CHECK(scalar > 1);
+    BOOST_CHECK(3 > scalar);
     BOOST_CHECK(!(q1 >= q2));
+    BOOST_CHECK(scalar >= 2);
+    BOOST_CHECK(2 >= scalar);
+    
     BOOST_CHECK_THROW(q1 < q3, std::runtime_error);
     BOOST_CHECK_THROW(q1 <= q3, std::runtime_error);
     BOOST_CHECK_THROW(q1 > q3, std::runtime_error);
     BOOST_CHECK_THROW(q1 >= q3, std::runtime_error);
+    
+    BOOST_CHECK_THROW(q1 < scalar, std::runtime_error);
+    BOOST_CHECK_THROW(scalar < q1, std::runtime_error);
+    BOOST_CHECK_THROW(q1 <= scalar, std::runtime_error);
+    BOOST_CHECK_THROW(scalar <= q1, std::runtime_error);
+    BOOST_CHECK_THROW(q1 > scalar, std::runtime_error);
+    BOOST_CHECK_THROW(scalar > q1, std::runtime_error);
+    BOOST_CHECK_THROW(q1 >= scalar, std::runtime_error);
+    BOOST_CHECK_THROW(scalar >= q1, std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(AdditionInPlace)
 {
     sycomore::Quantity q1{2, {1,0,0,0,0,0,0}};
     sycomore::Quantity const q2{3, {1,0,0,0,0,0,0}};
-    sycomore::Quantity const r{5, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r1{5, {1,0,0,0,0,0,0}};
     q1 += q2;
-    BOOST_CHECK(q1 == r);
+    BOOST_CHECK(q1 == r1);
+    
+    sycomore::Quantity scalar{2, {0,0,0,0,0,0,0}};
+    sycomore::Quantity const r2{5, {0,0,0,0,0,0,0}};
+    scalar += 3;
+    BOOST_CHECK(scalar == r2);
 
     sycomore::Quantity const q3{2, {0,1,0,0,0,0,0}};
     BOOST_CHECK_THROW(q1 += q3, std::runtime_error);
+    BOOST_CHECK_THROW(q1 += 3, std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(SubtractionInPlace)
 {
     sycomore::Quantity q1{2, {1,0,0,0,0,0,0}};
     sycomore::Quantity const q2{3, {1,0,0,0,0,0,0}};
-    sycomore::Quantity const r{-1, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const r1{-1, {1,0,0,0,0,0,0}};
     q1 -= q2;
-    BOOST_CHECK(q1 == r);
+    BOOST_CHECK(q1 == r1);
+    
+    sycomore::Quantity scalar{2, {0,0,0,0,0,0,0}};
+    sycomore::Quantity const r2{-1, {0,0,0,0,0,0,0}};
+    scalar -= 3;
+    BOOST_CHECK(scalar == r2);
 
     sycomore::Quantity const q3{2, {0,1,0,0,0,0,0}};
     BOOST_CHECK_THROW(q1 -= q3, std::runtime_error);
+    BOOST_CHECK_THROW(q1 -= 3, std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(MultiplicationInPlace)
@@ -121,22 +161,36 @@ BOOST_AUTO_TEST_CASE(Addition)
 {
     sycomore::Quantity const q1{2, {1,0,0,0,0,0,0}};
     sycomore::Quantity const q2{3, {1,0,0,0,0,0,0}};
-    sycomore::Quantity const r{5, {1,0,0,0,0,0,0}};
-    BOOST_CHECK(q1+q2 == r);
+    sycomore::Quantity const r1{5, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(q1+q2 == r1);
+    
+    sycomore::Quantity const scalar{2, {0,0,0,0,0,0,0}};
+    sycomore::Quantity const r2{5, {0,0,0,0,0,0,0}};
+    BOOST_CHECK(scalar+3 == r2);
+    BOOST_CHECK(3+scalar == r2);
 
     sycomore::Quantity const q3{2, {0,1,0,0,0,0,0}};
     BOOST_CHECK_THROW(q1+q3, std::runtime_error);
+    BOOST_CHECK_THROW(q1+3, std::runtime_error);
+    BOOST_CHECK_THROW(3+q1, std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(Subtraction)
 {
     sycomore::Quantity const q1{2, {1,0,0,0,0,0,0}};
     sycomore::Quantity const q2{3, {1,0,0,0,0,0,0}};
-    sycomore::Quantity const r{-1, {1,0,0,0,0,0,0}};
-    BOOST_CHECK(q1-q2 == r);
+    sycomore::Quantity const r1{-1, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(q1-q2 == r1);
+    
+    sycomore::Quantity const scalar{2, {0,0,0,0,0,0,0}};
+    sycomore::Quantity const r2{-1, {0,0,0,0,0,0,0}};
+    BOOST_CHECK(scalar-3 == r2);
+    BOOST_CHECK(1-scalar == r2);
 
     sycomore::Quantity const q3{2, {0,1,0,0,0,0,0}};
     BOOST_CHECK_THROW(q1-q3, std::runtime_error);
+    BOOST_CHECK_THROW(q1-3, std::runtime_error);
+    BOOST_CHECK_THROW(1-q1, std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(Multiplication)

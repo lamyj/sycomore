@@ -23,7 +23,11 @@ public:
     bool operator!=(Quantity const & other) const;
 
     Quantity & operator+=(Quantity const & other);
+    Quantity & operator+=(double s);
+    
     Quantity & operator-=(Quantity const & other);
+    Quantity & operator-=(double s);
+    
     Quantity & operator*=(Quantity const & other);
     Quantity & operator*=(double scalar);
     Quantity & operator/=(Quantity const & other);
@@ -38,21 +42,47 @@ public:
     double convert_to(Quantity const & destination) const;
 };
 
+SYCOMORE_API bool operator==(Quantity const & q, double s);
+SYCOMORE_API bool operator==(double s, Quantity const & q);
+
+SYCOMORE_API bool operator!=(Quantity const & q, double s);
+SYCOMORE_API bool operator!=(double s, Quantity const & q);
+
 SYCOMORE_API bool operator<(Quantity const & l, Quantity const & r);
+SYCOMORE_API bool operator<(Quantity const & q, double s);
+SYCOMORE_API bool operator<(double s, Quantity const & q);
+
 SYCOMORE_API bool operator<=(Quantity const & l, Quantity const & r);
+SYCOMORE_API bool operator<=(Quantity const & q, double s);
+SYCOMORE_API bool operator<=(double s, Quantity const & q);
+
 SYCOMORE_API bool operator>(Quantity const & l, Quantity const & r);
+SYCOMORE_API bool operator>(Quantity const & q, double s);
+SYCOMORE_API bool operator>(double s, Quantity const & q);
+
 SYCOMORE_API bool operator>=(Quantity const & l, Quantity const & r);
+SYCOMORE_API bool operator>=(Quantity const & q, double s);
+SYCOMORE_API bool operator>=(double s, Quantity const & q);
 
 SYCOMORE_API Quantity operator+(Quantity q);
 SYCOMORE_API Quantity operator-(Quantity q);
+
 SYCOMORE_API Quantity operator+(Quantity l, Quantity const & r);
+SYCOMORE_API Quantity operator+(Quantity const & q, double s);
+SYCOMORE_API Quantity operator+(double s, Quantity const & q);
+
 SYCOMORE_API Quantity operator-(Quantity l, Quantity const & r);
+SYCOMORE_API Quantity operator-(Quantity const & q, double s);
+SYCOMORE_API Quantity operator-(double s, Quantity const & q);
+
 SYCOMORE_API Quantity operator*(Quantity l, Quantity const & r);
 SYCOMORE_API Quantity operator*(Quantity q, double s);
 SYCOMORE_API Quantity operator*(double s, Quantity q);
+
 SYCOMORE_API Quantity operator/(Quantity l, Quantity const & r);
 SYCOMORE_API Quantity operator/(Quantity q, double s);
 SYCOMORE_API Quantity operator/(double s, Quantity const & q);
+
 SYCOMORE_API Quantity operator%(Quantity l, Quantity const & r);
 SYCOMORE_API Quantity operator%(Quantity q, double s);
 

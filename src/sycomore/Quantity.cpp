@@ -52,6 +52,13 @@ Quantity
 
 Quantity &
 Quantity
+::operator+=(double s)
+{
+    return this->operator+=(Quantity(s));
+}
+
+Quantity &
+Quantity
 ::operator-=(Quantity const & other)
 {
     if(this->dimensions != other.dimensions)
@@ -64,6 +71,13 @@ Quantity
     }
     this->magnitude -= other.magnitude;
     return *this;
+}
+
+Quantity &
+Quantity
+::operator-=(double s)
+{
+    return this->operator-=(Quantity(s));
 }
 
 Quantity &
@@ -139,6 +153,12 @@ Quantity
     return this->magnitude / destination.magnitude;
 }
 
+bool operator==(Quantity const & q, double s) { return q == Quantity(s); }
+bool operator==(double s, Quantity const & q) { return q == Quantity(s); }
+
+bool operator!=(Quantity const & q, double s) { return q != Quantity(s); }
+bool operator!=(double s, Quantity const & q) { return q != Quantity(s); }
+
 bool operator<(Quantity const & l, Quantity const & r)
 {
     if(l.dimensions != r.dimensions)
@@ -152,26 +172,44 @@ bool operator<(Quantity const & l, Quantity const & r)
     return l.magnitude < r.magnitude;
 }
 
+bool operator<(Quantity const & q, double s) { return q < Quantity(s); }
+bool operator<(double s, Quantity const & q) { return Quantity(s) < q; }
+
 bool operator<=(Quantity const & l, Quantity const & r)
 {
     return l<r || l==r;
 }
+
+bool operator<=(Quantity const & q, double s) { return q <= Quantity(s); }
+bool operator<=(double s, Quantity const & q) { return Quantity(s) <= q; }
 
 bool operator>(Quantity const & l, Quantity const & r)
 {
     return !(l<=r);
 }
 
+bool operator>(Quantity const & q, double s) { return q > Quantity(s); }
+bool operator>(double s, Quantity const & q) { return Quantity(s) > q; }
+
 bool operator>=(Quantity const & l, Quantity const & r)
 {
     return !(l<r);
 }
 
+bool operator>=(Quantity const & q, double s) { return q >= Quantity(s); }
+bool operator>=(double s, Quantity const & q) { return Quantity(s) >= q; }
+
 Quantity operator+(Quantity q) { return q; }
 Quantity operator-(Quantity q) { q *= -1; return q; }
 
 Quantity operator+(Quantity l, Quantity const & r) { l += r; return l; }
+Quantity operator+(Quantity const & q, double s) { return q+Quantity(s); }
+Quantity operator+(double s, Quantity const & q) { return Quantity(s)+q; }
+
 Quantity operator-(Quantity l, Quantity const & r) { l -= r; return l; }
+Quantity operator-(Quantity const & q, double s) { return q-Quantity(s); }
+Quantity operator-(double s, Quantity const & q) { return Quantity(s)-q; }
+
 Quantity operator*(Quantity l, Quantity const & r) { l *= r; return l; }
 Quantity operator*(Quantity q, double s) { q *= s; return q; }
 Quantity operator*(double s, Quantity q) { q *= s; return q; }

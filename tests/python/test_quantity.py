@@ -15,19 +15,40 @@ class TestQuantity(unittest.TestCase):
         q1 = sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0))
         q2 = sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0))
         q3 = sycomore.Quantity(2, sycomore.Dimensions(0,1,0,0,0,0,0))
-
+        scalar = sycomore.Quantity(2, sycomore.Dimensions(0,0,0,0,0,0,0))
+        
         self.assertTrue(q1 == q1)
         self.assertFalse(q1 == q2)
         self.assertFalse(q1 == q3)
+        self.assertTrue(scalar == 2)
+        self.assertTrue(2 == scalar)
+        self.assertFalse(scalar == 3)
+        self.assertFalse(3 == scalar)
 
         self.assertFalse(q1 != q1)
         self.assertTrue(q1 != q2)
         self.assertTrue(q1 != q3)
+        self.assertFalse(scalar != 2)
+        self.assertFalse(2 != scalar)
+        self.assertTrue(scalar != 3)
+        self.assertTrue(3 !=scalar)
 
         self.assertTrue(q1 < q2)
+        self.assertTrue(scalar < 3)
+        self.assertTrue(1 < scalar)
+        
         self.assertFalse(q2 <= q1)
+        self.assertTrue(scalar <= 2)
+        self.assertTrue(2 <= scalar)
+        
         self.assertFalse(q1 > q2)
+        self.assertTrue(scalar > 1)
+        self.assertTrue(3 > scalar)
+        
         self.assertFalse(q1 >= q2)
+        self.assertTrue(scalar >= 2)
+        self.assertTrue(2 >= scalar)
+        
         with self.assertRaises(Exception):
             q1 < q3
         with self.assertRaises(Exception):
@@ -36,28 +57,59 @@ class TestQuantity(unittest.TestCase):
             q1 > q3
         with self.assertRaises(Exception):
             q1 >= q3
+        
+        with self.assertRaises(Exception):
+            q1 < scalar
+        with self.assertRaises(Exception):
+            scalar < q1
+        with self.assertRaises(Exception):
+            q1 <= scalar
+        with self.assertRaises(Exception):
+            scalar <= q1
+        with self.assertRaises(Exception):
+            q1 > scalar
+        with self.assertRaises(Exception):
+            scalar > q1
+        with self.assertRaises(Exception):
+            q1 >= scalar
+        with self.assertRaises(Exception):
+            scalar >= q1
 
     def test_addition_in_place(self):
         q1 = sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0))
         q2 = sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0))
-        r = sycomore.Quantity(5, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r1 = sycomore.Quantity(5, sycomore.Dimensions(1,0,0,0,0,0,0))
         q1 += q2
-        self.assertEqual(q1, r)
+        self.assertEqual(q1, r1)
+        
+        scalar = sycomore.Quantity(2, sycomore.Dimensions(0,0,0,0,0,0,0))
+        r2 = sycomore.Quantity(5, sycomore.Dimensions(0,0,0,0,0,0,0))
+        scalar += 3
+        self.assertEqual(scalar, r2)
 
         q3 = sycomore.Quantity(2, sycomore.Dimensions(0,1,0,0,0,0,0))
         with self.assertRaises(Exception):
             q1 += q3
+        with self.assertRaises(Exception):
+            q1 += 3
 
     def test_subtraction_in_place(self):
         q1 = sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0))
         q2 = sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0))
-        r = sycomore.Quantity(-1, sycomore.Dimensions(1,0,0,0,0,0,0))
+        r1 = sycomore.Quantity(-1, sycomore.Dimensions(1,0,0,0,0,0,0))
         q1 -= q2
-        self.assertEqual(q1, r)
+        self.assertEqual(q1, r1)
+        
+        scalar = sycomore.Quantity(2, sycomore.Dimensions(0,0,0,0,0,0,0))
+        r2 = sycomore.Quantity(-1, sycomore.Dimensions(0,0,0,0,0,0,0))
+        scalar -= 3
+        self.assertEqual(scalar, r2)
 
         q3 = sycomore.Quantity(2, sycomore.Dimensions(0,1,0,0,0,0,0))
         with self.assertRaises(Exception):
             q1 -= q3
+        with self.assertRaises(Exception):
+            q1 -= 3
 
     def test_multiplication_in_place(self):
         q1 = sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0))
@@ -127,22 +179,40 @@ class TestQuantity(unittest.TestCase):
     def test_addition(self):
         q1 = sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0))
         q2 = sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0))
-        r = sycomore.Quantity(5, sycomore.Dimensions(1,0,0,0,0,0,0))
-        self.assertEqual(q1+q2, r)
-
+        r1 = sycomore.Quantity(5, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(q1+q2, r1)
+        
+        scalar = sycomore.Quantity(2, sycomore.Dimensions(0,0,0,0,0,0,0))
+        r2 = sycomore.Quantity(5, sycomore.Dimensions(0,0,0,0,0,0,0))
+        self.assertEqual(scalar+3, r2)
+        self.assertEqual(3+scalar, r2)
+        
         q3 = sycomore.Quantity(2, sycomore.Dimensions(0,1,0,0,0,0,0))
         with self.assertRaises(Exception):
             q1 + q3
+        with self.assertRaises(Exception):
+            q1 + 3
+        with self.assertRaises(Exception):
+            3 + q1
 
     def test_subtraction(self):
         q1 = sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0))
         q2 = sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0))
-        r = sycomore.Quantity(-1, sycomore.Dimensions(1,0,0,0,0,0,0))
-        self.assertEqual(q1-q2, r)
+        r1 = sycomore.Quantity(-1, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(q1-q2, r1)
+        
+        scalar = sycomore.Quantity(2, sycomore.Dimensions(0,0,0,0,0,0,0))
+        r2 = sycomore.Quantity(-1, sycomore.Dimensions(0,0,0,0,0,0,0))
+        self.assertEqual(scalar-3, r2)
+        self.assertEqual(1-scalar, r2)
 
         q3 = sycomore.Quantity(2, sycomore.Dimensions(0,1,0,0,0,0,0))
         with self.assertRaises(Exception):
             q1 - q3
+        with self.assertRaises(Exception):
+            q1 - 3
+        with self.assertRaises(Exception):
+            1 - q1
 
     def test_multiplication(self):
         q1 = sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0))
