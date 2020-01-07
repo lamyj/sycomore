@@ -5,15 +5,15 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/sycomore)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/sycomore.svg)](https://anaconda.org/conda-forge/sycomore)
 
-Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase Graphs (EPG) (both regular and discrete, including 3D), and Configuration Models. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime and further acceleration through [OpenMP](https://www.openmp.org/).
+Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase Graphs (EPG) (both regular and discrete, including 3D), and Configuration Models. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime and further acceleration through [OpenMP][].
 
-Sycomore is free software, released under the [MIT license](https://en.wikipedia.org/wiki/MIT_License), and its source code is available on [GitHub](https://github.com/lamyj/sycomore/).
+Sycomore is free software, released under the [MIT license][], and its source code is available on [GitHub][].
 
-A sample web application, using Sycomore paired with [Bokeh](https://bokeh.org) is available on [Heroku](https://sycomore.herokuapp.com/) (note that this is using the free Heroku hosting, and start-up times might be rather long; this does not impact the performance when the application is running): it presents classical MRI experiments (RARE, RF-spoiling, slice profile with a selective sinc pulse), using the different simulation models of Sycomore.
+A sample web application, using Sycomore paired with [Bokeh][] is available on [Heroku][] (note that this is using the free Heroku hosting, and start-up times might be rather long; this does not impact the performance when the application is running): it presents classical MRI experiments (RARE, RF-spoiling, slice profile with a selective sinc pulse), using the different simulation models of Sycomore.
 
 ## Installation
 
-Packaged versions of Sycomore are available on [pypi](https://pypi.org/project/sycomore/) and [Anaconda](https://www.anaconda.com/distribution/) for Linux, macOS and Windows. The following table summarizes the availability of packages according to the version of the Python interpreter.
+Packaged versions of Sycomore are available on [pypi][] and [Anaconda][] for Linux, macOS and Windows. The following table summarizes the availability of packages according to the version of the Python interpreter.
 
 
 | Operating system | conda-forge   | PyPI               |
@@ -22,15 +22,15 @@ Packaged versions of Sycomore are available on [pypi](https://pypi.org/project/s
 | macOS (≥ 9)      | 3.6, 3.7, 3.8 | 3.6, 3.7, 3.8      |
 | Windows          | 3.6, 3.7, 3.8 | 3.5, 3.6, 3.7      |
 
-To install from [Anaconda](https://www.anaconda.com/distribution/), type `conda install -c conda-forge sycomore`. To install from [pypi](https://pypi.org/project/sycomore/), type `pip3 install sycomore` (or `pip install sycomore`). If you are installing from [pypi](https://pypi.org/project/sycomore/) and no pre-compiled version is available for your platform, pip will try to install from the source archive.
+To install from [Anaconda][], type `conda install -c conda-forge sycomore`. To install from [pypi][], type `pip3 install sycomore` (or `pip install sycomore`). If you are installing from [pypi][] and no pre-compiled version is available for your platform, pip will try to install from the source archive.
 
-If you need to install Sycomore from source, you will need a C++11 compiler, `CMake`_ and `pybind11`_ to successfully build Sycomore. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test](https://www.boost.org/doc/libs/release/libs/test/).
+If you need to install Sycomore from source, you will need a C++11 compiler, [CMake][] and [pybind11][] to successfully build Sycomore. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test][].
 
-Additional details are provided in the [documentation](https://sycomore.readthedocs.io/en/latest/installation.html).
+Additional details are provided in the [documentation][].
 
 ## Usage
 
-The following code simulates a single repetition of a simple [RARE sequence](https://doi.org/10.1002/mrm.1910030602) using [regular EPG](https://sycomore.readthedocs.io/en/latest/epg/regular.html) and plots the transverse magnetization of each echo.
+The following code simulates a single repetition of a simple [RARE sequence][] using [regular EPG][] and plots the transverse magnetization of each echo.
 
 ```python
 import matplotlib.pyplot
@@ -75,3 +75,17 @@ The features and data structures are described in the documentation:
 - [Bloch simulation](https://sycomore.readthedocs.io/en/latest/bloch.html)
 - [Extended Phase Graphs](https://sycomore.readthedocs.io/en/latest/epg/index.html)
 - [Configuration Models](https://sycomore.readthedocs.io/en/latest/como.html)
+
+[Anaconda]: https://www.anaconda.com/distribution/
+[Bokeh]: https://bokeh.org
+[Boost.Test]: https://www.boost.org/doc/libs/release/libs/test/
+[CMake]: https://cmake.org/
+[documentation]: https://sycomore.readthedocs.io/en/latest/installation.html
+[GitHub]: https://github.com/lamyj/sycomore/
+[Heroku]: https://sycomore.herokuapp.com/
+[MIT license]: https://en.wikipedia.org/wiki/MIT_License
+[OpenMP]: https://www.openmp.org/
+[pybind11]: http://pybind11.readthedocs.io/
+[pypi]: https://pypi.org/project/sycomore/
+[RARE sequence]: https://doi.org/10.1002/mrm.1910030602
+[regular EPG]: https://sycomore.readthedocs.io/en/latest/epg/regular.html
