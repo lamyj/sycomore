@@ -10,7 +10,7 @@ MRI simulations deal with various quantities: times, frequencies and angular fre
 
 Sycomore provides a unit system so that users do not have to convert their quantities to a specific unit. Units may be declared by multiplying or dividing by the unit name (e.g. *500\*ms*). Those two syntaxes can be mixed in order to use more complex units (e.g. *267.522\*MHz/T*). Unit objects follow the usual arithmetic rules, and all SI `base units`_, `derived units`_ and `prefixes`_ are defined. 
 
-:class:`Quantity` objects contain their value in the base SI unit and may be converted to a compatible unit. Common arithmetic operations (addition, subtraction, multiplication, division, power) are implemented. The following code sample summarizes these features.
+:class:`Quantity` objects contain their value in the base SI unit and may be converted to a compatible unit. Common arithmetic operations (addition, subtraction, multiplication, division, power) are implemented, as well as most of `numpy numeric functions`_. The following code sample summarizes these features.
 
 .. note:: The *micro* prefix is *u*, not *μ*, in order to keep ASCII names
 
@@ -165,4 +165,5 @@ Reference
 
 .. _base units: https://en.wikipedia.org/wiki/SI_base_unit
 .. _derived units: https://en.wikipedia.org/wiki/SI_derived_unit
+.. _numpy numeric functions: https://docs.scipy.org/doc/numpy/reference/ufuncs.html#available-ufuncs
 .. _prefixes: https://en.wikipedia.org/wiki/Metric_prefix
