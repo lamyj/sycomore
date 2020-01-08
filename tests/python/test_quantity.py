@@ -519,6 +519,8 @@ class TestQuantity(unittest.TestCase):
                 if name == source])
         
         for name, inputs, output in tests:
+            if name not in ufuncs:
+                continue
             self.assertEqual(getattr(numpy, name)(*inputs), output)
         
         untested = [x for x in ufuncs if x not in [t[0] for t in tests]]
