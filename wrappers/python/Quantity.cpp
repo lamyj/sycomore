@@ -198,5 +198,8 @@ void wrap_Quantity(pybind11::module & m)
         .def("arcsinh", scalar_unary_function<std::asinh>)
         .def("arccosh", scalar_unary_function<std::acosh>)
         .def("arctanh", scalar_unary_function<std::atanh>)
+        .def("ceil", static_cast<Quantity(*)(Quantity)>(std::ceil))
+        .def("floor", static_cast<Quantity(*)(Quantity)>(std::floor))
+        .def("trunc", static_cast<Quantity(*)(Quantity)>(std::trunc))
     ;
 }
