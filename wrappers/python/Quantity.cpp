@@ -168,6 +168,8 @@ void wrap_Quantity(pybind11::module & m)
                 return Quantity(t[0].cast<double>(), dimensions);
             }
         ))
+        .def("__int__", [](Quantity const & q) { return int(double(q)); })
+        .def("__float__", [](Quantity const & q) { return double(q); })
         // ufuncs of numpy
         .def("fmod", [](Quantity const & l, Quantity const & r) { return l%r; })
         .def("fmod", [](Quantity const & l, double r) { return l%r; })

@@ -167,6 +167,22 @@ class TestQuantity(unittest.TestCase):
         r = sycomore.Quantity(1, sycomore.Dimensions(1,0,0,0,0,0,0))
         q %= 3
         self.assertEqual(q, r)
+    
+    def test_convert_to(self):
+        q1 = sycomore.Quantity(70, sycomore.Dimensions(1,0,0,0,0,0,0))
+        q2 = sycomore.Quantity(10, sycomore.Dimensions(1,0,0,0,0,0,0))
+        q3 = sycomore.Quantity(10, sycomore.Dimensions(0,1,0,0,0,0,0))
+        r = 7
+        self.assertEqual(q1.convert_to(q2), r)
+        with self.assertRaises(Exception):
+            q1.convert_to(q3)
+    
+    def test_float(self):
+        scalar = sycomore.Quantity(3, sycomore.Dimensions(0,0,0,0,0,0,0))
+        q = sycomore.Quantity(3, sycomore.Dimensions(1,0,0,0,0,0,0))
+        self.assertEqual(float(scalar), 3)
+        with self.assertRaises(Exception):
+            float(q)
 
     def test_unary_plus(self):
         q = sycomore.Quantity(2, sycomore.Dimensions(1,0,0,0,0,0,0))

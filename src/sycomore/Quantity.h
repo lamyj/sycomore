@@ -40,51 +40,74 @@ public:
      * unit.
     */
     double convert_to(Quantity const & destination) const;
+    
+    operator double() const;
 };
 
-SYCOMORE_API bool operator==(Quantity const & q, double s);
-SYCOMORE_API bool operator==(double s, Quantity const & q);
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator==(Quantity const & q, T s) { return q == Quantity(s); }
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator==(T s, Quantity const & q) { return q == Quantity(s); }
 
-SYCOMORE_API bool operator!=(Quantity const & q, double s);
-SYCOMORE_API bool operator!=(double s, Quantity const & q);
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator!=(Quantity const & q, T s) { return q != Quantity(s); }
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator!=(T s, Quantity const & q) { return q != Quantity(s); }
 
 SYCOMORE_API bool operator<(Quantity const & l, Quantity const & r);
-SYCOMORE_API bool operator<(Quantity const & q, double s);
-SYCOMORE_API bool operator<(double s, Quantity const & q);
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator<(Quantity const & q, T s) { return q < Quantity(s); }
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator<(T s, Quantity const & q) { return Quantity(s) < q; }
 
 SYCOMORE_API bool operator<=(Quantity const & l, Quantity const & r);
-SYCOMORE_API bool operator<=(Quantity const & q, double s);
-SYCOMORE_API bool operator<=(double s, Quantity const & q);
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator<=(Quantity const & q, T s) { return q <= Quantity(s); }
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator<=(T s, Quantity const & q) { return Quantity(s) <= q; }
 
 SYCOMORE_API bool operator>(Quantity const & l, Quantity const & r);
-SYCOMORE_API bool operator>(Quantity const & q, double s);
-SYCOMORE_API bool operator>(double s, Quantity const & q);
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator>(Quantity const & q, T s) { return q > Quantity(s); }
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator>(T s, Quantity const & q) { return Quantity(s) > q; }
 
 SYCOMORE_API bool operator>=(Quantity const & l, Quantity const & r);
-SYCOMORE_API bool operator>=(Quantity const & q, double s);
-SYCOMORE_API bool operator>=(double s, Quantity const & q);
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator>=(Quantity const & q, T s) { return q >= Quantity(s); }
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+bool operator>=(T s, Quantity const & q) { return Quantity(s) >= q; }
 
 SYCOMORE_API Quantity operator+(Quantity q);
 SYCOMORE_API Quantity operator-(Quantity q);
 
 SYCOMORE_API Quantity operator+(Quantity l, Quantity const & r);
-SYCOMORE_API Quantity operator+(Quantity const & q, double s);
-SYCOMORE_API Quantity operator+(double s, Quantity const & q);
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+Quantity operator+(Quantity const & q, T s) { return q+Quantity(s); }
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+Quantity operator+(T s, Quantity const & q) { return Quantity(s)+q; }
 
 SYCOMORE_API Quantity operator-(Quantity l, Quantity const & r);
-SYCOMORE_API Quantity operator-(Quantity const & q, double s);
-SYCOMORE_API Quantity operator-(double s, Quantity const & q);
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+Quantity operator-(Quantity const & q, T s) { return q-Quantity(s); }
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+Quantity operator-(T s, Quantity const & q) { return Quantity(s)-q; }
 
 SYCOMORE_API Quantity operator*(Quantity l, Quantity const & r);
-SYCOMORE_API Quantity operator*(Quantity q, double s);
-SYCOMORE_API Quantity operator*(double s, Quantity q);
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+Quantity operator*(Quantity q, T s) { q *= s; return q; }
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+Quantity operator*(T s, Quantity const & q) { return q*s; }
 
 SYCOMORE_API Quantity operator/(Quantity l, Quantity const & r);
-SYCOMORE_API Quantity operator/(Quantity q, double s);
-SYCOMORE_API Quantity operator/(double s, Quantity const & q);
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+Quantity operator/(Quantity q, T s) { q /= s; return q; }
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+Quantity operator/(T s, Quantity const & q) { return Quantity(s)/q; }
 
 SYCOMORE_API Quantity operator%(Quantity l, Quantity const & r);
-SYCOMORE_API Quantity operator%(Quantity q, double s);
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
+SYCOMORE_API Quantity operator%(Quantity q, T s) { q %= double(s); return q; }
 
 SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Quantity const & q);
 

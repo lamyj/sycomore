@@ -153,11 +153,11 @@ Quantity
     return this->magnitude / destination.magnitude;
 }
 
-bool operator==(Quantity const & q, double s) { return q == Quantity(s); }
-bool operator==(double s, Quantity const & q) { return q == Quantity(s); }
-
-bool operator!=(Quantity const & q, double s) { return q != Quantity(s); }
-bool operator!=(double s, Quantity const & q) { return q != Quantity(s); }
+Quantity
+::operator double() const
+{
+    return this->convert_to(Quantity(1));
+}
 
 bool operator<(Quantity const & l, Quantity const & r)
 {
@@ -172,62 +172,28 @@ bool operator<(Quantity const & l, Quantity const & r)
     return l.magnitude < r.magnitude;
 }
 
-bool operator<(Quantity const & q, double s) { return q < Quantity(s); }
-bool operator<(double s, Quantity const & q) { return Quantity(s) < q; }
-
 bool operator<=(Quantity const & l, Quantity const & r)
 {
     return l<r || l==r;
 }
-
-bool operator<=(Quantity const & q, double s) { return q <= Quantity(s); }
-bool operator<=(double s, Quantity const & q) { return Quantity(s) <= q; }
 
 bool operator>(Quantity const & l, Quantity const & r)
 {
     return !(l<=r);
 }
 
-bool operator>(Quantity const & q, double s) { return q > Quantity(s); }
-bool operator>(double s, Quantity const & q) { return Quantity(s) > q; }
-
 bool operator>=(Quantity const & l, Quantity const & r)
 {
     return !(l<r);
 }
 
-bool operator>=(Quantity const & q, double s) { return q >= Quantity(s); }
-bool operator>=(double s, Quantity const & q) { return Quantity(s) >= q; }
-
 Quantity operator+(Quantity q) { return q; }
 Quantity operator-(Quantity q) { q *= -1; return q; }
 
 Quantity operator+(Quantity l, Quantity const & r) { l += r; return l; }
-Quantity operator+(Quantity const & q, double s) { return q+Quantity(s); }
-Quantity operator+(double s, Quantity const & q) { return Quantity(s)+q; }
-
 Quantity operator-(Quantity l, Quantity const & r) { l -= r; return l; }
-Quantity operator-(Quantity const & q, double s) { return q-Quantity(s); }
-Quantity operator-(double s, Quantity const & q) { return Quantity(s)-q; }
-
 Quantity operator*(Quantity l, Quantity const & r) { l *= r; return l; }
-Quantity operator*(Quantity q, double s) { q *= s; return q; }
-Quantity operator*(double s, Quantity q) { q *= s; return q; }
 Quantity operator/(Quantity l, Quantity const & r) { l /= r; return l; }
-Quantity operator/(Quantity q, double s) { q /= s; return q; }
-Quantity operator/(double s, Quantity const & q)
-{
-    return Quantity{
-        s/q.magnitude, {
-            -q.dimensions.length,
-            -q.dimensions.mass,
-            -q.dimensions.time,
-            -q.dimensions.electric_current,
-            -q.dimensions.thermodynamic_temperature,
-            -q.dimensions.amount_of_substance,
-            -q.dimensions.luminous_intensity}};
-}
-Quantity operator%(Quantity q, double s) { q %= s; return q; }
 Quantity operator%(Quantity l, Quantity const & r) { l %= r; return l; }
 
 std::ostream & operator<<(std::ostream & stream, Quantity const & q)

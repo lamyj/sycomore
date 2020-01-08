@@ -144,6 +144,24 @@ BOOST_AUTO_TEST_CASE(ScalarModuloInPlace)
     BOOST_CHECK(q == r);
 }
 
+BOOST_AUTO_TEST_CASE(ConvertTo)
+{
+    sycomore::Quantity const q1{70, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const q2{10, {1,0,0,0,0,0,0}};
+    sycomore::Quantity const q3{10, {0,1,0,0,0,0,0}};
+    double const r = 7;
+    BOOST_CHECK(q1.convert_to(q2) == r);
+    BOOST_CHECK_THROW(q1.convert_to(q3), std::runtime_error);
+}
+
+BOOST_AUTO_TEST_CASE(Double)
+{
+    sycomore::Quantity const scalar{3, {0,0,0,0,0,0,0}};
+    sycomore::Quantity const q{3, {1,0,0,0,0,0,0}};
+    BOOST_CHECK(double(scalar) == 3);
+    BOOST_CHECK_THROW((double(q)), std::runtime_error);
+}
+
 BOOST_AUTO_TEST_CASE(UnaryPlus)
 {
     sycomore::Quantity q{2, {1,0,0,0,0,0,0}};
