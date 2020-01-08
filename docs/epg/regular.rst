@@ -7,32 +7,32 @@ The following code sample simulates the evolution of the signal in an `RF- & gra
 
 .. code-block:: python
     
-    import numpy
-    import sycomore
-    from sycomore.units import *
-    
-    species = sycomore.Species(1000*ms, 1000*ms)
-    flip_angle=30*deg
-    TE = 5*ms
-    TR = 25*ms
-    phase_step = 117*deg
-    slice_thickness = 1*mm
-    G_readout = 2*numpy.pi*rad / (sycomore.gamma*slice_thickness)
-    
-    model = sycomore.epg.Regular(species)
-    repetitions = int((4*species.T1/TR).magnitude)
-    
-    echo = numpy.zeros(repetitions, dtype=complex)
-    for r in range(0, repetitions):
-        phase = (phase_step * 1/2*(r+1)*r)
-        
-        model.apply_pulse(flip_angle, phase)
-        model.apply_time_interval(TE)
-        
-        rewind = numpy.exp(-1j*phase.convert_to(rad))
-        echo[r] = model.echo*rewind
-        
-        model.apply_time_interval(TR-TE, G_readout/(TR-TE))
+  import numpy
+  import sycomore
+  from sycomore.units import *
+
+  species = sycomore.Species(1000*ms, 1000*ms)
+  flip_angle=30*deg
+  TE = 5*ms
+  TR = 25*ms
+  phase_step = 117*deg
+  slice_thickness = 1*mm
+  G_readout = 2*numpy.pi*rad / (sycomore.gamma*slice_thickness)
+
+  model = sycomore.epg.Regular(species)
+  repetitions = int((4*species.T1/TR))
+
+  echo = numpy.zeros(repetitions, dtype=complex)
+  for r in range(0, repetitions):
+      phase = (phase_step * 1/2*(r+1)*r)
+
+      model.apply_pulse(flip_angle, phase)
+      model.apply_time_interval(TE)
+
+      rewind = numpy.exp(-1j*phase.convert_to(rad))
+      echo[r] = model.echo*rewind
+
+      model.apply_time_interval(TR-TE, G_readout/(TR-TE))
 
 Once the echo signal has been gathered for all repetitions, its magnitude and phase can be plotted using respectively `numpy.abs`_ and `numpy.angle`_.
 

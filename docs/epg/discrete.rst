@@ -24,7 +24,7 @@ The following code sample show the full simulation of the DW-DESS_ sequence, wit
     G_diffusion = 200*mT/m*ms
     
     model = sycomore.epg.Discrete(species)
-    repetitions = int((4*species.T1/TR).magnitude)
+    repetitions = int((4*species.T1/TR))
     
     FID = numpy.zeros(repetitions, dtype=complex)
     echo = numpy.zeros(repetitions, dtype=complex)

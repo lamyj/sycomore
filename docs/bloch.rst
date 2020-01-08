@@ -54,8 +54,8 @@ Contrary to :doc:`Extended Phase Graphs (EPG)<epg/index>` which simulate at voxe
   voxel_size = 1*mm
   positions_count = 50
 
-  steps = 1+int((repetitions*TR/time_step).magnitude)
-  times = [x.convert_to(s) for x in sycomore.linspace(0*s, repetitions*TR, steps)]
+  steps = 1+int((repetitions*TR/time_step))
+  times = sycomore.linspace(0*s, repetitions*TR, steps)
 
   excitation = sycomore.bloch.pulse(90*deg, 90*deg)
   refocalization = sycomore.bloch.pulse(180*deg, 0*rad)
@@ -70,18 +70,17 @@ Contrary to :doc:`Extended Phase Graphs (EPG)<epg/index>` which simulate at voxe
 
   magnetizations = numpy.full((positions_count, steps, 4), m0)
   for step, t in enumerate(times[:-1]):
-      if numpy.allclose(t % TR.convert_to(s), 0) and step != len(times)-1:
+      if numpy.allclose((t % TR).convert_to(s), 0) and step != len(times)-1:
           pulse = excitation
-      elif numpy.allclose(t % TE.convert_to(s), TE.convert_to(s)/2):
+      elif numpy.allclose((t % TE).convert_to(s), TE.convert_to(s)/2):
           # Time from start of TR
-          t_TR = (t%TR.convert_to(s))
-          echo = numpy.round((t_TR-TE.convert_to(s)/2)/TE.convert_to(s))
+          t_TR = t%TR
+          echo = numpy.round((t_TR-TE/2)/TE)
           if echo < train_length:
               pulse = refocalization
           else:
               pulse = numpy.identity(4)
       else:
-          # print(t, "nothing")
           pulse = numpy.identity(4)
       magnetizations[:,step+1] = numpy.einsum(
           "ij,oj->oi", pulse, magnetizations[:,step])
