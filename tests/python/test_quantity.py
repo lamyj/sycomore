@@ -1,3 +1,4 @@
+import logging
 import math
 import sys
 if sys.version_info[0] == 2:
@@ -366,68 +367,148 @@ class TestQuantity(unittest.TestCase):
         self.assertEqual(len(quantities), 3)
     
     def test_ufuncs(self):
-        quantity_functions = [
-            "add", "subtract", "multiply", "divide", 
-            # TODO? logaddexp, logaddexp2 
-            "true_divide", "floor_divide", "negative", "positive",
-            "remainder", "mod", "fmod", 
-            # TODO divmod
-            "absolute", "fabs",
-            # TODO? sign, heaviside
-            # Not applicable: conj, conjugate
-            "sqrt", "square", "cbrt", "reciprocal",
-            # Not applicable: deg2rad, rad2deg
-            # Not applicable: bitwise_and, bitwise_or, bitwise_xor, invert, 
-            # left_shift, right_shift
-            # Not applicable: logical_and, logical_or, logical_xor, logical_not
-            "maximum", "minimum", "fmax", "fmin",
-            # TODO? isfinite, isinf
-            # Not applicable: isnat
-            # TODO? signbit, copysign, nextafter, spacing, modf, ldexp, frexp
-            "floor", "ceil", "trunc"
+        ufuncs = [
+            x for x in dir(numpy) if isinstance(getattr(numpy, x), numpy.ufunc)]
+        non_object_ufuncs = [
+            x for x in ufuncs if not any(
+                t.endswith("O->O") for t in getattr(numpy, x).types)
         ]
-        quantity_functions = list(zip(
-            quantity_functions, len(quantity_functions)*[False]))
+        logging.warning(
+            "The following ufuncs do not operate on objects: {}".format(
+                ", ".join(non_object_ufuncs)))
+        ufuncs = [x for x in ufuncs if x not in non_object_ufuncs]
         
-        scalar_only_functions = [
-            "exp", "exp2", "log", "log2", "log10", "expm1", "log1p",
-            # TODO? "gcd", "lcm",
-            "sin", "cos", "tan", "arcsin", "arccos", "arctan", "arctan2",
+        not_applicable_ufuncs = [
+            "conj", "conjugate", # Quantities are real-valued
+            "deg2rad", "degrees", "rad2deg", "radians", 
+            "bitwise_and", "bitwise_or", "bitwise_xor", "bitwise_not", "invert", 
+            "left_shift", "right_shift", "logical_and", "logical_or", 
+            "logical_xor", "logical_not", "isnat", 
+            "gcd", "lcm", "matmul"
         ]
-        scalar_only_functions = list(zip(
-            scalar_only_functions, len(scalar_only_functions)*[True]))
+        ufuncs = [x for x in ufuncs if x not in not_applicable_ufuncs]
         
+        from sycomore.units import m, deg
         Scalar = sycomore.Quantity(1, sycomore.Dimensions())
-        quantities = [0.123*Scalar, 3*Scalar]
-        for name, scalar_only in quantity_functions+scalar_only_functions:
-            function = getattr(numpy, name, None)
-            if function is None:
-                continue
-            arguments = quantities[:function.nin]
-            scalar_arguments = [q.magnitude for q in arguments]
-            result = function(*arguments)
-            numpy.testing.assert_almost_equal(
-                result.magnitude, function(*scalar_arguments))
+        tests = [
+            ["add", [1*m, 2*m], 3*m],
+            ["add", [1*Scalar, 2], 3*Scalar],
+            ["add", [1, 2*Scalar], 3*Scalar],
             
-            non_scalar_arguments = [q*sycomore.units.m for q in arguments]
-            if not scalar_only:
-                function(*non_scalar_arguments)
-            else:
-                with self.assertRaises(Exception):
-                    function(*non_scalar_arguments)
+            ["subtract", [1*m, 2*m], -1*m],
+            ["subtract", [1*Scalar, 2], -1*Scalar],
+            ["subtract", [1, 2*Scalar], -1*Scalar],
+            
+            ["multiply", [2*m, 3*m], 6*m**2],
+            ["multiply", [2*m, 3], 6*m],
+            ["multiply", [2, 3*m], 6*m],
+            
+            ["divide", [3*m, 2*m], 1.5*Scalar],
+            ["divide", [3*m, 2], 1.5*m],
+            ["divide", [3, 2*m], 1.5/m],
+            # Same tests for true_divide
+            
+            ["floor_divide", [3*m, 2*m], 1*Scalar],
+            ["floor_divide", [3*m, 2], 1*m],
+            ["floor_divide", [3, 2*m], 1/m],
+            
+            ["negative", [-1*m], 1*m],
+            ["positive", [-1*m], -1*m],
+            ["power", [3*m, 2], 9*m**2],
+            
+            ["remainder", [3*m, 2], 1*m],
+            ["remainder", [3*m, 2*m], 1*m],
+            # Same tests for mod and fmod
+            
+            ["absolute", [-1*m], 1*m],
+            # Same tests for fabs and abs
+            
+            ["rint", [-1.7*m], -2*m],
+            
+            ["sign", [-1.7*Scalar], -1],
+            
+            ["exp", [0*Scalar], 1*Scalar],
+            ["exp2", [1*Scalar], 2*Scalar],
+            ["log", [1*Scalar], 0*Scalar],
+            ["log2", [8*Scalar], 3*Scalar],
+            ["log10", [1000*Scalar], 3*Scalar],
+            ["expm1", [0*Scalar], 0*Scalar],
+            ["log1p", [0*Scalar], 0*Scalar],
+            
+            ["sqrt", [4*m**2], 2*m],
+            ["square", [2*m], 4*m**2],
+            ["cbrt", [8*m**3], 2*m],
+            ["reciprocal", [2*m], 0.5/m],
+            
+            ["sin", [0*deg], 0*Scalar],
+            ["cos", [0*deg], 1*Scalar],
+            ["tan", [0*deg], 0*Scalar],
+            ["arcsin", [0*Scalar], 0*deg],
+            ["arccos", [1*Scalar], 0*deg],
+            ["arctan", [0*Scalar], 0*deg],
+            ["arctan2", [0*Scalar, 1*Scalar], 0*deg],
+            ["hypot", [3*Scalar, 4*Scalar], 5*Scalar],
+            
+            ["sinh", [0*deg], 0*Scalar],
+            ["cosh", [0*deg], 1*Scalar],
+            ["tanh", [0*deg], 0*Scalar],
+            ["arcsinh", [0*Scalar], 0*deg],
+            ["arccosh", [1*Scalar], 0*deg],
+            ["arctanh", [0*Scalar], 0*deg],
+            
+            ["greater", [2*m, 1*m], True],
+            ["greater", [2*Scalar, 1], True],
+            ["greater", [2, 1*Scalar], True],
+            
+            ["greater_equal", [2*m, 2*m], True],
+            ["greater_equal", [2*Scalar, 2], True],
+            ["greater_equal", [2, 2*Scalar], True],
+            
+            ["less", [1*m, 2*m], True],
+            ["less", [1*Scalar, 2], True],
+            ["less", [1, 2*Scalar], True],
+            
+            ["less_equal", [2*m, 2*m], True],
+            ["less_equal", [2*Scalar, 2], True],
+            ["less_equal", [2, 2*Scalar], True],
+            
+            ["not_equal", [2*m, 1*m], True],
+            ["not_equal", [2*Scalar, 1], True],
+            ["not_equal", [2, 1*Scalar], True],
+            
+            ["equal", [2*m, 2*m], True],
+            ["equal", [2*Scalar, 2], True],
+            ["equal", [2, 2*Scalar], True],
+            
+            ["maximum", [1*m, 2*m], 2*m],
+            ["maximum", [1*Scalar, 2], 2*Scalar],
+            ["maximum", [1, 2*Scalar], 2*Scalar],
+            
+            ["minimum", [1*m, 2*m], 1*m],
+            ["minimum", [1*Scalar, 2], 1*Scalar],
+            ["minimum", [1, 2*Scalar], 1*Scalar],
+            
+            ["ceil", [-2.1*m], -2*m],
+            ["floor", [-2.1*m], -3*m],
+            ["trunc", [-2.1*m], -2*m],
+        ]
+        equivalences = [
+            ["true_divide", "divide"], ["mod", "remainder"], 
+            ["fmod", "remainder"], ["fabs", "absolute"], ["abs", "absolute"],
+            ["fmax", "maximum"], ["fmin", "minimum"],
+        ]
+        for destination, source in equivalences:
+            tests.extend([
+                [destination, inputs, output] for name, inputs, output in tests 
+                if name == source])
         
-        comparators = [
-            "greater", "greater_equal", "less", "less_equal", 
-            "not_equal", "equal"]
-        for name in comparators:
-            function = getattr(numpy, name)
-            self.assertEqual(
-                function(*quantities[:2]),
-                function(*[q.magnitude for q in quantities[:2]]))
+        for name, inputs, output in tests:
+            self.assertEqual(getattr(numpy, name)(*inputs), output)
         
-        # power has a different signature
-        result = numpy.power(4*sycomore.units.m**6, 0.5)
-        self.assertEqual(result, 2*sycomore.units.m**3)
+        untested = [x for x in ufuncs if x not in [t[0] for t in tests]]
+        logging.warning(
+            "The following ufuncs were not tested: {}".format(
+                ", ".join(untested)))
 
 if __name__ == "__main__":
     unittest.main()
