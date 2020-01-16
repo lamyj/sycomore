@@ -29,9 +29,11 @@ public:
     Species species;
     
     Regular(
-        Species const & species,
+        Species const & species, 
         Magnetization const & initial_magnetization={0,0,1}, 
-        unsigned int initial_size=100);
+        unsigned int initial_size=100, 
+        Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
+        double gradient_tolerance=1e-5);
     
     Regular(Regular const &) = default;
     Regular(Regular &&) = default;
@@ -62,8 +64,15 @@ public:
         Quantity const & duration, 
         Quantity const & gradient=0*units::T/units::m);
 
-    /// @brief Apply a gradient; in regular EPG, this shifts all orders by 1.
+    /// @brief Apply a unit gradient; in regular EPG, this shifts all orders by 1.
     void shift();
+    
+    /* 
+     * @brief Apply an arbitrary gradient; in regular EPG, this shifts all 
+     * orders by an integer number corresponding to a multiple of the unit 
+     * gradient.
+     */
+    void shift(Quantity const & duration, Quantity const & gradient);
 
     /// @brief Simulate the relaxation during given duration.
     void relaxation(Quantity const & duration);
@@ -73,9 +82,25 @@ public:
      * amplitude.
      */
     void diffusion(Quantity const & duration, Quantity const & gradient);
+    
+    Quantity const & unit_gradient_area() const;
+    double gradient_tolerance() const;
+    
 private:
     std::vector<Complex> _states;
     unsigned int _states_count;
+    
+    /// @brief Area of the unit gradient, in T/m.
+    Quantity _unit_gradient_area;
+    
+    /** 
+     * @brief Tolerance used when checking that a prescribed gradient moment is
+     * close enough to a multiple of the unit gradient.
+     */
+    double _gradient_tolerance;
+    
+    /// @brief Shift all orders by given number of steps (may be negative).
+    void _shift(int n);
 };
 
 }

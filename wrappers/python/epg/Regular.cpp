@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <pybind11/stl.h>
 
 #include "sycomore/epg/Regular.h"
 #include "sycomore/magnetization.h"
@@ -19,9 +20,11 @@ void wrap_epg_Regular(pybind11::module & m)
             "In this model, the orders of the model are consecutive positive "
             "integers starting at 0.")
         .def(
-            init<Species, Magnetization, unsigned int>(),
+            init<Species, Magnetization, unsigned int, Quantity const &, double>(),
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
-            arg("initial_size")=100)
+            arg("initial_size")=100, 
+            arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
+            arg("gradient_tolerance")=1e-5)
         .def_readwrite("species", &Regular::species)
         .def_property_readonly(
             "states_count", &Regular::states_count, 
@@ -49,8 +52,17 @@ void wrap_epg_Regular(pybind11::module & m)
             arg("duration"), arg("gradient")=0*units::T/units::m,
             "Apply a time interval, i.e. relaxation, diffusion, and gradient.")
         .def(
-            "shift", &Regular::shift, 
-            "Apply a gradient; in regular EPG, this shifts all orders by 1.")
+            "shift", static_cast<void (Regular::*)()>(&Regular::shift), 
+            "Apply a unit gradient; in regular EPG, this shifts all orders by 1.")
+        .def(
+            "shift", 
+            static_cast<
+                    void (Regular::*)(Quantity const &, Quantity const &)
+                >(&Regular::shift), 
+            arg("duration"), arg("gradient"),
+            "Apply an arbitrary gradient; in regular EPG, this shifts all "
+            "orders by an integer number corresponding to a multiple of the "
+            "unit gradient.")
         .def(
             "relaxation", &Regular::relaxation, arg("duration"),
             "Simulate the relaxation during given duration.")

@@ -190,3 +190,77 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
         TEST_COMPLEX_EQUAL(model.states()[i], states[i]);
     }
 }
+
+BOOST_AUTO_TEST_CASE(UnitGradient, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+    sycomore::Species const species(1000*ms, 100*ms);
+        
+    sycomore::epg::Regular model(species, {0,0,1}, 100, 10*mT/m*ms);
+    model.apply_pulse(47*deg, 23*deg);
+    
+    /* First time interval: 1*unit gradient area */
+    model.apply_time_interval(10*ms, 1*mT/m);
+    
+    BOOST_TEST(model.states_count() == 2);
+    {
+        auto const state_0 = model.state(0);
+        TEST_COMPLEX_EQUAL(state_0[0], 0.);
+        TEST_COMPLEX_EQUAL(state_0[1], 0.);
+        TEST_COMPLEX_EQUAL(state_0[2], 0.6851625292479138);
+        
+        auto const state_1 = model.state(1);
+        TEST_COMPLEX_EQUAL(
+            state_1[0], sycomore::Complex(0.2585687448743616, -0.609149789340343));
+        TEST_COMPLEX_EQUAL(state_1[1], 0.);
+        TEST_COMPLEX_EQUAL(state_1[2], 0.);
+    }
+    
+    /* Second time interval: 2*unit gradient area */
+    model.apply_time_interval(10*ms, 2*mT/m);
+    BOOST_TEST(model.states_count() == 4);
+    {
+        auto const state_0 = model.state(0);
+        TEST_COMPLEX_EQUAL(state_0[0], 0.);
+        TEST_COMPLEX_EQUAL(state_0[1], 0.);
+        TEST_COMPLEX_EQUAL(state_0[2], 0.6882952144238884);
+        
+        auto const state_1 = model.state(1);
+        TEST_COMPLEX_EQUAL(state_1[0], 0.);
+        TEST_COMPLEX_EQUAL(state_1[1], 0.);
+        TEST_COMPLEX_EQUAL(state_1[2], 0.);
+        
+        auto const state_2 = model.state(2);
+        TEST_COMPLEX_EQUAL(state_2[0], 0.);
+        TEST_COMPLEX_EQUAL(state_2[1], 0.);
+        TEST_COMPLEX_EQUAL(state_2[2], 0.);
+        
+        auto const state_3 = model.state(3);
+        TEST_COMPLEX_EQUAL(
+            state_3[0], sycomore::Complex(0.2339626754969161, -0.5511815225838647));
+        TEST_COMPLEX_EQUAL(state_3[1], 0.);
+        TEST_COMPLEX_EQUAL(state_3[2], 0.);
+    }
+    
+    /* Third time interval: -3*unit gradient area */
+    model.apply_time_interval(10*ms, -3*mT/m);
+    BOOST_TEST(model.states_count() == 7);
+    {
+        auto const state_0 = model.state(0);
+        TEST_COMPLEX_EQUAL(
+            state_0[0], sycomore::Complex(0.2116981832134146, -0.49872966576391303));
+        TEST_COMPLEX_EQUAL(state_0[1], std::conj(state_0[0]));
+        TEST_COMPLEX_EQUAL(state_0[2], 0.6913967288615507);
+        
+        for(int i=1; i<model.states_count(); ++i)
+        {
+            auto const state = model.state(i);
+            TEST_COMPLEX_EQUAL(state[0], 0.);
+            TEST_COMPLEX_EQUAL(state[1], 0.);
+            TEST_COMPLEX_EQUAL(state[2], 0.);
+        }
+    }
+    
+    BOOST_CHECK_THROW(
+        model.apply_time_interval(12*ms, 2*mT/m), std::runtime_error);
+}

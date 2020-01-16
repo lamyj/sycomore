@@ -21,8 +21,10 @@ namespace epg
 Regular
 ::Regular(
     Species const & species, Magnetization const & initial_magnetization, 
-    unsigned int initial_size)
-: species(species), _states(3*initial_size, 0)
+    unsigned int initial_size, 
+    Quantity const & unit_gradient_area, double gradient_tolerance)
+: species(species), _states(3*initial_size, 0),
+    _unit_gradient_area(unit_gradient_area), _gradient_tolerance(gradient_tolerance)
 {
     // Store magnetization as lines of F̃_k, F̃^*_{-k}, Z̃_k
     auto const magnetization = as_complex_magnetization(initial_magnetization);
@@ -103,7 +105,14 @@ Regular
     this->diffusion(duration, gradient);
     if(duration.magnitude != 0 && gradient.magnitude != 0)
     {
-        this->shift();
+        if(this->_unit_gradient_area.magnitude != 0)
+        {
+            this->shift(duration, gradient);
+        }
+        else
+        {
+            this->shift();
+        }
     }
 }
 
@@ -111,28 +120,27 @@ void
 Regular
 ::shift()
 {
-    // TODO: resize factor
-    if(3*this->_states_count >= this->_states.size())
+    this->_shift(1);
+}
+
+void
+Regular
+::shift(Quantity const & duration, Quantity const & gradient)
+{
+    auto const area = duration*gradient;
+    auto const epsilon = this->_gradient_tolerance*this->_unit_gradient_area.magnitude;
+    auto const remainder = std::remainder(
+        area.magnitude, this->_unit_gradient_area.magnitude);
+    
+    if(std::abs(remainder) >= epsilon)
     {
-        this->_states.resize(this->_states.size()+3*100, 0);
+        throw std::runtime_error(
+            "Gradient is not a interger multiple of unit gradient");
     }
     
-    // Shift positive F̃ states right
-    for(int order=this->_states_count-1; order>=0; --order)
-    {
-        this->_states[3*(order+1)] = this->_states[3*order];
-    }
+    int n = std::round(area/this->_unit_gradient_area);
     
-    // Shift negative F̃^* states left
-    for(int order=1; order<=this->_states_count; ++order)
-    {
-        this->_states[1+3*(order-1)] = this->_states[1+3*order];
-    }
-    
-    // Update F̃_{+0} using F̃^*_{-0}
-    this->_states[0] = std::conj(this->_states[1]);
-    
-    ++this->_states_count;
+    this->_shift(n);
 }
 
 void
@@ -176,6 +184,82 @@ Regular
         this->_states[0+3*order] *= std::get<0>(D);
         this->_states[1+3*order] *= std::get<1>(D);
         this->_states[2+3*order] *= std::get<2>(D);
+    }
+}
+
+Quantity const &
+Regular
+::unit_gradient_area() const
+{
+    return this->_unit_gradient_area;
+}
+
+double
+Regular
+::gradient_tolerance() const
+{
+    return this->_gradient_tolerance;
+}
+
+void
+Regular
+::_shift(int n)
+{
+    if(std::abs(n)>1)
+    {
+        for(int i=0; i<std::abs(n); ++i)
+        {
+            this->_shift(n>0?+1:-1);
+        }
+    }
+    else if(n==1 || n==-1)
+    {
+        if(3*(this->_states_count) >= this->_states.size())
+        {
+            this->_states.resize(this->_states.size()+3*100, 0);
+        }
+        
+        if(n == +1)
+        {
+            // Shift positive F̃ states right
+            for(int order=this->_states_count-1; order>=0; --order)
+            {
+                this->_states[3*(order+1)] = this->_states[3*order];
+            }
+            
+            // Shift negative F̃^* states left
+            for(int order=1; order<=this->_states_count; ++order)
+            {
+                this->_states[1+3*(order-1)] = this->_states[1+3*order];
+            }
+            
+            // Update F̃_{+0} using F̃^*_{-0}
+            this->_states[0] = std::conj(this->_states[1]);
+        }
+        else
+        {
+            // Shift negative F̃^* states right
+            for(int order=this->_states_count-1; order>=0; --order)
+            {
+                this->_states[1+3*(order+1)] = this->_states[1+3*order];
+            }
+            
+            // Shift positive F̃ states left
+            for(int order=1; order<=this->_states_count; ++order)
+            {
+                this->_states[3*(order-1)] = this->_states[3*order];
+            }
+            
+            // Update F̃^*_{-0} using F̃_{+0} 
+            this->_states[1] = std::conj(this->_states[0]);
+        }
+        
+        
+        ++this->_states_count;
+    }
+    else
+    { 
+        // n==0, nothing to do.
     }
 }
 
