@@ -67,8 +67,7 @@ Discrete
 {
     using namespace sycomore::units;
 
-    std::size_t const k = std::round(
-        order.convert_to(rad/m)/this->_bin_width.convert_to(rad/m));
+    std::size_t const k = std::round(double(order/this->_bin_width));
 
     auto const it = std::find(this->_orders.begin(), this->_orders.end(), k);
     if(it == this->_orders.end())
@@ -166,7 +165,7 @@ Discrete
     // This assumes a constant gradient in the integral: 
     // k(t) = γ ∫_0^t G(t') dt' = γ⋅t⋅G
     auto const delta_k = (long long)(std::round(
-        (sycomore::gamma*gradient*duration / this->_bin_width).magnitude));
+        double(sycomore::gamma*gradient*duration / this->_bin_width)));
     
     if(delta_k == 0)
     {

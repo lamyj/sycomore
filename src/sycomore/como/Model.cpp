@@ -209,10 +209,10 @@ Model
     }
 
     // Relaxation effects
-    auto const E_1 = std::exp(
-        (-this->_species.get_R1() * time_interval.get_duration()).magnitude);
-    auto const E_2 = std::exp(
-        (-this->_species.get_R2() * time_interval.get_duration()).magnitude);
+    double const E_1 = std::exp(
+        (-this->_species.get_R1() * time_interval.get_duration()));
+    double const E_2 = std::exp(
+        (-this->_species.get_R2() * time_interval.get_duration()));
 
     // Configuration-independent diffusion effects
     Array<Real> p_mu(time_interval.get_gradient_moment().size());

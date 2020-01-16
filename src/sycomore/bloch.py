@@ -6,8 +6,8 @@ from . import gamma
 def pulse(angle, phase):
     M = numpy.identity(4)
     
-    Rz = axis_angle_to_matrix([0,0,1], -phase.convert_to(rad))
-    Rx = axis_angle_to_matrix([1,0,0], angle.convert_to(rad))
+    Rz = axis_angle_to_matrix([0,0,1], -phase)
+    Rx = axis_angle_to_matrix([1,0,0], angle)
     M[:3,:3] = numpy.matmul(numpy.linalg.inv(Rz), numpy.matmul(Rx, Rz))
     
     return M
@@ -31,8 +31,8 @@ def time_interval(
     return numpy.matmul(F, E)
 
 def relaxation(species, duration):
-    E_1 = numpy.exp((-duration*species.R1).magnitude)
-    E_2 = numpy.exp((-duration*species.R2).magnitude)
+    E_1 = float(numpy.exp(-duration*species.R1))
+    E_2 = float(numpy.exp(-duration*species.R2))
     
     M = numpy.diag([E_2, E_2, E_1, 1])
     M[2,3] = 1-E_1
@@ -41,7 +41,7 @@ def relaxation(species, duration):
 
 def phase_accumulation(angle):
     M = numpy.identity(4)
-    M[:3,:3] = axis_angle_to_matrix([0,0,1], angle.convert_to(rad))
+    M[:3,:3] = axis_angle_to_matrix([0,0,1], angle)
     return M
 
 def axis_angle_to_matrix(axis, angle) :

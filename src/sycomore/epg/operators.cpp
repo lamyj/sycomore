@@ -35,33 +35,29 @@ std::vector<Complex> pulse(Quantity angle, Quantity phase)
 std::pair<Real, Real> 
 relaxation(Species const & species, Quantity const & duration)
 {
-    auto const E_1 = std::exp((-duration*species.get_R1()).magnitude);
-    auto const E_2 = std::exp((-duration*species.get_R2()).magnitude);
+    auto const E_1 = std::exp((-duration*species.get_R1()));
+    auto const E_2 = std::exp((-duration*species.get_R2()));
     return std::make_pair(E_1, E_2);
 }
 
 std::tuple<Real, Real, Real>
 diffusion(
     Species const & species, Quantity const & duration, 
-    Quantity const & k_, Quantity const & delta_k_)
+    Quantity const & k, Quantity const & delta_k)
 {
     // NOTE: b_T differs between F̃^+ and F̃^{-*} since F̃^{-*}(k) is F(-k^*)
     
-    using namespace units;
     using std::exp; using std::pow;
     
-    auto const k = k_.magnitude;
-    auto const tau = duration.magnitude;
-    auto const delta_k = delta_k_.magnitude;
-    auto const d = species.get_D()[0].magnitude;
+    auto const d = species.get_D()[0];
         
-    auto const b_T_plus = tau*(pow(k+delta_k/2, 2) + pow(delta_k, 2) / 12);
+    auto const b_T_plus = duration*(pow(k+delta_k/2, 2) + pow(delta_k, 2) / 12);
     auto const D_T_plus = exp(-b_T_plus*d);
     
-    auto const b_T_minus = tau*(pow(-k+delta_k/2, 2) + pow(delta_k, 2) / 12);
+    auto const b_T_minus = duration*(pow(-k+delta_k/2, 2) + pow(delta_k, 2) / 12);
     auto const D_T_minus = exp(-b_T_minus*d);
     
-    auto const b_L = pow(k, 2) * tau;
+    auto const b_L = pow(k, 2) * duration;
     auto const D_L = exp(-b_L*d);
     
     return std::make_tuple(D_T_plus, D_T_minus, D_L);

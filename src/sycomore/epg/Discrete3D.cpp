@@ -65,11 +65,10 @@ Discrete3D
 
     using namespace sycomore::units;
 
-    auto const bin_width = this->_bin_width.convert_to(rad/m);
     Bin bin(order.size());
     for(std::size_t i=0; i<bin.size(); ++i)
     {
-        bin[i] = order[i].convert_to(rad/m)/bin_width;
+        bin[i] = order[i]/this->_bin_width;
     }
     auto it=this->_orders.begin();
     for(; it!=this->_orders.end(); it+=3)
@@ -189,7 +188,7 @@ Discrete3D
     bool all_zero = true;
     for(std::size_t i=0; i<delta_k.size(); ++i)
     {
-        delta_k[i] = std::round((delta_k_q[i]/this->_bin_width).magnitude);
+        delta_k[i] = std::round((delta_k_q[i]/this->_bin_width));
         if(delta_k[i] != 0)
         {
             all_zero = false;
