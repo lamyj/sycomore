@@ -9,10 +9,13 @@ cd pybind11
 git checkout v2.4.2
 cmake -DPYBIND11_TEST=OFF -DCMAKE_INSTALL_PREFIX=C:\Libraries\pybind11 -DCMAKE_GENERATOR_PLATFORM=%PLATFORM% .
 cmake --build . --config Release --target install
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 %PYTHON% -m pip install --upgrade pip
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 REM Assume Python later than 3.5
 %PYTHON% -m pip install -U numpy
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 cd %WORKSPACE%

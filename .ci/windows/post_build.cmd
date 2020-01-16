@@ -9,7 +9,11 @@ set PATH=%PATH%;%BOOST_PATH%;%INSTALL_DIR%\bin
 set SYCOMORE_TEST_DATA=%WORKSPACE%\tests\data
 
 cd %BUILD_DIR%
+
 ctest -T Test
+if %errorlevel% neq 0 exit /b %errorlevel%
+
 %PYTHON% -m unittest discover -s %WORKSPACE%/tests/python/
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 cd %WORKSPACE%

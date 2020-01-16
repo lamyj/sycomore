@@ -14,7 +14,9 @@ cmake ^
   -DCMAKE_GENERATOR_PLATFORM=%PLATFORM% ^
   ${CMAKE_OPTIONS} ^
   ..
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 cmake --build . --config Release --target install --parallel 3
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 cd %WORKSPACE%
