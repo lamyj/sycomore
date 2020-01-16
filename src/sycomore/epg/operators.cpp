@@ -51,13 +51,13 @@ diffusion(
     
     auto const d = species.get_D()[0];
         
-    auto const b_T_plus = duration*(pow(k+delta_k/2, 2) + pow(delta_k, 2) / 12);
+    auto const b_T_plus = duration*(pow(k+delta_k/2, 2.) + pow(delta_k, 2.) / 12);
     auto const D_T_plus = exp(-b_T_plus*d);
     
-    auto const b_T_minus = duration*(pow(-k+delta_k/2, 2) + pow(delta_k, 2) / 12);
+    auto const b_T_minus = duration*(pow(-k+delta_k/2, 2.) + pow(delta_k, 2.) / 12);
     auto const D_T_minus = exp(-b_T_minus*d);
     
-    auto const b_L = pow(k, 2) * duration;
+    auto const b_L = pow(k, 2.) * duration;
     auto const D_L = exp(-b_L*d);
     
     return std::make_tuple(D_T_plus, D_T_minus, D_L);
