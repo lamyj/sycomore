@@ -3,6 +3,8 @@ Regular (constant gradient moment) EPG
 
 In the regular EPG model, the dephasing order is reduced to a unitless integer :math:`k\ge 0` which represents a multiplicative factor of some arbitrary basic dephasing. The implementation of regular EPG in Sycomore has two high-level operations: :meth:`Regular.apply_pulse` to simulate an RF hard pulse and :meth:`Regular.apply_time_interval` which simulates relaxation, diffusion and dephasing due to gradients. The lower-level EPG operators used by :meth:`Regular.apply_time_interval` are also accessible as :meth:`Regular.relaxation`, :meth:`Regular.diffusion` and :meth:`Regular.shift`. The states of the model are stored in :attr:`Regular.states`, and the fully-focused magnetization (i.e. :math:`\tilde{F}_0`) is stored in :attr:`Regular.echo`.
 
+For simulations involving multiple gradient moments (all multiple of a given gradient moment), the "unit" gradient moment must be declared when creating the model; for simulations involving only a single gradient moment, this declaration is optional, but should be present nevertheless.
+
 The following code sample simulates the evolution of the signal in an `RF- & gradient spoiled GRE`_ experiment.
 
 .. code-block:: python
@@ -19,7 +21,7 @@ The following code sample simulates the evolution of the signal in an `RF- & gra
   slice_thickness = 1*mm
   G_readout = 2*numpy.pi*rad / (sycomore.gamma*slice_thickness)
 
-  model = sycomore.epg.Regular(species)
+  model = sycomore.epg.Regular(species, unit_gradient_area=G_readout)
   repetitions = int((4*species.T1/TR))
 
   echo = numpy.zeros(repetitions, dtype=complex)
