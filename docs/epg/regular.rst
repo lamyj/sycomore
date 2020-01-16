@@ -44,7 +44,7 @@ Once the echo signal has been gathered for all repetitions, its magnitude and ph
 Reference
 ---------
 
-.. class:: sycomore.epg.Regular(species, initial_magnetization=Magnetization(0,0,1), initial_size=100)
+.. class:: sycomore.epg.Regular(species, initial_magnetization=Magnetization(0,0,1), initial_size=100, unit_gradient_area=0*mT/m*ms, gradient_tolerance=1e-5)
   
   .. attribute:: species
     
@@ -76,7 +76,11 @@ Reference
   
   .. method:: shift()
     
-    Apply a gradient; in regular EPG, this shifts all orders by 1.
+    Apply a unit gradient; in regular EPG, this shifts all orders by 1.
+  
+  .. method:: shift(duration, gradient)
+    
+    Apply an arbitrary gradient; in regular EPG, this shifts all orders by an integer number corresponding to a multiple of the unit gradient.
   
   .. method:: relaxation(duration, gradient)
     
