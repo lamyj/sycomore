@@ -107,7 +107,7 @@ Quantity operator/(T s, Quantity const & q) { return Quantity(s)/q; }
 
 SYCOMORE_API Quantity operator%(Quantity l, Quantity const & r);
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-SYCOMORE_API Quantity operator%(Quantity q, T s) { q %= double(s); return q; }
+Quantity operator%(Quantity q, T s) { q %= double(s); return q; }
 
 SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Quantity const & q);
 
