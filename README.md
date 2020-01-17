@@ -20,7 +20,7 @@ Packaged versions of Sycomore are available on [pypi][] and [Anaconda][] for Lin
 | ---------------- | ------------- | ------------------ |
 | Linux            | 3.6, 3.7, 3.8 | 3.5, 3.6, 3.7, 3.8 |
 | macOS (≥ 9)      | 3.6, 3.7, 3.8 | 3.6, 3.7, 3.8      |
-| Windows          | 3.6, 3.7, 3.8 | 3.5, 3.6, 3.7      |
+| Windows          | 3.6, 3.7, 3.8 | 3.5, 3.6, 3.7, 3.8 |
 
 To install from [Anaconda][], type `conda install -c conda-forge sycomore`. To install from [pypi][], type `pip3 install sycomore` (or `pip install sycomore`). If you are installing from [pypi][] and no pre-compiled version is available for your platform, pip will try to install from the source archive.
 
