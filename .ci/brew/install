@@ -9,7 +9,7 @@ export PYTHON=${PYTHON:-python}
 brew upgrade python || brew install python || true
 brew link --overwrite python || true
 
-for PACKAGE in boost cmake libomp pybind11; do
+for PACKAGE in boost cmake libomp ninja pybind11; do
     VERSIONS=$(brew ls --versions ${PACKAGE} || true)
     if [ -z "${VERSIONS}" ]; then
         COMMAND="install"

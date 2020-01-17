@@ -7,6 +7,7 @@ mkdir %INSTALL_DIR%
 cd %BUILD_DIR%
 
 cmake ^
+  -G Ninja ^
   -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% ^
   -DCMAKE_BUILD_TYPE=Release ^
   -Dpybind11_DIR="C:/Libraries/pybind11/share/cmake/pybind11" ^
@@ -16,7 +17,7 @@ cmake ^
   ..
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cmake --build . --config Release --target install --parallel 3
+cmake --build . --config Release --target install
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 cd %WORKSPACE%
