@@ -34,6 +34,7 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
         interval.get_gradient_area(), {0*T/m*s,0*T/m*s,0*T/m*s});
     test_quantity_array(
         interval.get_gradient_dephasing(), {0*rad/m,0*rad/m,0*rad/m});
+    BOOST_TEST(interval.get_delta_omega() == 0*Hz);
 }
 
 BOOST_AUTO_TEST_CASE(DurationConstructor)
@@ -51,12 +52,13 @@ BOOST_AUTO_TEST_CASE(DurationConstructor)
         interval.get_gradient_area(), {0*T/m*s,0*T/m*s,0*T/m*s});
     test_quantity_array(
         interval.get_gradient_dephasing(), {0*rad/m,0*rad/m,0*rad/m});
+    BOOST_TEST(interval.get_delta_omega() == 0*Hz);
 }
 
 BOOST_AUTO_TEST_CASE(DephasingScalarConstructor, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
-    sycomore::TimeInterval const interval(1._ms, 2.*rad/dm);
+    sycomore::TimeInterval const interval(1._ms, 2.*rad/dm, 1*Hz);
     
     BOOST_TEST(interval.get_duration() == 1.e-3*s);
     
@@ -192,6 +194,24 @@ BOOST_AUTO_TEST_CASE(AreaVectorConstructor, *boost::unit_test::tolerance(1e-9))
             214.01775197351404*rad/m});
 }
 
+BOOST_AUTO_TEST_CASE(DeltaOmegaConstructor, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+    sycomore::TimeInterval const interval(1._ms, 0*T/m, 1*Hz);
+    
+    BOOST_TEST(interval.get_duration() == 1.e-3*s);
+    
+    test_quantity_array(
+        interval.get_gradient_moment(), {0*rad/m,0*rad/m,0*rad/m});
+    test_quantity_array(
+        interval.get_gradient_amplitude(), {0*T/m,0*T/m,0*T/m});
+    test_quantity_array(
+        interval.get_gradient_area(), {0*T/m*s,0*T/m*s,0*T/m*s});
+    test_quantity_array(
+        interval.get_gradient_dephasing(), {0*rad/m,0*rad/m,0*rad/m});
+    BOOST_TEST(interval.get_delta_omega() == 1*Hz);
+}
+
 using Getter = sycomore::Quantity (sycomore::TimeInterval::*)(sycomore::Quantity const &);
 using ScalarSetter = void (sycomore::TimeInterval::*)(sycomore::Quantity const &);
 using VectorSetter = void (sycomore::TimeInterval::*)(sycomore::Array<sycomore::Quantity> const &);
@@ -281,4 +301,39 @@ BOOST_AUTO_TEST_CASE(GradientAccessors, *boost::unit_test::tolerance(1e-9))
         &sycomore::TimeInterval::set_gradient_moment,
         &sycomore::TimeInterval::set_gradient_moment,
         moment);
+}
+
+BOOST_AUTO_TEST_CASE(DeltaOmega, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+    
+    sycomore::TimeInterval interval(1._ms, 0*T/m, 1*Hz);
+    interval.set_delta_omega(2*Hz);
+    BOOST_TEST(interval.get_delta_omega() == 2*Hz);
+}
+
+BOOST_AUTO_TEST_CASE(Comparison)
+{
+    using namespace sycomore::units;
+    
+    sycomore::TimeInterval const interval_1(1._ms, 2*T/m, 3*Hz);
+    sycomore::TimeInterval const interval_2(1._ms, 2*T/m, 3*Hz);
+    sycomore::TimeInterval const interval_3(1._ms, {2*T/m, 2*T/m, 2*T/m}, 3*Hz);
+    
+    BOOST_CHECK(interval_1 == interval_2);
+    BOOST_CHECK(interval_1 == interval_3);
+    BOOST_CHECK(!(interval_1 != interval_2));
+    BOOST_CHECK(!(interval_1 != interval_3));
+    
+    sycomore::TimeInterval const interval_4(4._ms, 2*T/m, 3*Hz);
+    BOOST_CHECK(!(interval_1 == interval_4));
+    BOOST_CHECK(interval_1 != interval_4);
+    
+    sycomore::TimeInterval const interval_5(1._ms, 4*T/m, 3*Hz);
+    BOOST_CHECK(!(interval_1 == interval_5));
+    BOOST_CHECK(interval_1 != interval_5);
+    
+    sycomore::TimeInterval const interval_6(1._ms, 2*T/m, 4*Hz);
+    BOOST_CHECK(!(interval_1 == interval_6));
+    BOOST_CHECK(interval_1 != interval_6);
 }

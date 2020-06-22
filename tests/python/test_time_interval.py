@@ -12,6 +12,7 @@ class TestTimeInterval(unittest.TestCase):
         self._test_quantity_array(interval.gradient_area, 3*[0.*T/m*s])
         self._test_quantity_array(interval.gradient_dephasing, 3*[0.*rad/m])
         self._test_quantity_array(interval.gradient_moment, 3*[0.*rad/m])
+        self.assertEqual(interval.delta_omega, 0.*Hz)
             
     def test_dephasing_scalar_constructor(self):
         interval = sycomore.TimeInterval(1.*ms, 2.*rad/dm)
@@ -22,6 +23,7 @@ class TestTimeInterval(unittest.TestCase):
             interval.gradient_area, 3*[74.76015355016015*uT/m*ms])
         self._test_quantity_array(interval.gradient_dephasing, 3*[20.*rad/m])
         self._test_quantity_array(interval.gradient_moment, 3*[20.*rad/m])
+        self.assertEqual(interval.delta_omega, 0.*Hz)
 
     def test_dephasing_vector_constructor(self):
         interval = sycomore.TimeInterval(1.*ms, [2*rad/dm, 4*rad/m, 8*rad/dam])
@@ -40,6 +42,7 @@ class TestTimeInterval(unittest.TestCase):
             interval.gradient_dephasing, [20*rad/m, 4*rad/m, 0.8*rad/m])
         self._test_quantity_array(
             interval.gradient_moment, [20*rad/m, 4*rad/m, 0.8*rad/m])
+        self.assertEqual(interval.delta_omega, 0.*Hz)
     
     def test_amplitude_scalar_constructor(self):
         interval = sycomore.TimeInterval(1.*ms, 2.*mT/dm)
@@ -50,6 +53,7 @@ class TestTimeInterval(unittest.TestCase):
             interval.gradient_dephasing, 3*[5350.4437993378515*rad/m])
         self._test_quantity_array(
             interval.gradient_moment, 3*[5350.4437993378515*rad/m])
+        self.assertEqual(interval.delta_omega, 0.*Hz)
 
     def test_amplitude_vector_constructor(self):
         interval = sycomore.TimeInterval(1.*ms, [2.*mT/dm, 4.*mT/m, 8.*mT/dam])
@@ -68,6 +72,16 @@ class TestTimeInterval(unittest.TestCase):
                 5350.4437993378515*rad/m,
                 1070.0887598675702*rad/m,
                 214.01775197351404*rad/m])
+        self.assertEqual(interval.delta_omega, 0.*Hz)
+    
+    def test_delta_omega_constructor(self):
+        interval = sycomore.TimeInterval(1.*ms, delta_omega=1.*Hz)
+        self.assertEqual(interval.duration, 1e-3*s)
+        self._test_quantity_array(interval.gradient_amplitude, 3*[0.*T/m])
+        self._test_quantity_array(interval.gradient_area, 3*[0.*T/m*s])
+        self._test_quantity_array(interval.gradient_dephasing, 3*[0.*rad/m])
+        self._test_quantity_array(interval.gradient_moment, 3*[0.*rad/m])
+        self.assertEqual(interval.delta_omega, 1.*Hz)
     
     def test_gradient_properties(self):
         amplitude = [20*mT/m, 40*mT/m, 80*mT/m]
@@ -110,7 +124,34 @@ class TestTimeInterval(unittest.TestCase):
             self._test_quantity_array(interval.gradient_area, area)
             self._test_quantity_array(interval.gradient_dephasing, dephasing)
             self._test_quantity_array(interval.gradient_moment, moment)
-
+    
+    def test_delta_omega(self):
+        interval = sycomore.TimeInterval(1.*ms, 0*T/m, 1*Hz)
+        interval.delta_omega = 2*Hz
+        self.assertEqual(interval.delta_omega, 2*Hz)
+    
+    def test_comparison(self):
+        interval_1 = sycomore.TimeInterval(1.*ms, 2*T/m, 3*Hz)
+        interval_2 = sycomore.TimeInterval(1.*ms, 2*T/m, 3*Hz)
+        interval_3 = sycomore.TimeInterval(1.*ms, [2*T/m, 2*T/m, 2*T/m], 3*Hz)
+        
+        self.assertTrue(interval_1 == interval_2)
+        self.assertTrue(interval_1 == interval_3)
+        self.assertFalse(interval_1 != interval_2)
+        self.assertFalse(interval_1 != interval_3)
+        
+        interval_4 = sycomore.TimeInterval(4.*ms, 2*T/m, 3*Hz)
+        self.assertFalse(interval_1 == interval_4)
+        self.assertTrue(interval_1 != interval_4)
+        
+        interval_5 = sycomore.TimeInterval(1.*ms, 4*T/m, 3*Hz)
+        self.assertFalse(interval_1 == interval_5)
+        self.assertTrue(interval_1 != interval_5)
+        
+        interval_6 = sycomore.TimeInterval(1.*ms, 2*T/m, 4*Hz)
+        self.assertFalse(interval_1 == interval_6)
+        self.assertTrue(interval_1 != interval_6)
+    
     def _test_quantity_array(self, left, right):
         self.assertSequenceEqual(
             [x.dimensions for x in left], [x.dimensions for x in right])

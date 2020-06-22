@@ -99,21 +99,31 @@ void wrap_TimeInterval(pybind11::module & m)
 {
     using namespace pybind11;
     using namespace sycomore;
+    
+    using sycomore::units::T;
+    using sycomore::units::Hz;
+    
+    auto const T_per_m = T/units::m;
 
     class_<TimeInterval>(
             m, "TimeInterval",  
-            "Time interval, with or without magnetic field gradient.")
+            "Time interval, with or without magnetic field gradient "
+            "and field-related dephasing.")
         .def(
-            init<Quantity, Quantity>(),
-            arg("duration"), arg("gradient")=0*units::T/units::m,
+            init<Quantity, Quantity, Quantity>(),
+            arg("duration"), arg("gradient")=0*T_per_m,
+                arg("delta_omega")=0*Hz,
             "Constructor, gradient may be specified as amplitude (in T/m), "
             "area (in T/m*s) or dephasing (in rad/m).")
         .def(init(
-            [&](Quantity duration, sequence s) {
+            [&](Quantity duration, sequence s, Quantity delta_omega=0*Hz) {
                 auto sycomore_py = module::import("sycomore");
                 auto Array_py = sycomore_py.attr("Array")[sycomore_py.attr("Quantity")];
-                return TimeInterval(duration, Array_py(s).cast<Array<Quantity>>());
+                return TimeInterval(duration, Array_py(s).cast<Array<Quantity>>(), delta_omega);
             }),
+            arg("duration"), 
+                arg("gradient")=Array<Quantity>{0*T_per_m, 0*T_per_m, 0*T_per_m},
+                arg("delta_omega")=0*units::Hz,
             "Constructor, gradient may be specified as amplitude (in T/m), "
             "area (in T/m*s) or dephasing (in rad/m).")
         .def_property(
@@ -140,6 +150,10 @@ void wrap_TimeInterval(pybind11::module & m)
             "gradient_moment",
             &TimeInterval::get_gradient_moment, &set_gradient_moment,
             "Gradient moment, i.e. dephasing")
+        .def_property(
+            "delta_omega",
+            &TimeInterval::get_delta_omega, &TimeInterval::set_delta_omega,
+            "Field-related off-resonance frequency")
         .def(self == self)
         .def(self != self);
 }
