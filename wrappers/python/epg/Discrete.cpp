@@ -24,6 +24,7 @@ void wrap_epg_Discrete(pybind11::module & m)
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
             arg("bin_width")=1*units::rad/units::m)
         .def_readwrite("species", &Discrete::species)
+        .def_readwrite("threshold", &Discrete::threshold)
         .def_property_readonly(
             "orders", &Discrete::orders, 
             "The sequence of orders currently stored by the model, in the same "

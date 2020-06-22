@@ -31,11 +31,13 @@ public:
     using State = std::vector<Complex>;
 
     Species species;
+    Real threshold;
     
     Discrete(
         Species const & species, 
         Magnetization const & initial_magnetization={0,0,1}, 
-        Quantity bin_width=1*units::rad/units::m);
+        Quantity bin_width=1*units::rad/units::m,
+        Real threshold=0);
     
     Discrete(Discrete const &) = default;
     Discrete(Discrete &&) = default;

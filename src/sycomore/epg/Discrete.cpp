@@ -4,6 +4,7 @@
 #include <complex>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <vector>
 
 #include "sycomore/epg/operators.h"
@@ -21,8 +22,8 @@ namespace epg
 Discrete
 ::Discrete(
     Species const & species, Magnetization const & initial_magnetization, 
-    Quantity bin_width)
-: species(species), _bin_width(bin_width), _states(3, 0)
+    Quantity bin_width, Real threshold)
+: species(species), _bin_width(bin_width), _states(3, 0), threshold(threshold)
 {
     // Store magnetization as lines of F̃, F̃^*_, Z̃
     auto const magnetization = as_complex_magnetization(initial_magnetization);
@@ -124,6 +125,15 @@ Discrete
     Quantity const & duration, Quantity const & gradient, Real threshold,
     Quantity const & delta_omega)
 {
+    static bool warning_displayed = false;
+    if(!warning_displayed && threshold > 0)
+    {
+        std::cout 
+            << "WARNING: threshold argument is deprecated "
+            << "and will be removed from Discrete::apply_time_interval\n";
+        warning_displayed = true;
+    }
+    
     if(duration.magnitude == 0)
     {
         return;
@@ -134,6 +144,10 @@ Discrete
     this->shift(duration, gradient);
     this->off_resonance(duration, delta_omega);
     
+    if(threshold == 0)
+    {
+        threshold = this->threshold;
+    }
     if(threshold > 0)
     {
         auto const threshold_squared = std::pow(threshold, 2);
