@@ -20,7 +20,8 @@ namespace epg
 namespace operators
 {
 
-SYCOMORE_API std::vector<Complex> pulse(Quantity angle, Quantity phase);
+SYCOMORE_API std::vector<Complex> pulse(
+    Quantity const & angle, Quantity const & phase);
 
 SYCOMORE_API std::pair<Real, Real> relaxation(
     Species const & species, Quantity const & duration);
@@ -28,6 +29,9 @@ SYCOMORE_API std::pair<Real, Real> relaxation(
 SYCOMORE_API std::tuple<Real, Real, Real> diffusion(
     Species const & species, Quantity const & duration, Quantity const & k, 
     Quantity const & delta_k);
+
+SYCOMORE_API std::pair<Complex, Complex> phase_accumulation(
+    Quantity const & angle);
 
 }
     

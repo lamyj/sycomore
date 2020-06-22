@@ -121,7 +121,8 @@ Discrete
 void
 Discrete
 ::apply_time_interval(
-    Quantity const & duration, Quantity const & gradient, Real threshold)
+    Quantity const & duration, Quantity const & gradient, Real threshold,
+    Quantity const & delta_omega)
 {
     if(duration.magnitude == 0)
     {
@@ -131,6 +132,7 @@ Discrete
     this->relaxation(duration);
     this->diffusion(duration, gradient);
     this->shift(duration, gradient);
+    this->off_resonance(duration, delta_omega);
     
     if(threshold > 0)
     {
@@ -156,6 +158,15 @@ Discrete
         this->_orders = std::move(orders);
         this->_states = std::move(states);
     }
+}
+
+void
+Discrete
+::apply_time_interval(TimeInterval const & interval)
+{
+    this->apply_time_interval(
+        interval.get_duration(), interval.get_gradient_amplitude()[0], 0, 
+        interval.get_delta_omega());
 }
 
 void
@@ -295,6 +306,27 @@ Discrete
         this->_states[0+3*i] *= std::get<0>(D);
         this->_states[1+3*i] *= std::get<1>(D);
         this->_states[2+3*i] *= std::get<2>(D);
+    }
+}
+
+void
+Discrete
+::off_resonance(Quantity const & duration, Quantity const & delta_omega)
+{
+    auto const angle = 
+        duration * 2*M_PI*units::rad 
+        * (delta_omega+this->species.get_delta_omega());
+    if(angle.magnitude != 0)
+    {
+        auto const rotations = operators::phase_accumulation(angle);
+        
+        #pragma omp parallel for
+        for(int order=0; order<this->_orders.size(); ++order)
+        {
+            this->_states[0+3*order] *= rotations.first;
+            this->_states[1+3*order] *= rotations.second;
+            // Z̃ states are unaffected
+        }
     }
 }
 

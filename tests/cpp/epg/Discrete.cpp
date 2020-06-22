@@ -144,7 +144,6 @@ BOOST_AUTO_TEST_CASE(MultipleGradient, *boost::unit_test::tolerance(1e-9))
     TEST_COMPLEX_EQUAL(model.echo(), 0);
 }
 
-
 BOOST_AUTO_TEST_CASE(Relaxation, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
@@ -182,6 +181,24 @@ BOOST_AUTO_TEST_CASE(Diffusion, *boost::unit_test::tolerance(1e-9))
     TEST_COMPLEX_EQUAL(model.echo(), 0);
 }
 
+BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+    
+    sycomore::epg::Discrete model(species);
+    model.apply_pulse(47*deg, 23*deg);
+    model.shift(10*ms, 2*mT/m);
+    model.off_resonance(10*ms, 10*Hz);
+
+    std::vector<sycomore::epg::Discrete::Order> const orders{
+        0*rad/m, 5350*rad/m};
+    std::vector<sycomore::epg::Discrete::State> const states{
+        {0, 0, 0.6819983600624985},
+        {{0.6268924782754024, -0.37667500256027975}, 0, 0}};
+    test_model(model, orders, states);
+    TEST_COMPLEX_EQUAL(model.echo(), 0);
+}
+
 BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
@@ -189,6 +206,62 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     sycomore::epg::Discrete model(species);
     model.apply_pulse(47*deg, 23*deg);
     model.apply_time_interval(10*ms, 2*mT/m);
+
+    std::vector<sycomore::epg::Discrete::Order> const orders{
+        0*rad/m, 5350*rad/m};
+    std::vector<sycomore::epg::Discrete::State> const states{
+        {0, 0, 0.6851625292479138},
+        {{0.2584947343504123, -0.6089754314724013}, 0, 0}};
+    test_model(model, orders, states);
+    TEST_COMPLEX_EQUAL(model.echo(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(
+    TimeIntervalFieldOffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+
+    sycomore::epg::Discrete model(species);
+    model.apply_pulse(47*deg, 23*deg);
+    model.apply_time_interval({10*ms, 2*mT/m, 10*Hz});
+
+    std::vector<sycomore::epg::Discrete::Order> const orders{
+        0*rad/m, 5350*rad/m};
+    std::vector<sycomore::epg::Discrete::State> const states{
+        {0, 0, 0.6851625292479138},
+        {{0.56707341067384409, -0.34073208057155585}, 0, 0}};
+    test_model(model, orders, states);
+    TEST_COMPLEX_EQUAL(model.echo(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(
+    TimeIntervalSpeciesOffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+
+    sycomore::epg::Discrete model(
+        {species.get_R1(), species.get_R2(), species.get_D(), 0*Hz, 10*Hz});
+    model.apply_pulse(47*deg, 23*deg);
+    model.apply_time_interval(10*ms, 2*mT/m);
+
+    std::vector<sycomore::epg::Discrete::Order> const orders{
+        0*rad/m, 5350*rad/m};
+    std::vector<sycomore::epg::Discrete::State> const states{
+        {0, 0, 0.6851625292479138},
+        {{0.56707341067384409, -0.34073208057155585}, 0, 0}};
+    test_model(model, orders, states);
+    TEST_COMPLEX_EQUAL(model.echo(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(
+    TimeIntervalBothOffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+
+    sycomore::epg::Discrete model(
+        {species.get_R1(), species.get_R2(), species.get_D(), 0*Hz, 10*Hz});
+    model.apply_pulse(47*deg, 23*deg);
+    model.apply_time_interval({10*ms, 2*mT/m, -model.species.get_delta_omega()});
 
     std::vector<sycomore::epg::Discrete::Order> const orders{
         0*rad/m, 5350*rad/m};

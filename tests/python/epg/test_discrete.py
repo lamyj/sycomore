@@ -89,10 +89,61 @@ class TestDiscrete(unittest.TestCase):
                 [0, 0, 0.6851625292479138], 
                 [0.25805117100742553-0.6079304617214332j, 0, 0]])
     
+    def test_off_resonance(self):
+        model = sycomore.epg.Discrete(self.species)
+        model.apply_pulse(47*deg, 23*deg)
+        model.shift(10*ms, 2*mT/m)
+        model.off_resonance(10*ms, 10*Hz)
+        
+        self._test_model(
+            model, [0*rad/m, 5350*rad/m], 
+            [
+                [0, 0, 0.6819983600624985], 
+                [0.6268924782754024-0.37667500256027975j, 0, 0]])
+    
     def test_apply_time_interval(self):
         model = sycomore.epg.Discrete(self.species)
         model.apply_pulse(47*deg, 23*deg)
         model.apply_time_interval(10*ms, 2*mT/m)
+        
+        self._test_model(
+            model, [0*rad/m, 5350*rad/m],
+            [
+                [0, 0, 0.6851625292479138], 
+                [0.2584947343504123-0.6089754314724013j, 0, 0]])
+    
+    def test_apply_time_interval_field_off_resonance(self):
+        model = sycomore.epg.Discrete(self.species)
+        model.apply_pulse(47*deg, 23*deg)
+        model.apply_time_interval(10*ms, 2*mT/m, delta_omega=10*Hz)
+        
+        self._test_model(
+            model, [0*rad/m, 5350*rad/m],
+            [
+                [0, 0, 0.6851625292479138], 
+                [0.56707341067384409-0.34073208057155585j, 0, 0]])
+    
+    def test_apply_time_interval_species_off_resonance(self):
+        model = sycomore.epg.Discrete(
+            sycomore.Species(
+                self.species.R1, self.species.R2, self.species.D, 
+                delta_omega=10*Hz))
+        model.apply_pulse(47*deg, 23*deg)
+        model.apply_time_interval(10*ms, 2*mT/m)
+        
+        self._test_model(
+            model, [0*rad/m, 5350*rad/m],
+            [
+                [0, 0, 0.6851625292479138], 
+                [0.56707341067384409-0.34073208057155585j, 0, 0]])
+    
+    def test_apply_time_interval_both_off_resonance(self):
+        model = sycomore.epg.Discrete(
+            sycomore.Species(
+                self.species.R1, self.species.R2, self.species.D, 
+                delta_omega=10*Hz))
+        model.apply_pulse(47*deg, 23*deg)
+        model.apply_time_interval(10*ms, 2*mT/m, delta_omega=-10*Hz)
         
         self._test_model(
             model, [0*rad/m, 5350*rad/m],

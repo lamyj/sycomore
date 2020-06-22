@@ -61,9 +61,18 @@ void wrap_epg_Discrete(pybind11::module & m)
             arg("angle"), arg("phase")=0*units::rad,
             "Apply an RF hard pulse.")
         .def(
-            "apply_time_interval", &Discrete::apply_time_interval,
+            "apply_time_interval", 
+            static_cast<void(Discrete::*)(Quantity const &, Quantity const &, Real, Quantity const &)>(
+                &Discrete::apply_time_interval),
             arg("duration"), arg("gradient")=0*units::T/units::m,
-            arg("threshold")=0.,
+            arg("threshold")=0., arg("delta_omega")=0.*units::Hz,
+            "Apply a time interval, i.e. relaxation, diffusion, and gradient. " 
+            "States with a population lower than *threshold* will be removed.")
+        .def(
+            "apply_time_interval", 
+            static_cast<void(Discrete::*)(TimeInterval const &)>(
+                &Discrete::apply_time_interval),
+            arg("time_interval"),
             "Apply a time interval, i.e. relaxation, diffusion, and gradient. " 
             "States with a population lower than *threshold* will be removed.")
         .def(
@@ -77,6 +86,11 @@ void wrap_epg_Discrete(pybind11::module & m)
             "diffusion", &Discrete::diffusion, arg("duration"), arg("gradient"),
             "Simulate diffusion during given duration with given gradient ",
             "amplitude.")
+        .def(
+            "off_resonance", &Discrete::off_resonance, 
+            arg("duration"), arg("delta_omega"),
+            "Simulate field- and species related off-resonance effects during "
+            "given duration with given frequency offset.")
         .def("__len__", &Discrete::size, "Number of states of the model.")
     ;
 }

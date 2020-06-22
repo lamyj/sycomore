@@ -16,7 +16,7 @@ namespace epg
 namespace operators
 {
 
-std::vector<Complex> pulse(Quantity angle, Quantity phase)
+std::vector<Complex> pulse(Quantity const & angle, Quantity const & phase)
 {
     using std::cos; using std::exp; using std::pow;
     
@@ -61,6 +61,13 @@ diffusion(
     auto const D_L = exp(-b_L*d);
     
     return std::make_tuple(D_T_plus, D_T_minus, D_L);
+}
+
+std::pair<Complex, Complex> phase_accumulation(Quantity const & angle)
+{
+    constexpr Complex const i{0,1};
+    auto const a = angle.convert_to(units::rad);
+    return {std::exp(i*a), std::exp(i*-a)};
 }
 
 }
