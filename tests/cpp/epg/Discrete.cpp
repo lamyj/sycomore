@@ -216,8 +216,7 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     TEST_COMPLEX_EQUAL(model.echo(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(
-    TimeIntervalFieldOffResonance, *boost::unit_test::tolerance(1e-9))
+BOOST_AUTO_TEST_CASE(TimeIntervalFieldOffResonance, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
 
@@ -234,8 +233,7 @@ BOOST_AUTO_TEST_CASE(
     TEST_COMPLEX_EQUAL(model.echo(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(
-    TimeIntervalSpeciesOffResonance, *boost::unit_test::tolerance(1e-9))
+BOOST_AUTO_TEST_CASE(TimeIntervalSpeciesOffResonance, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
 
@@ -253,8 +251,7 @@ BOOST_AUTO_TEST_CASE(
     TEST_COMPLEX_EQUAL(model.echo(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(
-    TimeIntervalBothOffResonance, *boost::unit_test::tolerance(1e-9))
+BOOST_AUTO_TEST_CASE(TimeIntervalBothOffResonance, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
 
