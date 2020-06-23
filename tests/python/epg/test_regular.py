@@ -96,6 +96,19 @@ class TestRegular(unittest.TestCase):
                 [0, 0, 0.6851625292479138],
                 [0.25805111586158685-0.6079303318059787j, 0, 0]])
     
+    def test_off_resonance(self):
+        species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)
+        model = sycomore.epg.Regular(species)
+        model.apply_pulse(47*deg, 23*deg)
+        model.shift()
+        model.off_resonance(10*ms, 10*Hz)
+        
+        self._test_model(
+            model,
+            [
+                [0, 0, 0.6819983600624985], 
+                [0.6268924782754024-0.37667500256027975j, 0, 0]])
+    
     def test_time_interval(self):
         species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)
         model = sycomore.epg.Regular(species, unit_gradient_area=10*mT/m*ms)
@@ -118,6 +131,45 @@ class TestRegular(unittest.TestCase):
                     0.23262696138115807+0.5480347773241918j,
                     0.6882952144238884],
             [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]])
+    
+    def test_apply_time_interval_field_off_resonance(self):
+        species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)
+        model = sycomore.epg.Regular(species, unit_gradient_area=10*mT/m*ms)
+        model.apply_pulse(47*deg, 23*deg)
+        model.apply_time_interval(10*ms, 2*mT/m, delta_omega=10*Hz)
+        
+        self._test_model(
+            model, 
+            [
+                [0, 0, 0.6851625292479138], 
+                [0, 0, 0],
+                [0.56707341067384409-0.34073208057155585j, 0, 0]])
+    
+    def test_apply_time_interval_species_off_resonance(self):
+        species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms, delta_omega=10*Hz)
+        model = sycomore.epg.Regular(species, unit_gradient_area=10*mT/m*ms)
+        model.apply_pulse(47*deg, 23*deg)
+        model.apply_time_interval(10*ms, 2*mT/m)
+        
+        self._test_model(
+            model, 
+            [
+                [0, 0, 0.6851625292479138], 
+                [0, 0, 0],
+                [0.56707341067384409-0.34073208057155585j, 0, 0]])
+    
+    def test_apply_time_interval_species_off_resonance(self):
+        species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms, delta_omega=10*Hz)
+        model = sycomore.epg.Regular(species, unit_gradient_area=10*mT/m*ms)
+        model.apply_pulse(47*deg, 23*deg)
+        model.apply_time_interval(10*ms, 2*mT/m, delta_omega=-10*Hz)
+        
+        self._test_model(
+            model, 
+            [
+                [0, 0, 0.6851625292479138], 
+                [0, 0, 0],
+                [0.2584947343504123-0.6089754314724013j, 0, 0]])
     
     def _test_model(self, model, states):
         numpy.testing.assert_array_almost_equal(states, model.states)

@@ -8,6 +8,7 @@
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/sycomore_api.h"
+#include "sycomore/TimeInterval.h"
 #include "sycomore/units.h"
 
 namespace sycomore
@@ -62,7 +63,11 @@ public:
     /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
     void apply_time_interval(
         Quantity const & duration, 
-        Quantity const & gradient=0*units::T/units::m);
+        Quantity const & gradient=0*units::T/units::m,
+        Quantity const & delta_omega=0*units::Hz);
+    
+    /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
+    void apply_time_interval(TimeInterval const & interval);
 
     /// @brief Apply a unit gradient; in regular EPG, this shifts all orders by 1.
     void shift();
@@ -82,6 +87,12 @@ public:
      * amplitude.
      */
     void diffusion(Quantity const & duration, Quantity const & gradient);
+    
+    /**
+     * @brief Simulate field- and species-related off-resonance effects during 
+     * given duration with given frequency offset.
+     */
+    void off_resonance(Quantity const & duration, Quantity const & delta_omega);
     
     Quantity const & unit_gradient_area() const;
     double gradient_tolerance() const;

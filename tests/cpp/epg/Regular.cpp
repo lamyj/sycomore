@@ -114,6 +114,23 @@ BOOST_AUTO_TEST_CASE(Diffusion, *boost::unit_test::tolerance(1e-9))
             {{0.25805111586158685, -0.6079303318059787}, 0, 0}});
 }
 
+BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+    sycomore::Species const species(1000*ms, 100*ms, 3*um*um/ms);
+    
+    sycomore::epg::Regular model(species);
+    model.apply_pulse(47*deg, 23*deg);
+    model.shift();
+    model.off_resonance(10*ms, 10*Hz);
+
+    test_model(
+        model, 
+        {
+            {0, 0, 0.6819983600624985},
+            {{0.6268924782754024, -0.37667500256027975}, 0, 0}});
+}
+
 BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
@@ -122,6 +139,54 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     sycomore::epg::Regular model(species);
     model.apply_pulse(47*deg, 23*deg);
     model.apply_time_interval(10*ms, 2*mT/m);
+    
+    test_model(
+        model, 
+        {
+            {0, 0, 0.6851625292479138},
+            {{0.2584947343504123, -0.6089754314724013}, 0, 0}});
+}
+
+BOOST_AUTO_TEST_CASE(TimeIntervalFieldOffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+    sycomore::Species const species(1000*ms, 100*ms, 3*um*um/ms);
+
+    sycomore::epg::Regular model(species);
+    model.apply_pulse(47*deg, 23*deg);
+    model.apply_time_interval(10*ms, 2*mT/m, 10*Hz);
+
+    test_model(
+        model, 
+        {
+            {0, 0, 0.6851625292479138},
+            {{0.56707341067384409, -0.34073208057155585}, 0, 0}});
+}
+
+BOOST_AUTO_TEST_CASE(TimeIntervalSpeciesOffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+    sycomore::Species const species(1000*ms, 100*ms, 3*um*um/ms, 0*Hz, 10*Hz);
+
+    sycomore::epg::Regular model(species);
+    model.apply_pulse(47*deg, 23*deg);
+    model.apply_time_interval(10*ms, 2*mT/m);
+
+    test_model(
+        model, 
+        {
+            {0, 0, 0.6851625292479138},
+            {{0.56707341067384409, -0.34073208057155585}, 0, 0}});
+}
+
+BOOST_AUTO_TEST_CASE(TimeIntervalBothOffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+    sycomore::Species const species(1000*ms, 100*ms, 3*um*um/ms, 0*Hz, 10*Hz);
+
+    sycomore::epg::Regular model(species);
+    model.apply_pulse(47*deg, 23*deg);
+    model.apply_time_interval({10*ms, 2*mT/m, -model.species.get_delta_omega()});
     
     test_model(
         model, 

@@ -73,7 +73,7 @@ void wrap_epg_Discrete(pybind11::module & m)
             "apply_time_interval", 
             static_cast<void(Discrete::*)(TimeInterval const &)>(
                 &Discrete::apply_time_interval),
-            arg("time_interval"),
+            arg("interval"),
             "Apply a time interval, i.e. relaxation, diffusion, and gradient. " 
             "States with a population lower than *threshold* will be removed.")
         .def(

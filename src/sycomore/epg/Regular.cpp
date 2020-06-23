@@ -92,7 +92,9 @@ Regular
 
 void
 Regular
-::apply_time_interval(Quantity const & duration, Quantity const & gradient)
+::apply_time_interval(
+    Quantity const & duration, Quantity const & gradient, 
+    Quantity const & delta_omega)
 {
     // Note that since E does not depend on k, the E and S operators commute
     // and that E and D(k) also commute as they are diagonal matrices. The
@@ -114,6 +116,21 @@ Regular
             this->shift();
         }
     }
+    if(
+        duration.magnitude != 0 
+        && (delta_omega.magnitude != 0 || species.get_delta_omega().magnitude != 0))
+    {
+        this->off_resonance(duration, delta_omega);
+    }
+}
+
+void
+Regular
+::apply_time_interval(TimeInterval const & interval)
+{
+    this->apply_time_interval(
+        interval.get_duration(), interval.get_gradient_amplitude()[0],
+        interval.get_delta_omega());
 }
 
 void
@@ -184,6 +201,27 @@ Regular
         this->_states[0+3*order] *= std::get<0>(D);
         this->_states[1+3*order] *= std::get<1>(D);
         this->_states[2+3*order] *= std::get<2>(D);
+    }
+}
+
+void
+Regular
+::off_resonance(Quantity const & duration, Quantity const & delta_omega)
+{
+    auto const angle = 
+        duration * 2*M_PI*units::rad 
+        * (delta_omega+this->species.get_delta_omega());
+    if(angle.magnitude != 0)
+    {
+        auto const rotations = operators::phase_accumulation(angle);
+        
+        #pragma omp parallel for
+        for(int order=0; order<this->_states_count; ++order)
+        {
+            this->_states[0+3*order] *= rotations.first;
+            this->_states[1+3*order] *= rotations.second;
+            // Z̃ states are unaffected
+        }
     }
 }
 
