@@ -67,15 +67,17 @@ void wrap_epg_Discrete(pybind11::module & m)
                 &Discrete::apply_time_interval),
             arg("duration"), arg("gradient")=0*units::T/units::m,
             arg("threshold")=0., arg("delta_omega")=0.*units::Hz,
-            "Apply a time interval, i.e. relaxation, diffusion, and gradient. " 
-            "States with a population lower than *threshold* will be removed.")
+            "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
+            "off-resonance effects. States with a population lower than "
+            "*threshold* will be removed.")
         .def(
             "apply_time_interval", 
             static_cast<void(Discrete::*)(TimeInterval const &)>(
                 &Discrete::apply_time_interval),
             arg("interval"),
-            "Apply a time interval, i.e. relaxation, diffusion, and gradient. " 
-            "States with a population lower than *threshold* will be removed.")
+            "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
+            "off-resonance effects. States with a population lower than "
+            "*threshold* will be removed.")
         .def(
             "shift", &Discrete::shift, arg("duration"), arg("gradient"),
             "Apply a gradient; in discrete EPG, this shifts all orders by" 

@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE epg_Discrete
+#define BOOST_TEST_MODULE epg_Discrete3D
 #include <boost/test/unit_test.hpp>
 
 #include "sycomore/epg/Discrete3D.h"
@@ -282,6 +282,24 @@ BOOST_AUTO_TEST_CASE(DiffusionZ, *boost::unit_test::tolerance(1e-9))
     TEST_COMPLEX_EQUAL(model.echo(), 0);
 }
 
+BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+    
+    sycomore::epg::Discrete3D model(species);
+    model.apply_pulse(47*deg, 23*deg);
+    model.shift(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
+    model.off_resonance(10*ms, 10*Hz);
+
+    std::vector<sycomore::epg::Discrete3D::Order> const orders{
+        {-5350*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 0*rad/m}};
+    std::vector<sycomore::epg::Discrete3D::State> const states{
+        {0, {0.6268924782754024, 0.37667500256027975}, 0},
+        {0, 0, 0.6819983600624985}};
+    test_model(model, orders, states);
+    TEST_COMPLEX_EQUAL(model.echo(), 0);
+}
+
 BOOST_AUTO_TEST_CASE(TimeIntervalX, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
@@ -314,6 +332,59 @@ BOOST_AUTO_TEST_CASE(TimeIntervalZ, *boost::unit_test::tolerance(1e-9))
         {0, 0, 0.6851625292479138},
         {{0.2584947343504123, -0.6089754314724013}, 0, 0}};
 
+    test_model(model, orders, states);
+    TEST_COMPLEX_EQUAL(model.echo(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(TimeIntervalFieldOffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+
+    sycomore::epg::Discrete3D model(species);
+    model.apply_pulse(47*deg, 23*deg);
+    model.apply_time_interval({10*ms, {2*mT/m, 0*mT/m, 0*mT/m}, 10*Hz});
+
+    std::vector<sycomore::epg::Discrete3D::Order> const orders{
+        {-5350*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 0*rad/m}};
+    std::vector<sycomore::epg::Discrete3D::State> const states{
+        {0, {0.56707341067384409, 0.34073208057155585}, 0},
+        {0, 0, 0.6851625292479138}};
+    test_model(model, orders, states);
+    TEST_COMPLEX_EQUAL(model.echo(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(TimeIntervalSpeciesOffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+
+    sycomore::epg::Discrete3D model({
+        species.get_R1(), species.get_R2(), species.get_D(), 0*Hz, 10*Hz});
+    model.apply_pulse(47*deg, 23*deg);
+    model.apply_time_interval(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
+
+    std::vector<sycomore::epg::Discrete3D::Order> const orders{
+        {-5350*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 0*rad/m}};
+    std::vector<sycomore::epg::Discrete3D::State> const states{
+        {0, {0.56707341067384409, 0.34073208057155585}, 0},
+        {0, 0, 0.6851625292479138}};
+    test_model(model, orders, states);
+    TEST_COMPLEX_EQUAL(model.echo(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(TimeIntervalBothOffResonance, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+
+    sycomore::epg::Discrete3D model({
+        species.get_R1(), species.get_R2(), species.get_D(), 0*Hz, 10*Hz});
+    model.apply_pulse(47*deg, 23*deg);
+    model.apply_time_interval({10*ms, {2*mT/m, 0*mT/m, 0*mT/m}, -10*Hz});
+
+    std::vector<sycomore::epg::Discrete3D::Order> const orders{
+        {-5350*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 0*rad/m}};
+    std::vector<sycomore::epg::Discrete3D::State> const states{
+        {0, {0.2584947343504123, 0.6089754314724013}, 0},
+        {0, 0, 0.6851625292479138}};
     test_model(model, orders, states);
     TEST_COMPLEX_EQUAL(model.echo(), 0);
 }

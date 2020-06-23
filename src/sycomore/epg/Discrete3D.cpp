@@ -14,6 +14,7 @@
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
+#include "sycomore/TimeInterval.h"
 #include "sycomore/sycomore.h"
 
 namespace sycomore
@@ -25,8 +26,8 @@ namespace epg
 Discrete3D
 ::Discrete3D(
     Species const & species, Magnetization const & initial_magnetization,
-    Quantity bin_width)
-: species(species), _bin_width(bin_width)
+    Quantity bin_width, Real threshold)
+: species(species), _bin_width(bin_width), threshold(threshold)
 {
     auto const M = as_complex_magnetization(initial_magnetization);
     this->_orders = {0,0,0};
@@ -59,7 +60,7 @@ Discrete3D
     if(order.size() != 3)
     {
         std::ostringstream message;
-        message<< "Order must have 3 elements, not " << order.size();
+        message << "Order must have 3 elements, not " << order.size();
         throw std::runtime_error(message.str());
     }
 
@@ -130,8 +131,18 @@ Discrete3D
 void
 Discrete3D
 ::apply_time_interval(
-    Quantity const & duration, Array<Quantity> const & gradient, Real threshold)
+    Quantity const & duration, Array<Quantity> const & gradient, Real threshold,
+    Quantity const & delta_omega)
 {
+    static bool warning_displayed = false;
+    if(!warning_displayed && threshold > 0)
+    {
+        std::cout 
+            << "WARNING: threshold argument is deprecated "
+            << "and will be removed from Discrete::apply_time_interval\n";
+        warning_displayed = true;
+    }
+    
     if(duration.magnitude == 0)
     {
         return;
@@ -140,7 +151,12 @@ Discrete3D
     this->relaxation(duration);
     this->diffusion(duration, gradient);
     this->shift(duration, gradient);
-
+    this->off_resonance(duration, delta_omega);
+    
+    if(threshold == 0)
+    {
+        threshold = this->threshold;
+    }
     if(threshold > 0)
     {
         auto const threshold_squared = std::pow(threshold, 2);
@@ -176,6 +192,15 @@ Discrete3D
             }
         }
     }
+}
+
+void
+Discrete3D
+::apply_time_interval(TimeInterval const & interval)
+{
+    this->apply_time_interval(
+        interval.get_duration(), interval.get_gradient_amplitude(), 0, 
+        interval.get_delta_omega());
 }
 
 void
@@ -472,6 +497,27 @@ Discrete3D
         this->_states[3*order+0] *= exp(-b_T_plus_D);
         this->_states[3*order+1] *= exp(-b_T_minus_D);
         this->_states[3*order+2] *= exp(-b_L_D);
+    }
+}
+
+void
+Discrete3D
+::off_resonance(Quantity const & duration, Quantity const & delta_omega)
+{
+    auto const angle = 
+        duration * 2*M_PI*units::rad 
+        * (delta_omega+this->species.get_delta_omega());
+    if(angle.magnitude != 0)
+    {
+        auto const rotations = operators::phase_accumulation(angle);
+        
+        #pragma omp parallel for
+        for(int order=0; order<this->size(); ++order)
+        {
+            this->_states[0+3*order] *= rotations.first;
+            this->_states[1+3*order] *= rotations.second;
+            // Z̃ states are unaffected
+        }
     }
 }
 

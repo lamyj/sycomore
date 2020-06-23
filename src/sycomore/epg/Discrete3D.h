@@ -9,6 +9,7 @@
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/sycomore_api.h"
+#include "sycomore/TimeInterval.h"
 #include "sycomore/units.h"
 
 namespace sycomore
@@ -28,11 +29,13 @@ public:
     using State = std::vector<Complex>;
 
     Species species;
+    Real threshold;
 
     Discrete3D(
         Species const & species,
         Magnetization const & initial_magnetization={0,0,1},
-        Quantity bin_width=1*units::rad/units::m);
+        Quantity bin_width=1*units::rad/units::m,
+        Real threshold=0);
 
     Discrete3D(Discrete3D const &) = default;
     Discrete3D(Discrete3D &&) = default;
@@ -66,7 +69,11 @@ public:
         Quantity const & duration,
         Array<Quantity> const & gradient={
             0*units::T/units::m,0*units::T/units::m,0*units::T/units::m,},
-        Real threshold=0);
+        Real threshold=0,
+        Quantity const & delta_omega=0*units::Hz);
+    
+    /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
+    void apply_time_interval(TimeInterval const & interval);
 
     /**
      * @brief Apply a gradient; in discrete EPG, this shifts all orders by
@@ -82,6 +89,12 @@ public:
      * amplitude.
      */
     void diffusion(Quantity const & duration, Array<Quantity> const & gradient);
+    
+    /**
+     * @brief Simulate field- and species-related off-resonance effects during 
+     * given duration with given frequency offset.
+     */
+    void off_resonance(Quantity const & duration, Quantity const & delta_omega);
     
     /// @brief Return the bin width.
     Quantity const & bin_width() const;

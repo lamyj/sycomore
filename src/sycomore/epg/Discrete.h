@@ -69,13 +69,19 @@ public:
     /// @brief Apply an RF hard pulse.
     void apply_pulse(Quantity angle, Quantity phase=0*units::rad);
 
-    /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
+    /** 
+     * @brief Apply a time interval, i.e. relaxation, diffusion, gradient, and
+     * off-resonance effects.
+     */
     void apply_time_interval(
         Quantity const & duration, 
         Quantity const & gradient=0*units::T/units::m, Real threshold=0,
         Quantity const & delta_omega=0*units::Hz);
     
-    /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
+    /** 
+     * @brief Apply a time interval, i.e. relaxation, diffusion, gradient, and
+     * off-resonance effects.
+     */
     void apply_time_interval(TimeInterval const & interval);
 
     /**

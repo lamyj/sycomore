@@ -53,15 +53,15 @@ void wrap_epg_Regular(pybind11::module & m)
                 &Regular::apply_time_interval),
             arg("duration"), arg("gradient")=0*units::T/units::m,
                 arg("delta_omega")=0.*units::Hz,
-            "Apply a time interval, i.e. relaxation, diffusion, and gradient. " 
-            "States with a population lower than *threshold* will be removed.")
+            "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
+            "off-resonance effects.")
         .def(
             "apply_time_interval", 
             static_cast<void(Regular::*)(TimeInterval const &)>(
                 &Regular::apply_time_interval),
             arg("time_interval"),
-            "Apply a time interval, i.e. relaxation, diffusion, and gradient. " 
-            "States with a population lower than *threshold* will be removed.")
+            "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
+            "off-resonance effects.")
         .def(
             "shift", static_cast<void (Regular::*)()>(&Regular::shift), 
             "Apply a unit gradient; in regular EPG, this shifts all orders by 1.")

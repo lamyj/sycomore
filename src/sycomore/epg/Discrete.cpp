@@ -11,6 +11,7 @@
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
+#include "sycomore/TimeInterval.h"
 #include "sycomore/units.h"
 
 namespace sycomore
