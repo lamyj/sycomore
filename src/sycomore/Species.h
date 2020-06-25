@@ -5,6 +5,7 @@
 #include "sycomore/Quantity.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/sycomore_api.h"
+#include "sycomore/units.h"
 
 namespace sycomore
 {
@@ -20,14 +21,14 @@ public:
     Species(
         Quantity const & R1, Quantity const & R2,
         Quantity const & D,
-        Quantity const & R2_prime={0, Frequency},
-        Quantity const & delta_omega={0, AngularFrequency}, Real w=1);
+        Quantity const & R2_prime=0*units::Hz,
+        Quantity const & delta_omega=0*units::Hz, Real w=1);
 
     Species(
         Quantity const & R1, Quantity const & R2,
         Array<Quantity> const & D,
-        Quantity const & R2_prime={0, Frequency},
-        Quantity const & delta_omega={0, AngularFrequency}, Real w=1);
+        Quantity const & R2_prime=0*units::Hz,
+        Quantity const & delta_omega=0*units::Hz, Real w=1);
 
     /// @brief Return the longitudinal relaxation rate.
     Quantity const & get_R1() const;

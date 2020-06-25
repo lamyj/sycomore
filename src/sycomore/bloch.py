@@ -17,18 +17,20 @@ def pulse(angle, phase=0*rad):
 def time_interval(
         species, duration, delta_omega=0*Hz, 
         gradient_amplitude=0*T/m, position=0*m):
+    """Composition of relaxation and phase accumulation."""
     
     E = relaxation(species, duration)
     
-    delta_omega = (
-        # Field-related dephasing
-        delta_omega 
-        # Species-related dephasing, e.g. chemical shift or susceptibility
-        + species.delta_omega 
+    angular_frequency = (
+        2*numpy.pi * (
+            # Field-related dephasing
+            delta_omega 
+            # Species-related dephasing, e.g. chemical shift or susceptibility
+            + species.delta_omega)
         # Gradient-related dephasing
         + gamma*numpy.dot(gradient_amplitude, position)
     )
-    F = phase_accumulation(duration * 2*numpy.pi*rad * delta_omega)
+    F = phase_accumulation(duration * angular_frequency)
     
     return numpy.matmul(F, E)
 

@@ -217,16 +217,14 @@ void
 Species
 ::set_delta_omega(Quantity const & q)
 {
-    if(q.dimensions == AngularFrequency)
+    if(q.dimensions == Frequency)
     {
         this->_delta_omega = q;
     }
     else
     {
         std::ostringstream message;
-        message
-            << "delta_omega must be an angular frequency, not "
-            << q.dimensions;
+        message << "delta_omega must be a frequency, not " << q.dimensions;
         throw std::runtime_error(message.str());
     }
 }
