@@ -8,6 +8,7 @@
 #include "sycomore/Quantity.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/sycomore_api.h"
+#include "sycomore/units.h"
 
 namespace sycomore
 {
@@ -17,7 +18,7 @@ class SYCOMORE_API Pulse
 public:
     using RotationMatrix = Grid<Complex>;
 
-    Pulse(Quantity const & angle, Quantity const & phase);
+    Pulse(Quantity const & angle, Quantity const & phase=0*units::rad);
 
     Quantity const & get_angle() const;
     void set_angle(Quantity const & q);

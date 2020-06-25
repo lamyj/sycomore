@@ -32,7 +32,7 @@ Pulse
 {
     if(q.dimensions == Angle)
     {
-        this->_angle= q;
+        this->_angle = q;
     }
     else
     {

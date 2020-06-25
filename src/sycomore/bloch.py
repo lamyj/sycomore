@@ -3,7 +3,9 @@ from .units import *
 
 from . import gamma
 
-def pulse(angle, phase):
+def pulse(angle, phase=0*rad):
+    """Instantaneous RF pulse with specified angle and phase."""
+    
     M = numpy.identity(4)
     
     Rz = axis_angle_to_matrix([0,0,1], -phase)
@@ -31,6 +33,8 @@ def time_interval(
     return numpy.matmul(F, E)
 
 def relaxation(species, duration):
+    """"Pure" relaxation process."""
+    
     E_1 = float(numpy.exp(-duration*species.R1))
     E_2 = float(numpy.exp(-duration*species.R2))
     
@@ -40,6 +44,8 @@ def relaxation(species, duration):
     return M
 
 def phase_accumulation(angle):
+    """"Pure" precession."""
+    
     M = numpy.identity(4)
     M[:3,:3] = axis_angle_to_matrix([0,0,1], angle)
     return M
@@ -49,17 +55,18 @@ def axis_angle_to_matrix(axis, angle) :
     
          This formula comes from Rodrigues' rotation formula,
          :math:`R = I + \hat{\omega} \sin \theta + \hat{\omega}^2 (1-\cos \theta)`
-         where :math:`\hat{}` gives the antisymmetric matrix equivalent of the cross product
+         where the :math:`\hat{}` operator gives the antisymmetric matrix 
+         equivalent of the cross product:
         
          .. math ::
             
-             \hat{\omega} = \begin{matrix}
-                                        0 & -\omega_z &  \omega_y \\
-                                 \omega_z &         0 & -\omega_x \\
-                                -\omega_y &  \omega_x &         0 \\
-                            \end{matrix} 
+             \hat{\omega} = \left(\begin{matrix}
+                0         & -\omega_z &  \omega_y \\
+                \omega_z  &         0 & -\omega_x \\
+                -\omega_y &  \omega_x &         0 \\
+            \end{matrix}\right)
         
-         Diagonal terms can be rewritten :
+         Diagonal terms can be rewritten:
          
          .. math ::
              
