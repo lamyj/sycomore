@@ -92,8 +92,8 @@ HardPulseApproximation
 HardPulseApproximation::Envelope sinc_envelope(Quantity const & t0)
 {
     return [&](Quantity const x) {
-        auto const x_scaled = x.convert_to(units::s)/t0.convert_to(units::s);
-        return units::rad*(x_scaled==0?1:std::sin(x_scaled*M_PI)/(x_scaled*M_PI));
+        double const x_scaled = M_PI*x/t0;
+        return x_scaled==0?1:std::sin(x_scaled)/(x_scaled);
     };
 }
 
