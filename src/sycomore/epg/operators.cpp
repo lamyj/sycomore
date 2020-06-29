@@ -35,8 +35,8 @@ std::vector<Complex> pulse(Quantity const & angle, Quantity const & phase)
 std::pair<Real, Real> 
 relaxation(Species const & species, Quantity const & duration)
 {
-    auto const E_1 = std::exp((-duration*species.get_R1()));
-    auto const E_2 = std::exp((-duration*species.get_R2()));
+    auto const E_1 = std::exp(-duration*species.get_R1());
+    auto const E_2 = std::exp(-duration*species.get_R2());
     return std::make_pair(E_1, E_2);
 }
 
@@ -68,6 +68,29 @@ std::pair<Complex, Complex> phase_accumulation(Quantity const & angle)
     constexpr Complex const i{0,1};
     auto const a = angle.convert_to(units::rad);
     return {std::exp(i*a), std::exp(i*-a)};
+}
+
+std::tuple<Complex, Complex, Complex>
+bulk_motion(
+    Quantity v, Quantity const & duration, 
+    Quantity const & k, Quantity const & delta_k)
+{
+    constexpr Complex const i{0,1};
+    
+    auto const v_tau = v*duration;
+    
+    // FIXME? In Weigel 2015, eq. 48 gives the phase accumulation as k⋅v⋅Δt and
+    // states
+    // > This phase term has to be added to the phase of a given configuration 
+    // > state by the coherent motion operator.
+    // However, there is a sign inversion in the following steps
+    // > This is best done by multiplying a complex phase factor of the type 
+    // > exp(-iΔϕ)
+    // The same thing appears in Sodickson 1998.
+    auto const J_T = std::exp(i*double((k+delta_k/2)*v_tau));
+    auto const J_L = std::exp(i*double(k*v_tau));
+    
+    return std::make_tuple(J_T, std::conj(J_T), J_L);
 }
 
 }

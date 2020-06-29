@@ -105,6 +105,7 @@ Regular
     
     this->relaxation(duration);
     this->diffusion(duration, gradient);
+    this->bulk_motion(duration, gradient);
     if(duration.magnitude != 0 && gradient.magnitude != 0)
     {
         if(this->_unit_gradient_area.magnitude != 0)
@@ -225,6 +226,33 @@ Regular
     }
 }
 
+void
+Regular
+::bulk_motion(Quantity const & duration, Quantity const & gradient)
+{
+    if(velocity.magnitude == 0)
+    {
+        return;
+    }
+    
+    auto const delta_k = sycomore::gamma*gradient*duration;
+    if(delta_k.magnitude == 0)
+    {
+        return;
+    }
+    
+    #pragma omp parallel for
+    for(int order=0; order<this->_states_count; ++order)
+    {
+        auto const k = order*delta_k;
+        auto const J = operators::bulk_motion(
+            this->velocity, duration, k, delta_k);
+        this->_states[0+3*order] *= std::get<0>(J);
+        this->_states[1+3*order] *= std::get<1>(J);
+        this->_states[2+3*order] *= std::get<2>(J);
+    }
+}
+
 Quantity const &
 Regular
 ::unit_gradient_area() const
@@ -252,7 +280,7 @@ Regular
     }
     else if(n==1 || n==-1)
     {
-        if(3*(this->_states_count) >= this->_states.size())
+        if(3*this->_states_count >= this->_states.size())
         {
             this->_states.resize(this->_states.size()+3*100, 0);
         }
@@ -291,7 +319,6 @@ Regular
             // Update F̃^*_{-0} using F̃_{+0} 
             this->_states[1] = std::conj(this->_states[0]);
         }
-        
         
         ++this->_states_count;
     }

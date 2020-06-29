@@ -28,6 +28,7 @@ class SYCOMORE_API Regular
 {
 public:
     Species species;
+    Quantity velocity=0*units::m/units::s;
     
     Regular(
         Species const & species, 
@@ -99,6 +100,8 @@ public:
      * given duration with given frequency offset.
      */
     void off_resonance(Quantity const & duration, Quantity const & delta_omega);
+    
+    void bulk_motion(Quantity const & duration, Quantity const & gradient);
     
     Quantity const & unit_gradient_area() const;
     double gradient_tolerance() const;

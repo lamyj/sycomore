@@ -26,6 +26,7 @@ void wrap_epg_Regular(pybind11::module & m)
             arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
             arg("gradient_tolerance")=1e-5)
         .def_readwrite("species", &Regular::species)
+        .def_readwrite("velocity", &Regular::velocity)
         .def_property_readonly(
             "states_count", &Regular::states_count, 
             "Number of states in the model.")
