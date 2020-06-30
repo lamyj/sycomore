@@ -1,6 +1,5 @@
 #include "Regular.h"
 
-#include <cstring>
 #include <vector>
 
 #include "sycomore/Array.h"
@@ -23,14 +22,14 @@ Regular
     Species const & species, Magnetization const & initial_magnetization, 
     unsigned int initial_size, 
     Quantity const & unit_gradient_area, double gradient_tolerance)
-: species(species), _states(3*initial_size, 0),
+: species(species),
+    _F(initial_size, 0), _F_star(initial_size, 0), _Z(initial_size, 0),
     _unit_gradient_area(unit_gradient_area), _gradient_tolerance(gradient_tolerance)
 {
-    // Store magnetization as lines of F̃_k, F̃^*_{-k}, Z̃_k
     auto const magnetization = as_complex_magnetization(initial_magnetization);
-    this->_states[0] = std::sqrt(2)*magnetization.p;
-    this->_states[1] = std::sqrt(2)*magnetization.m;
-    this->_states[2] = magnetization.z;
+    this->_F[0] = std::sqrt(2)*magnetization.p;
+    this->_F_star[0] = std::sqrt(2)*magnetization.m;
+    this->_Z[0] = magnetization.z;
     
     this->_states_count = 1;
 }
@@ -46,25 +45,28 @@ std::vector<Complex>
 Regular
 ::state(std::size_t order) const
 {
-    return {
-        this->_states[3*order], 
-        this->_states[3*order+1], 
-        this->_states[3*order+2]};
+    return {this->_F[order], this->_F_star[order], this->_Z[order]};
 }
 
 std::vector<Complex>
 Regular
 ::states() const
 {
-    return std::vector<Complex>{
-        this->_states.begin(), this->_states.begin()+3*this->_states_count};
+    std::vector<Complex> result(3*this->_states_count);
+    for(unsigned int order=0; order<this->_states_count; ++order)
+    {
+        result[3*order+0] = this->_F[order];
+        result[3*order+1] = this->_F_star[order];
+        result[3*order+2] = this->_Z[order];
+    }
+    return result;
 }
 
 Complex const &
 Regular
 ::echo() const
 {
-    return this->_states[0];
+    return this->_F[0];
 }
 
 void
@@ -73,20 +75,27 @@ Regular
 {
     auto const T = operators::pulse(angle, phase);
     
-    #pragma omp parallel for
+    Complex F, F_star, Z;
+    
+    #pragma omp parallel for schedule(static) private(F, F_star, Z)
     for(int order=0; order<this->_states_count; ++order)
     {
-        std::vector<Complex> result(3, 0);
-        for(int r=0; r<3; ++r)
-        {
-            for(int c=0; c<3; ++c)
-            {
-                result[r] += T[3*r+c] * this->_states[3*order+c];
-            }
-        }
+        F = 
+            T[3*0+0] * this->_F[order]
+            + T[3*0+1] * this->_F_star[order]
+            + T[3*0+2] * this->_Z[order];
+        F_star = 
+            T[3*1+0] * this->_F[order]
+            + T[3*1+1] * this->_F_star[order]
+            + T[3*1+2] * this->_Z[order];
+        Z = 
+            T[3*2+0] * this->_F[order]
+            + T[3*2+1] * this->_F_star[order]
+            + T[3*2+2] * this->_Z[order];
         
-        std::memcpy(
-            this->_states.data()+3*order, result.data(), 3*sizeof(Complex));
+        this->_F[order] = F;
+        this->_F_star[order] = F_star;
+        this->_Z[order] = Z;
     }
 }
 
@@ -172,15 +181,15 @@ Regular
     
     auto const E = operators::relaxation(this->species, duration);
     
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(static)
     for(int order=0; order<this->_states_count; ++order)
     {
-        this->_states[0+3*order] *= E.second;
-        this->_states[1+3*order] *= E.second;
-        this->_states[2+3*order] *= E.first;
+        this->_F[order] *= E.second;
+        this->_F_star[order] *= E.second;
+        this->_Z[order] *= E.first;
     }
     
-    this->_states[2] += 1.-E.first; // WARNING: assumes M0=1
+    this->_Z[0] += 1.-E.first; // WARNING: assumes M0=1
 }
 
 void
@@ -193,15 +202,19 @@ Regular
     }
     
     auto const delta_k = sycomore::gamma*gradient*duration;
+    if(delta_k.magnitude == 0)
+    {
+        return;
+    }
     
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(static)
     for(int order=0; order<this->_states_count; ++order)
     {
         auto const k = order*delta_k;
         auto const D = operators::diffusion(this->species, duration, k, delta_k);
-        this->_states[0+3*order] *= std::get<0>(D);
-        this->_states[1+3*order] *= std::get<1>(D);
-        this->_states[2+3*order] *= std::get<2>(D);
+        this->_F[order] *= std::get<0>(D);
+        this->_F_star[order] *= std::get<1>(D);
+        this->_Z[order] *= std::get<2>(D);
     }
 }
 
@@ -216,11 +229,11 @@ Regular
     {
         auto const rotations = operators::phase_accumulation(angle);
         
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(static)
         for(int order=0; order<this->_states_count; ++order)
         {
-            this->_states[0+3*order] *= rotations.first;
-            this->_states[1+3*order] *= rotations.second;
+            this->_F[order] *= rotations.first;
+            this->_F_star[order] *= rotations.second;
             // Z̃ states are unaffected
         }
     }
@@ -241,15 +254,15 @@ Regular
         return;
     }
     
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(static)
     for(int order=0; order<this->_states_count; ++order)
     {
         auto const k = order*delta_k;
         auto const J = operators::bulk_motion(
             this->velocity, duration, k, delta_k);
-        this->_states[0+3*order] *= std::get<0>(J);
-        this->_states[1+3*order] *= std::get<1>(J);
-        this->_states[2+3*order] *= std::get<2>(J);
+        this->_F[order] *= std::get<0>(J);
+        this->_F_star[order] *= std::get<1>(J);
+        this->_Z[order] *= std::get<2>(J);
     }
 }
 
@@ -280,44 +293,61 @@ Regular
     }
     else if(n==1 || n==-1)
     {
-        if(3*this->_states_count >= this->_states.size())
+        if(this->_states_count >= this->_F.size())
         {
-            this->_states.resize(this->_states.size()+3*100, 0);
+            this->_F.resize(this->_F.size()+100, 0);
+            this->_F_star.resize(this->_F_star.size()+100, 0);
+            this->_Z.resize(this->_Z.size()+100, 0);
         }
         
         if(n == +1)
         {
-            // Shift positive F̃ states right
-            for(int order=this->_states_count-1; order>=0; --order)
+            #pragma omp parallel sections
             {
-                this->_states[3*(order+1)] = this->_states[3*order];
-            }
-            
-            // Shift negative F̃^* states left
-            for(int order=1; order<=this->_states_count; ++order)
-            {
-                this->_states[1+3*(order-1)] = this->_states[1+3*order];
+                #pragma omp section
+                {
+                    // Shift positive F̃ states right
+                    std::copy_backward(
+                        this->_F.begin(), this->_F.begin()+this->_states_count, 
+                        this->_F.begin()+this->_states_count+1);
+                }
+                #pragma omp section
+                {
+                    // Shift negative F̃^* states left
+                    std::copy(
+                        this->_F_star.begin()+1, 
+                        this->_F_star.begin()+this->_states_count+1, 
+                        this->_F_star.begin());
+                }
             }
             
             // Update F̃_{+0} using F̃^*_{-0}
-            this->_states[0] = std::conj(this->_states[1]);
+            this->_F[0] = std::conj(this->_F_star[0]);
         }
         else
         {
-            // Shift negative F̃^* states right
-            for(int order=this->_states_count-1; order>=0; --order)
+            #pragma omp parallel sections
             {
-                this->_states[1+3*(order+1)] = this->_states[1+3*order];
+                #pragma omp section
+                {
+                    // Shift negative F̃^* states right
+                    std::copy_backward(
+                        this->_F_star.begin(), 
+                        this->_F_star.begin()+this->_states_count, 
+                        this->_F_star.begin()+this->_states_count+1);
+                }
+                #pragma omp section
+                {
+                    // Shift positive F̃ states left
+                    std::copy(
+                        this->_F.begin()+1, 
+                        this->_F.begin()+this->_states_count+1, 
+                        this->_F.begin());
+                }
             }
             
-            // Shift positive F̃ states left
-            for(int order=1; order<=this->_states_count; ++order)
-            {
-                this->_states[3*(order-1)] = this->_states[3*order];
-            }
-            
-            // Update F̃^*_{-0} using F̃_{+0} 
-            this->_states[1] = std::conj(this->_states[0]);
+            // Update F̃^*_{-0} using F̃_{+0}
+            this->_F_star[0] = std::conj(this->_F[0]);
         }
         
         ++this->_states_count;

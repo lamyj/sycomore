@@ -72,7 +72,7 @@ std::pair<Complex, Complex> phase_accumulation(Quantity const & angle)
 
 std::tuple<Complex, Complex, Complex>
 bulk_motion(
-    Quantity v, Quantity const & duration, 
+    Quantity const & v, Quantity const & duration, 
     Quantity const & k, Quantity const & delta_k)
 {
     constexpr Complex const i{0,1};

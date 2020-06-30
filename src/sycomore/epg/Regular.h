@@ -107,7 +107,9 @@ public:
     double gradient_tolerance() const;
     
 private:
-    std::vector<Complex> _states;
+    std::vector<Complex> _F;
+    std::vector<Complex> _F_star;
+    std::vector<Complex> _Z;
     unsigned int _states_count;
     
     /// @brief Area of the unit gradient, in T/m.

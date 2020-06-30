@@ -55,7 +55,7 @@ SYCOMORE_API std::pair<Complex, Complex> phase_accumulation(
  */
 SYCOMORE_API std::tuple<Complex, Complex, Complex>
 bulk_motion(
-    Quantity v, Quantity const & duration, 
+    Quantity const & v, Quantity const & duration, 
     Quantity const & k, Quantity const & delta_k);
 
 }
