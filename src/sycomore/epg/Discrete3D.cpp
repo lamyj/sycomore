@@ -109,7 +109,7 @@ void
 Discrete3D
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    auto const T = operators::pulse(angle, phase);
+    auto const T = operators::pulse(angle.magnitude, phase.magnitude);
 
     #pragma omp parallel for
     for(int order=0; order<this->size(); ++order)
@@ -390,7 +390,9 @@ Discrete3D
         return;
     }
 
-    auto const E = operators::relaxation(this->species, duration);
+    auto const E = operators::relaxation(
+        this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
+        duration.magnitude);
 
     #pragma omp parallel for
     for(int order=0; order<this->size(); ++order)
@@ -507,7 +509,7 @@ Discrete3D
         * (this->delta_omega+this->species.get_delta_omega());
     if(angle.magnitude != 0)
     {
-        auto const rotations = operators::phase_accumulation(angle);
+        auto const rotations = operators::phase_accumulation(angle.magnitude);
         
         #pragma omp parallel for
         for(int order=0; order<this->size(); ++order)

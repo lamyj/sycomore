@@ -16,16 +16,16 @@ namespace epg
 namespace operators
 {
 
-std::vector<Complex> pulse(Quantity const & angle, Quantity const & phase)
+std::vector<Complex> pulse(Real angle, Real phase)
 {
     using std::cos; using std::exp; using std::pow;
     
-    auto const a = angle.convert_to(units::rad);
-    auto const p = phase.convert_to(units::rad);
+    auto const & a = angle;
+    auto const & p = phase;
     
     constexpr Complex const i{0,1};
 
-    return std::vector<Complex>{
+    return {
         pow(cos(a/2), 2),              exp(2.*i*p)*pow(sin(a/2), 2), -i*exp( i*p)*sin(a),
         exp(-2.*i*p)*pow(sin(a/2), 2), pow(cos(a/2), 2),              i*exp(-i*p)*sin(a),
         -i/2.*exp(-i*p)*sin(a),        i/2.*exp(i*p)*sin(a),          cos(a)
@@ -33,47 +33,40 @@ std::vector<Complex> pulse(Quantity const & angle, Quantity const & phase)
 }
 
 std::pair<Real, Real> 
-relaxation(Species const & species, Quantity const & duration)
+relaxation(Real R1, Real R2, Real duration)
 {
-    auto const E_1 = std::exp(-duration*species.get_R1());
-    auto const E_2 = std::exp(-duration*species.get_R2());
+    auto const E_1 = std::exp(-duration*R1);
+    auto const E_2 = std::exp(-duration*R2);
     return std::make_pair(E_1, E_2);
 }
 
 std::tuple<Real, Real, Real>
-diffusion(
-    Species const & species, Quantity const & duration, 
-    Quantity const & k, Quantity const & delta_k)
+diffusion(Real D, Real duration, Real k, Real delta_k)
 {
     // NOTE: b_T differs between F̃^+ and F̃^{-*} since F̃^{-*}(k) is F(-k^*)
     
     using std::exp; using std::pow;
     
-    auto const d = species.get_D()[0];
-        
     auto const b_T_plus = duration*(pow(k+delta_k/2, 2.) + pow(delta_k, 2.) / 12);
-    auto const D_T_plus = exp(-b_T_plus*d);
+    auto const D_T_plus = exp(-b_T_plus*D);
     
     auto const b_T_minus = duration*(pow(-k+delta_k/2, 2.) + pow(delta_k, 2.) / 12);
-    auto const D_T_minus = exp(-b_T_minus*d);
+    auto const D_T_minus = exp(-b_T_minus*D);
     
     auto const b_L = pow(k, 2.) * duration;
-    auto const D_L = exp(-b_L*d);
+    auto const D_L = exp(-b_L*D);
     
     return std::make_tuple(D_T_plus, D_T_minus, D_L);
 }
 
-std::pair<Complex, Complex> phase_accumulation(Quantity const & angle)
+std::pair<Complex, Complex> phase_accumulation(Real angle)
 {
     constexpr Complex const i{0,1};
-    auto const a = angle.convert_to(units::rad);
-    return {std::exp(i*a), std::exp(i*-a)};
+    return {std::exp(i*angle), std::exp(i*-angle)};
 }
 
 std::tuple<Complex, Complex, Complex>
-bulk_motion(
-    Quantity const & v, Quantity const & duration, 
-    Quantity const & k, Quantity const & delta_k)
+bulk_motion(Real v, Real duration, Real k, Real delta_k)
 {
     constexpr Complex const i{0,1};
     

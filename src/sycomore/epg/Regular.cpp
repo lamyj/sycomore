@@ -73,7 +73,7 @@ void
 Regular
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    auto const T = operators::pulse(angle, phase);
+    auto const T = operators::pulse(angle.magnitude, phase.magnitude);
     
     Complex F, F_star, Z;
     
@@ -176,7 +176,9 @@ Regular
         return;
     }
     
-    auto const E = operators::relaxation(this->species, duration);
+    auto const E = operators::relaxation(
+        this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
+        duration.magnitude);
     
     #pragma omp parallel for schedule(static)
     for(int order=0; order<this->_states_count; ++order)
@@ -198,8 +200,8 @@ Regular
         return;
     }
     
-    auto const delta_k = sycomore::gamma*gradient*duration;
-    if(delta_k.magnitude == 0)
+    auto const delta_k = (sycomore::gamma*gradient*duration).magnitude;
+    if(delta_k == 0)
     {
         return;
     }
@@ -208,7 +210,8 @@ Regular
     for(int order=0; order<this->_states_count; ++order)
     {
         auto const k = order*delta_k;
-        auto const D = operators::diffusion(this->species, duration, k, delta_k);
+        auto const D = operators::diffusion(
+            this->species.get_D()[0].magnitude, duration.magnitude, k, delta_k);
         this->_F[order] *= std::get<0>(D);
         this->_F_star[order] *= std::get<1>(D);
         this->_Z[order] *= std::get<2>(D);
@@ -224,7 +227,7 @@ Regular
         * (this->delta_omega+this->species.get_delta_omega());
     if(angle.magnitude != 0)
     {
-        auto const rotations = operators::phase_accumulation(angle);
+        auto const rotations = operators::phase_accumulation(angle.magnitude);
         
         #pragma omp parallel for schedule(static)
         for(int order=0; order<this->_states_count; ++order)
@@ -245,8 +248,8 @@ Regular
         return;
     }
     
-    auto const delta_k = sycomore::gamma*gradient*duration;
-    if(delta_k.magnitude == 0)
+    auto const delta_k = (sycomore::gamma*gradient*duration).magnitude;
+    if(delta_k == 0)
     {
         return;
     }
@@ -256,7 +259,7 @@ Regular
     {
         auto const k = order*delta_k;
         auto const J = operators::bulk_motion(
-            this->velocity, duration, k, delta_k);
+            this->velocity.magnitude, duration.magnitude, k, delta_k);
         this->_F[order] *= std::get<0>(J);
         this->_F_star[order] *= std::get<1>(J);
         this->_Z[order] *= std::get<2>(J);

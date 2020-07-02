@@ -101,7 +101,7 @@ void
 Discrete
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    auto const T = operators::pulse(angle, phase);
+    auto const T = operators::pulse(angle.magnitude, phase.magnitude);
     
     #pragma omp parallel for
     for(int order=0; order<this->_orders.size(); ++order)
@@ -287,7 +287,9 @@ Discrete
         return;
     }
     
-    auto const E = operators::relaxation(this->species, duration);
+    auto const E = operators::relaxation(
+        this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
+        duration.magnitude);
     
     #pragma omp parallel for
     for(int order=0; order<this->_orders.size(); ++order)
@@ -315,7 +317,9 @@ Discrete
     for(int i=0; i<this->_orders.size(); ++i)
     {
         auto const k = this->_orders[i] * this->_bin_width;
-        auto const D = operators::diffusion(this->species, duration, k, delta_k);
+        auto const D = operators::diffusion(
+            this->species.get_D()[0].magnitude, duration.magnitude, 
+            k.magnitude, delta_k.magnitude);
         this->_states[0+3*i] *= std::get<0>(D);
         this->_states[1+3*i] *= std::get<1>(D);
         this->_states[2+3*i] *= std::get<2>(D);
@@ -331,7 +335,7 @@ Discrete
         * (this->delta_omega+this->species.get_delta_omega());
     if(angle.magnitude != 0)
     {
-        auto const rotations = operators::phase_accumulation(angle);
+        auto const rotations = operators::phase_accumulation(angle.magnitude);
         
         #pragma omp parallel for
         for(int order=0; order<this->_orders.size(); ++order)
