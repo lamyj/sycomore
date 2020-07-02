@@ -82,5 +82,10 @@ void wrap_epg_Regular(pybind11::module & m)
             "diffusion", &Regular::diffusion, arg("duration"), arg("gradient"),
             "Simulate diffusion during given duration with given gradient "
             "amplitude.")
+        .def(
+            "off_resonance", &Regular::off_resonance, 
+            arg("duration"),
+            "Simulate field- and species related off-resonance effects during "
+            "given duration with given frequency offset.")
     ;
 }
