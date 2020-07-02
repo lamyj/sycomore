@@ -315,9 +315,7 @@ Discrete
     for(int i=0; i<this->_orders.size(); ++i)
     {
         auto const k = this->_orders[i] * this->_bin_width;
-        auto const D = operators::diffusion(
-            this->species.get_D()[0].magnitude, duration.magnitude, 
-            k.magnitude, delta_k.magnitude);
+        auto const D = operators::diffusion(this->species, duration, k, delta_k);
         this->_states[0+3*i] *= std::get<0>(D);
         this->_states[1+3*i] *= std::get<1>(D);
         this->_states[2+3*i] *= std::get<2>(D);
