@@ -32,6 +32,7 @@ public:
 
     Species species;
     Real threshold;
+    Quantity delta_omega=0*units::Hz;
     
     Discrete(
         Species const & species, 
@@ -75,8 +76,7 @@ public:
      */
     void apply_time_interval(
         Quantity const & duration, 
-        Quantity const & gradient=0*units::T/units::m, Real threshold=0,
-        Quantity const & delta_omega=0*units::Hz);
+        Quantity const & gradient=0*units::T/units::m, Real threshold=0);
     
     /** 
      * @brief Apply a time interval, i.e. relaxation, diffusion, gradient, and
@@ -103,7 +103,7 @@ public:
      * @brief Simulate field- and species-related off-resonance effects during 
      * given duration with given frequency offset.
      */
-    void off_resonance(Quantity const & duration, Quantity const & delta_omega);
+    void off_resonance(Quantity const & duration);
     
     /// @brief Return the bin width.
     Quantity const & bin_width() const;

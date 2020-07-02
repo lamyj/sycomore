@@ -91,9 +91,10 @@ class TestDiscrete(unittest.TestCase):
     
     def test_off_resonance(self):
         model = sycomore.epg.Discrete(self.species)
+        model.delta_omega = 10*Hz
         model.apply_pulse(47*deg, 23*deg)
         model.shift(10*ms, 2*mT/m)
-        model.off_resonance(10*ms, 10*Hz)
+        model.off_resonance(10*ms)
         
         self._test_model(
             model, [0*rad/m, 5350*rad/m], 
@@ -114,8 +115,9 @@ class TestDiscrete(unittest.TestCase):
     
     def test_apply_time_interval_field_off_resonance(self):
         model = sycomore.epg.Discrete(self.species)
+        model.delta_omega = 10*Hz
         model.apply_pulse(47*deg, 23*deg)
-        model.apply_time_interval(10*ms, 2*mT/m, delta_omega=10*Hz)
+        model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
             model, [0*rad/m, 5350*rad/m],
@@ -142,8 +144,9 @@ class TestDiscrete(unittest.TestCase):
             sycomore.Species(
                 self.species.R1, self.species.R2, self.species.D, 
                 delta_omega=10*Hz))
+        model.delta_omega = -10*Hz
         model.apply_pulse(47*deg, 23*deg)
-        model.apply_time_interval(10*ms, 2*mT/m, delta_omega=-10*Hz)
+        model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
             model, [0*rad/m, 5350*rad/m],

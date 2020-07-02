@@ -287,10 +287,11 @@ BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-9))
     using namespace sycomore::units;
     
     sycomore::epg::Discrete3D model(species);
+    model.delta_omega = 10*Hz;
     model.apply_pulse(47*deg, 23*deg);
     model.shift(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
-    model.off_resonance(10*ms, 10*Hz);
 
+    model.off_resonance(10*ms);
     std::vector<sycomore::epg::Discrete3D::Order> const orders{
         {-5350*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 0*rad/m}};
     std::vector<sycomore::epg::Discrete3D::State> const states{
@@ -341,9 +342,10 @@ BOOST_AUTO_TEST_CASE(TimeIntervalFieldOffResonance, *boost::unit_test::tolerance
     using namespace sycomore::units;
 
     sycomore::epg::Discrete3D model(species);
+    model.delta_omega = 10*Hz;
     model.apply_pulse(47*deg, 23*deg);
-    model.apply_time_interval({10*ms, {2*mT/m, 0*mT/m, 0*mT/m}, 10*Hz});
 
+    model.apply_time_interval(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
     std::vector<sycomore::epg::Discrete3D::Order> const orders{
         {-5350*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 0*rad/m}};
     std::vector<sycomore::epg::Discrete3D::State> const states{
@@ -377,9 +379,10 @@ BOOST_AUTO_TEST_CASE(TimeIntervalBothOffResonance, *boost::unit_test::tolerance(
 
     sycomore::epg::Discrete3D model({
         species.get_R1(), species.get_R2(), species.get_D(), 0*Hz, 10*Hz});
+    model.delta_omega = -10*Hz;
     model.apply_pulse(47*deg, 23*deg);
-    model.apply_time_interval({10*ms, {2*mT/m, 0*mT/m, 0*mT/m}, -10*Hz});
 
+    model.apply_time_interval(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
     std::vector<sycomore::epg::Discrete3D::Order> const orders{
         {-5350*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 0*rad/m}};
     std::vector<sycomore::epg::Discrete3D::State> const states{

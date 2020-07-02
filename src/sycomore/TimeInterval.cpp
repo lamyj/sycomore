@@ -8,21 +8,17 @@ namespace sycomore
 
 TimeInterval
 ::TimeInterval(
-    Quantity const & duration, Quantity const & gradient, 
-    Quantity const & delta_omega)
-: TimeInterval(duration, {gradient, gradient, gradient}, delta_omega)
+    Quantity const & duration, Quantity const & gradient)
+: TimeInterval(duration, {gradient, gradient, gradient})
 {
     // Nothing else.
 }
 
 TimeInterval
-::TimeInterval(
-    Quantity const & duration, Array<Quantity> const & gradient,
-    Quantity const & delta_omega)
+::TimeInterval(Quantity const & duration, Array<Quantity> const & gradient)
 {
     this->set_duration(duration);
     this->set_gradient(gradient);
-    this->set_delta_omega(delta_omega);
 }
 
 Quantity const &
@@ -213,34 +209,13 @@ TimeInterval
     this->set_gradient_moment(a);
 }
 
-Quantity
-TimeInterval
-::get_delta_omega() const
-{
-    return this->_delta_omega;
-}
-
-void
-TimeInterval
-::set_delta_omega(Quantity const & q)
-{
-    if(q.dimensions != units::Hz.dimensions)
-    {
-        std::ostringstream message;
-        message << "Invalid delta_omega dimensions: " << q.dimensions;
-        throw std::runtime_error(message.str());
-    }
-    this->_delta_omega = q;
-}
-
 bool
 TimeInterval
 ::operator==(TimeInterval const & other) const
 {
     return (
         this->_duration == other._duration
-        && this->_gradient_amplitude == other._gradient_amplitude
-        && this->_delta_omega == other._delta_omega);
+        && this->_gradient_amplitude == other._gradient_amplitude);
 }
 
 bool

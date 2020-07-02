@@ -99,9 +99,10 @@ class TestRegular(unittest.TestCase):
     def test_off_resonance(self):
         species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)
         model = sycomore.epg.Regular(species)
+        model.delta_omega = 10*Hz
         model.apply_pulse(47*deg, 23*deg)
         model.shift()
-        model.off_resonance(10*ms, 10*Hz)
+        model.off_resonance(10*ms)
         
         self._test_model(
             model,
@@ -135,8 +136,9 @@ class TestRegular(unittest.TestCase):
     def test_apply_time_interval_field_off_resonance(self):
         species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)
         model = sycomore.epg.Regular(species, unit_gradient_area=10*mT/m*ms)
+        model.delta_omega = 10*Hz
         model.apply_pulse(47*deg, 23*deg)
-        model.apply_time_interval(10*ms, 2*mT/m, delta_omega=10*Hz)
+        model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
             model, 
@@ -161,8 +163,9 @@ class TestRegular(unittest.TestCase):
     def test_apply_time_interval_species_off_resonance(self):
         species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms, delta_omega=10*Hz)
         model = sycomore.epg.Regular(species, unit_gradient_area=10*mT/m*ms)
+        model.delta_omega = -10*Hz
         model.apply_pulse(47*deg, 23*deg)
-        model.apply_time_interval(10*ms, 2*mT/m, delta_omega=-10*Hz)
+        model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
             model, 

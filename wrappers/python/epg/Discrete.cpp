@@ -24,6 +24,7 @@ void wrap_epg_Discrete(pybind11::module & m)
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
             arg("bin_width")=1*units::rad/units::m)
         .def_readwrite("species", &Discrete::species)
+        .def_readwrite("delta_omega", &Discrete::delta_omega)
         .def_readwrite("threshold", &Discrete::threshold)
         .def_property_readonly(
             "orders", &Discrete::orders, 
@@ -63,10 +64,10 @@ void wrap_epg_Discrete(pybind11::module & m)
             "Apply an RF hard pulse.")
         .def(
             "apply_time_interval", 
-            static_cast<void(Discrete::*)(Quantity const &, Quantity const &, Real, Quantity const &)>(
+            static_cast<void(Discrete::*)(Quantity const &, Quantity const &, Real)>(
                 &Discrete::apply_time_interval),
             arg("duration"), arg("gradient")=0*units::T/units::m,
-            arg("threshold")=0., arg("delta_omega")=0.*units::Hz,
+            arg("threshold")=0.,
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects. States with a population lower than "
             "*threshold* will be removed.")
@@ -91,7 +92,7 @@ void wrap_epg_Discrete(pybind11::module & m)
             "amplitude.")
         .def(
             "off_resonance", &Discrete::off_resonance, 
-            arg("duration"), arg("delta_omega"),
+            arg("duration"),
             "Simulate field- and species related off-resonance effects during "
             "given duration with given frequency offset.")
         .def("__len__", &Discrete::size, "Number of states of the model.")

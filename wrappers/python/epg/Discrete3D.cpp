@@ -22,6 +22,7 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
             arg("bin_width")=1*units::rad/units::m)
         .def_readwrite("species", &Discrete3D::species)
+        .def_readwrite("delta_omega", &Discrete3D::delta_omega)
         .def_readwrite("threshold", &Discrete3D::threshold)
         .def_property_readonly(
             "orders", 
@@ -68,19 +69,18 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             "apply_time_interval",
             [](
                 Discrete3D & model, Quantity const & duration,
-                sequence const & gradient, Real threshold, 
-                Quantity const & delta_omega)
+                sequence const & gradient, Real threshold)
             {
                 Array<Quantity> array(gradient.size());
                 for(std::size_t i=0; i<array.size(); ++i)
                 {
                     array[i] = gradient[i].cast<Quantity>();
                 }
-                model.apply_time_interval(duration, array, threshold, delta_omega);
+                model.apply_time_interval(duration, array, threshold);
             },
             arg("duration"), arg("gradient")=Array<Quantity>{
                 0*units::T/units::m, 0*units::T/units::m, 0*units::T/units::m},
-            arg("threshold")=0., arg("delta_omega")=0*units::Hz,
+            arg("threshold")=0., 
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects. States with a population lower than "
             "*threshold* will be removed.")
@@ -123,7 +123,7 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             "amplitude.")
         .def(
             "off_resonance", &Discrete3D::off_resonance, 
-            arg("duration"), arg("delta_omega"),
+            arg("duration"), 
             "Simulate field- and species related off-resonance effects during "
             "given duration with given frequency offset.")
         .def("__len__", &Discrete3D::size, "Number of states of the model")

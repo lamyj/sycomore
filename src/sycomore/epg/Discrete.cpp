@@ -123,8 +123,7 @@ Discrete
 void
 Discrete
 ::apply_time_interval(
-    Quantity const & duration, Quantity const & gradient, Real threshold,
-    Quantity const & delta_omega)
+    Quantity const & duration, Quantity const & gradient, Real threshold)
 {
     static bool warning_displayed = false;
     if(!warning_displayed && threshold > 0)
@@ -143,7 +142,7 @@ Discrete
     this->relaxation(duration);
     this->diffusion(duration, gradient);
     this->shift(duration, gradient);
-    this->off_resonance(duration, delta_omega);
+    this->off_resonance(duration);
     
     if(threshold == 0)
     {
@@ -180,8 +179,7 @@ Discrete
 ::apply_time_interval(TimeInterval const & interval)
 {
     this->apply_time_interval(
-        interval.get_duration(), interval.get_gradient_amplitude()[0], 0, 
-        interval.get_delta_omega());
+        interval.get_duration(), interval.get_gradient_amplitude()[0], 0);
 }
 
 void
@@ -317,7 +315,9 @@ Discrete
     for(int i=0; i<this->_orders.size(); ++i)
     {
         auto const k = this->_orders[i] * this->_bin_width;
-        auto const D = operators::diffusion(this->species, duration, k, delta_k);
+        auto const D = operators::diffusion(
+            this->species.get_D()[0].magnitude, duration.magnitude, 
+            k.magnitude, delta_k.magnitude);
         this->_states[0+3*i] *= std::get<0>(D);
         this->_states[1+3*i] *= std::get<1>(D);
         this->_states[2+3*i] *= std::get<2>(D);
@@ -326,11 +326,11 @@ Discrete
 
 void
 Discrete
-::off_resonance(Quantity const & duration, Quantity const & delta_omega)
+::off_resonance(Quantity const & duration)
 {
     auto const angle = 
         duration * 2*M_PI*units::rad 
-        * (delta_omega+this->species.get_delta_omega());
+        * (this->delta_omega+this->species.get_delta_omega());
     if(angle.magnitude != 0)
     {
         auto const rotations = operators::phase_accumulation(angle);

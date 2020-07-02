@@ -101,9 +101,7 @@ Regular
 
 void
 Regular
-::apply_time_interval(
-    Quantity const & duration, Quantity const & gradient, 
-    Quantity const & delta_omega)
+::apply_time_interval(Quantity const & duration, Quantity const & gradient)
 {
     // Note that since E does not depend on k, the E and S operators commute
     // and that E and D(k) also commute as they are diagonal matrices. The
@@ -128,9 +126,9 @@ Regular
     }
     if(
         duration.magnitude != 0 
-        && (delta_omega.magnitude != 0 || species.get_delta_omega().magnitude != 0))
+        && (this->delta_omega.magnitude != 0 || species.get_delta_omega().magnitude != 0))
     {
-        this->off_resonance(duration, delta_omega);
+        this->off_resonance(duration);
     }
 }
 
@@ -139,8 +137,7 @@ Regular
 ::apply_time_interval(TimeInterval const & interval)
 {
     this->apply_time_interval(
-        interval.get_duration(), interval.get_gradient_amplitude()[0],
-        interval.get_delta_omega());
+        interval.get_duration(), interval.get_gradient_amplitude()[0]);
 }
 
 void
@@ -220,11 +217,11 @@ Regular
 
 void
 Regular
-::off_resonance(Quantity const & duration, Quantity const & delta_omega)
+::off_resonance(Quantity const & duration)
 {
     auto const angle = 
         duration * 2*M_PI*units::rad 
-        * (delta_omega+this->species.get_delta_omega());
+        * (this->delta_omega+this->species.get_delta_omega());
     if(angle.magnitude != 0)
     {
         auto const rotations = operators::phase_accumulation(angle);

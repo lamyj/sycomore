@@ -10,8 +10,7 @@ namespace sycomore
 {
 
 /** 
- * @brief Time interval, with or without magnetic field gradient and 
- * field-related off-resonance frequency.
+ * @brief Time interval, with or without magnetic field gradient.
  */
 struct SYCOMORE_API TimeInterval
 {
@@ -23,16 +22,14 @@ struct SYCOMORE_API TimeInterval
      */
     TimeInterval(
         Quantity const & duration=0*units::s,
-        Quantity const & gradient=0*units::T/units::m,
-        Quantity const & delta_omega=0*units::Hz);
+        Quantity const & gradient=0*units::T/units::m);
     
     /**
      * @brief Constructor, gradient may be specified as amplitude (in T/m), 
      * area (in T/m*s) or dephasing (in rad/m).
      */
     TimeInterval(
-        Quantity const & duration, Array<Quantity> const & gradient,
-        Quantity const & delta_omega=0*units::Hz);
+        Quantity const & duration, Array<Quantity> const & gradient);
 
     /// @brief Return the duration.
     Quantity const & get_duration() const;
@@ -88,12 +85,6 @@ struct SYCOMORE_API TimeInterval
     /// @brief Set the gradient dephasing
     void set_gradient_dephasing(Array<Quantity> const & a);
     
-    /// @brief Return the field-related off-resonance frequency.
-    Quantity get_delta_omega() const;
-    
-    /// @brief Set the field-related off-resonance frequency.
-    void set_delta_omega(Quantity const & delta_omega);
-
     /// @brief Equality of duration and gradient
     bool operator==(TimeInterval const & other) const;
     
@@ -106,9 +97,6 @@ private:
 
     /// @brief Gradient amplitude in T/m on x,y,z axes.
     Array<Quantity> _gradient_amplitude;
-    
-    /// @brief Field-related off-resonance frequency.
-    Quantity _delta_omega;
 };
 
 }

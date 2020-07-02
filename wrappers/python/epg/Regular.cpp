@@ -26,6 +26,7 @@ void wrap_epg_Regular(pybind11::module & m)
             arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
             arg("gradient_tolerance")=1e-5)
         .def_readwrite("species", &Regular::species)
+        .def_readwrite("delta_omega", &Regular::delta_omega)
         .def_readwrite("velocity", &Regular::velocity)
         .def_property_readonly(
             "states_count", &Regular::states_count, 
@@ -50,10 +51,9 @@ void wrap_epg_Regular(pybind11::module & m)
             "Apply an RF hard pulse.")
         .def(
             "apply_time_interval", 
-            static_cast<void(Regular::*)(Quantity const &, Quantity const &, Quantity const &)>(
+            static_cast<void(Regular::*)(Quantity const &, Quantity const &)>(
                 &Regular::apply_time_interval),
             arg("duration"), arg("gradient")=0*units::T/units::m,
-                arg("delta_omega")=0.*units::Hz,
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects.")
         .def(
@@ -82,10 +82,5 @@ void wrap_epg_Regular(pybind11::module & m)
             "diffusion", &Regular::diffusion, arg("duration"), arg("gradient"),
             "Simulate diffusion during given duration with given gradient "
             "amplitude.")
-        .def(
-            "off_resonance", &Regular::off_resonance, 
-            arg("duration"), arg("delta_omega"),
-            "Simulate field- and species related off-resonance effects during "
-            "given duration with given frequency offset.")
     ;
 }
