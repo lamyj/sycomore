@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE(UnitGradient, *boost::unit_test::tolerance(1e-9))
             {0, 0, 0},
             {{0.2339626754969161, -0.5511815225838647}, 0, 0}});
     
-    /* Third time interval: -3*unit gradient area */
+    /* Third time interval: -3*unit gradient area. Higher states are all 0. */
     model.apply_time_interval(10*ms, -3*mT/m);
     test_model(
         model, 
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE(UnitGradient, *boost::unit_test::tolerance(1e-9))
                 {0.2116981832134146, -0.49872966576391303}, 
                 {0.2116981832134146, +0.49872966576391303}, 
                 0.6913967288615507},
-            {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}});
+        });
     
     BOOST_CHECK_THROW(
         model.apply_time_interval(12*ms, 2*mT/m), std::runtime_error);

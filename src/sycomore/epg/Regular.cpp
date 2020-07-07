@@ -351,6 +351,15 @@ Regular
         }
         
         ++this->_states_count;
+        
+        // Remove empty states with high order.
+        while(
+            this->_F[this->_states_count-1] == 0. 
+            && this->_F_star[this->_states_count-1] == 0.
+            && this->_Z[this->_states_count-1] == 0.)
+        {
+            --this->_states_count;
+        }
     }
     else
     { 
