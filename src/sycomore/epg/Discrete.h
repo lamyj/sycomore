@@ -62,7 +62,7 @@ public:
      * @brief Return all states in the model, where each state is stored as
      * F̃(k), F̃^*(-k), Z̃(k), in order of increasing order.
      */
-    std::vector<Complex> const & states() const;
+    std::vector<Complex> states() const;
 
     /// @brief Return the echo signal, i.e. F̃_0
     Complex const & echo() const;
@@ -109,7 +109,10 @@ public:
     Quantity const & bin_width() const;
 
 private:
-    std::vector<Complex> _states;
+    std::vector<Complex> _F;
+    std::vector<Complex> _F_star;
+    std::vector<Complex> _Z;
+    
     Quantity _bin_width;
     std::vector<long long> _orders;
 };
