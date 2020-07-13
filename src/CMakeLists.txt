@@ -24,7 +24,7 @@ if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
 
     add_library(libsycomore ${source_files} ${header_files} ${template_files})
     if(APPLE AND OPENMP_FOUND)
-        target_link_libraries(libsycomore omp)
+        target_link_libraries(libsycomore ${OpenMP_omp_LIBRARY})
     endif()
     set_target_properties(libsycomore PROPERTIES OUTPUT_NAME sycomore)
     set_target_properties(libsycomore PROPERTIES
