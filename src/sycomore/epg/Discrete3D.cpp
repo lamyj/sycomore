@@ -27,12 +27,15 @@ Discrete3D
 ::Discrete3D(
     Species const & species, Magnetization const & initial_magnetization,
     Quantity bin_width, Real threshold)
-: species(species), _bin_width(bin_width), threshold(threshold)
+: species(species), _bin_width(bin_width), _F(1, 0), _F_star(1, 0), _Z(1, 0), 
+    threshold(threshold)
 {
     auto const M = as_complex_magnetization(initial_magnetization);
     this->_orders = {0,0,0};
-    this->_states = {std::sqrt(2)*M.p, std::sqrt(2)*M.m, M.z};
-    this->_zero_it = this->_states.begin();
+    this->_F[0] = std::sqrt(2)*M.p;
+    this->_F_star[0] = std::sqrt(2)*M.m;
+    this->_Z[0] = M.z;
+    this->_zero_it = 0;
 }
 
 std::size_t
@@ -51,6 +54,13 @@ Discrete3D
         this->_orders.begin(), this->_orders.end(), orders.begin(),
         [&](decltype(this->_orders[0]) k){ return k*this->_bin_width; });
     return orders;
+}
+
+Discrete3D::State
+Discrete3D
+::state(std::size_t order) const
+{
+    return {this->_F[order], this->_F_star[order], this->_Z[order]};
 }
 
 Discrete3D::State
@@ -86,23 +96,29 @@ Discrete3D
         throw std::runtime_error(message.str());
     }
 
-    auto const index = it-this->_orders.begin();
-    return {
-        this->_states[index+0], this->_states[index+1], this->_states[index+2]};
+    auto const index = (it-this->_orders.begin())/3;
+    return this->state(index);
 }
 
-std::vector<Complex> const &
+std::vector<Complex>
 Discrete3D
 ::states() const
 {
-    return this->_states;
+    std::vector<Complex> result(3*this->size());
+    for(unsigned int order=0; order<this->size(); ++order)
+    {
+        result[3*order+0] = this->_F[order];
+        result[3*order+1] = this->_F_star[order];
+        result[3*order+2] = this->_Z[order];
+    }
+    return result;
 }
 
 Complex const &
 Discrete3D
 ::echo() const
 {
-    return *this->_zero_it;
+    return this->_F[this->_zero_it];
 }
 
 void
@@ -111,20 +127,19 @@ Discrete3D
 {
     auto const T = operators::pulse(angle.magnitude, phase.magnitude);
 
-    #pragma omp parallel for
-    for(int order=0; order<this->size(); ++order)
+    for(std::size_t order = 0; order < this->size(); ++order)
     {
-        std::vector<Complex> result(3, 0);
-        for(int r=0; r<3; ++r)
-        {
-            for(int c=0; c<3; ++c)
-            {
-                result[r] += T[3*r+c] * this->_states[3*order+c];
-            }
-        }
-
-        std::memcpy(
-            this->_states.data()+3*order, result.data(), 3*sizeof(Complex));
+        auto const & F = this->_F[order];
+        auto const & F_star = this->_F_star[order];
+        auto const & Z = this->_Z[order];
+    
+        auto const F_new =      T[3*0+0] * F + T[3*0+1] * F_star + T[3*0+2] * Z;
+        auto const F_star_new = T[3*1+0] * F + T[3*1+1] * F_star + T[3*1+2] * Z;
+        auto const Z_new =      T[3*2+0] * F + T[3*2+1] * F_star + T[3*2+2] * Z;
+    
+        this->_F[order] = F_new;
+        this->_F_star[order] = F_star_new;
+        this->_Z[order] = Z_new;
     }
 }
 
@@ -160,33 +175,39 @@ Discrete3D
     {
         auto const threshold_squared = std::pow(threshold, 2);
         decltype(this->_orders) orders; orders.reserve(this->_orders.size());
-        decltype(this->_states) states; states.reserve(this->_states.size());
+        decltype(this->_F) F; F.reserve(this->_F.size());
+        decltype(this->_F_star) F_star; F_star.reserve(this->_F_star.size());
+        decltype(this->_Z) Z; Z.reserve(this->_Z.size());
 
-        for(std::size_t i=0; i<this->size(); ++i)
+        for(std::size_t index=0; index<this->size(); ++index)
         {
-            Bin const order(this->_orders.data()+3*i, 3);
-            Array<Complex> const state(this->_states.data()+3*i, 3);
+            Bin const order(this->_orders.data()+3*index, 3);
+            
             auto const magnitude_squared =
-                std::pow(std::abs(state[0]), 2)
-                +std::pow(std::abs(state[1]), 2)
-                +std::pow(std::abs(state[2]), 2);
-            if(magnitude_squared >= threshold_squared || order == Bin{0,0,0})
+                std::pow(std::abs(this->_F[index]), 2)
+                +std::pow(std::abs(this->_F_star[index]), 2)
+                +std::pow(std::abs(this->_Z[index]), 2);
+            if(magnitude_squared >= threshold_squared)
             {
                 std::copy(order.begin(), order.end(), std::back_inserter(orders));
-                std::copy(state.begin(), state.end(), std::back_inserter(states));
+                F.push_back(this->_F[index]);
+                F_star.push_back(this->_F_star[index]);
+                Z.push_back(this->_Z[index]);
             }
         }
 
         this->_orders = std::move(orders);
-        this->_states = std::move(states);
-
+        this->_F = std::move(F);
+        this->_F_star = std::move(F_star);
+        this->_Z = std::move(Z);
+        
         // Update the iterator pointing to the echo magnetization.
         for(std::size_t i=0; i<this->size(); ++i)
         {
             Bin const order(this->_orders.data()+3*i, 3);
             if(order == Array<int64_t>{0,0,0})
             {
-                this->_zero_it = this->_states.begin()+3*i;
+                this->_zero_it = i;
                 break;
             }
         }
@@ -227,7 +248,7 @@ Discrete3D
     // {
     //     std::cout 
     //         << this->_orders[3*i] << " " << this->_orders[3*i+1] << " " << this->_orders[3*i+2] << ": " 
-    //         << this->_states[3*i] << " " << this->_states[3*i+1] << " " << this->_states[3*i+2] << "\n"; 
+    //         << this->_F[i] << " " << this->_F_star[i] << " " << this->_Z[i] << "\n"; 
     // }
     // std::cout << "\n";
     
@@ -241,35 +262,36 @@ Discrete3D
      * we use the lexicographic order (F_x < F_y < F_z), and the orders vector
      * will only contain orders in the upper quadrant (F_x <= F_y <= F_z).
      * 
-     * The shift operator starts by unfolding the conjugate pairs of F states,
-     * creating a vector of size 2*N-1 from a vector of size N (the order 0 must
-     * not be unfolded). The same operation is applied to the vector of orders.
-     * These two unfolded vectors needs not be sorted.
+     * The shift operator starts by unfolding the conjugate pairs of F, the 
+     * same operation is applied to the vector of orders. These two unfolded 
+     * vectors needs not be sorted.
      *
      * All orders are shifted by delta_k. For an arbitrary delta_k, this will
      * break the order of sorted vector, hence the non-sorted requirement above.
      *
-     * A map of the folded orders is then built, and split between this->_orders
-     * and this->_states.
+     * A map of the folded orders and the non-shifted Z-orders is then built.
      */
 
     // Unfold the F̃ states
-    std::vector<decltype(this->_orders)::value_type> F_orders((2*this->size())*3);
-    std::vector<decltype(this->_states)::value_type> F_states(2*this->size());
+    decltype(this->_orders) F_orders; F_orders.reserve((2*this->size())*3);
+    decltype(this->_F) F_states; F_states.reserve(2*this->size());
     for(std::size_t i=0; i<this->size(); ++i)
     {
-        // F̃^+ on the left side.
-        F_orders[3*i+0] = this->_orders[3*i+0];
-        F_orders[3*i+1] = this->_orders[3*i+1];
-        F_orders[3*i+2] = this->_orders[3*i+2];
-    
-        F_states[i] = this->_states[3*i+0];
-    
-        // F̃^{-*} on the right side.
-        F_orders[3*(this->size()+i)+0] = -this->_orders[3*i+0];
-        F_orders[3*(this->size()+i)+1] = -this->_orders[3*i+1];
-        F_orders[3*(this->size()+i)+2] = -this->_orders[3*i+2];
-        F_states[this->size()+i] = std::conj(this->_states[3*i+1]);
+        if(this->_F[i] != 0.)
+        {
+            F_orders.push_back(this->_orders[3*i+0]);
+            F_orders.push_back(this->_orders[3*i+1]);
+            F_orders.push_back(this->_orders[3*i+2]);
+            F_states.push_back(this->_F[i]);
+        }
+        
+        if(i != this->_zero_it && this->_F_star[i] != 0.)
+        {
+            F_orders.push_back(-this->_orders[3*i+0]);
+            F_orders.push_back(-this->_orders[3*i+1]);
+            F_orders.push_back(-this->_orders[3*i+2]);
+            F_states.push_back(std::conj(this->_F_star[i]));
+        }
     }
     
     // std::cout << "Unfolded\n";
@@ -296,47 +318,47 @@ Discrete3D
     auto && F_states_it = F_states.begin();
     while(F_orders_it != F_orders.end())
     {
-        Bin order;
+        Bin order{*(F_orders_it+0), *(F_orders_it+1), *(F_orders_it+2)};
         unsigned int location;
-        decltype(this->_states)::value_type value;
-        if(*F_orders_it <= *(F_orders_it+1) && *(F_orders_it+1) <= *(F_orders_it+2))
+        decltype(F_states)::value_type value;
+        if(order[0] >= 0)
         {
-            // Upper quadrant: use as is
-            order = Bin(&*F_orders_it, 3);
+            // Right half-space: use as is
             location = 0;
             value = *F_states_it;
         }
         else
         {
-            // Lower quadrant: store conjugate
-            order = -Bin{*(F_orders_it+0), *(F_orders_it+1), *(F_orders_it+2)};
+            // Left half-space: use conjugate
+            order *= -1;
             location = 1;
             value = std::conj(*F_states_it);
         }
     
         // Create empty value if needed
-        auto it = folded.insert({order, {0,0,0}}).first;
-    
+        auto it = folded.emplace(std::move(order), State{0,0,0}).first;
         it->second[location] = value;
     
         F_orders_it += 3;
         ++F_states_it;
     }
     auto && Z_orders_it = this->_orders.begin();
-    auto && Z_states_it = this->_states.begin();
+    auto && Z_states_it = this->_Z.begin();
     while(Z_orders_it != this->_orders.end())
     {
-        Bin const order(&*Z_orders_it, 3);
-        unsigned int const location=2;
-        decltype(this->_states)::value_type const value=*(Z_states_it+2);
-    
-        // Create empty value if needed
-        auto it = folded.insert({order, {0,0,0}}).first;
-    
-        it->second[location] = value;
+        auto const & value = *Z_states_it;
+        if(value != 0.)
+        {
+            Bin const order(&*Z_orders_it, 3);
+            unsigned int const location = 2;
+            
+            // Create empty value if needed
+            auto it = folded.emplace(order, State{0,0,0}).first;
+            it->second[location] = value;
+        }
     
         Z_orders_it += 3;
-        Z_states_it += 3;
+        ++Z_states_it;
     }
     
     // std::cout << "Folded map\n";
@@ -349,13 +371,23 @@ Discrete3D
     // std::cout << "\n";
     
     this->_orders.resize(3*folded.size());
-    this->_states.resize(3*folded.size());
+    this->_F.resize(folded.size());
+    this->_F_star.resize(folded.size());
+    this->_Z.resize(folded.size());
     auto orders_it = this->_orders.begin();
-    auto states_it = this->_states.begin();
+    auto F_it = this->_F.begin();
+    auto F_star_it = this->_F_star.begin();
+    auto Z_it = this->_Z.begin();
     for(auto && item: folded)
     {
         orders_it = std::copy(item.first.begin(), item.first.end(), orders_it);
-        states_it = std::copy(item.second.begin(), item.second.end(), states_it);
+        *F_it = item.second[0];
+        *F_star_it = item.second[1];
+        *Z_it = item.second[2];
+        
+        ++F_it;
+        ++F_star_it;
+        ++Z_it;
     }
     
     // std::cout << "Folded Model\n";
@@ -363,7 +395,7 @@ Discrete3D
     // {
     //     std::cout 
     //         << this->_orders[3*i] << " " << this->_orders[3*i+1] << " " << this->_orders[3*i+2] << ": " 
-    //         << this->_states[3*i] << " " << this->_states[3*i+1] << " " << this->_states[3*i+2] << "\n"; 
+    //         << this->_F[i] << " " << this->_F_star[i] << " " << this->_Z[i] << "\n"; 
     // }
     // std::cout << "\n";
 
@@ -373,12 +405,21 @@ Discrete3D
         Bin const order(this->_orders.data()+3*i, 3);
         if(order == Array<int64_t>{0,0,0})
         {
-            this->_zero_it = this->_states.begin()+3*i;
+            this->_zero_it = i;
             break;
         }
     }
     // Update the conjugate magnetization of the echo magnetization
-    this->_zero_it[1] = std::conj(this->_zero_it[0]);
+    this->_F_star[this->_zero_it] = std::conj(this->_F[this->_zero_it]);
+    
+    // std::cout << "After shift\n";
+    // for(int i=0; i<this->size(); ++i)
+    // {
+    //     std::cout 
+    //         << this->_orders[3*i] << " " << this->_orders[3*i+1] << " " << this->_orders[3*i+2] << ": " 
+    //         << this->_F[i] << " " << this->_F_star[i] << " " << this->_Z[i] << "\n"; 
+    // }
+    // std::cout << "k=0: " << this->_zero_it << "\n";
 }
 
 void
@@ -394,15 +435,14 @@ Discrete3D
         this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
         duration.magnitude);
 
-    #pragma omp parallel for
     for(int order=0; order<this->size(); ++order)
     {
-        this->_states[0+3*order] *= E.second;
-        this->_states[1+3*order] *= E.second;
-        this->_states[2+3*order] *= E.first;
+        this->_F[order] *= E.second;
+        this->_F_star[order] *= E.second;
+        this->_Z[order] *= E.first;
     }
 
-    this->_zero_it[2] += 1.-E.first; // WARNING: assumes M0=1
+    this->_Z[this->_zero_it] += 1.-E.first; // WARNING: assumes M0=1
 }
 
 void
@@ -434,7 +474,7 @@ Discrete3D
     Real D[9];
     for(std::size_t i=0; i<9; ++i)
     {
-        D[i] = this->species.get_D()[i].convert_to(m*m/s);
+        D[i] = this->species.get_D()[i].magnitude;
     }
     auto const tau = duration.convert_to(s);
     auto const bin_width = this->_bin_width.convert_to(rad/m);
@@ -475,7 +515,7 @@ Discrete3D
                     b_L[i] + tau * (
                           1./2.*(k1[m]*bin_width)*delta_k[n]
                         + 1./2.*(k1[n]*bin_width)*delta_k[m]
-                        + 1./3.*delta_k[m]*bin_width*delta_k[n]);
+                        + 1./3.*delta_k[m]*delta_k[n]);
                 b_T_minus[i] =
                     b_L[i] + tau * (
                           1./2.*(-k1[m]*bin_width)*delta_k[n]
@@ -494,9 +534,9 @@ Discrete3D
             b_L_D += b_L[i]*D[i];
         }
 
-        this->_states[3*order+0] *= exp(-b_T_plus_D);
-        this->_states[3*order+1] *= exp(-b_T_minus_D);
-        this->_states[3*order+2] *= exp(-b_L_D);
+        this->_F[order] *= exp(-b_T_plus_D);
+        this->_F_star[order] *= exp(-b_T_minus_D);
+        this->_Z[order] *= exp(-b_L_D);
     }
 }
 
@@ -514,8 +554,8 @@ Discrete3D
         #pragma omp parallel for
         for(int order=0; order<this->size(); ++order)
         {
-            this->_states[0+3*order] *= rotations.first;
-            this->_states[1+3*order] *= rotations.second;
+            this->_F[order] *= rotations.first;
+            this->_F_star[order] *= rotations.second;
             // Z̃ states are unaffected
         }
     }
