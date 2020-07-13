@@ -108,8 +108,7 @@ Discrete
 {
     auto const T = operators::pulse(angle.magnitude, phase.magnitude);
     
-    #pragma omp parallel for
-    for(int order=0; order<this->_orders.size(); ++order)
+    for(std::size_t order = 0; order < this->_orders.size(); ++order)
     {
         auto const & F = this->_F[order];
         auto const & F_star = this->_F_star[order];
@@ -305,7 +304,6 @@ Discrete
         this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
         duration.magnitude);
     
-    #pragma omp parallel for
     for(int order=0; order<this->_orders.size(); ++order)
     {
         this->_F[order] *= E.second;
@@ -355,11 +353,10 @@ Discrete
     {
         auto const rotations = operators::phase_accumulation(angle.magnitude);
         
-        #pragma omp parallel for
         for(int order=0; order<this->_orders.size(); ++order)
         {
-            this->_states[0+3*order] *= rotations.first;
-            this->_states[1+3*order] *= rotations.second;
+            this->_F[order] *= rotations.first;
+            this->_F_star[order] *= rotations.second;
             // Z̃ states are unaffected
         }
     }

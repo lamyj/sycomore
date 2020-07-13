@@ -551,7 +551,6 @@ Discrete3D
     {
         auto const rotations = operators::phase_accumulation(angle.magnitude);
         
-        #pragma omp parallel for
         for(int order=0; order<this->size(); ++order)
         {
             this->_F[order] *= rotations.first;

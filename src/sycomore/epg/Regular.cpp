@@ -77,7 +77,6 @@ Regular
     
     Complex F, F_star, Z;
     
-    #pragma omp parallel for schedule(static) private(F, F_star, Z)
     for(int order=0; order<this->_states_count; ++order)
     {
         F = 
@@ -180,7 +179,6 @@ Regular
         this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
         duration.magnitude);
     
-    #pragma omp parallel for schedule(static)
     for(int order=0; order<this->_states_count; ++order)
     {
         this->_F[order] *= E.second;
@@ -229,7 +227,6 @@ Regular
     {
         auto const rotations = operators::phase_accumulation(angle.magnitude);
         
-        #pragma omp parallel for schedule(static)
         for(int order=0; order<this->_states_count; ++order)
         {
             this->_F[order] *= rotations.first;
