@@ -62,9 +62,7 @@ class TestRegular(unittest.TestCase):
             [
                 [0, 0, 0.6819983600624985],
                 [0, 0, 0],
-                [0.2857626571584661-0.6732146319308543j, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0]])
+                [0.2857626571584661-0.6732146319308543j, 0, 0]])
         
         with self.assertRaises(Exception):
             model.shift(1.5*ms, 1*mT/m)
@@ -130,8 +128,7 @@ class TestRegular(unittest.TestCase):
                 [
                     0.23262696138115807-0.5480347773241918j, 
                     0.23262696138115807+0.5480347773241918j,
-                    0.6882952144238884],
-            [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]])
+                    0.6882952144238884]])
     
     def test_apply_time_interval_field_off_resonance(self):
         species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)
