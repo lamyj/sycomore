@@ -121,17 +121,37 @@ Discrete3D
     return this->_F[this->_zero_it];
 }
 
+using simd_type = xsimd::simd_type<Complex>;
+constexpr std::size_t const simd_width = simd_type::size;
+
 void
 Discrete3D
 ::apply_pulse(Quantity angle, Quantity phase)
 {
     auto const T = operators::pulse(angle.magnitude, phase.magnitude);
-
-    for(std::size_t order = 0; order < this->size(); ++order)
+    
+    std::size_t const simd_size = this->size() - this->size() % simd_width;
+    
+    for(std::size_t order = 0; order < simd_size; order += simd_width)
     {
-        auto const & F = this->_F[order];
-        auto const & F_star = this->_F_star[order];
-        auto const & Z = this->_Z[order];
+        auto const F = xsimd::load_aligned(&this->_F[order]);
+        auto const F_star = xsimd::load_aligned(&this->_F_star[order]);
+        auto const Z = xsimd::load_aligned(&this->_Z[order]);
+    
+        auto const F_new =      T[3*0+0] * F + T[3*0+1] * F_star + T[3*0+2] * Z;
+        auto const F_star_new = T[3*1+0] * F + T[3*1+1] * F_star + T[3*1+2] * Z;
+        auto const Z_new =      T[3*2+0] * F + T[3*2+1] * F_star + T[3*2+2] * Z;
+    
+        xsimd::store_aligned(&this->_F[order], F_new);
+        xsimd::store_aligned(&this->_F_star[order], F_star_new);
+        xsimd::store_aligned(&this->_Z[order], Z_new);
+    }
+    
+    for(std::size_t order = simd_size; order < this->size(); ++order)
+    {
+        auto const & F = _F[order];
+        auto const & F_star = _F_star[order];
+        auto const & Z = _Z[order];
     
         auto const F_new =      T[3*0+0] * F + T[3*0+1] * F_star + T[3*0+2] * Z;
         auto const F_star_new = T[3*1+0] * F + T[3*1+1] * F_star + T[3*1+2] * Z;
@@ -434,14 +454,30 @@ Discrete3D
     auto const E = operators::relaxation(
         this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
         duration.magnitude);
-
-    for(int order=0; order<this->size(); ++order)
+    
+    using simd_type = xsimd::simd_type<Real>;
+    constexpr std::size_t const simd_width = simd_type::size;
+    auto const size = 2*this->size();
+    std::size_t const simd_size = size - size % simd_width;
+    
+    auto F = reinterpret_cast<Real*>(this->_F.data());
+    auto F_star = reinterpret_cast<Real*>(this->_F_star.data());
+    auto Z = reinterpret_cast<Real*>(this->_Z.data());
+    
+    for(std::size_t i = 0; i < simd_size; i += simd_width)
     {
-        this->_F[order] *= E.second;
-        this->_F_star[order] *= E.second;
-        this->_Z[order] *= E.first;
+        xsimd::store_aligned(&F[i], xsimd::load_aligned(&F[i])*E.second);
+        xsimd::store_aligned(&F_star[i], xsimd::load_aligned(&F_star[i])*E.second);
+        xsimd::store_aligned(&Z[i], xsimd::load_aligned(&Z[i])*E.first);
     }
-
+    
+    for(std::size_t i = simd_size; i < size; ++i)
+    {
+        F[i] *= E.second;
+        F_star[i] *= E.second;
+        Z[i] *= E.first;
+    }
+    
     this->_Z[this->_zero_it] += 1.-E.first; // WARNING: assumes M0=1
 }
 
@@ -479,7 +515,7 @@ Discrete3D
     auto const tau = duration.convert_to(s);
     auto const bin_width = this->_bin_width.convert_to(rad/m);
 
-    #pragma omp parallel for
+    // #pragma omp parallel for
 #ifdef _WIN32
     // WARNING: only signed integer types in OpenMP loops on Windows
     for(int order=0; order<this->size(); ++order)
