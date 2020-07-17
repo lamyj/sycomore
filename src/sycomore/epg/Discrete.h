@@ -33,6 +33,7 @@ public:
     Species species;
     Real threshold;
     Quantity delta_omega=0*units::Hz;
+    Quantity velocity=0*units::m/units::s;
     
     Discrete(
         Species const & species, 
@@ -107,7 +108,9 @@ public:
     
     /// @brief Return the bin width.
     Quantity const & bin_width() const;
-
+    
+    void bulk_motion(Quantity const & duration, Quantity const & gradient);
+    
 private:
     std::vector<Complex> _F;
     std::vector<Complex> _F_star;

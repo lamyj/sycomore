@@ -299,3 +299,24 @@ BOOST_AUTO_TEST_CASE(Refocalization, *boost::unit_test::tolerance(1e-9))
         model.echo(),
         sycomore::Complex(0.30684831950624042, 0.53147687960193668));
 }
+
+BOOST_AUTO_TEST_CASE(BulkMotion, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+    sycomore::Species const species(1000*ms, 100*ms);
+        
+    sycomore::epg::Discrete model(species);
+    model.velocity = 40*cm/s;
+    
+    model.apply_pulse(47*deg, 23*deg);
+    model.apply_time_interval(10*ms, 1*mT/m);
+
+    std::vector<sycomore::epg::Discrete::Order> const orders{
+        0*rad/m, 2675*rad/m};    
+    std::vector<sycomore::epg::Discrete::State> const states = {
+        {0, 0, 0.6851625292479138},
+        {{-0.33529079864474892, -0.57052724915068997}, 0, 0}};
+    
+    test_model(
+        model, orders, states);
+}

@@ -239,3 +239,21 @@ BOOST_AUTO_TEST_CASE(UnitGradient, *boost::unit_test::tolerance(1e-9))
     BOOST_CHECK_THROW(
         model.apply_time_interval(12*ms, 2*mT/m), std::runtime_error);
 }
+
+BOOST_AUTO_TEST_CASE(BulkMotion, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+    sycomore::Species const species(1000*ms, 100*ms);
+        
+    sycomore::epg::Regular model(species, {0,0,1}, 100, 10*mT/m*ms);
+    model.velocity = 40*cm/s;
+    
+    model.apply_pulse(47*deg, 23*deg);
+    model.apply_time_interval(10*ms, 1*mT/m);
+    
+    test_model(
+        model, 
+        {
+            {0, 0, 0.6851625292479138},
+            {{-0.33529079864474892, -0.57052724915068997}, 0, 0}});
+}
