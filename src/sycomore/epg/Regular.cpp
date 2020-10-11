@@ -240,7 +240,7 @@ void
 Regular
 ::bulk_motion(Quantity const & duration, Quantity const & gradient)
 {
-    if(velocity.magnitude == 0)
+    if(this->velocity.magnitude == 0)
     {
         return;
     }

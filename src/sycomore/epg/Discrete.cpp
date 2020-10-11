@@ -367,7 +367,7 @@ void
 Discrete
 ::bulk_motion(Quantity const & duration, Quantity const & gradient)
 {
-    if(velocity.magnitude == 0)
+    if(this->velocity.magnitude == 0)
     {
         return;
     }
@@ -381,7 +381,7 @@ Discrete
     #pragma omp parallel for schedule(static)
     for(int order=0; order<this->size(); ++order)
     {
-        auto const k = this->_orders[order] * this->_bin_width.magnitude * delta_k;
+        auto const k = this->_orders[order] * this->_bin_width.magnitude;
         auto const J = operators::bulk_motion(
             this->velocity.magnitude, duration.magnitude, k, delta_k);
         this->_F[order] *= std::get<0>(J);
