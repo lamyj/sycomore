@@ -116,6 +116,26 @@ Regular
     {
         this->off_resonance(duration);
     }
+    
+    // Remove low-populated states with high order.
+    auto const threshold_squared = std::pow(this->threshold, 2);
+    bool done = false;
+    while(this->_states_count>0 && !done)
+    {
+        auto const magnitude_squared =
+            std::pow(std::abs(this->_F[this->_states_count-1]), 2)
+            +std::pow(std::abs(this->_F_star[this->_states_count-1]), 2)
+            +std::pow(std::abs(this->_Z[this->_states_count-1]), 2);
+        
+        if(magnitude_squared > threshold_squared)
+        {
+            done = true;
+        }
+        else
+        {
+            --this->_states_count;
+        }
+    }
 }
 
 void
@@ -322,15 +342,6 @@ Regular
         }
         
         ++this->_states_count;
-        
-        // Remove empty states with high order.
-        while(
-            this->_F[this->_states_count-1] == 0. 
-            && this->_F_star[this->_states_count-1] == 0.
-            && this->_Z[this->_states_count-1] == 0.)
-        {
-            --this->_states_count;
-        }
     }
     else
     { 

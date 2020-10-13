@@ -30,6 +30,7 @@ class SYCOMORE_API Regular
 {
 public:
     Species species;
+    Real threshold=0;
     Quantity delta_omega=0*units::Hz;
     Quantity velocity=0*units::m/units::s;
     
