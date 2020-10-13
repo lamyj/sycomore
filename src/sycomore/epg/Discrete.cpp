@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "sycomore/epg/operators.h"
+#include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -109,39 +110,10 @@ void
 Discrete
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    auto const T = operators::pulse(angle.magnitude, phase.magnitude);
-    
-    std::size_t const simd_size = this->_orders.size() - this->_orders.size() % simd_width;
-    
-    for(std::size_t order = 0; order < simd_size; order += simd_width)
-    {
-        auto const F = xsimd::load_aligned(&this->_F[order]);
-        auto const F_star = xsimd::load_aligned(&this->_F_star[order]);
-        auto const Z = xsimd::load_aligned(&this->_Z[order]);
-    
-        auto const F_new =      T[3*0+0] * F + T[3*0+1] * F_star + T[3*0+2] * Z;
-        auto const F_star_new = T[3*1+0] * F + T[3*1+1] * F_star + T[3*1+2] * Z;
-        auto const Z_new =      T[3*2+0] * F + T[3*2+1] * F_star + T[3*2+2] * Z;
-    
-        xsimd::store_aligned(&this->_F[order], F_new);
-        xsimd::store_aligned(&this->_F_star[order], F_star_new);
-        xsimd::store_aligned(&this->_Z[order], Z_new);
-    }
-    
-    for(std::size_t order = simd_size; order < this->_orders.size(); ++order)
-    {
-        auto const & F = _F[order];
-        auto const & F_star = _F_star[order];
-        auto const & Z = _Z[order];
-    
-        auto const F_new =      T[3*0+0] * F + T[3*0+1] * F_star + T[3*0+2] * Z;
-        auto const F_star_new = T[3*1+0] * F + T[3*1+1] * F_star + T[3*1+2] * Z;
-        auto const Z_new =      T[3*2+0] * F + T[3*2+1] * F_star + T[3*2+2] * Z;
-    
-        this->_F[order] = F_new;
-        this->_F_star[order] = F_star_new;
-        this->_Z[order] = Z_new;
-    }
+    simd_api::apply_pulse(
+        operators::pulse(angle.magnitude, phase.magnitude), 
+        this->_F.data(), this->_F_star.data(), this->_Z.data(), 
+        this->_orders.size());
 }
 
 void
@@ -324,29 +296,12 @@ Discrete
         this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
         duration.magnitude);
     
-    // SIMD operations on Real data are faster than those on Complex data.
-    using simd_type = xsimd::simd_type<Real>;
-    constexpr std::size_t const simd_width = simd_type::size;
-    auto const size = 2*this->_orders.size();
-    std::size_t const simd_size = size - size % simd_width;
-    
-    auto F = reinterpret_cast<Real*>(this->_F.data());
-    auto F_star = reinterpret_cast<Real*>(this->_F_star.data());
-    auto Z = reinterpret_cast<Real*>(this->_Z.data());
-    
-    for(std::size_t i = 0; i < simd_size; i += simd_width)
-    {
-        xsimd::store_aligned(&F[i], xsimd::load_aligned(&F[i])*E.second);
-        xsimd::store_aligned(&F_star[i], xsimd::load_aligned(&F_star[i])*E.second);
-        xsimd::store_aligned(&Z[i], xsimd::load_aligned(&Z[i])*E.first);
-    }
-    
-    for(std::size_t i = simd_size; i < size; ++i)
-    {
-        F[i] *= E.second;
-        F_star[i] *= E.second;
-        Z[i] *= E.first;
-    }
+    simd_api::relaxation(
+        E,
+        reinterpret_cast<Real*>(this->_F.data()),
+        reinterpret_cast<Real*>(this->_F_star.data()),
+        reinterpret_cast<Real*>(this->_Z.data()),
+        this->_orders.size());
     
     this->_Z[0] += 1.-E.first; // WARNING: assumes M0=1
 }
@@ -366,53 +321,19 @@ Discrete
         return;
     }
     
+    std::vector<Real> k(this->_orders.size());
+    for(std::size_t i=0; i<k.size(); ++i)
+    {
+        k[i] = this->_orders[i] * this->_bin_width.magnitude;
+    }
+    
     auto const & tau = duration.magnitude;
     auto const & D = species.get_D()[0].magnitude;
     
-    std::vector<Real> k_array(this->_orders.size());
-    for(std::size_t i=0; i<k_array.size(); ++i)
-    {
-        k_array[i] = this->_orders[i] * this->_bin_width.magnitude;
-    }
-    
-    std::size_t const simd_size = this->_orders.size() - this->_orders.size() % simd_width;
-    // #pragma omp parallel for
-    for(std::size_t i = 0; i < simd_size; i += simd_width)
-    {
-        auto const k = xsimd::load_aligned(&k_array[i]);
-    
-        auto const F = xsimd::load_aligned(&this->_F[i]);
-        auto const b_T_plus = tau*(xsimd::pow(k+delta_k/2, 2) + std::pow(delta_k, 2) / 12);
-        auto const D_T_plus = xsimd::exp(-b_T_plus*D);
-        xsimd::store_aligned(&this->_F[i], F*D_T_plus);
-    
-        auto const F_star = xsimd::load_aligned(&this->_F_star[i]);
-        auto const b_T_minus = tau*(xsimd::pow(-k+delta_k/2, 2) + std::pow(delta_k, 2) / 12);
-        auto const D_T_minus = xsimd::exp(-b_T_minus*D);
-        xsimd::store_aligned(&this->_F_star[i], F_star*D_T_minus);
-    
-        auto const Z = xsimd::load_aligned(&this->_Z[i]);
-        auto const b_L = xsimd::pow(k, 2) * tau;
-        auto const D_L = xsimd::exp(-b_L*D);
-        xsimd::store_aligned(&this->_Z[i], Z*D_L);
-    }
-    
-    for(std::size_t i = simd_size; i < this->_orders.size(); ++i)
-    {
-        auto const & k = k_array[i];
-    
-        auto const b_T_plus = tau*(std::pow(k+delta_k/2, 2.) + std::pow(delta_k, 2.) / 12);
-        auto const D_T_plus = std::exp(-b_T_plus*D);
-        this->_F[i] *= D_T_plus;
-    
-        auto const b_T_minus = tau*(std::pow(-k+delta_k/2, 2.) + std::pow(delta_k, 2.) / 12);
-        auto const D_T_minus = std::exp(-b_T_minus*D);
-        this->_F_star[i] *= D_T_minus;
-    
-        auto const b_L = std::pow(k, 2) * tau;
-        auto const D_L = std::exp(-b_L*D);
-        this->_Z[i] *= D_L;
-    }
+    simd_api::diffusion(
+        delta_k, tau, D, k.data(),
+        this->_F.data(), this->_F_star.data(), this->_Z.data(),
+        this->_orders.size());
 }
 
 void
@@ -425,13 +346,10 @@ Discrete
     if(angle.magnitude != 0)
     {
         auto const rotations = operators::phase_accumulation(angle.magnitude);
-        
-        for(int order=0; order<this->_orders.size(); ++order)
-        {
-            this->_F[order] *= rotations.first;
-            this->_F_star[order] *= rotations.second;
-            // Z̃ states are unaffected
-        }
+        simd_api::off_resonance(
+            rotations,
+            this->_F.data(), this->_F_star.data(), this->_Z.data(),
+            this->_orders.size());
     }
 }
 

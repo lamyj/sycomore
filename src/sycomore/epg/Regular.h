@@ -110,10 +110,7 @@ public:
     double gradient_tolerance() const;
     
 private:
-    using Allocator = xsimd::aligned_allocator<Complex, 64>;
-    using Vector = std::vector<Complex, Allocator>;
-    
-    Vector _F, _F_star, _Z;
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F, _F_star, _Z;
     unsigned int _states_count;
     
     /// @brief Area of the unit gradient, in T/m.

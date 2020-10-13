@@ -5,7 +5,7 @@
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/epg/operators.h"
-#include "sycomore/epg/regular_api.h"
+#include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -77,7 +77,7 @@ void
 Regular
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    regular_api::apply_pulse(
+    simd_api::apply_pulse(
         operators::pulse(angle.magnitude, phase.magnitude), 
         this->_F.data(), this->_F_star.data(), this->_Z.data(), 
         this->_states_count);
@@ -204,7 +204,7 @@ Regular
         this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
         duration.magnitude);
     
-    regular_api::relaxation(
+    simd_api::relaxation(
         E,
         reinterpret_cast<Real*>(this->_F.data()),
         reinterpret_cast<Real*>(this->_F_star.data()),
@@ -238,7 +238,7 @@ Regular
     auto const & tau = duration.magnitude;
     auto const & D = species.get_D()[0].magnitude;
     
-    regular_api::diffusion(
+    simd_api::diffusion(
         delta_k, tau, D, k.data(),
         this->_F.data(), this->_F_star.data(), this->_Z.data(),
         this->_states_count);
@@ -254,7 +254,7 @@ Regular
     if(angle.magnitude != 0)
     {
         auto const rotations = operators::phase_accumulation(angle.magnitude);
-        regular_api::off_resonance(
+        simd_api::off_resonance(
             rotations,
             this->_F.data(), this->_F_star.data(), this->_Z.data(),
             this->_states_count);
@@ -282,7 +282,7 @@ Regular
         k[i] = delta_k*i;
     }
     
-    regular_api::bulk_motion(
+    simd_api::bulk_motion(
         delta_k, this->velocity.magnitude, duration.magnitude, k.data(),
         this->_F.data(), this->_F_star.data(), this->_Z.data(),
         this->_states_count);

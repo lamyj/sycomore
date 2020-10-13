@@ -2,6 +2,7 @@
 #define _d9169a5f_d53b_4440_bfc7_2b3f978b665d
 
 #include <vector>
+
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/magnetization.h"
@@ -110,12 +111,10 @@ public:
     Quantity const & bin_width() const;
 
 private:
-    std::vector<Complex, xsimd::aligned_allocator<Complex, XSIMD_DEFAULT_ALIGNMENT>> _F;
-    std::vector<Complex, xsimd::aligned_allocator<Complex, XSIMD_DEFAULT_ALIGNMENT>> _F_star;
-    std::vector<Complex, xsimd::aligned_allocator<Complex, XSIMD_DEFAULT_ALIGNMENT>> _Z;
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F, _F_star, _Z;
     
     Quantity _bin_width;
-    std::vector<long long, xsimd::aligned_allocator<long long, XSIMD_DEFAULT_ALIGNMENT>> _orders;
+    std::vector<long long, xsimd::aligned_allocator<long long, 64>> _orders;
 };
     
 }
