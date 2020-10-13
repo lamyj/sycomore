@@ -4,13 +4,14 @@
 
 #include <xsimd/xsimd.hpp>
 
-#include "sycomore/Array.h"
 #include "sycomore/epg/operators.h"
-#include "sycomore/Grid.h"
-#include "sycomore/GridScanner.h"
+#include "sycomore/epg/regular_api.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
+#include "sycomore/sycomore.h"
+#include "sycomore/sycomore_api.h"
+#include "sycomore/TimeInterval.h"
 #include "sycomore/units.h"
 
 namespace sycomore
@@ -26,7 +27,8 @@ Regular
     Quantity const & unit_gradient_area, double gradient_tolerance)
 : species(species),
     _F(initial_size, 0), _F_star(initial_size, 0), _Z(initial_size, 0),
-    _unit_gradient_area(unit_gradient_area), _gradient_tolerance(gradient_tolerance)
+    _unit_gradient_area(unit_gradient_area), 
+    _gradient_tolerance(gradient_tolerance)
 {
     auto const magnetization = as_complex_magnetization(initial_magnetization);
     this->_F[0] = std::sqrt(2)*magnetization.p;
@@ -71,46 +73,14 @@ Regular
     return this->_F[0];
 }
 
-using simd_type = xsimd::simd_type<Complex>;
-constexpr std::size_t const simd_width = simd_type::size;
-
 void
 Regular
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    auto const T = operators::pulse(angle.magnitude, phase.magnitude);
-    
-    std::size_t const simd_size = this->_states_count - this->_states_count % simd_width;
-    
-    for(std::size_t order = 0; order < simd_size; order += simd_width)
-    {
-        auto const F = xsimd::load_aligned(&this->_F[order]);
-        auto const F_star = xsimd::load_aligned(&this->_F_star[order]);
-        auto const Z = xsimd::load_aligned(&this->_Z[order]);
-    
-        auto const F_new =      T[3*0+0] * F + T[3*0+1] * F_star + T[3*0+2] * Z;
-        auto const F_star_new = T[3*1+0] * F + T[3*1+1] * F_star + T[3*1+2] * Z;
-        auto const Z_new =      T[3*2+0] * F + T[3*2+1] * F_star + T[3*2+2] * Z;
-    
-        xsimd::store_aligned(&this->_F[order], F_new);
-        xsimd::store_aligned(&this->_F_star[order], F_star_new);
-        xsimd::store_aligned(&this->_Z[order], Z_new);
-    }
-    
-    for(std::size_t order = simd_size; order < this->_states_count; ++order)
-    {
-        auto const & F = _F[order];
-        auto const & F_star = _F_star[order];
-        auto const & Z = _Z[order];
-    
-        auto const F_new =      T[3*0+0] * F + T[3*0+1] * F_star + T[3*0+2] * Z;
-        auto const F_star_new = T[3*1+0] * F + T[3*1+1] * F_star + T[3*1+2] * Z;
-        auto const Z_new =      T[3*2+0] * F + T[3*2+1] * F_star + T[3*2+2] * Z;
-    
-        this->_F[order] = F_new;
-        this->_F_star[order] = F_star_new;
-        this->_Z[order] = Z_new;
-    }
+    regular_api::apply_pulse(
+        operators::pulse(angle.magnitude, phase.magnitude), 
+        this->_F.data(), this->_F_star.data(), this->_Z.data(), 
+        this->_states_count);
 }
 
 void
@@ -140,7 +110,9 @@ Regular
     }
     if(
         duration.magnitude != 0 
-        && (this->delta_omega.magnitude != 0 || species.get_delta_omega().magnitude != 0))
+        && (
+            this->delta_omega.magnitude != 0 
+            || species.get_delta_omega().magnitude != 0))
     {
         this->off_resonance(duration);
     }
@@ -166,7 +138,8 @@ Regular
 ::shift(Quantity const & duration, Quantity const & gradient)
 {
     auto const area = duration*gradient;
-    auto const epsilon = this->_gradient_tolerance*this->_unit_gradient_area.magnitude;
+    auto const epsilon = 
+        this->_gradient_tolerance*this->_unit_gradient_area.magnitude;
     auto const remainder = std::remainder(
         area.magnitude, this->_unit_gradient_area.magnitude);
     
@@ -185,7 +158,9 @@ void
 Regular
 ::relaxation(Quantity const & duration)
 {
-    if(this->species.get_R1().magnitude == 0 && this->species.get_R2().magnitude == 0)
+    if(
+        this->species.get_R1().magnitude == 0 
+        && this->species.get_R2().magnitude == 0)
     {
         return;
     }
@@ -193,29 +168,13 @@ Regular
     auto const E = operators::relaxation(
         this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
         duration.magnitude);
-    // SIMD operations on Real data are faster than those on Complex data.
-    using simd_type = xsimd::simd_type<Real>;
-    constexpr std::size_t const simd_width = simd_type::size;
-    auto const size = 2*_states_count;
-    std::size_t const simd_size = size - size % simd_width;
     
-    auto F = reinterpret_cast<Real*>(this->_F.data());
-    auto F_star = reinterpret_cast<Real*>(this->_F_star.data());
-    auto Z = reinterpret_cast<Real*>(this->_Z.data());
-    
-    for(std::size_t i = 0; i < simd_size; i += simd_width)
-    {
-        xsimd::store_aligned(&F[i], xsimd::load_aligned(&F[i])*E.second);
-        xsimd::store_aligned(&F_star[i], xsimd::load_aligned(&F_star[i])*E.second);
-        xsimd::store_aligned(&Z[i], xsimd::load_aligned(&Z[i])*E.first);
-    }
-    
-    for(std::size_t i = simd_size; i < size; ++i)
-    {
-        F[i] *= E.second;
-        F_star[i] *= E.second;
-        Z[i] *= E.first;
-    }
+    regular_api::relaxation(
+        E,
+        reinterpret_cast<Real*>(this->_F.data()),
+        reinterpret_cast<Real*>(this->_F_star.data()),
+        reinterpret_cast<Real*>(this->_Z.data()),
+        this->_states_count);
     
     this->_Z[0] += 1.-E.first; // WARNING: assumes M0=1
 }
@@ -235,58 +194,19 @@ Regular
         return;
     }
     
-    // NOTE: the diffusion operator is real, but running it on the real 
-    // components of the complex data as for the relaxation operator requires
-    // computing the operator for each order twice and the tweak becomes slower
-    // than working directly on the complex data.
-    
-    std::vector<Real> k_array(this->_states_count);
-    for(std::size_t i=0; i<k_array.size(); ++i)
+    std::vector<Real> k(this->_states_count);
+    for(std::size_t i=0; i<k.size(); ++i)
     {
-        k_array[i] = delta_k*i;
+        k[i] = delta_k*i;
     }
     
     auto const & tau = duration.magnitude;
     auto const & D = species.get_D()[0].magnitude;
     
-    std::size_t const simd_size = this->_states_count - this->_states_count % simd_width;
-    // #pragma omp parallel for
-    for(std::size_t i = 0; i < simd_size; i += simd_width)
-    {
-        auto const k = xsimd::load_aligned(&k_array[i]);
-    
-        auto const F = xsimd::load_aligned(&this->_F[i]);
-        auto const b_T_plus = tau*(xsimd::pow(k+delta_k/2, 2) + std::pow(delta_k, 2) / 12);
-        auto const D_T_plus = xsimd::exp(-b_T_plus*D);
-        xsimd::store_aligned(&this->_F[i], F*D_T_plus);
-    
-        auto const F_star = xsimd::load_aligned(&this->_F_star[i]);
-        auto const b_T_minus = tau*(xsimd::pow(-k+delta_k/2, 2) + std::pow(delta_k, 2) / 12);
-        auto const D_T_minus = xsimd::exp(-b_T_minus*D);
-        xsimd::store_aligned(&this->_F_star[i], F_star*D_T_minus);
-    
-        auto const Z = xsimd::load_aligned(&this->_Z[i]);
-        auto const b_L = xsimd::pow(k, 2) * tau;
-        auto const D_L = xsimd::exp(-b_L*D);
-        xsimd::store_aligned(&this->_Z[i], Z*D_L);
-    }
-    
-    for(std::size_t i = simd_size; i < _states_count; ++i)
-    {
-        auto const & k = k_array[i];
-    
-        auto const b_T_plus = tau*(std::pow(k+delta_k/2, 2.) + std::pow(delta_k, 2.) / 12);
-        auto const D_T_plus = std::exp(-b_T_plus*D);
-        this->_F[i] *= D_T_plus;
-    
-        auto const b_T_minus = tau*(std::pow(-k+delta_k/2, 2.) + std::pow(delta_k, 2.) / 12);
-        auto const D_T_minus = std::exp(-b_T_minus*D);
-        this->_F_star[i] *= D_T_minus;
-    
-        auto const b_L = std::pow(k, 2) * tau;
-        auto const D_L = std::exp(-b_L*D);
-        this->_Z[i] *= D_L;
-    }
+    regular_api::diffusion(
+        delta_k, tau, D, k.data(),
+        this->_F.data(), this->_F_star.data(), this->_Z.data(),
+        this->_states_count);
 }
 
 void
@@ -299,13 +219,10 @@ Regular
     if(angle.magnitude != 0)
     {
         auto const rotations = operators::phase_accumulation(angle.magnitude);
-        
-        for(int order=0; order<this->_states_count; ++order)
-        {
-            this->_F[order] *= rotations.first;
-            this->_F_star[order] *= rotations.second;
-            // Z̃ states are unaffected
-        }
+        regular_api::off_resonance(
+            rotations,
+            this->_F.data(), this->_F_star.data(), this->_Z.data(),
+            this->_states_count);
     }
 }
 
@@ -324,16 +241,16 @@ Regular
         return;
     }
     
-    #pragma omp parallel for schedule(static)
-    for(int order=0; order<this->_states_count; ++order)
+    std::vector<Real> k(this->_states_count);
+    for(std::size_t i=0; i<k.size(); ++i)
     {
-        auto const k = order*delta_k;
-        auto const J = operators::bulk_motion(
-            this->velocity.magnitude, duration.magnitude, k, delta_k);
-        this->_F[order] *= std::get<0>(J);
-        this->_F_star[order] *= std::get<1>(J);
-        this->_Z[order] *= std::get<2>(J);
+        k[i] = delta_k*i;
     }
+    
+    regular_api::bulk_motion(
+        delta_k, this->velocity.magnitude, duration.magnitude, k.data(),
+        this->_F.data(), this->_F_star.data(), this->_Z.data(),
+        this->_states_count);
 }
 
 Quantity const &

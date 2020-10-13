@@ -2,6 +2,7 @@
 #define _fbf381fe_fd75_427e_88de_a033418c943c
 
 #include <vector>
+
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/magnetization.h"
@@ -108,11 +109,10 @@ public:
     double gradient_tolerance() const;
     
 private:
-    using Allocator = xsimd::aligned_allocator<Complex, XSIMD_DEFAULT_ALIGNMENT>;
+    using Allocator = xsimd::aligned_allocator<Complex, 64>;
+    using Vector = std::vector<Complex, Allocator>;
     
-    std::vector<Complex, Allocator> _F;
-    std::vector<Complex, Allocator> _F_star;
-    std::vector<Complex, Allocator> _Z;
+    Vector _F, _F_star, _Z;
     unsigned int _states_count;
     
     /// @brief Area of the unit gradient, in T/m.
