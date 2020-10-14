@@ -82,6 +82,51 @@ diffusion_d<0>(
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count);
 
 /*******************************************************************************
+ *                           3D diffusion operator                             *
+ ******************************************************************************/
+
+template<typename ValueType>
+void diffusion_3d_b_d(
+    Real * k_m, Real * k_n, Real delta_k_m, Real delta_k_n, 
+    Real delta_k_product_term, Real tau, Real D_mn,
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    std::size_t begin, std::size_t end, std::size_t step);
+
+template<int InstructionSet>
+void
+diffusion_3d_b_d(
+    Real * k_m, Real * k_n, Real delta_k_m, Real delta_k_n, 
+    Real delta_k_product_term, Real tau, Real D_mn,
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D,
+    unsigned int states_count);
+
+template<>
+void
+diffusion_3d_b_d<0>(
+    Real * k_m, Real * k_n, Real delta_k_m, Real delta_k_n, 
+    Real delta_k_product_term, Real tau, Real D_mn,
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D,
+    unsigned int states_count);
+
+template<typename RealType, typename ComplexType>
+void diffusion_3d_d(
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    Complex * F, Complex * F_star, Complex * Z,
+    std::size_t begin, std::size_t end, std::size_t step);
+
+template<int InstructionSet>
+void
+diffusion_3d_d(
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count);
+
+template<>
+void
+diffusion_3d_d<0>(
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count);
+
+/*******************************************************************************
  *                           Off-resonance operator                            *
  ******************************************************************************/
 
@@ -132,13 +177,10 @@ bulk_motion_d<0>(
 extern decltype(&apply_pulse_d<0>) apply_pulse;
 extern decltype(&relaxation_d<0>) relaxation;
 extern decltype(&diffusion_d<0>) diffusion;
+extern decltype(&diffusion_3d_b_d<0>) diffusion_3d_b;
+extern decltype(&diffusion_3d_d<0>) diffusion_3d;
 extern decltype(&off_resonance_d<0>) off_resonance;
 extern decltype(&bulk_motion_d<0>) bulk_motion;
-
-// TODO: move to .cpp, careful w/ pointer table
-// Also move specialization for InstructionSet==0
-// Rename to API?
-// If necessary, rename pointers to XXX_regular, XXX_discrete?
 
 void set_api(int instruction_set);
 

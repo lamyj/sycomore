@@ -147,6 +147,109 @@ diffusion_d(
 }
 
 /*******************************************************************************
+ *                           3D diffusion operator                             *
+ ******************************************************************************/
+
+template<typename RealType, typename ComplexType>
+void diffusion_3d_d(
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    Complex * F, Complex * F_star, Complex * Z,
+    std::size_t begin, std::size_t end, std::size_t step)
+{
+    for(int i=begin; i<end; i+=step)
+    {
+        ComplexType F_i; RealType b_T_plus_D_i;
+        sycomore::simd::load_aligned(F+i, F_i);
+        sycomore::simd::load_aligned(b_T_plus_D+i, b_T_plus_D_i);
+        sycomore::simd::store_aligned(F_i * simd::exp(-b_T_plus_D_i), F+i);
+        
+        ComplexType F_star_i; RealType b_T_minus_D_i;
+        sycomore::simd::load_aligned(F_star+i, F_star_i);
+        sycomore::simd::load_aligned(b_T_minus_D+i, b_T_minus_D_i);
+        sycomore::simd::store_aligned(
+            F_star_i * simd::exp(-b_T_minus_D_i), F_star+i);
+        
+        ComplexType Z_i; RealType b_L_D_i;
+        sycomore::simd::load_aligned(Z+i, Z_i);
+        sycomore::simd::load_aligned(b_L_D+i, b_L_D_i);
+        sycomore::simd::store_aligned(Z_i * simd::exp(-b_L_D_i), Z+i);
+    }
+}
+
+template<int InstructionSet>
+void
+diffusion_3d_d(
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+{    
+    using RealBatch = simd::Batch<Real, InstructionSet>;
+    using ComplexBatch = simd::Batch<Complex, InstructionSet>;
+    auto const simd_end = states_count - states_count % ComplexBatch::size;
+    
+    diffusion_3d_d<RealBatch, ComplexBatch>(
+        b_L_D, b_T_plus_D, b_T_minus_D, 
+        F, F_star, Z, 0, simd_end, ComplexBatch::size);
+    diffusion_3d_d<Real, Complex>(
+        b_L_D, b_T_plus_D, b_T_minus_D, 
+        F, F_star, Z, simd_end, states_count, 1);
+}
+
+template<typename ValueType>
+void diffusion_3d_b_d(
+    Real * k_m, Real * k_n, Real delta_k_m, Real delta_k_n, 
+    Real delta_k_product_term, Real tau, Real D_mn,
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    std::size_t begin, std::size_t end, std::size_t step)
+{
+    for(int i=begin; i<end; i+=step)
+    {
+        ValueType k_m_i, k_n_i;
+        sycomore::simd::load_aligned(k_m+i, k_m_i);
+        sycomore::simd::load_aligned(k_n+i, k_n_i);
+        
+        auto const b_L = k_m_i * k_n_i * tau;
+        ValueType b_L_D_i;
+        sycomore::simd::load_aligned(b_L_D+i, b_L_D_i);
+        sycomore::simd::store_aligned(b_L_D_i+b_L*D_mn, b_L_D+i);
+        
+        auto const b_T_plus = 
+            b_L + delta_k_product_term + 0.5 * tau * (
+                k_m_i*delta_k_n + k_n_i*delta_k_m);
+        ValueType b_T_plus_D_i;
+        sycomore::simd::load_aligned(b_T_plus_D+i, b_T_plus_D_i);
+        sycomore::simd::store_aligned(b_T_plus_D_i+b_T_plus*D_mn, b_T_plus_D+i);
+        
+        auto const b_T_minus = 
+            b_L + delta_k_product_term + 0.5 * tau * (
+                -k_m_i*delta_k_n + -k_n_i*delta_k_m);
+        ValueType b_T_minus_D_i;
+        sycomore::simd::load_aligned(b_T_minus_D+i, b_T_minus_D_i);
+        sycomore::simd::store_aligned(b_T_minus_D_i+b_T_minus*D_mn, b_T_minus_D+i);
+    }
+}
+
+template<int InstructionSet>
+void
+diffusion_3d_b_d(
+    Real * k_m, Real * k_n, Real delta_k_m, Real delta_k_n, 
+    Real delta_k_product_term, Real tau, Real D_mn,
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D,
+    unsigned int states_count)
+{
+    using Batch = simd::Batch<Real, InstructionSet>;
+    auto const simd_end = states_count - states_count % Batch::size;
+    
+    diffusion_3d_b_d<Batch>(
+        k_m, k_n, delta_k_m, delta_k_n, delta_k_product_term, tau, D_mn, 
+        b_L_D, b_T_plus_D, b_T_minus_D,
+        0, simd_end, Batch::size);
+    diffusion_3d_b_d<Real>(
+        k_m, k_n, delta_k_m, delta_k_n, delta_k_product_term, tau, D_mn, 
+        b_L_D, b_T_plus_D, b_T_minus_D,
+        simd_end, states_count, 1);
+}
+
+/*******************************************************************************
  *                           Off-resonance operator                            *
  ******************************************************************************/
 

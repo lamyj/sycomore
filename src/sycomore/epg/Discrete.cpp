@@ -103,9 +103,6 @@ Discrete
     return this->_F[0];
 }
 
-using simd_type = xsimd::simd_type<Complex>;
-constexpr std::size_t const simd_width = simd_type::size;
-
 void
 Discrete
 ::apply_pulse(Quantity angle, Quantity phase)

@@ -2,6 +2,7 @@
 #define _fcca9c67_7c2f_4a9d_abbb_718dc5fd0057
 
 #include <vector>
+
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/Array.h"
@@ -104,10 +105,10 @@ public:
 
 private:
     using Bin = Array<int64_t>;
-    std::vector<Bin::value_type, xsimd::aligned_allocator<Bin::value_type, XSIMD_DEFAULT_ALIGNMENT>> _orders;
-    std::vector<Complex, xsimd::aligned_allocator<Complex, XSIMD_DEFAULT_ALIGNMENT>> _F;
-    std::vector<Complex, xsimd::aligned_allocator<Complex, XSIMD_DEFAULT_ALIGNMENT>> _F_star;
-    std::vector<Complex, xsimd::aligned_allocator<Complex, XSIMD_DEFAULT_ALIGNMENT>> _Z;
+    std::vector<Bin::value_type, xsimd::aligned_allocator<Bin::value_type, 64>> _orders;
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F;
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F_star;
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _Z;
 
     std::size_t _zero_it;
     Quantity _bin_width;

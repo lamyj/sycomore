@@ -57,6 +57,34 @@ diffusion_d<0>(
 }
 
 /*******************************************************************************
+ *                           3D diffusion operator                             *
+ ******************************************************************************/
+
+template<>
+void
+diffusion_3d_b_d<0>(
+    Real * k_m, Real * k_n, Real delta_k_m, Real delta_k_n, 
+    Real delta_k_product_term, Real tau, Real D_mn,
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D,
+    unsigned int states_count)
+{
+    diffusion_3d_b_d<Real>(
+        k_m, k_n, delta_k_m, delta_k_n, delta_k_product_term, tau, D_mn, 
+        b_L_D, b_T_plus_D, b_T_minus_D,
+        0, states_count, 1);
+}
+
+template<>
+void
+diffusion_3d_d<0>(
+    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+{
+    diffusion_3d_d<Real, Complex>(
+        b_L_D, b_T_plus_D, b_T_minus_D, F, F_star, Z, 0, states_count, 1);
+}
+
+/*******************************************************************************
  *                           Off-resonance operator                            *
  ******************************************************************************/
 
@@ -90,6 +118,8 @@ bulk_motion_d<0>(
 decltype(&apply_pulse_d<0>) apply_pulse = nullptr;
 decltype(&relaxation_d<0>) relaxation = nullptr;
 decltype(&diffusion_d<0>) diffusion = nullptr;
+decltype(&diffusion_3d_b_d<0>) diffusion_3d_b = nullptr;
+decltype(&diffusion_3d_d<0>) diffusion_3d = nullptr;
 decltype(&off_resonance_d<0>) off_resonance = nullptr;
 decltype(&bulk_motion_d<0>) bulk_motion = nullptr;
 
@@ -98,6 +128,8 @@ void set_api(int instruction_set)
     SYCOMORE_SET_API_FUNCTION(apply_pulse)
     SYCOMORE_SET_API_FUNCTION(relaxation)
     SYCOMORE_SET_API_FUNCTION(diffusion)
+    SYCOMORE_SET_API_FUNCTION(diffusion_3d_b)
+    SYCOMORE_SET_API_FUNCTION(diffusion_3d)
     SYCOMORE_SET_API_FUNCTION(off_resonance)
     SYCOMORE_SET_API_FUNCTION(bulk_motion)
 }

@@ -11,6 +11,7 @@
 
 #include "sycomore/Array.h"
 #include "sycomore/epg/operators.h"
+#include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -121,46 +122,14 @@ Discrete3D
     return this->_F[this->_zero_it];
 }
 
-using simd_type = xsimd::simd_type<Complex>;
-constexpr std::size_t const simd_width = simd_type::size;
-
 void
 Discrete3D
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    auto const T = operators::pulse(angle.magnitude, phase.magnitude);
-    
-    std::size_t const simd_size = this->size() - this->size() % simd_width;
-    
-    for(std::size_t order = 0; order < simd_size; order += simd_width)
-    {
-        auto const F = xsimd::load_aligned(&this->_F[order]);
-        auto const F_star = xsimd::load_aligned(&this->_F_star[order]);
-        auto const Z = xsimd::load_aligned(&this->_Z[order]);
-    
-        auto const F_new =      T[3*0+0] * F + T[3*0+1] * F_star + T[3*0+2] * Z;
-        auto const F_star_new = T[3*1+0] * F + T[3*1+1] * F_star + T[3*1+2] * Z;
-        auto const Z_new =      T[3*2+0] * F + T[3*2+1] * F_star + T[3*2+2] * Z;
-    
-        xsimd::store_aligned(&this->_F[order], F_new);
-        xsimd::store_aligned(&this->_F_star[order], F_star_new);
-        xsimd::store_aligned(&this->_Z[order], Z_new);
-    }
-    
-    for(std::size_t order = simd_size; order < this->size(); ++order)
-    {
-        auto const & F = _F[order];
-        auto const & F_star = _F_star[order];
-        auto const & Z = _Z[order];
-    
-        auto const F_new =      T[3*0+0] * F + T[3*0+1] * F_star + T[3*0+2] * Z;
-        auto const F_star_new = T[3*1+0] * F + T[3*1+1] * F_star + T[3*1+2] * Z;
-        auto const Z_new =      T[3*2+0] * F + T[3*2+1] * F_star + T[3*2+2] * Z;
-    
-        this->_F[order] = F_new;
-        this->_F_star[order] = F_star_new;
-        this->_Z[order] = Z_new;
-    }
+    simd_api::apply_pulse(
+        operators::pulse(angle.magnitude, phase.magnitude), 
+        this->_F.data(), this->_F_star.data(), this->_Z.data(), 
+        this->_F.size());
 }
 
 void
@@ -455,28 +424,12 @@ Discrete3D
         this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
         duration.magnitude);
     
-    using simd_type = xsimd::simd_type<Real>;
-    constexpr std::size_t const simd_width = simd_type::size;
-    auto const size = 2*this->size();
-    std::size_t const simd_size = size - size % simd_width;
-    
-    auto F = reinterpret_cast<Real*>(this->_F.data());
-    auto F_star = reinterpret_cast<Real*>(this->_F_star.data());
-    auto Z = reinterpret_cast<Real*>(this->_Z.data());
-    
-    for(std::size_t i = 0; i < simd_size; i += simd_width)
-    {
-        xsimd::store_aligned(&F[i], xsimd::load_aligned(&F[i])*E.second);
-        xsimd::store_aligned(&F_star[i], xsimd::load_aligned(&F_star[i])*E.second);
-        xsimd::store_aligned(&Z[i], xsimd::load_aligned(&Z[i])*E.first);
-    }
-    
-    for(std::size_t i = simd_size; i < size; ++i)
-    {
-        F[i] *= E.second;
-        F_star[i] *= E.second;
-        Z[i] *= E.first;
-    }
+    simd_api::relaxation(
+        E,
+        reinterpret_cast<Real*>(this->_F.data()),
+        reinterpret_cast<Real*>(this->_F_star.data()),
+        reinterpret_cast<Real*>(this->_Z.data()),
+        this->_F.size());
     
     this->_Z[this->_zero_it] += 1.-E.first; // WARNING: assumes M0=1
 }
@@ -500,80 +453,52 @@ Discrete3D
     {
         return;
     }
-
+    
+    auto const tau = duration.convert_to(s);
+    auto const bin_width = this->_bin_width.convert_to(rad/m);
+    
+    using AlignedVector = std::vector<Real, xsimd::aligned_allocator<Real, 64>>;
+    
+    std::vector<AlignedVector> k(3);
+    k[0].resize(this->size());
+    k[1].resize(this->size());
+    k[2].resize(this->size());
+    for(std::size_t order=0; order<this->size(); ++order)
+    {
+        k[0][order] = this->_orders[3*order+0]*bin_width;
+        k[1][order] = this->_orders[3*order+1]*bin_width;
+        k[2][order] = this->_orders[3*order+2]*bin_width;
+    }
+    
     std::vector<Real> const delta_k{
         (sycomore::gamma*gradient[0]*duration).convert_to(rad/m),
         (sycomore::gamma*gradient[1]*duration).convert_to(rad/m),
         (sycomore::gamma*gradient[2]*duration).convert_to(rad/m)
     };
-
-    Real D[9];
-    for(std::size_t i=0; i<9; ++i)
+    
+    AlignedVector b_L_D(this->size(), 0.);
+    AlignedVector b_T_plus_D(this->size(), 0.);
+    AlignedVector b_T_minus_D(this->size(), 0.);
+    for(std::size_t m=0; m<3; ++m)
     {
-        D[i] = this->species.get_D()[i].magnitude;
+        for(std::size_t n=0; n<3; ++n)
+        {
+            auto const delta_k_product_term = 
+                1./3. * tau * delta_k[m] * delta_k[n];
+            
+            simd_api::diffusion_3d_b(
+                k[m].data(), k[n].data(), delta_k[m], delta_k[n], 
+                delta_k_product_term, tau, 
+                this->species.get_D()[3*m+n].convert_to(units::m*units::m/units::s), 
+                b_L_D.data(), b_T_plus_D.data(), b_T_minus_D.data(),
+                this->_F.size());
+        }
     }
-    auto const tau = duration.convert_to(s);
-    auto const bin_width = this->_bin_width.convert_to(rad/m);
-
-    // #pragma omp parallel for
-#ifdef _WIN32
-    // WARNING: only signed integer types in OpenMP loops on Windows
-    for(int order=0; order<this->size(); ++order)
-    {
-#else
-    for(std::size_t order=0; order<this->size(); ++order)
-    {
-#endif
-        // NOTE: this is not really k1, but rather k1/bin_width. However,
-        // not declaring a new variable to store k1 is much faster.
-        auto const k1=this->_orders.data()+3*order;
-
-        // Weigel 2010, eq. 26
-        Real b_L[9];
-        int i=0;
-        for(std::size_t m=0; m<3; ++m)
-        {
-            for(std::size_t n=0; n<3; ++n, ++i)
-            {
-                b_L[i] = (k1[m]*bin_width)*(k1[n]*bin_width)*tau;
-            }
-        }
-
-        // Weigel 2010, eq. 30. Use delta_k instead of k2-k1, and factorize tau.
-        Real b_T_plus[9];
-        Real b_T_minus[9];
-        i=0;
-        for(std::size_t m=0; m<3; ++m)
-        {
-            for(std::size_t n=0; n<3; ++n, ++i)
-            {
-                b_T_plus[i] =
-                    b_L[i] + tau * (
-                          1./2.*(k1[m]*bin_width)*delta_k[n]
-                        + 1./2.*(k1[n]*bin_width)*delta_k[m]
-                        + 1./3.*delta_k[m]*delta_k[n]);
-                b_T_minus[i] =
-                    b_L[i] + tau * (
-                          1./2.*(-k1[m]*bin_width)*delta_k[n]
-                        + 1./2.*(-k1[n]*bin_width)*delta_k[m]
-                        + 1./3.*delta_k[m]*delta_k[n]);
-            }
-        }
-
-        // NOTE eq. 32 and 33 in Weigel 2010 use the trace of a product of two
-        // matrices. This is equal to the sum of entry-wise product of elements.
-        Real b_T_plus_D=0, b_T_minus_D=0, b_L_D=0;
-        for(std::size_t i=0; i<9; ++i)
-        {
-            b_T_plus_D += b_T_plus[i]*D[i];
-            b_T_minus_D += b_T_minus[i]*D[i];
-            b_L_D += b_L[i]*D[i];
-        }
-
-        this->_F[order] *= exp(-b_T_plus_D);
-        this->_F_star[order] *= exp(-b_T_minus_D);
-        this->_Z[order] *= exp(-b_L_D);
-    }
+    
+    simd_api::diffusion_3d(
+        b_L_D.data(), b_T_plus_D.data(), b_T_minus_D.data(),
+        this->_F.data(), this->_F_star.data(), this->_Z.data(), 
+        this->_F.size());
 }
 
 void
@@ -586,13 +511,10 @@ Discrete3D
     if(angle.magnitude != 0)
     {
         auto const rotations = operators::phase_accumulation(angle.magnitude);
-        
-        for(int order=0; order<this->size(); ++order)
-        {
-            this->_F[order] *= rotations.first;
-            this->_F_star[order] *= rotations.second;
-            // Z̃ states are unaffected
-        }
+        simd_api::off_resonance(
+            rotations,
+            this->_F.data(), this->_F_star.data(), this->_Z.data(),
+            this->_F.size());
     }
 }
 
