@@ -216,12 +216,13 @@ Discrete3D
 ::shift(Quantity const & duration, Array<Quantity> const & gradient)
 {
     // WARNING: this does not work if delta_k is zero
-    auto const delta_k_q = sycomore::gamma*gradient*duration;
-    Bin delta_k(delta_k_q.size());
+    Bin delta_k(gradient.size());
     bool all_zero = true;
     for(std::size_t i=0; i<delta_k.size(); ++i)
     {
-        delta_k[i] = std::round((delta_k_q[i]/this->_bin_width));
+        delta_k[i] = std::round(
+            sycomore::gamma.magnitude*gradient[i].magnitude*duration.magnitude
+            / this->_bin_width.magnitude);
         if(delta_k[i] != 0)
         {
             all_zero = false;
@@ -258,7 +259,8 @@ Discrete3D
      * All orders are shifted by delta_k. For an arbitrary delta_k, this will
      * break the order of sorted vector, hence the non-sorted requirement above.
      *
-     * A map of the folded orders and the non-shifted Z-orders is then built.
+     * The unfolded F-orders/F-states and the non-shifted Z-order/Z-states are
+     * then inserted in new orders/states vectors.
      */
 
     // Unfold the F̃ states
@@ -301,84 +303,74 @@ Discrete3D
         }
     }
     
-    // Create the folded map for F and Z states, make sure the 0 state exists.
-    std::map<Bin, State> folded({{{0,0,0}, {0,0,0}}});
-    auto && F_orders_it = F_orders.begin();
-    auto && F_states_it = F_states.begin();
-    while(F_orders_it != F_orders.end())
+    // New orders, pre-filled with order 0. Cannot be modified in-place,
+    // we need the old orders when inserting the Z orders/states.
+    decltype(this->_orders) orders; 
+    orders.reserve(this->_orders.size());
+    orders.push_back(0); orders.push_back(0); orders.push_back(0);
+    // New F states, can be modified in-place.
+    this->_F.clear();
+    this->_F.push_back(0);
+    // Same for F* states.
+    this->_F_star.clear();
+    this->_F_star.push_back(0);
+    // New Z states. Cannot be modified in-place, cf. remark on old orders. 
+    decltype(this->_Z) Z; 
+    Z.reserve(this->_Z.size());
+    Z.push_back(0);
+    // Mapping between a normalized (i.e. folded) order and its location in the
+    // states vectors.
+    std::map<Bin, std::size_t> locations;
+    locations[{0,0,0}] = 0;
+    for(std::size_t i=0; i != F_states.size(); ++i)
     {
-        Bin order{*(F_orders_it+0), *(F_orders_it+1), *(F_orders_it+2)};
-        unsigned int location;
-        decltype(F_states)::value_type value;
-        if(order[0] >= 0)
-        {
-            // Right half-space: use as is
-            location = 0;
-            value = *F_states_it;
-        }
-        else
-        {
-            // Left half-space: use conjugate
-            order *= -1;
-            location = 1;
-            value = std::conj(*F_states_it);
-        }
-    
-        // Create empty value if needed
-        auto it = folded.emplace(std::move(order), State{0,0,0}).first;
-        it->second[location] = value;
-    
-        F_orders_it += 3;
-        ++F_states_it;
-    }
-    auto && Z_orders_it = this->_orders.begin();
-    auto && Z_states_it = this->_Z.begin();
-    while(Z_orders_it != this->_orders.end())
-    {
-        auto const & value = *Z_states_it;
-        if(value != 0.)
-        {
-            Bin const order(&*Z_orders_it, 3);
-            unsigned int const location = 2;
-            
-            // Create empty value if needed
-            auto it = folded.emplace(order, State{0,0,0}).first;
-            it->second[location] = value;
-        }
-    
-        Z_orders_it += 3;
-        ++Z_states_it;
-    }
-    
-    // std::cout << "Folded map\n";
-    // for(auto & item: folded)
-    // {
-    //     std::cout 
-    //         << item.first << ": "
-    //         << item.second[0] << " " << item.second[1] << " " << item.second[2] << "\n";
-    // }
-    // std::cout << "\n";
-    
-    this->_orders.resize(3*folded.size());
-    this->_F.resize(folded.size());
-    this->_F_star.resize(folded.size());
-    this->_Z.resize(folded.size());
-    auto orders_it = this->_orders.begin();
-    auto F_it = this->_F.begin();
-    auto F_star_it = this->_F_star.begin();
-    auto Z_it = this->_Z.begin();
-    for(auto && item: folded)
-    {
-        orders_it = std::copy(item.first.begin(), item.first.end(), orders_it);
-        *F_it = item.second[0];
-        *F_star_it = item.second[1];
-        *Z_it = item.second[2];
+        auto & value = F_states[i];
         
-        ++F_it;
-        ++F_star_it;
-        ++Z_it;
+        Bin order{F_orders[3*i+0], F_orders[3*i+1], F_orders[3*i+2]};
+        auto array = &this->_F;
+        if(order[0] < 0)
+        {
+            order *= -1;
+            value = std::conj(value);
+            array = &this->_F_star;
+        }
+        
+        auto locations_it = locations.find(order);
+        if(locations_it == locations.end())
+        {
+            this->_F.push_back(0);
+            this->_F_star.push_back(0);
+            Z.push_back(0);
+            std::copy(order.begin(), order.end(), std::back_inserter(orders));
+            locations_it = 
+                locations.emplace(std::move(order), this->_F.size()-1).first;
+        }
+        (*array)[locations_it->second] = value;
+    }
+    for(std::size_t i=0; i != this->size(); ++i)
+    {
+        auto const value = this->_Z[i];
+        if(value == 0.)
+        {
+            continue;
+        }
+        
+        Bin const order{this->_orders.data()+3*i, 3};
+        auto locations_it = locations.find(order);
+        if(locations_it == locations.end())
+        {
+            this->_F.push_back(0);
+            this->_F_star.push_back(0);
+            Z.push_back(0);
+            std::copy(order.begin(), order.end(), std::back_inserter(orders));
+            locations_it = locations.emplace(order, this->_F.size()-1).first;
+        }
+        Z[locations_it->second] = value;
     }
     
+    this->_orders = std::move(orders);
+    this->_Z = std::move(Z);
+
     // std::cout << "Folded Model\n";
     // for(int i=0; i<this->size(); ++i)
     // {
@@ -388,17 +380,10 @@ Discrete3D
     // }
     // std::cout << "\n";
 
-    // Update the iterator pointing to the echo magnetization.
-    for(std::size_t i=0; i<this->size(); ++i)
-    {
-        Bin const order(this->_orders.data()+3*i, 3);
-        if(order == Array<int64_t>{0,0,0})
-        {
-            this->_zero_it = i;
-            break;
-        }
-    }
-    // Update the conjugate magnetization of the echo magnetization
+    // Make sure the iterator pointing to the echo magnetization is at the 
+    // correct position, update the conjugate magnetization of the echo 
+    // magnetization.
+    this->_zero_it = 0;
     this->_F_star[this->_zero_it] = std::conj(this->_F[this->_zero_it]);
     
     // std::cout << "After shift\n";

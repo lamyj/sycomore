@@ -169,10 +169,10 @@ BOOST_AUTO_TEST_CASE(NegativeGradientY, *boost::unit_test::tolerance(1e-9))
     model.shift(10*ms, {0*mT/m, -2*mT/m, 0*mT/m});
 
     std::vector<sycomore::epg::Discrete3D::Order> const orders{
-        {0*rad/m, -5350*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 0*rad/m}};
+        {0*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, -5350*rad/m, 0*rad/m}};
     std::vector<sycomore::epg::Discrete3D::State> const states{
-        {{0.2857626571584661, -0.6732146319308543}, 0, 0}, 
-        {0, 0, 0.6819983600624985}};
+        {0, 0, 0.6819983600624985},
+        {{0.2857626571584661, -0.6732146319308543}, 0, 0}};
 
     test_model(model, orders, states);
     TEST_COMPLEX_EQUAL(model.echo(), 0);
@@ -187,10 +187,10 @@ BOOST_AUTO_TEST_CASE(NegativeGradientZ, *boost::unit_test::tolerance(1e-9))
     model.shift(10*ms, {0*mT/m, 0*mT/m, -2*mT/m});
 
     std::vector<sycomore::epg::Discrete3D::Order> const orders{
-        {0*rad/m, 0*rad/m, -5350*rad/m}, {0*rad/m, 0*rad/m, 0*rad/m}};
+        {0*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, -5350*rad/m}};
     std::vector<sycomore::epg::Discrete3D::State> const states{
-        {{0.2857626571584661, -0.6732146319308543}, 0, 0},
-        {0, 0, 0.6819983600624985}};
+        {0, 0, 0.6819983600624985},
+        {{0.2857626571584661, -0.6732146319308543}, 0, 0}};
 
     test_model(model, orders, states);
     TEST_COMPLEX_EQUAL(model.echo(), 0);
@@ -209,15 +209,15 @@ BOOST_AUTO_TEST_CASE(MultipleGradient, *boost::unit_test::tolerance(1e-9))
     std::vector<sycomore::epg::Discrete3D::Order> const orders{
         {0*rad/m, 0*rad/m, 0*rad/m},
         {2675*rad/m, -8026*rad/m, 8026*rad/m},
+        {8025*rad/m, -13376*rad/m, 13376*rad/m},
         {2675*rad/m, 2676*rad/m, -2676*rad/m},
-        {5350*rad/m, -5350*rad/m, 5350*rad/m},
-        {8025*rad/m, -13376*rad/m, 13376*rad/m}};
+        {5350*rad/m, -5350*rad/m, 5350*rad/m}};
     std::vector<sycomore::epg::Discrete3D::State> const states{
         {0, 0, 0.4651217631279373},
         {{0.19488966354917586, -0.45913127494692113}, 0, 0},
+        {{-0.045436496804645087, 0.10704167849196657}, 0, 0},
         {0, {0.240326160353821, 0.5661729534388877}, 0},
-        {0, 0, -0.26743911843603135},
-        {{-0.045436496804645087, 0.10704167849196657}, 0, 0}};
+        {0, 0, -0.26743911843603135}};
 
     test_model(model, orders, states);
     TEST_COMPLEX_EQUAL(model.echo(), 0);
