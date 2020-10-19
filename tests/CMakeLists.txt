@@ -1,6 +1,8 @@
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(xsimd REQUIRED)
 
-include_directories(${CMAKE_SOURCE_DIR}/src ${Boost_INCLUDE_DIRS})
+include_directories(
+    ${CMAKE_SOURCE_DIR}/src ${Boost_INCLUDE_DIRS} ${xsimd_INCLUDE_DIRS})
 
 if(BUILD_SHARED_LIBS)
     add_definitions(-D BOOST_ALL_DYN_LINK)
