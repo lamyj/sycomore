@@ -74,13 +74,16 @@ void relaxation_d(
 {
     for(std::size_t i=start; i<end; i+=step)
     {
-        ValueType F_i, F_star_i, Z_i;
+        ValueType F_i;
         sycomore::simd::load_aligned(F+i, F_i);
-        sycomore::simd::load_aligned(F_star+i, F_star_i);
-        sycomore::simd::load_aligned(Z+i, Z_i);
-        
         sycomore::simd::store_aligned(F_i*E.second, F+i);
+
+        ValueType F_star_i;
+        sycomore::simd::load_aligned(F_star+i, F_star_i);
         sycomore::simd::store_aligned(F_star_i*E.second, F_star+i);
+
+        ValueType Z_i;
+        sycomore::simd::load_aligned(Z+i, Z_i);
         sycomore::simd::store_aligned(Z_i*E.first, Z+i);
     }
 }
@@ -152,7 +155,7 @@ diffusion_d(
 
 template<typename RealType, typename ComplexType>
 void diffusion_3d_d(
-    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
     Complex * F, Complex * F_star, Complex * Z,
     std::size_t begin, std::size_t end, std::size_t step)
 {
@@ -179,7 +182,7 @@ void diffusion_3d_d(
 template<int InstructionSet>
 void
 diffusion_3d_d(
-    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {    
     using RealBatch = simd::Batch<Real, InstructionSet>;
@@ -196,7 +199,7 @@ diffusion_3d_d(
 
 template<typename ValueType>
 void diffusion_3d_b_d(
-    Real * k_m, Real * k_n, Real delta_k_m, Real delta_k_n, 
+    Real const * k_m, Real const * k_n, Real delta_k_m, Real delta_k_n, 
     Real delta_k_product_term, Real tau, Real D_mn,
     Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
     std::size_t begin, std::size_t end, std::size_t step)
@@ -231,7 +234,7 @@ void diffusion_3d_b_d(
 template<int InstructionSet>
 void
 diffusion_3d_b_d(
-    Real * k_m, Real * k_n, Real delta_k_m, Real delta_k_n, 
+    Real const * k_m, Real const * k_n, Real delta_k_m, Real delta_k_n, 
     Real delta_k_product_term, Real tau, Real D_mn,
     Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D,
     unsigned int states_count)

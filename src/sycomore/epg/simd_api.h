@@ -87,7 +87,7 @@ diffusion_d<0>(
 
 template<typename ValueType>
 void diffusion_3d_b_d(
-    Real * k_m, Real * k_n, Real delta_k_m, Real delta_k_n, 
+    Real const * k_m, Real const * k_n, Real delta_k_m, Real delta_k_n, 
     Real delta_k_product_term, Real tau, Real D_mn,
     Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
     std::size_t begin, std::size_t end, std::size_t step);
@@ -95,7 +95,7 @@ void diffusion_3d_b_d(
 template<int InstructionSet>
 void
 diffusion_3d_b_d(
-    Real * k_m, Real * k_n, Real delta_k_m, Real delta_k_n, 
+    Real const * k_m, Real const * k_n, Real delta_k_m, Real delta_k_n, 
     Real delta_k_product_term, Real tau, Real D_mn,
     Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D,
     unsigned int states_count);
@@ -103,27 +103,27 @@ diffusion_3d_b_d(
 template<>
 void
 diffusion_3d_b_d<0>(
-    Real * k_m, Real * k_n, Real delta_k_m, Real delta_k_n, 
+    Real const * k_m, Real const * k_n, Real delta_k_m, Real delta_k_n, 
     Real delta_k_product_term, Real tau, Real D_mn,
     Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D,
     unsigned int states_count);
 
 template<typename RealType, typename ComplexType>
 void diffusion_3d_d(
-    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
     Complex * F, Complex * F_star, Complex * Z,
     std::size_t begin, std::size_t end, std::size_t step);
 
 template<int InstructionSet>
 void
 diffusion_3d_d(
-    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count);
 
 template<>
 void
 diffusion_3d_d<0>(
-    Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
+    Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count);
 
 /*******************************************************************************
