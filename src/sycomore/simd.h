@@ -61,25 +61,29 @@ SYCOMORE_API std::vector<unsigned int> get_cpu_info(
 int get_instruction_set();
 
 template<typename T1, typename T2>
-void load_aligned(T1 const * source, T2 & destination)
+typename std::enable_if<xsimd::detail::is_simd_type<T2>::value, void>::type
+load_aligned(T1 const * source, T2 & destination)
 {
     destination.load_aligned(source);
 }
 
 template<typename T>
-void load_aligned(T const * source, T & destination)
+typename std::enable_if<!xsimd::detail::is_simd_type<T>::value, void>::type
+load_aligned(T const * source, T & destination)
 {
     destination = *source;
 }
 
 template<typename T1, typename T2>
-void store_aligned(T1 const & source, T2 * destination)
+typename std::enable_if<xsimd::detail::is_simd_type<T1>::value, void>::type
+store_aligned(T1 const & source, T2 * destination)
 {
     source.store_aligned(destination);
 }
 
 template<typename T>
-void store_aligned(T const & source, T * destination)
+typename std::enable_if<!xsimd::detail::is_simd_type<T>::value, void>::type
+store_aligned(T const & source, T * destination)
 {
     *destination = source;
 }
