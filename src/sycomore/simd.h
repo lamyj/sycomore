@@ -124,7 +124,7 @@ exp(T arg)
         name = &name##_d<0>; \
         if(instruction_set >= XSIMD_X86_SSE2_VERSION) \
         { \
-            foo = &name##_d<XSIMD_X86_SSE2_VERSION>; \
+            name = &name##_d<XSIMD_X86_SSE2_VERSION>; \
         }
 #elif XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX_VERSION && XSIMD_X86_INSTR_SET < XSIMD_X86_AVX512_VERSION
     #define SYCOMORE_SET_API_FUNCTION(name) \
