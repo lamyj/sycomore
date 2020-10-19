@@ -1,4 +1,5 @@
 find_package(PythonInterp REQUIRED)
+find_package(xsimd REQUIRED)
 if(USE_OPENMP)
     find_package(OpenMP)
     if(OPENMP_FOUND)
@@ -16,7 +17,7 @@ if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
     list(SORT source_files)
     list(SORT template_files)
 
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${xsimd_INCLUDE_DIRS})
     
     if(WIN32)
         add_definitions(-DBUILDING_SYCOMORE)
