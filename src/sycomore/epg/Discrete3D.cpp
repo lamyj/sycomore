@@ -75,8 +75,6 @@ Discrete3D
         throw std::runtime_error(message.str());
     }
 
-    using namespace sycomore::units;
-
     Bin bin{
         static_cast<int64_t>(order[0]/this->_bin_width),
         static_cast<int64_t>(order[1]/this->_bin_width),
@@ -204,6 +202,30 @@ Discrete3D
         interval.get_duration(), interval.get_gradient_amplitude(), 0);
 }
 
+/**
+ * @brief Return the location of given order in the states vectors, create it 
+ * if missing.
+ */
+std::size_t get_location(
+    std::map<std::array<int64_t, 3>, std::size_t> & locations,
+    std::vector<int64_t, xsimd::aligned_allocator<int64_t, 64>> & orders,
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> & F,
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> & F_star,
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> & Z,
+    std::array<int64_t, 3> const & order) 
+{
+    auto iterator = locations.find(order);
+    if(iterator == locations.end())
+    {
+        F.push_back(0.);
+        F_star.push_back(0.);
+        Z.push_back(0.);
+        std::copy(order.begin(), order.end(), std::back_inserter(orders));
+        iterator = locations.emplace(order, F.size()-1).first;
+    }
+    return iterator->second;
+}
+
 void
 Discrete3D
 ::shift(Quantity const & duration, Array<Quantity> const & gradient)
@@ -231,38 +253,21 @@ Discrete3D
     // Same for F states.
     decltype(this->_F) F;
     F.reserve(this->_F.size());
-    F.push_back(0);
+    F.push_back(0.);
     // Same for F* states.
     decltype(this->_F_star) F_star;
     F_star.reserve(this->_F_star.size());
-    F_star.push_back(0);
+    F_star.push_back(0.);
     // Same for Z states.
     decltype(this->_Z) Z; 
     Z.reserve(this->_Z.size());
-    Z.push_back(0);
+    Z.push_back(0.);
     
     // Mapping between a normalized (i.e. folded) order and its location in the
     // states vectors.
     // NOTE: unordered_map is slower than map here, even with a simple hash.
     std::map<Bin, std::size_t> locations;
     locations[{0,0,0}] = 0;
-    // Return the location of given order in the states vectors, create it if 
-    // missing.
-    auto const get_location = [&](Bin const & order) {
-        auto iterator = locations.lower_bound(order);
-        if(iterator != locations.end() && iterator->first == order)
-        {
-            return iterator->second;
-        }
-        else
-        {
-            F.push_back(0);
-            F_star.push_back(0);
-            Z.push_back(0);
-            std::copy(order.begin(), order.end(), std::back_inserter(orders));
-            return locations.emplace_hint(iterator, order, F.size()-1)->second;
-        }
-    };
     
     for(std::size_t i=0; i<this->size(); ++i)
     {
@@ -270,7 +275,9 @@ Discrete3D
             this->_orders[3*i+0], this->_orders[3*i+1], this->_orders[3*i+2]};
         if(this->_Z[i] != 0.)
         {
-            Z[get_location(k)] = this->_Z[i];
+            auto const location = get_location(
+                locations, orders, F, F_star, Z, k);
+            Z[location] = this->_Z[i];
         }
         
         if(this->_F[i] != 0.)
@@ -289,7 +296,9 @@ Discrete3D
                 destination = &F_star;
                 value = std::conj(value);
             }
-            (*destination)[get_location(k_F)] = value;
+            auto const location = get_location(
+                locations, orders, F, F_star, Z, k_F);
+            (*destination)[location] = value;
         }
         
         // WARNING: F* state at echo is a duplicate of F state.
@@ -309,7 +318,9 @@ Discrete3D
                 destination = &F;
                 value = std::conj(value);
             }
-            (*destination)[get_location(k_F_star)] = value;
+            auto const location = get_location(
+                locations, orders, F, F_star, Z, k_F_star);
+            (*destination)[location] = value;
         }
     }
     
@@ -357,8 +368,6 @@ void
 Discrete3D
 ::diffusion(Quantity const & duration, Array<Quantity> const & gradient)
 {
-    using namespace sycomore::units;
-
     bool all_zero=true;
     for(std::size_t i=0; i<9; ++i)
     {
