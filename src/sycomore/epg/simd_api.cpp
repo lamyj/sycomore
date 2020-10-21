@@ -107,7 +107,7 @@ bulk_motion_d<0>(
     Real delta_k, Real v, Real tau, Real const * k,
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {
-    diffusion_d<Real, Complex>(
+    bulk_motion_d<Real, Complex>(
         delta_k, v, tau, k, F, F_star, Z, 0, states_count, 1);
 }
 

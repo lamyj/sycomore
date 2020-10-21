@@ -116,6 +116,20 @@ exp(T arg)
     return std::exp(arg);
 }
 
+template<typename T>
+typename std::enable_if<xsimd::detail::is_simd_type<T>::value, T>::type
+conj(T const & arg)
+{
+    return xsimd::conj(arg);
+}
+
+template<typename T>
+typename std::enable_if<!xsimd::detail::is_simd_type<T>::value, T>::type
+conj(T arg)
+{
+    return std::conj(arg);
+}
+
 }
 
 }

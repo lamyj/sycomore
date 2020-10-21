@@ -330,9 +330,9 @@ bulk_motion_d(
     using ComplexBatch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % ComplexBatch::size;
     
-    diffusion_d<RealBatch, ComplexBatch>(
+    bulk_motion_d<RealBatch, ComplexBatch>(
         delta_k, v, tau, k, F, F_star, Z, 0, simd_end, ComplexBatch::size);
-    diffusion_d<Real, Complex>(
+    bulk_motion_d<Real, Complex>(
         delta_k, v, tau, k, F, F_star, Z, simd_end, states_count, 1);
 }
 

@@ -44,7 +44,8 @@ template<typename TReal, typename TComplex>
 std::tuple<TComplex, TComplex, TComplex>
 bulk_motion(Real v, Real duration, TReal const & k, Real delta_k)
 {
-    constexpr Complex const i{0,1};
+    // NOTE: the following form matches both batch and non-batch complex.
+    static TComplex const i{Complex{0., 1.}};
     
     auto const v_tau = v*duration;
     
@@ -59,7 +60,7 @@ bulk_motion(Real v, Real duration, TReal const & k, Real delta_k)
     auto const J_T = sycomore::simd::exp(i * (k+delta_k/2) * v_tau);
     auto const J_L = sycomore::simd::exp(i * k * v_tau);
     
-    return std::make_tuple(J_T, std::conj(J_T), J_L);
+    return std::make_tuple(J_T, sycomore::simd::conj(J_T), J_L);
 }
 
 }

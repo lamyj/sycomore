@@ -367,16 +367,16 @@ Discrete
         return;
     }
     
-    #pragma omp parallel for schedule(static)
-    for(int order=0; order<this->size(); ++order)
+    std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(this->size());
+    for(std::size_t i=0; i<k.size(); ++i)
     {
-        auto const k = this->_orders[order] * this->_bin_width.magnitude;
-        auto const J = operators::bulk_motion(
-            this->velocity.magnitude, duration.magnitude, k, delta_k);
-        this->_F[order] *= std::get<0>(J);
-        this->_F_star[order] *= std::get<1>(J);
-        this->_Z[order] *= std::get<2>(J);
+        k[i] = this->_orders[i] * this->_bin_width.magnitude;
     }
+    
+    simd_api::bulk_motion(
+        delta_k, this->velocity.magnitude, duration.magnitude, k.data(),
+        this->_F.data(), this->_F_star.data(), this->_Z.data(),
+        this->size());
 }
 
 Quantity const & 
