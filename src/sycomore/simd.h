@@ -120,42 +120,19 @@ exp(T arg)
 
 }
 
-#if XSIMD_X86_INSTR_SET < XSIMD_X86_SSE2_VERSION
-    #define SYCOMORE_SET_API_FUNCTION(name) \
-        name = &name##_d<0>;
-#elif XSIMD_X86_INSTR_SET >= XSIMD_X86_SSE2_VERSION && XSIMD_X86_INSTR_SET < XSIMD_X86_AVX_VERSION
-    #define SYCOMORE_SET_API_FUNCTION(name) \
-        name = &name##_d<0>; \
-        if(instruction_set >= XSIMD_X86_SSE2_VERSION) \
-        { \
-            name = &name##_d<XSIMD_X86_SSE2_VERSION>; \
-        }
-#elif XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX_VERSION && XSIMD_X86_INSTR_SET < XSIMD_X86_AVX512_VERSION
-    #define SYCOMORE_SET_API_FUNCTION(name) \
-        name = &name##_d<0>; \
-        if(instruction_set >= XSIMD_X86_SSE2_VERSION) \
-        { \
-            name = &name##_d<XSIMD_X86_SSE2_VERSION>; \
-        } \
-        if(instruction_set >= XSIMD_X86_AVX_VERSION) \
-        { \
-            name = &name##_d<XSIMD_X86_AVX_VERSION>; \
-        }
-#elif XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX512_VERSION
-    #define SYCOMORE_SET_API_FUNCTION(name) \
-        name = &name##_d<0>; \
-        if(instruction_set >= XSIMD_X86_SSE2_VERSION) \
-        { \
-            name = &name##_d<XSIMD_X86_SSE2_VERSION>; \
-        } \
-        if(instruction_set >= XSIMD_X86_AVX_VERSION) \
-        { \
-            name = &name##_d<XSIMD_X86_AVX_VERSION>; \
-        } \
-        if(instruction_set >= XSIMD_X86_AVX512_VERSION) \
-        { \
-            name = &name##_d<XSIMD_X86_AVX512_VERSION>; \
-        }
-#endif
+#define SYCOMORE_SET_API_FUNCTION(name) \
+    name = &name##_d<0>; \
+    if(instruction_set >= XSIMD_X86_SSE2_VERSION) \
+    { \
+        name = &name##_d<XSIMD_X86_SSE2_VERSION>; \
+    } \
+    if(instruction_set >= XSIMD_X86_AVX_VERSION) \
+    { \
+        name = &name##_d<XSIMD_X86_AVX_VERSION>; \
+    } \
+    if(instruction_set >= XSIMD_X86_AVX512_VERSION) \
+    { \
+        name = &name##_d<XSIMD_X86_AVX512_VERSION>; \
+    }
 
 #endif // _aec30e56_9250_476a_8b0d_0981a035c57b

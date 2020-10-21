@@ -17,3 +17,9 @@ apt-get -y --no-install-recommends install \
     cmake g++ libboost-dev make ninja-build \
     pybind11-dev python3-pybind11 python3-dev \
     libboost-test-dev python3-numpy
+
+wget -q -O /dev/stdout https://github.com/xtensor-stack/xsimd/archive/7.4.8.tar.gz | tar -x -z -f -
+cd xsimd-7.4.8
+cmake -DCMAKE_INSTALL_PREFIX=../vendor/xsimd .
+cmake --build . --target install
+cd ../

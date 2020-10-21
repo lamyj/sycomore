@@ -16,7 +16,24 @@ if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
     list(SORT header_files)
     list(SORT source_files)
     list(SORT template_files)
-
+    
+    set_source_files_properties(
+        sycomore/epg/simd_api_sse2.cpp PROPERTIES COMPILE_FLAGS "-msse2")
+    set_source_files_properties(
+        sycomore/epg/simd_api_avx.cpp PROPERTIES COMPILE_FLAGS "-mavx")
+    
+    # gcc -march=skylake-avx512 -Q --help=target | grep avx512 | grep enabled
+    # This is the earliest architecture to support AVX512
+    set(AVX512_FLAGS "-mavx512bw -mavx512cd -mavx512dq -mavx512f -mavx512vl")
+    if(APPLE AND "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+        # Pretend we are GCC >= 6 so that xsimd enables AVX512
+        # cf. https://github.com/xtensor-stack/xsimd/blob/7.4.9/include/xsimd/config/xsimd_instruction_set.hpp#L109
+        set(AVX512_FLAGS "${AVX512_FLAGS} -U__GNUC__ -D__GNUC__=6")
+    endif()
+    set_source_files_properties(
+        sycomore/epg/simd_api_avx512.cpp PROPERTIES 
+        COMPILE_FLAGS "${AVX512_FLAGS}")
+    
     include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${xsimd_INCLUDE_DIRS})
     
     if(WIN32)
