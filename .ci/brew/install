@@ -29,3 +29,9 @@ done
 
 NUMPY=$(${PYTHON} -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
 ${PYTHON} -m pip install -U ${NUMPY}
+
+wget -q -O /dev/stdout https://github.com/xtensor-stack/xsimd/archive/7.4.8.tar.gz | tar -x -z -f -
+cd xsimd-7.4.8
+cmake -DCMAKE_INSTALL_PREFIX=../vendor/xsimd .
+cmake --build . --target install
+cd ../
