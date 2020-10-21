@@ -23,6 +23,8 @@ if(USE_OPENMP AND BUILD_STANDALONE_PYTHON_WRAPPERS)
     set(USE_OPENMP OFF CACHE BOOL "Compile with OpenMP support." FORCE)
 endif()
 
+set(CMAKE_INSTALL_MESSAGE LAZY)
+
 include(CTest)
 
 # Add the C++0x or C++11 flag

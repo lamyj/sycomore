@@ -12,6 +12,7 @@ mkdir -p ${INSTALL_DIR}
 cd ${BUILD_DIR}
 
 OpenMP_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/include"
+export CMAKE_PREFIX_PATH=${WORKSPACE}/vendor/xsimd
 
 cmake \
   -G Ninja \

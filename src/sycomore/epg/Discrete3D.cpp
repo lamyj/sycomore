@@ -1,6 +1,7 @@
 #include "Discrete3D.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -11,6 +12,7 @@
 
 #include "sycomore/Array.h"
 #include "sycomore/epg/operators.h"
+#include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -35,14 +37,13 @@ Discrete3D
     this->_F[0] = std::sqrt(2)*M.p;
     this->_F_star[0] = std::sqrt(2)*M.m;
     this->_Z[0] = M.z;
-    this->_zero_it = 0;
 }
 
 std::size_t
 Discrete3D
 ::size() const
 {
-    return this->_orders.size() / 3;
+    return this->_F.size();
 }
 
 std::vector<Quantity>
@@ -74,13 +75,10 @@ Discrete3D
         throw std::runtime_error(message.str());
     }
 
-    using namespace sycomore::units;
-
-    Bin bin(order.size());
-    for(std::size_t i=0; i<bin.size(); ++i)
-    {
-        bin[i] = order[i]/this->_bin_width;
-    }
+    Bin bin{
+        static_cast<int64_t>(order[0]/this->_bin_width),
+        static_cast<int64_t>(order[1]/this->_bin_width),
+        static_cast<int64_t>(order[2]/this->_bin_width) };
     auto it=this->_orders.begin();
     for(; it!=this->_orders.end(); it+=3)
     {
@@ -118,29 +116,17 @@ Complex const &
 Discrete3D
 ::echo() const
 {
-    return this->_F[this->_zero_it];
+    return this->_F[0];
 }
 
 void
 Discrete3D
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    auto const T = operators::pulse(angle.magnitude, phase.magnitude);
-
-    for(std::size_t order = 0; order < this->size(); ++order)
-    {
-        auto const & F = this->_F[order];
-        auto const & F_star = this->_F_star[order];
-        auto const & Z = this->_Z[order];
-    
-        auto const F_new =      T[3*0+0] * F + T[3*0+1] * F_star + T[3*0+2] * Z;
-        auto const F_star_new = T[3*1+0] * F + T[3*1+1] * F_star + T[3*1+2] * Z;
-        auto const Z_new =      T[3*2+0] * F + T[3*2+1] * F_star + T[3*2+2] * Z;
-    
-        this->_F[order] = F_new;
-        this->_F_star[order] = F_star_new;
-        this->_Z[order] = Z_new;
-    }
+    simd_api::apply_pulse(
+        operators::pulse(angle.magnitude, phase.magnitude), 
+        this->_F.data(), this->_F_star.data(), this->_Z.data(), 
+        this->_F.size());
 }
 
 void
@@ -181,15 +167,18 @@ Discrete3D
 
         for(std::size_t index=0; index<this->size(); ++index)
         {
-            Bin const order(this->_orders.data()+3*index, 3);
-            
             auto const magnitude_squared =
                 std::pow(std::abs(this->_F[index]), 2)
                 +std::pow(std::abs(this->_F_star[index]), 2)
                 +std::pow(std::abs(this->_Z[index]), 2);
-            if(magnitude_squared >= threshold_squared)
+            // Always include the zero order, include other order if population
+            // is above threshold.
+            if(index == 0 || magnitude_squared >= threshold_squared)
             {
-                std::copy(order.begin(), order.end(), std::back_inserter(orders));
+                std::copy(
+                    this->_orders.data()+3*index, 
+                    this->_orders.data()+3*(1+index), 
+                    std::back_inserter(orders));
                 F.push_back(this->_F[index]);
                 F_star.push_back(this->_F_star[index]);
                 Z.push_back(this->_Z[index]);
@@ -201,16 +190,7 @@ Discrete3D
         this->_F_star = std::move(F_star);
         this->_Z = std::move(Z);
         
-        // Update the iterator pointing to the echo magnetization.
-        for(std::size_t i=0; i<this->size(); ++i)
-        {
-            Bin const order(this->_orders.data()+3*i, 3);
-            if(order == Array<int64_t>{0,0,0})
-            {
-                this->_zero_it = i;
-                break;
-            }
-        }
+        // No need to update the iterator pointing to the echo magnetization.
     }
 }
 
@@ -222,204 +202,143 @@ Discrete3D
         interval.get_duration(), interval.get_gradient_amplitude(), 0);
 }
 
+/**
+ * @brief Return the location of given order in the states vectors, create it 
+ * if missing.
+ */
+std::size_t get_location(
+    std::map<std::array<int64_t, 3>, std::size_t> & locations,
+    std::vector<int64_t, xsimd::aligned_allocator<int64_t, 64>> & orders,
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> & F,
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> & F_star,
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> & Z,
+    std::array<int64_t, 3> const & order) 
+{
+    auto iterator = locations.find(order);
+    if(iterator == locations.end())
+    {
+        F.push_back(0.);
+        F_star.push_back(0.);
+        Z.push_back(0.);
+        std::copy(order.begin(), order.end(), std::back_inserter(orders));
+        iterator = locations.emplace(order, F.size()-1).first;
+    }
+    return iterator->second;
+}
+
 void
 Discrete3D
 ::shift(Quantity const & duration, Array<Quantity> const & gradient)
 {
-    // WARNING: this does not work if delta_k is zero
-    auto const delta_k_q = sycomore::gamma*gradient*duration;
-    Bin delta_k(delta_k_q.size());
-    bool all_zero = true;
-    for(std::size_t i=0; i<delta_k.size(); ++i)
-    {
-        delta_k[i] = std::round((delta_k_q[i]/this->_bin_width));
-        if(delta_k[i] != 0)
-        {
-            all_zero = false;
-        }
-    }
-    if(all_zero)
+    // Compute dephasing and return early if it is null.
+    Bin const delta_k {
+        static_cast<int64_t>(std::round(
+            sycomore::gamma.magnitude*gradient[0].magnitude*duration.magnitude
+            / this->_bin_width.magnitude)),
+        static_cast<int64_t>(std::round(
+            sycomore::gamma.magnitude*gradient[1].magnitude*duration.magnitude
+            / this->_bin_width.magnitude)),
+        static_cast<int64_t>(std::round(
+            sycomore::gamma.magnitude*gradient[2].magnitude*duration.magnitude
+            / this->_bin_width.magnitude))};
+    if(delta_k[0] == 0 && delta_k[1] == 0 && delta_k[2] == 0)
     {
         return;
     }
     
-    // std::cout << "Before shift\n";
-    // for(int i=0; i<this->size(); ++i)
-    // {
-    //     std::cout 
-    //         << this->_orders[3*i] << " " << this->_orders[3*i+1] << " " << this->_orders[3*i+2] << ": " 
-    //         << this->_F[i] << " " << this->_F_star[i] << " " << this->_Z[i] << "\n"; 
-    // }
-    // std::cout << "\n";
+    // New (i.e. shifted) orders. Make sure k=0 is in the first position.
+    decltype(this->_orders) orders; 
+    orders.reserve(this->_orders.size());
+    orders.push_back(0); orders.push_back(0); orders.push_back(0);
+    // Same for F states.
+    decltype(this->_F) F;
+    F.reserve(this->_F.size());
+    F.push_back(0.);
+    // Same for F* states.
+    decltype(this->_F_star) F_star;
+    F_star.reserve(this->_F_star.size());
+    F_star.push_back(0.);
+    // Same for Z states.
+    decltype(this->_Z) Z; 
+    Z.reserve(this->_Z.size());
+    Z.push_back(0.);
     
-    /*
-     * The shift operator is the only operator which will create new orders, and
-     * which will move population from one state to another. Other operators 
-     * only change the population of each state independently. The shift 
-     * operator must then maintain the relative order of the states. Any order
-     * can be used, as long as F states (stored as a conjugate pair) can be
-     * unfolded and re-folded while keeping the order. In this implementation,
-     * we use the lexicographic order (F_x < F_y < F_z), and the orders vector
-     * will only contain orders in the upper quadrant (F_x <= F_y <= F_z).
-     * 
-     * The shift operator starts by unfolding the conjugate pairs of F, the 
-     * same operation is applied to the vector of orders. These two unfolded 
-     * vectors needs not be sorted.
-     *
-     * All orders are shifted by delta_k. For an arbitrary delta_k, this will
-     * break the order of sorted vector, hence the non-sorted requirement above.
-     *
-     * A map of the folded orders and the non-shifted Z-orders is then built.
-     */
-
-    // Unfold the F̃ states
-    decltype(this->_orders) F_orders; F_orders.reserve((2*this->size())*3);
-    decltype(this->_F) F_states; F_states.reserve(2*this->size());
+    // Mapping between a normalized (i.e. folded) order and its location in the
+    // states vectors.
+    // NOTE: unordered_map is slower than map here, even with a simple hash.
+    std::map<Bin, std::size_t> locations;
+    locations[{0,0,0}] = 0;
+    
     for(std::size_t i=0; i<this->size(); ++i)
     {
+        Bin const k{
+            this->_orders[3*i+0], this->_orders[3*i+1], this->_orders[3*i+2]};
+        if(this->_Z[i] != 0.)
+        {
+            auto const location = get_location(
+                locations, orders, F, F_star, Z, k);
+            Z[location] = this->_Z[i];
+        }
+        
         if(this->_F[i] != 0.)
         {
-            F_orders.push_back(this->_orders[3*i+0]);
-            F_orders.push_back(this->_orders[3*i+1]);
-            F_orders.push_back(this->_orders[3*i+2]);
-            F_states.push_back(this->_F[i]);
-        }
-        
-        if(i != this->_zero_it && this->_F_star[i] != 0.)
-        {
-            F_orders.push_back(-this->_orders[3*i+0]);
-            F_orders.push_back(-this->_orders[3*i+1]);
-            F_orders.push_back(-this->_orders[3*i+2]);
-            F_states.push_back(std::conj(this->_F_star[i]));
-        }
-    }
-    
-    // std::cout << "Unfolded\n";
-    // for(int i=0; i<F_states.size(); ++i)
-    // {
-    //     std::cout 
-    //         << F_orders[3*i] << " " << F_orders[3*i+1] << " " << F_orders[3*i+2] << ": " 
-    //         << F_states[i] << "\n"; 
-    // }
-    // std::cout << "\n";
-    
-    // Shift according to Δk
-    for(std::size_t i=0; i<F_states.size(); ++i)
-    {
-        for(std::size_t j=0; j<3; ++j)
-        {
-            F_orders[3*i+j] += delta_k[j];
-        }
-    }
-    
-    // Create the folded map for F and Z states, make sure the 0 state exists.
-    std::map<Bin, State> folded({{{0,0,0}, {0,0,0}}});
-    auto && F_orders_it = F_orders.begin();
-    auto && F_states_it = F_states.begin();
-    while(F_orders_it != F_orders.end())
-    {
-        Bin order{*(F_orders_it+0), *(F_orders_it+1), *(F_orders_it+2)};
-        unsigned int location;
-        decltype(F_states)::value_type value;
-        if(order[0] >= 0)
-        {
-            // Right half-space: use as is
-            location = 0;
-            value = *F_states_it;
-        }
-        else
-        {
-            // Left half-space: use conjugate
-            order *= -1;
-            location = 1;
-            value = std::conj(*F_states_it);
-        }
-    
-        // Create empty value if needed
-        auto it = folded.emplace(std::move(order), State{0,0,0}).first;
-        it->second[location] = value;
-    
-        F_orders_it += 3;
-        ++F_states_it;
-    }
-    auto && Z_orders_it = this->_orders.begin();
-    auto && Z_states_it = this->_Z.begin();
-    while(Z_orders_it != this->_orders.end())
-    {
-        auto const & value = *Z_states_it;
-        if(value != 0.)
-        {
-            Bin const order(&*Z_orders_it, 3);
-            unsigned int const location = 2;
+            Bin k_F{k[0]+delta_k[0], k[1]+delta_k[1], k[2]+delta_k[2]};
             
-            // Create empty value if needed
-            auto it = folded.emplace(order, State{0,0,0}).first;
-            it->second[location] = value;
+            // Depending on whether the new order changed half space, conjugate
+            // the state and store it in F* instead of F.
+            auto destination = &F;
+            auto & value = this->_F[i];
+            if(k_F[0] < 0)
+            {
+                k_F[0] *= -1;
+                k_F[1] *= -1;
+                k_F[2] *= -1;
+                destination = &F_star;
+                value = std::conj(value);
+            }
+            auto const location = get_location(
+                locations, orders, F, F_star, Z, k_F);
+            (*destination)[location] = value;
         }
-    
-        Z_orders_it += 3;
-        ++Z_states_it;
-    }
-    
-    // std::cout << "Folded map\n";
-    // for(auto & item: folded)
-    // {
-    //     std::cout 
-    //         << item.first << ": "
-    //         << item.second[0] << " " << item.second[1] << " " << item.second[2] << "\n";
-    // }
-    // std::cout << "\n";
-    
-    this->_orders.resize(3*folded.size());
-    this->_F.resize(folded.size());
-    this->_F_star.resize(folded.size());
-    this->_Z.resize(folded.size());
-    auto orders_it = this->_orders.begin();
-    auto F_it = this->_F.begin();
-    auto F_star_it = this->_F_star.begin();
-    auto Z_it = this->_Z.begin();
-    for(auto && item: folded)
-    {
-        orders_it = std::copy(item.first.begin(), item.first.end(), orders_it);
-        *F_it = item.second[0];
-        *F_star_it = item.second[1];
-        *Z_it = item.second[2];
         
-        ++F_it;
-        ++F_star_it;
-        ++Z_it;
-    }
-    
-    // std::cout << "Folded Model\n";
-    // for(int i=0; i<this->size(); ++i)
-    // {
-    //     std::cout 
-    //         << this->_orders[3*i] << " " << this->_orders[3*i+1] << " " << this->_orders[3*i+2] << ": " 
-    //         << this->_F[i] << " " << this->_F_star[i] << " " << this->_Z[i] << "\n"; 
-    // }
-    // std::cout << "\n";
-
-    // Update the iterator pointing to the echo magnetization.
-    for(std::size_t i=0; i<this->size(); ++i)
-    {
-        Bin const order(this->_orders.data()+3*i, 3);
-        if(order == Array<int64_t>{0,0,0})
+        // WARNING: F* state at echo is a duplicate of F state.
+        if(i != 0 && this->_F_star[i] != 0.)
         {
-            this->_zero_it = i;
-            break;
+            // The F* order corresponding to F order k+Δk is -(-k+Δk), i.e. k-Δk
+            Bin k_F_star{k[0]-delta_k[0], k[1]-delta_k[1], k[2]-delta_k[2]};
+            
+            // Same as above.
+            auto destination = &F_star;
+            auto & value = this->_F_star[i];
+            if(k_F_star[0] < 0)
+            {
+                k_F_star[0] *= -1;
+                k_F_star[1] *= -1;
+                k_F_star[2] *= -1;
+                destination = &F;
+                value = std::conj(value);
+            }
+            auto const location = get_location(
+                locations, orders, F, F_star, Z, k_F_star);
+            (*destination)[location] = value;
         }
     }
-    // Update the conjugate magnetization of the echo magnetization
-    this->_F_star[this->_zero_it] = std::conj(this->_F[this->_zero_it]);
     
-    // std::cout << "After shift\n";
-    // for(int i=0; i<this->size(); ++i)
-    // {
-    //     std::cout 
-    //         << this->_orders[3*i] << " " << this->_orders[3*i+1] << " " << this->_orders[3*i+2] << ": " 
-    //         << this->_F[i] << " " << this->_F_star[i] << " " << this->_Z[i] << "\n"; 
-    // }
-    // std::cout << "k=0: " << this->_zero_it << "\n";
+    // Update the current orders and states with the new ones.
+    this->_orders = std::move(orders);
+    this->_F = std::move(F);
+    this->_F_star = std::move(F_star);
+    this->_Z = std::move(Z);
+    
+    // Update the conjugate states of the echo magnetization.
+    if(this->_F[0] != 0.)
+    {
+        this->_F_star[0] = std::conj(this->_F[0]);
+    }
+    else if(this->_F_star[0] != 0.)
+    {
+        this->_F[0] = std::conj(this->_F_star[0]);
+    }
 }
 
 void
@@ -434,23 +353,21 @@ Discrete3D
     auto const E = operators::relaxation(
         this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
         duration.magnitude);
-
-    for(int order=0; order<this->size(); ++order)
-    {
-        this->_F[order] *= E.second;
-        this->_F_star[order] *= E.second;
-        this->_Z[order] *= E.first;
-    }
-
-    this->_Z[this->_zero_it] += 1.-E.first; // WARNING: assumes M0=1
+    
+    simd_api::relaxation(
+        E,
+        reinterpret_cast<Real*>(this->_F.data()),
+        reinterpret_cast<Real*>(this->_F_star.data()),
+        reinterpret_cast<Real*>(this->_Z.data()),
+        this->_F.size());
+    
+    this->_Z[0] += 1.-E.first; // WARNING: assumes M0=1
 }
 
 void
 Discrete3D
 ::diffusion(Quantity const & duration, Array<Quantity> const & gradient)
 {
-    using namespace sycomore::units;
-
     bool all_zero=true;
     for(std::size_t i=0; i<9; ++i)
     {
@@ -464,80 +381,52 @@ Discrete3D
     {
         return;
     }
-
-    std::vector<Real> const delta_k{
-        (sycomore::gamma*gradient[0]*duration).convert_to(rad/m),
-        (sycomore::gamma*gradient[1]*duration).convert_to(rad/m),
-        (sycomore::gamma*gradient[2]*duration).convert_to(rad/m)
-    };
-
-    Real D[9];
-    for(std::size_t i=0; i<9; ++i)
-    {
-        D[i] = this->species.get_D()[i].magnitude;
-    }
-    auto const tau = duration.convert_to(s);
-    auto const bin_width = this->_bin_width.convert_to(rad/m);
-
-    #pragma omp parallel for
-#ifdef _WIN32
-    // WARNING: only signed integer types in OpenMP loops on Windows
-    for(int order=0; order<this->size(); ++order)
-    {
-#else
+    
+    auto const tau = duration.magnitude;
+    auto const bin_width = this->_bin_width.magnitude;
+    
+    using AlignedVector = std::vector<Real, xsimd::aligned_allocator<Real, 64>>;
+    
+    std::vector<AlignedVector> k(3);
+    k[0].resize(this->size());
+    k[1].resize(this->size());
+    k[2].resize(this->size());
     for(std::size_t order=0; order<this->size(); ++order)
     {
-#endif
-        // NOTE: this is not really k1, but rather k1/bin_width. However,
-        // not declaring a new variable to store k1 is much faster.
-        auto const k1=this->_orders.data()+3*order;
-
-        // Weigel 2010, eq. 26
-        Real b_L[9];
-        int i=0;
-        for(std::size_t m=0; m<3; ++m)
-        {
-            for(std::size_t n=0; n<3; ++n, ++i)
-            {
-                b_L[i] = (k1[m]*bin_width)*(k1[n]*bin_width)*tau;
-            }
-        }
-
-        // Weigel 2010, eq. 30. Use delta_k instead of k2-k1, and factorize tau.
-        Real b_T_plus[9];
-        Real b_T_minus[9];
-        i=0;
-        for(std::size_t m=0; m<3; ++m)
-        {
-            for(std::size_t n=0; n<3; ++n, ++i)
-            {
-                b_T_plus[i] =
-                    b_L[i] + tau * (
-                          1./2.*(k1[m]*bin_width)*delta_k[n]
-                        + 1./2.*(k1[n]*bin_width)*delta_k[m]
-                        + 1./3.*delta_k[m]*delta_k[n]);
-                b_T_minus[i] =
-                    b_L[i] + tau * (
-                          1./2.*(-k1[m]*bin_width)*delta_k[n]
-                        + 1./2.*(-k1[n]*bin_width)*delta_k[m]
-                        + 1./3.*delta_k[m]*delta_k[n]);
-            }
-        }
-
-        // NOTE eq. 32 and 33 in Weigel 2010 use the trace of a product of two
-        // matrices. This is equal to the sum of entry-wise product of elements.
-        Real b_T_plus_D=0, b_T_minus_D=0, b_L_D=0;
-        for(std::size_t i=0; i<9; ++i)
-        {
-            b_T_plus_D += b_T_plus[i]*D[i];
-            b_T_minus_D += b_T_minus[i]*D[i];
-            b_L_D += b_L[i]*D[i];
-        }
-
-        this->_F[order] *= exp(-b_T_plus_D);
-        this->_F_star[order] *= exp(-b_T_minus_D);
-        this->_Z[order] *= exp(-b_L_D);
+        k[0][order] = this->_orders[3*order+0]*bin_width;
+        k[1][order] = this->_orders[3*order+1]*bin_width;
+        k[2][order] = this->_orders[3*order+2]*bin_width;
     }
+    
+    std::vector<Real, xsimd::aligned_allocator<Real, 64>> const delta_k{
+        sycomore::gamma.magnitude*gradient[0].magnitude*tau,
+        sycomore::gamma.magnitude*gradient[1].magnitude*tau,
+        sycomore::gamma.magnitude*gradient[2].magnitude*tau
+    };
+    
+    AlignedVector b_L_D(this->size(), 0.);
+    AlignedVector b_T_plus_D(this->size(), 0.);
+    AlignedVector b_T_minus_D(this->size(), 0.);
+    for(std::size_t m=0; m<3; ++m)
+    {
+        for(std::size_t n=0; n<3; ++n)
+        {
+            auto const delta_k_product_term = 
+                1./3. * tau * delta_k[m] * delta_k[n];
+            
+            simd_api::diffusion_3d_b(
+                k[m].data(), k[n].data(), delta_k[m], delta_k[n], 
+                delta_k_product_term, tau, 
+                this->species.get_D()[3*m+n].magnitude, 
+                b_L_D.data(), b_T_plus_D.data(), b_T_minus_D.data(),
+                this->_F.size());
+        }
+    }
+    
+    simd_api::diffusion_3d(
+        b_L_D.data(), b_T_plus_D.data(), b_T_minus_D.data(),
+        this->_F.data(), this->_F_star.data(), this->_Z.data(), 
+        this->_F.size());
 }
 
 void
@@ -550,13 +439,10 @@ Discrete3D
     if(angle.magnitude != 0)
     {
         auto const rotations = operators::phase_accumulation(angle.magnitude);
-        
-        for(int order=0; order<this->size(); ++order)
-        {
-            this->_F[order] *= rotations.first;
-            this->_F_star[order] *= rotations.second;
-            // Z̃ states are unaffected
-        }
+        simd_api::off_resonance(
+            rotations,
+            this->_F.data(), this->_F_star.data(), this->_Z.data(),
+            this->_F.size());
     }
 }
 

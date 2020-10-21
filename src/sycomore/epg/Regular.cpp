@@ -2,13 +2,16 @@
 
 #include <vector>
 
-#include "sycomore/Array.h"
+#include <xsimd/xsimd.hpp>
+
 #include "sycomore/epg/operators.h"
-#include "sycomore/Grid.h"
-#include "sycomore/GridScanner.h"
+#include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
+#include "sycomore/sycomore.h"
+#include "sycomore/sycomore_api.h"
+#include "sycomore/TimeInterval.h"
 #include "sycomore/units.h"
 
 namespace sycomore
@@ -24,7 +27,8 @@ Regular
     Quantity const & unit_gradient_area, double gradient_tolerance)
 : species(species),
     _F(initial_size, 0), _F_star(initial_size, 0), _Z(initial_size, 0),
-    _unit_gradient_area(unit_gradient_area), _gradient_tolerance(gradient_tolerance)
+    _unit_gradient_area(unit_gradient_area), 
+    _gradient_tolerance(gradient_tolerance)
 {
     auto const magnetization = as_complex_magnetization(initial_magnetization);
     this->_F[0] = std::sqrt(2)*magnetization.p;
@@ -73,29 +77,10 @@ void
 Regular
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    auto const T = operators::pulse(angle.magnitude, phase.magnitude);
-    
-    Complex F, F_star, Z;
-    
-    for(int order=0; order<this->_states_count; ++order)
-    {
-        F = 
-            T[3*0+0] * this->_F[order]
-            + T[3*0+1] * this->_F_star[order]
-            + T[3*0+2] * this->_Z[order];
-        F_star = 
-            T[3*1+0] * this->_F[order]
-            + T[3*1+1] * this->_F_star[order]
-            + T[3*1+2] * this->_Z[order];
-        Z = 
-            T[3*2+0] * this->_F[order]
-            + T[3*2+1] * this->_F_star[order]
-            + T[3*2+2] * this->_Z[order];
-        
-        this->_F[order] = F;
-        this->_F_star[order] = F_star;
-        this->_Z[order] = Z;
-    }
+    simd_api::apply_pulse(
+        operators::pulse(angle.magnitude, phase.magnitude), 
+        this->_F.data(), this->_F_star.data(), this->_Z.data(), 
+        this->_states_count);
 }
 
 void
@@ -125,9 +110,46 @@ Regular
     }
     if(
         duration.magnitude != 0 
-        && (this->delta_omega.magnitude != 0 || species.get_delta_omega().magnitude != 0))
+        && (
+            this->delta_omega.magnitude != 0 
+            || species.get_delta_omega().magnitude != 0))
     {
         this->off_resonance(duration);
+    }
+    
+    if(threshold > 0)
+    {
+        // Remove low-populated states with high order.
+        auto const threshold_squared = std::pow(this->threshold, 2);
+        bool done = false;
+        while(this->_states_count>1 && !done)
+        {
+            auto const magnitude_squared =
+                std::pow(std::abs(this->_F[this->_states_count-1]), 2)
+                +std::pow(std::abs(this->_F_star[this->_states_count-1]), 2)
+                +std::pow(std::abs(this->_Z[this->_states_count-1]), 2);
+            
+            if(magnitude_squared > threshold_squared)
+            {
+                done = true;
+            }
+            else
+            {
+                --this->_states_count;
+            }
+        }
+    }
+    else
+    {
+        // Remove empty states with high order.
+        while(
+            this->_states_count > 1
+            && this->_F[this->_states_count-1] == 0. 
+            && this->_F_star[this->_states_count-1] == 0.
+            && this->_Z[this->_states_count-1] == 0.)
+        {
+            --this->_states_count;
+        }
     }
 }
 
@@ -151,7 +173,8 @@ Regular
 ::shift(Quantity const & duration, Quantity const & gradient)
 {
     auto const area = duration*gradient;
-    auto const epsilon = this->_gradient_tolerance*this->_unit_gradient_area.magnitude;
+    auto const epsilon = 
+        this->_gradient_tolerance*this->_unit_gradient_area.magnitude;
     auto const remainder = std::remainder(
         area.magnitude, this->_unit_gradient_area.magnitude);
     
@@ -170,7 +193,9 @@ void
 Regular
 ::relaxation(Quantity const & duration)
 {
-    if(this->species.get_R1().magnitude == 0 && this->species.get_R2().magnitude == 0)
+    if(
+        this->species.get_R1().magnitude == 0 
+        && this->species.get_R2().magnitude == 0)
     {
         return;
     }
@@ -179,12 +204,12 @@ Regular
         this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
         duration.magnitude);
     
-    for(int order=0; order<this->_states_count; ++order)
-    {
-        this->_F[order] *= E.second;
-        this->_F_star[order] *= E.second;
-        this->_Z[order] *= E.first;
-    }
+    simd_api::relaxation(
+        E,
+        reinterpret_cast<Real*>(this->_F.data()),
+        reinterpret_cast<Real*>(this->_F_star.data()),
+        reinterpret_cast<Real*>(this->_Z.data()),
+        this->_states_count);
     
     this->_Z[0] += 1.-E.first; // WARNING: assumes M0=1
 }
@@ -204,16 +229,20 @@ Regular
         return;
     }
     
-    #pragma omp parallel for schedule(static)
-    for(int order=0; order<this->_states_count; ++order)
+    std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(
+        this->_states_count);
+    for(std::size_t i=0; i<k.size(); ++i)
     {
-        auto const k = order*delta_k;
-        auto const D = operators::diffusion(
-            this->species.get_D()[0].magnitude, duration.magnitude, k, delta_k);
-        this->_F[order] *= std::get<0>(D);
-        this->_F_star[order] *= std::get<1>(D);
-        this->_Z[order] *= std::get<2>(D);
+        k[i] = delta_k*i;
     }
+    
+    auto const & tau = duration.magnitude;
+    auto const & D = species.get_D()[0].magnitude;
+    
+    simd_api::diffusion(
+        delta_k, tau, D, k.data(),
+        this->_F.data(), this->_F_star.data(), this->_Z.data(),
+        this->_states_count);
 }
 
 void
@@ -226,13 +255,10 @@ Regular
     if(angle.magnitude != 0)
     {
         auto const rotations = operators::phase_accumulation(angle.magnitude);
-        
-        for(int order=0; order<this->_states_count; ++order)
-        {
-            this->_F[order] *= rotations.first;
-            this->_F_star[order] *= rotations.second;
-            // Z̃ states are unaffected
-        }
+        simd_api::off_resonance(
+            rotations,
+            this->_F.data(), this->_F_star.data(), this->_Z.data(),
+            this->_states_count);
     }
 }
 
@@ -251,16 +277,17 @@ Regular
         return;
     }
     
-    #pragma omp parallel for schedule(static)
-    for(int order=0; order<this->_states_count; ++order)
+    std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(
+        this->_states_count);
+    for(std::size_t i=0; i<k.size(); ++i)
     {
-        auto const k = order*delta_k;
-        auto const J = operators::bulk_motion(
-            this->velocity.magnitude, duration.magnitude, k, delta_k);
-        this->_F[order] *= std::get<0>(J);
-        this->_F_star[order] *= std::get<1>(J);
-        this->_Z[order] *= std::get<2>(J);
+        k[i] = delta_k*i;
     }
+    
+    simd_api::bulk_motion(
+        delta_k, this->velocity.magnitude, duration.magnitude, k.data(),
+        this->_F.data(), this->_F_star.data(), this->_Z.data(),
+        this->_states_count);
 }
 
 Quantity const &
@@ -299,64 +326,39 @@ Regular
         
         if(n == +1)
         {
-            #pragma omp parallel sections
-            {
-                #pragma omp section
-                {
-                    // Shift positive F̃ states right
-                    std::copy_backward(
-                        this->_F.begin(), this->_F.begin()+this->_states_count, 
-                        this->_F.begin()+this->_states_count+1);
-                }
-                #pragma omp section
-                {
-                    // Shift negative F̃^* states left
-                    std::copy(
-                        this->_F_star.begin()+1, 
-                        this->_F_star.begin()+this->_states_count+1, 
-                        this->_F_star.begin());
-                }
-            }
+            // Shift positive F̃ states right
+            std::copy_backward(
+                this->_F.begin(), this->_F.begin()+this->_states_count, 
+                this->_F.begin()+this->_states_count+1);
+            
+            // Shift negative F̃^* states left
+            std::copy(
+                this->_F_star.begin()+1, 
+                this->_F_star.begin()+this->_states_count+1, 
+                this->_F_star.begin());
             
             // Update F̃_{+0} using F̃^*_{-0}
             this->_F[0] = std::conj(this->_F_star[0]);
         }
         else
         {
-            #pragma omp parallel sections
-            {
-                #pragma omp section
-                {
-                    // Shift negative F̃^* states right
-                    std::copy_backward(
-                        this->_F_star.begin(), 
-                        this->_F_star.begin()+this->_states_count, 
-                        this->_F_star.begin()+this->_states_count+1);
-                }
-                #pragma omp section
-                {
-                    // Shift positive F̃ states left
-                    std::copy(
-                        this->_F.begin()+1, 
-                        this->_F.begin()+this->_states_count+1, 
-                        this->_F.begin());
-                }
-            }
+            // Shift negative F̃^* states right
+            std::copy_backward(
+                this->_F_star.begin(), 
+                this->_F_star.begin()+this->_states_count, 
+                this->_F_star.begin()+this->_states_count+1);
+            
+            // Shift positive F̃ states left
+            std::copy(
+                this->_F.begin()+1, 
+                this->_F.begin()+this->_states_count+1, 
+                this->_F.begin());
             
             // Update F̃^*_{-0} using F̃_{+0}
             this->_F_star[0] = std::conj(this->_F[0]);
         }
         
         ++this->_states_count;
-        
-        // Remove empty states with high order.
-        while(
-            this->_F[this->_states_count-1] == 0. 
-            && this->_F_star[this->_states_count-1] == 0.
-            && this->_Z[this->_states_count-1] == 0.)
-        {
-            --this->_states_count;
-        }
     }
     else
     { 

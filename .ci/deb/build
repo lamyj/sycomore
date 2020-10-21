@@ -11,11 +11,12 @@ mkdir -p ${INSTALL_DIR}
 
 cd ${BUILD_DIR}
 
+export CMAKE_PREFIX_PATH=${WORKSPACE}/vendor/xsimd
+
 cmake \
   -G Ninja \
-  -D CMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
+  -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_CXX_FLAGS="-march=native -fno-math-errno -funsafe-math-optimizations -fno-rounding-math -fno-signaling-nans -fcx-limited-range -fexcess-precision=fast -D__FAST_MATH__" \
   ${CMAKE_OPTIONS} \
   ..
 cmake --build . --target install

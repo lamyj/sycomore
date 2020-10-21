@@ -1,4 +1,5 @@
 find_package(pybind11 REQUIRED)
+find_package(xsimd REQUIRED)
 
 file(GLOB_RECURSE header_files "*.h")
 file(GLOB_RECURSE source_files "*.cpp")
@@ -15,7 +16,8 @@ if(BUILD_STANDALONE_PYTHON_WRAPPERS)
     endif()
 endif()
 
-include_directories(${CMAKE_SOURCE_DIR}/src ${PYTHON_INCLUDE_DIRS})
+include_directories(
+    ${CMAKE_SOURCE_DIR}/src ${PYTHON_INCLUDE_DIRS} ${xsimd_INCLUDE_DIRS})
 
 pybind11_add_module(pysycomore SHARED ${source_files} ${header_files})
 

@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <xsimd/xsimd.hpp>
+
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -112,12 +114,10 @@ public:
     void bulk_motion(Quantity const & duration, Quantity const & gradient);
     
 private:
-    std::vector<Complex> _F;
-    std::vector<Complex> _F_star;
-    std::vector<Complex> _Z;
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F, _F_star, _Z;
     
     Quantity _bin_width;
-    std::vector<long long> _orders;
+    std::vector<long long, xsimd::aligned_allocator<long long, 64>> _orders;
 };
     
 }

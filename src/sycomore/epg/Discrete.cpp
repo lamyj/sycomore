@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "sycomore/epg/operators.h"
+#include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -106,22 +107,10 @@ void
 Discrete
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    auto const T = operators::pulse(angle.magnitude, phase.magnitude);
-    
-    for(std::size_t order = 0; order < this->_orders.size(); ++order)
-    {
-        auto const & F = this->_F[order];
-        auto const & F_star = this->_F_star[order];
-        auto const & Z = this->_Z[order];
-    
-        auto const F_new =      T[3*0+0] * F + T[3*0+1] * F_star + T[3*0+2] * Z;
-        auto const F_star_new = T[3*1+0] * F + T[3*1+1] * F_star + T[3*1+2] * Z;
-        auto const Z_new =      T[3*2+0] * F + T[3*2+1] * F_star + T[3*2+2] * Z;
-    
-        this->_F[order] = F_new;
-        this->_F_star[order] = F_star_new;
-        this->_Z[order] = Z_new;
-    }
+    simd_api::apply_pulse(
+        operators::pulse(angle.magnitude, phase.magnitude), 
+        this->_F.data(), this->_F_star.data(), this->_Z.data(), 
+        this->_orders.size());
 }
 
 void
@@ -305,12 +294,12 @@ Discrete
         this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
         duration.magnitude);
     
-    for(int order=0; order<this->_orders.size(); ++order)
-    {
-        this->_F[order] *= E.second;
-        this->_F_star[order] *= E.second;
-        this->_Z[order] *= E.first;
-    }
+    simd_api::relaxation(
+        E,
+        reinterpret_cast<Real*>(this->_F.data()),
+        reinterpret_cast<Real*>(this->_F_star.data()),
+        reinterpret_cast<Real*>(this->_Z.data()),
+        this->_orders.size());
     
     this->_Z[0] += 1.-E.first; // WARNING: assumes M0=1
 }
@@ -330,17 +319,20 @@ Discrete
         return;
     }
     
-    #pragma omp parallel for
-    for(int i=0; i<this->_orders.size(); ++i)
+    std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(
+        this->_orders.size());
+    for(std::size_t i=0; i<k.size(); ++i)
     {
-        auto const k = this->_orders[i] * this->_bin_width;
-        auto const D = operators::diffusion(
-            this->species.get_D()[0].magnitude, duration.magnitude, 
-            k.magnitude, delta_k);
-        this->_F[i] *= std::get<0>(D);
-        this->_F_star[i] *= std::get<1>(D);
-        this->_Z[i] *= std::get<2>(D);
+        k[i] = this->_orders[i] * this->_bin_width.magnitude;
     }
+    
+    auto const & tau = duration.magnitude;
+    auto const & D = species.get_D()[0].magnitude;
+    
+    simd_api::diffusion(
+        delta_k, tau, D, k.data(),
+        this->_F.data(), this->_F_star.data(), this->_Z.data(),
+        this->_orders.size());
 }
 
 void
@@ -353,13 +345,10 @@ Discrete
     if(angle.magnitude != 0)
     {
         auto const rotations = operators::phase_accumulation(angle.magnitude);
-        
-        for(int order=0; order<this->_orders.size(); ++order)
-        {
-            this->_F[order] *= rotations.first;
-            this->_F_star[order] *= rotations.second;
-            // Z̃ states are unaffected
-        }
+        simd_api::off_resonance(
+            rotations,
+            this->_F.data(), this->_F_star.data(), this->_Z.data(),
+            this->_orders.size());
     }
 }
 

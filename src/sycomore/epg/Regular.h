@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <xsimd/xsimd.hpp>
+
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -28,6 +30,7 @@ class SYCOMORE_API Regular
 {
 public:
     Species species;
+    Real threshold=0;
     Quantity delta_omega=0*units::Hz;
     Quantity velocity=0*units::m/units::s;
     
@@ -107,9 +110,7 @@ public:
     double gradient_tolerance() const;
     
 private:
-    std::vector<Complex> _F;
-    std::vector<Complex> _F_star;
-    std::vector<Complex> _Z;
+    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F, _F_star, _Z;
     unsigned int _states_count;
     
     /// @brief Area of the unit gradient, in T/m.
