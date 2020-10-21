@@ -78,10 +78,10 @@ class TestDiscrete3D(unittest.TestCase):
     
         self._test_model(
             model, 
-            [[0*rad/m, -5350*rad/m, 0*rad/m], 3*[0*rad/m], ], 
+            [3*[0*rad/m], [0*rad/m, -5350*rad/m, 0*rad/m]], 
             [
-                [0.2857626571584661-0.6732146319308543j, 0, 0],
-                [0, 0, 0.6819983600624985]])
+                [0, 0, 0.6819983600624985],
+                [0.2857626571584661-0.6732146319308543j, 0, 0]])
     
     def test_negative_gradient_z(self):
         model = sycomore.epg.Discrete3D(self.species)
@@ -90,10 +90,10 @@ class TestDiscrete3D(unittest.TestCase):
     
         self._test_model(
             model, 
-            [[0*rad/m, 0*rad/m, -5350*rad/m], 3*[0*rad/m]], 
+            [3*[0*rad/m], [0*rad/m, 0*rad/m, -5350*rad/m]], 
             [
-                [0.2857626571584661-0.6732146319308543j, 0, 0],
-                [0, 0, 0.6819983600624985]])
+                [0, 0, 0.6819983600624985],
+                [0.2857626571584661-0.6732146319308543j, 0, 0]])
     
     def test_multiple_gradient(self):
         model = sycomore.epg.Discrete3D(self.species)
@@ -107,16 +107,16 @@ class TestDiscrete3D(unittest.TestCase):
             [
                 [0*rad/m, 0*rad/m, 0*rad/m],
                 [2675*rad/m, -8026*rad/m, 8026*rad/m],
-                [2675*rad/m, 2676*rad/m, -2676*rad/m],
                 [5350*rad/m, -5350*rad/m, 5350*rad/m],
-                [8025*rad/m, -13376*rad/m, 13376*rad/m]
+                [8025*rad/m, -13376*rad/m, 13376*rad/m],
+                [2675*rad/m, 2676*rad/m, -2676*rad/m]
             ],
             [
                 [0, 0, 0.4651217631279373],
                 [0.19488966354917586-0.45913127494692113j, 0, 0],
-                [0, 0.240326160353821+0.5661729534388877j, 0],
                 [0, 0, -0.26743911843603135],
-                [-0.045436496804645087+0.10704167849196657j, 0, 0]
+                [-0.045436496804645087+0.10704167849196657j, 0, 0],
+                [0, 0.240326160353821+0.5661729534388877j, 0]
             ])
     
     def test_relaxation(self):

@@ -62,7 +62,9 @@ class TestRegular(unittest.TestCase):
             [
                 [0, 0, 0.6819983600624985],
                 [0, 0, 0],
-                [0.2857626571584661-0.6732146319308543j, 0, 0]])
+                [0.2857626571584661-0.6732146319308543j, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0]])
         
         with self.assertRaises(Exception):
             model.shift(1.5*ms, 1*mT/m)
