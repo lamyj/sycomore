@@ -398,7 +398,7 @@ Discrete3D
         k[2][order] = this->_orders[3*order+2]*bin_width;
     }
     
-    std::vector<Real> const delta_k{
+    std::vector<Real, xsimd::aligned_allocator<Real, 64>> const delta_k{
         sycomore::gamma.magnitude*gradient[0].magnitude*tau,
         sycomore::gamma.magnitude*gradient[1].magnitude*tau,
         sycomore::gamma.magnitude*gradient[2].magnitude*tau

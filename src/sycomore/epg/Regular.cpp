@@ -229,7 +229,8 @@ Regular
         return;
     }
     
-    std::vector<Real> k(this->_states_count);
+    std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(
+        this->_states_count);
     for(std::size_t i=0; i<k.size(); ++i)
     {
         k[i] = delta_k*i;
@@ -276,7 +277,8 @@ Regular
         return;
     }
     
-    std::vector<Real> k(this->_states_count);
+    std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(
+        this->_states_count);
     for(std::size_t i=0; i<k.size(); ++i)
     {
         k[i] = delta_k*i;

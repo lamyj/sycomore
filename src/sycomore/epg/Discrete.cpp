@@ -318,7 +318,8 @@ Discrete
         return;
     }
     
-    std::vector<Real> k(this->_orders.size());
+    std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(
+        this->_orders.size());
     for(std::size_t i=0; i<k.size(); ++i)
     {
         k[i] = this->_orders[i] * this->_bin_width.magnitude;
