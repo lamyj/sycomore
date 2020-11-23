@@ -1,0 +1,41 @@
+name: Build Sycomore
+on: push
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.name }}
+    strategy:
+      matrix:
+        include:
+          - name: "Debian 9 (Stretch)"
+            os: ubuntu-latest
+            ci_type: deb
+            start_worker: "docker run -di -v ${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE} --name worker --rm debian:stretch"
+            worker: "docker exec -w ${GITHUB_WORKSPACE} -e PYTHON=${PYTHON} -e WORKSPACE=${GITHUB_WORKSPACE} worker"
+            stop_worker: "docker kill worker"
+          - name: "Ubuntu 20.04 (Bionic)"
+            os: ubuntu-latest
+            ci_type: deb
+            start_worker: "docker run -di -v ${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE} --name worker --rm ubuntu:bionic"
+            worker: "docker exec -w ${GITHUB_WORKSPACE} -e PYTHON=${PYTHON} -e WORKSPACE=${GITHUB_WORKSPACE} worker"
+            stop_worker: "docker kill worker"
+          - name: "macOS 10.15 (Catalina)"
+            os: macos-10.15
+            ci_type: brew
+            start_worker: ""
+            worker: ""
+            stop_worker: ""
+    steps:
+      - name: Checkout latest revision
+        uses: actions/checkout@v2
+      - name: Start the worker
+        run: ${{ matrix.start_worker }}
+      - name: Configure the build
+        run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/install
+      - name: Build Sycomore
+        run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/build
+      - name: Run tests
+        run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/post_build
+      - name: Stop the worker
+        run: ${{ matrix.stop_worker }}
