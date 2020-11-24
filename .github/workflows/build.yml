@@ -14,21 +14,28 @@ jobs:
             start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm debian:stretch"
             worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} worker"
             stop_worker: "docker kill worker"
+            python: python3
           - name: "Ubuntu 20.04 (Bionic)"
             os: ubuntu-latest
             ci_type: deb
             start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm ubuntu:bionic"
             worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} worker"
             stop_worker: "docker kill worker"
+            python: python3
           - name: "macOS 10.15 (Catalina)"
             os: macos-10.15
             ci_type: brew
             start_worker: ""
             worker: ""
             stop_worker: ""
+            python: /usr/local/bin/python3
+            cmake_options: "-DPYTHON_EXECUTABLE=/usr/local/bin/python3"
     steps:
       - name: Configure environment
-        run: echo "WORKSPACE=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+        run: |
+          echo "WORKSPACE=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+          echo "PYTHON=${{ matrix.python }}" >> $GITHUB_ENV
+          echo "CMAKE_OPTIONS=${{ matrix.cmake_options }}" >> $GITHUB_ENV
       - name: Checkout latest revision
         uses: actions/checkout@v2
       - name: Start the worker
