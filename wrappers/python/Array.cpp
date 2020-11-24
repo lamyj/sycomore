@@ -55,6 +55,7 @@ wrap_Array(
         .def(self-self)
         .def(self*T())
         .def(self/T())
+        .def(hash(self))
         .def(
             "__iter__",
             [](Array<T> & a) {
