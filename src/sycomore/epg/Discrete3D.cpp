@@ -288,7 +288,14 @@ Discrete3D
             // the state and store it in F* instead of F.
             auto destination = &F;
             auto & value = this->_F[i];
-            if(k_F[0] < 0)
+            // WARNING: the half-space (k_F[0] >= 0) contains conjugate states,
+            // e.g. ([0, y, 0], [0, -y, 0]) or more generally all pairs of the
+            // form ([0, y, z], [0, -y, -z]). Solve this by including only part
+            // of the y and z axes.
+            if(
+                k_F[0] < 0 
+                || (k_F[0] == 0 && k_F[1] < 0)
+                || (k_F[0] == 0 && k_F[1] == 0 && k_F[2] <0))
             {
                 k_F[0] *= -1;
                 k_F[1] *= -1;
@@ -310,7 +317,11 @@ Discrete3D
             // Same as above.
             auto destination = &F_star;
             auto & value = this->_F_star[i];
-            if(k_F_star[0] < 0)
+            // cf. WARNING about conjugation in F case.
+            if(
+                k_F_star[0] < 0 
+                || (k_F_star[0] == 0 && k_F_star[1] < 0)
+                || (k_F_star[0] == 0 && k_F_star[1] == 0 && k_F_star[2] <0))
             {
                 k_F_star[0] *= -1;
                 k_F_star[1] *= -1;

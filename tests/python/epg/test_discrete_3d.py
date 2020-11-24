@@ -78,10 +78,10 @@ class TestDiscrete3D(unittest.TestCase):
     
         self._test_model(
             model, 
-            [3*[0*rad/m], [0*rad/m, -5350*rad/m, 0*rad/m]], 
+            [3*[0*rad/m], [0*rad/m, 5350*rad/m, 0*rad/m]], 
             [
                 [0, 0, 0.6819983600624985],
-                [0.2857626571584661-0.6732146319308543j, 0, 0]])
+                [0, 0.2857626571584661+0.6732146319308543j, 0]])
     
     def test_negative_gradient_z(self):
         model = sycomore.epg.Discrete3D(self.species)
@@ -90,10 +90,10 @@ class TestDiscrete3D(unittest.TestCase):
     
         self._test_model(
             model, 
-            [3*[0*rad/m], [0*rad/m, 0*rad/m, -5350*rad/m]], 
+            [3*[0*rad/m], [0*rad/m, 0*rad/m, 5350*rad/m]], 
             [
                 [0, 0, 0.6819983600624985],
-                [0.2857626571584661-0.6732146319308543j, 0, 0]])
+                [0, 0.2857626571584661+0.6732146319308543j, 0]])
     
     def test_multiple_gradient(self):
         model = sycomore.epg.Discrete3D(self.species)
