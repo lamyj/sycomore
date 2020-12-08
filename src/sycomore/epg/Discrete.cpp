@@ -33,6 +33,7 @@ Discrete
     this->_F[0] = std::sqrt(2)*magnetization.p;
     this->_F_star[0] = std::sqrt(2)*magnetization.m;
     this->_Z[0] = magnetization.z;
+    this->_M_z_eq = magnetization.z;
     
     this->_orders.push_back(0);
 }
@@ -301,7 +302,7 @@ Discrete
         reinterpret_cast<Real*>(this->_Z.data()),
         this->_orders.size());
     
-    this->_Z[0] += 1.-E.first; // WARNING: assumes M0=1
+    this->_Z[0] += this->_M_z_eq*(1.-E.first);
 }
 
 void

@@ -115,6 +115,7 @@ public:
     
 private:
     std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F, _F_star, _Z;
+    Real _M_z_eq;
     
     Quantity _bin_width;
     std::vector<long long, xsimd::aligned_allocator<long long, 64>> _orders;

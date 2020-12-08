@@ -111,6 +111,7 @@ public:
     
 private:
     std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F, _F_star, _Z;
+    Real _M_z_eq;
     unsigned int _states_count;
     
     /// @brief Area of the unit gradient, in T/m*s.

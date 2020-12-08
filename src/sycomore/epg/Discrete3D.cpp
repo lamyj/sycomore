@@ -37,6 +37,7 @@ Discrete3D
     this->_F[0] = std::sqrt(2)*M.p;
     this->_F_star[0] = std::sqrt(2)*M.m;
     this->_Z[0] = M.z;
+    this->_M_z_eq = M.z;
 }
 
 std::size_t
@@ -372,7 +373,7 @@ Discrete3D
         reinterpret_cast<Real*>(this->_Z.data()),
         this->_F.size());
     
-    this->_Z[0] += 1.-E.first; // WARNING: assumes M0=1
+    this->_Z[0] += this->_M_z_eq*(1.-E.first);
 }
 
 void

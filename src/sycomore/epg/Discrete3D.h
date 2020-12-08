@@ -110,6 +110,7 @@ private:
     std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F;
     std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F_star;
     std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _Z;
+    Real _M_z_eq;
 
     Quantity _bin_width;
 };
