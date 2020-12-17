@@ -315,10 +315,6 @@ Discrete
     }
     
     auto const delta_k = (sycomore::gamma*gradient*duration).magnitude;
-    if(delta_k == 0)
-    {
-        return;
-    }
     
     std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(
         this->_orders.size());
