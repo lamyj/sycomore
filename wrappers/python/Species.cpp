@@ -15,7 +15,7 @@ void set_D(sycomore::Species & species, pybind11::object const & value)
 {
     if(pybind11::isinstance<pybind11::array>(value))
     {
-        auto numpy = pybind11::module_::import("numpy");
+        auto numpy = pybind11::module::import("numpy");
         auto raveled = numpy.attr("ravel")(
                 value.cast<pybind11::array>()
             ).attr("tolist")();
