@@ -1,5 +1,6 @@
 #include <algorithm>
 
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
 #include "sycomore/Array.h"
@@ -12,7 +13,20 @@ namespace
 
 void set_D(sycomore::Species & species, pybind11::object const & value)
 {
-    if(pybind11::isinstance<pybind11::sequence>(value))
+    if(pybind11::isinstance<pybind11::array>(value))
+    {
+        auto numpy = pybind11::module_::import("numpy");
+        auto raveled = numpy.attr("ravel")(
+                value.cast<pybind11::array>()
+            ).attr("tolist")();
+        sycomore::Array<sycomore::Quantity> array(pybind11::len(raveled));
+        std::transform(
+            raveled.begin(), raveled.end(), array.begin(),
+            [](pybind11::handle const & x) {
+                return x.cast<sycomore::Quantity>(); });
+        species.set_D(array);
+    }
+    else if(pybind11::isinstance<pybind11::sequence>(value))
     {
         sycomore::Array<sycomore::Quantity> array(pybind11::len(value));
         std::transform(
