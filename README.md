@@ -1,7 +1,5 @@
 # Sycomore &mdash; an MRI simulation toolkit
 
-[![Travis Build Status](https://travis-ci.com/lamyj/sycomore.svg?branch=master)](https://travis-ci.com/lamyj/sycomore)
-[![Appveyor Build status](https://ci.appveyor.com/api/projects/status/3malu4i0f9ycs7ab/branch/master?svg=true)](https://ci.appveyor.com/project/lamyj/sycomore/branch/master)
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/sycomore)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/sycomore.svg)](https://anaconda.org/conda-forge/sycomore)
 
