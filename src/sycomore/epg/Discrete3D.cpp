@@ -447,11 +447,11 @@ Discrete3D
 ::off_resonance(Quantity const & duration)
 {
     auto const angle = 
-        duration * 2*M_PI*units::rad 
-        * (this->delta_omega+this->species.get_delta_omega());
-    if(angle.magnitude != 0)
+        duration.magnitude * 2*M_PI
+        * (this->delta_omega.magnitude+this->species.get_delta_omega().magnitude);
+    if(angle != 0)
     {
-        auto const rotations = operators::phase_accumulation(angle.magnitude);
+        auto const rotations = operators::phase_accumulation(angle);
         simd_api::off_resonance(
             rotations,
             this->_F.data(), this->_F_star.data(), this->_Z.data(),
