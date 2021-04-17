@@ -161,35 +161,36 @@ Discrete3D
     if(threshold > 0)
     {
         auto const threshold_squared = std::pow(threshold, 2);
-        decltype(this->_orders) orders; orders.reserve(this->_orders.size());
-        decltype(this->_F) F; F.reserve(this->_F.size());
-        decltype(this->_F_star) F_star; F_star.reserve(this->_F_star.size());
-        decltype(this->_Z) Z; Z.reserve(this->_Z.size());
-
-        for(std::size_t index=0; index<this->size(); ++index)
+        
+        std::size_t destination=1;
+        for(std::size_t source=1; source<this->size(); ++source)
         {
             auto const magnitude_squared =
-                std::pow(std::abs(this->_F[index]), 2)
-                +std::pow(std::abs(this->_F_star[index]), 2)
-                +std::pow(std::abs(this->_Z[index]), 2);
-            // Always include the zero order, include other order if population
-            // is above threshold.
-            if(index == 0 || magnitude_squared >= threshold_squared)
+                std::pow(std::abs(this->_F[source]), 2)
+                +std::pow(std::abs(this->_F_star[source]), 2)
+                +std::pow(std::abs(this->_Z[source]), 2);
+            // Always include the zero order (implicit since we start at 1),
+            // include other order if population is above threshold.
+            if(magnitude_squared >= threshold_squared)
             {
-                std::copy(
-                    this->_orders.data()+3*index, 
-                    this->_orders.data()+3*(1+index), 
-                    std::back_inserter(orders));
-                F.push_back(this->_F[index]);
-                F_star.push_back(this->_F_star[index]);
-                Z.push_back(this->_Z[index]);
+                if(source != destination)
+                {
+                    std::copy(
+                        this->_orders.data()+3*source, 
+                        this->_orders.data()+3*(1+source), 
+                        this->_orders.data()+3*destination);
+                    this->_F[destination] = this->_F[source];
+                    this->_F_star[destination] = this->_F_star[source];
+                    this->_Z[destination] = this->_Z[source];
+                }
+                ++destination;
             }
         }
 
-        this->_orders = std::move(orders);
-        this->_F = std::move(F);
-        this->_F_star = std::move(F_star);
-        this->_Z = std::move(Z);
+        this->_orders.resize(3*(destination+1));
+        this->_F.resize(destination+1);
+        this->_F_star.resize(destination+1);
+        this->_Z.resize(destination+1);
         
         // No need to update the iterator pointing to the echo magnetization.
     }
