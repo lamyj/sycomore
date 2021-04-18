@@ -7,6 +7,7 @@
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/Array.h"
+#include "sycomore/epg/robin_hood.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -14,6 +15,26 @@
 #include "sycomore/sycomore_api.h"
 #include "sycomore/TimeInterval.h"
 #include "sycomore/units.h"
+
+namespace std
+{
+
+template<>
+struct hash<array<int64_t, 3>>
+{
+    typename std::enable_if<sizeof(std::size_t)==sizeof(int64_t), std::size_t>::type
+    operator()(array<int64_t, 3> const & a) const
+    {
+        // Calling sycomore::hash_range(a.begin(), a.end()) is slightly slower.
+        std::size_t value = 0;
+        value ^= reinterpret_cast<std::size_t const &>(a[0]) + 0x9e3779b9 + (value<<6) + (value>>2);
+        value ^= reinterpret_cast<std::size_t const &>(a[1]) + 0x9e3779b9 + (value<<6) + (value>>2);
+        value ^= reinterpret_cast<std::size_t const &>(a[2]) + 0x9e3779b9 + (value<<6) + (value>>2);
+        return value;
+    }
+};
+
+}
 
 namespace sycomore
 {
@@ -113,6 +134,37 @@ private:
     Real _M_z_eq;
 
     Quantity _bin_width;
+    
+    // Data kept to avoid expansive re-allocation of memory.
+    class Cache
+    {
+    public:
+        using RealVector = std::vector<Real, xsimd::aligned_allocator<Real, 64>>;
+        
+        // Shift-related data.
+        robin_hood::unordered_flat_map<Bin, std::size_t> locations;
+        decltype(Discrete3D::_orders) orders;
+        decltype(Discrete3D::_F) F;
+        decltype(Discrete3D::_F_star) F_star;
+        decltype(Discrete3D::_Z) Z;
+        
+        // Diffusion-related data.
+        
+        // Mapping between a normalized (i.e. folded) order and its location in
+        // the states vectors.
+        std::vector<RealVector, xsimd::aligned_allocator<RealVector, 64>> k{3};
+        RealVector b_L_D;
+        RealVector b_T_plus_D;
+        RealVector b_T_minus_D;
+        
+        void update_shift(std::size_t size);
+        void update_diffusion(
+            std::size_t size, decltype(Discrete3D::_orders) const & orders,
+            Real bin_width);
+        std::size_t get_location(Bin const & order);
+    };
+    
+    Cache _cache;
 };
 
 }

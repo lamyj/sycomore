@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "sycomore/Array.h"
+#include "sycomore/epg/robin_hood.h"
 #include "sycomore/epg/operators.h"
 #include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
@@ -81,7 +82,7 @@ Discrete3D
         static_cast<int64_t>(order[1]/this->_bin_width),
         static_cast<int64_t>(order[2]/this->_bin_width) };
     auto it=this->_orders.begin();
-    for(; it!=this->_orders.end(); it+=3)
+    for(auto end=this->_orders.end(); it != end; it+=3)
     {
         if(bin == Bin{it[0], it[1], it[2]})
         {
@@ -104,7 +105,7 @@ Discrete3D
 ::states() const
 {
     std::vector<Complex> result(3*this->size());
-    for(unsigned int order=0; order<this->size(); ++order)
+    for(std::size_t order=0, end=this->size(); order != end; ++order)
     {
         result[3*order+0] = this->_F[order];
         result[3*order+1] = this->_F_star[order];
@@ -163,7 +164,7 @@ Discrete3D
         auto const threshold_squared = std::pow(threshold, 2);
         
         std::size_t destination=1;
-        for(std::size_t source=1; source<this->size(); ++source)
+        for(std::size_t source=1, end=this->size(); source != end; ++source)
         {
             auto const magnitude_squared =
                 std::pow(std::abs(this->_F[source]), 2)
@@ -204,30 +205,6 @@ Discrete3D
         interval.get_duration(), interval.get_gradient_amplitude(), 0);
 }
 
-/**
- * @brief Return the location of given order in the states vectors, create it 
- * if missing.
- */
-std::size_t get_location(
-    std::map<std::array<int64_t, 3>, std::size_t> & locations,
-    std::vector<int64_t, xsimd::aligned_allocator<int64_t, 64>> & orders,
-    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> & F,
-    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> & F_star,
-    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> & Z,
-    std::array<int64_t, 3> const & order) 
-{
-    auto iterator = locations.find(order);
-    if(iterator == locations.end())
-    {
-        F.push_back(0.);
-        F_star.push_back(0.);
-        Z.push_back(0.);
-        std::copy(order.begin(), order.end(), std::back_inserter(orders));
-        iterator = locations.emplace(order, F.size()-1).first;
-    }
-    return iterator->second;
-}
-
 void
 Discrete3D
 ::shift(Quantity const & duration, Array<Quantity> const & gradient)
@@ -248,38 +225,15 @@ Discrete3D
         return;
     }
     
-    // New (i.e. shifted) orders. Make sure k=0 is in the first position.
-    decltype(this->_orders) orders; 
-    orders.reserve(this->_orders.size());
-    orders.push_back(0); orders.push_back(0); orders.push_back(0);
-    // Same for F states.
-    decltype(this->_F) F;
-    F.reserve(this->_F.size());
-    F.push_back(0.);
-    // Same for F* states.
-    decltype(this->_F_star) F_star;
-    F_star.reserve(this->_F_star.size());
-    F_star.push_back(0.);
-    // Same for Z states.
-    decltype(this->_Z) Z; 
-    Z.reserve(this->_Z.size());
-    Z.push_back(0.);
+    this->_cache.update_shift(this->size());
     
-    // Mapping between a normalized (i.e. folded) order and its location in the
-    // states vectors.
-    // NOTE: unordered_map is slower than map here, even with a simple hash.
-    std::map<Bin, std::size_t> locations;
-    locations[{0,0,0}] = 0;
-    
-    for(std::size_t i=0; i<this->size(); ++i)
+    for(std::size_t i=0, end=this->size(); i != end; ++i)
     {
         Bin const k{
             this->_orders[3*i+0], this->_orders[3*i+1], this->_orders[3*i+2]};
         if(this->_Z[i] != 0.)
         {
-            auto const location = get_location(
-                locations, orders, F, F_star, Z, k);
-            Z[location] = this->_Z[i];
+            this->_cache.Z[this->_cache.get_location(k)] = this->_Z[i];
         }
         
         if(this->_F[i] != 0.)
@@ -288,7 +242,7 @@ Discrete3D
             
             // Depending on whether the new order changed half space, conjugate
             // the state and store it in F* instead of F.
-            auto destination = &F;
+            auto destination = &this->_cache.F;
             auto & value = this->_F[i];
             // WARNING: the half-space (k_F[0] >= 0) contains conjugate states,
             // e.g. ([0, y, 0], [0, -y, 0]) or more generally all pairs of the
@@ -302,12 +256,10 @@ Discrete3D
                 k_F[0] *= -1;
                 k_F[1] *= -1;
                 k_F[2] *= -1;
-                destination = &F_star;
+                destination = &this->_cache.F_star;
                 value = std::conj(value);
             }
-            auto const location = get_location(
-                locations, orders, F, F_star, Z, k_F);
-            (*destination)[location] = value;
+            (*destination)[this->_cache.get_location(k_F)] = value;
         }
         
         // WARNING: F* state at echo is a duplicate of F state.
@@ -317,7 +269,7 @@ Discrete3D
             Bin k_F_star{k[0]-delta_k[0], k[1]-delta_k[1], k[2]-delta_k[2]};
             
             // Same as above.
-            auto destination = &F_star;
+            auto destination = &this->_cache.F_star;
             auto & value = this->_F_star[i];
             // cf. WARNING about conjugation in F case.
             if(
@@ -328,20 +280,24 @@ Discrete3D
                 k_F_star[0] *= -1;
                 k_F_star[1] *= -1;
                 k_F_star[2] *= -1;
-                destination = &F;
+                destination = &this->_cache.F;
                 value = std::conj(value);
             }
-            auto const location = get_location(
-                locations, orders, F, F_star, Z, k_F_star);
-            (*destination)[location] = value;
+            (*destination)[this->_cache.get_location(k_F_star)] = value;
         }
     }
     
     // Update the current orders and states with the new ones.
-    this->_orders = std::move(orders);
-    this->_F = std::move(F);
-    this->_F_star = std::move(F_star);
-    this->_Z = std::move(Z);
+    this->_cache.orders.resize(this->_cache.locations.size()*3);
+    this->_cache.F.resize(this->_cache.locations.size());
+    this->_cache.F_star.resize(this->_cache.locations.size());
+    this->_cache.Z.resize(this->_cache.locations.size());
+    
+    // Use swap and not move since we keep the temporary variables between runs.
+    std::swap(this->_cache.orders, this->_orders);
+    std::swap(this->_cache.F, this->_F);
+    std::swap(this->_cache.F_star, this->_F_star);
+    std::swap(this->_cache.Z, this->_Z);
     
     // Update the conjugate states of the echo magnetization.
     if(this->_F[0] != 0.)
@@ -398,28 +354,14 @@ Discrete3D
     auto const tau = duration.magnitude;
     auto const bin_width = this->_bin_width.magnitude;
     
-    using AlignedVector = std::vector<Real, xsimd::aligned_allocator<Real, 64>>;
-    
-    std::vector<AlignedVector> k(3);
-    k[0].resize(this->size());
-    k[1].resize(this->size());
-    k[2].resize(this->size());
-    for(std::size_t order=0; order<this->size(); ++order)
-    {
-        k[0][order] = this->_orders[3*order+0]*bin_width;
-        k[1][order] = this->_orders[3*order+1]*bin_width;
-        k[2][order] = this->_orders[3*order+2]*bin_width;
-    }
-    
-    std::vector<Real, xsimd::aligned_allocator<Real, 64>> const delta_k{
+    Cache::RealVector const delta_k{
         sycomore::gamma.magnitude*gradient[0].magnitude*tau,
         sycomore::gamma.magnitude*gradient[1].magnitude*tau,
         sycomore::gamma.magnitude*gradient[2].magnitude*tau
     };
     
-    AlignedVector b_L_D(this->size(), 0.);
-    AlignedVector b_T_plus_D(this->size(), 0.);
-    AlignedVector b_T_minus_D(this->size(), 0.);
+    this->_cache.update_diffusion(this->size(), this->_orders, bin_width);
+    
     for(std::size_t m=0; m<3; ++m)
     {
         for(std::size_t n=0; n<3; ++n)
@@ -428,16 +370,18 @@ Discrete3D
                 1./3. * tau * delta_k[m] * delta_k[n];
             
             simd_api::diffusion_3d_b(
-                k[m].data(), k[n].data(), delta_k[m], delta_k[n], 
-                delta_k_product_term, tau, 
-                this->species.get_D()[3*m+n].magnitude, 
-                b_L_D.data(), b_T_plus_D.data(), b_T_minus_D.data(),
+                this->_cache.k[m].data(), this->_cache.k[n].data(), 
+                delta_k[m], delta_k[n], delta_k_product_term,
+                tau, this->species.get_D()[3*m+n].magnitude,
+                this->_cache.b_L_D.data(), 
+                this->_cache.b_T_plus_D.data(), this->_cache.b_T_minus_D.data(),
                 this->_F.size());
         }
     }
     
     simd_api::diffusion_3d(
-        b_L_D.data(), b_T_plus_D.data(), b_T_minus_D.data(),
+        this->_cache.b_L_D.data(), 
+        this->_cache.b_T_plus_D.data(), this->_cache.b_T_minus_D.data(),
         this->_F.data(), this->_F_star.data(), this->_Z.data(), 
         this->_F.size());
 }
@@ -464,6 +408,78 @@ Discrete3D
 ::bin_width() const
 {
     return this->_bin_width;
+}
+
+void
+Discrete3D::Cache
+::update_shift(std::size_t size)
+{
+    // New (i.e. shifted) orders. We will have at most 3*N_states new states
+    this->orders.resize(3*3*size);
+    this->locations.clear();
+    this->locations.reserve(3*size);
+    
+    // Make sure k=0 is in the first position.
+    this->orders[0] = this->orders[1] = this->orders[2] = 0;
+    this->locations[{0,0,0}] = 0;
+    
+    // Same for F states.
+    this->F.resize(3*size);
+    // NOTE memset is slightly faster than std::fill, but requires that Complex
+    // has a trivial representation.
+    static_assert(
+        std::is_trivially_copyable<Complex>::value, 
+        "Complex cannot be used with memset");
+    std::memset(this->F.data(), 0, this->F.size()*sizeof(decltype(this->F[0])));
+    
+    // Same for F* states.
+    this->F_star.resize(3*size);
+    std::memset(
+        this->F_star.data(), 0, 
+        this->F_star.size()*sizeof(decltype(this->F_star[0])));
+    
+    // Same for Z states.
+    this->Z.resize(3*size);
+    std::memset(this->Z.data(), 0, this->Z.size()*sizeof(decltype(this->Z[0])));
+}
+
+void
+Discrete3D::Cache
+::update_diffusion(
+    std::size_t size, decltype(Discrete3D::_orders) const & orders, 
+    Real bin_width)
+{
+    this->k[0].resize(size);
+    this->k[1].resize(size);
+    this->k[2].resize(size);
+    for(std::size_t order=0; order != size; ++order)
+    {
+        this->k[0][order] = orders[3*order+0]*bin_width;
+        this->k[1][order] = orders[3*order+1]*bin_width;
+        this->k[2][order] = orders[3*order+2]*bin_width;
+    }
+    
+    this->b_L_D.resize(size);
+    std::fill(this->b_L_D.begin(), this->b_L_D.end(), 0);
+    
+    this->b_T_plus_D.resize(size);
+    std::fill(this->b_T_plus_D.begin(), this->b_T_plus_D.end(), 0);
+    
+    this->b_T_minus_D.resize(size);
+    std::fill(this->b_T_minus_D.begin(), this->b_T_minus_D.end(), 0);
+}
+
+std::size_t
+Discrete3D::Cache
+::get_location(Bin const & order) 
+{
+    auto const location = this->locations.size();
+    auto const insert_result = this->locations.try_emplace(order, location);
+    if(insert_result.second)
+    {
+        std::copy(order.begin(), order.end(), this->orders.data()+3*location);
+    }
+    return insert_result.first->second;
 }
 
 }
