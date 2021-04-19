@@ -188,10 +188,10 @@ Discrete3D
             }
         }
 
-        this->_orders.resize(3*(destination+1));
-        this->_F.resize(destination+1);
-        this->_F_star.resize(destination+1);
-        this->_Z.resize(destination+1);
+        this->_orders.resize(3*(destination));
+        this->_F.resize(destination);
+        this->_F_star.resize(destination);
+        this->_Z.resize(destination);
         
         // No need to update the iterator pointing to the echo magnetization.
     }
@@ -352,7 +352,6 @@ Discrete3D
     }
     
     auto const tau = duration.magnitude;
-    auto const bin_width = this->_bin_width.magnitude;
     
     Cache::RealVector const delta_k{
         sycomore::gamma.magnitude*gradient[0].magnitude*tau,
@@ -360,7 +359,8 @@ Discrete3D
         sycomore::gamma.magnitude*gradient[2].magnitude*tau
     };
     
-    this->_cache.update_diffusion(this->size(), this->_orders, bin_width);
+    this->_cache.update_diffusion(
+        this->size(), this->_orders, this->_bin_width.magnitude);
     
     for(std::size_t m=0; m<3; ++m)
     {

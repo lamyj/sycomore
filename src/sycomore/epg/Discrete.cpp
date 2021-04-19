@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "sycomore/epg/operators.h"
+#include "sycomore/epg/robin_hood.h"
 #include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
@@ -146,30 +147,35 @@ Discrete
     if(threshold > 0)
     {
         auto const threshold_squared = std::pow(threshold, 2);
-        decltype(this->_orders) orders; orders.reserve(this->_orders.size());
-        decltype(this->_F) F; F.reserve(this->_F.size());
-        decltype(this->_F_star) F_star; F_star.reserve(this->_F_star.size());
-        decltype(this->_Z) Z; Z.reserve(this->_Z.size());
-
-        for(std::size_t index=0; index<this->_orders.size(); ++index)
+        
+        std::size_t destination=1;
+        for(std::size_t source=1, end=this->size(); source != end; ++source)
         {
             auto const magnitude_squared =
-                std::pow(std::abs(this->_F[index]), 2)
-                +std::pow(std::abs(this->_F_star[index]), 2)
-                +std::pow(std::abs(this->_Z[index]), 2);
+                std::pow(std::abs(this->_F[source]), 2)
+                +std::pow(std::abs(this->_F_star[source]), 2)
+                +std::pow(std::abs(this->_Z[source]), 2);
+            // Always include the zero order (implicit since we start at 1),
+            // include other order if population is above threshold.
             if(magnitude_squared >= threshold_squared)
             {
-                orders.push_back(this->_orders[index]);
-                F.push_back(this->_F[index]);
-                F_star.push_back(this->_F_star[index]);
-                Z.push_back(this->_Z[index]);
+                if(source != destination)
+                {
+                    this->_orders[destination] = this->_orders[source];
+                    this->_F[destination] = this->_F[source];
+                    this->_F_star[destination] = this->_F_star[source];
+                    this->_Z[destination] = this->_Z[source];
+                }
+                ++destination;
             }
         }
 
-        this->_orders = std::move(orders);
-        this->_F = std::move(F);
-        this->_F_star = std::move(F_star);
-        this->_Z = std::move(Z);
+        this->_orders.resize(destination);
+        this->_F.resize(destination);
+        this->_F_star.resize(destination);
+        this->_Z.resize(destination);
+        
+        // No need to update the iterator pointing to the echo magnetization.
     }
 }
 
@@ -187,99 +193,84 @@ Discrete
 {
     // This assumes a constant gradient in the integral: 
     // k(t) = γ ∫_0^t G(t') dt' = γ⋅t⋅G
-    auto const delta_k = (long long)(std::round(
-        double(sycomore::gamma*gradient*duration / this->_bin_width)));
+    long long const delta_k = std::round(
+        sycomore::gamma.magnitude*gradient.magnitude*duration.magnitude 
+        / this->_bin_width.magnitude);
     
     if(delta_k == 0)
     {
         return;
     }
     
-    // Unfold the F̃-states
-    decltype(this->_orders) F_orders(2*this->_orders.size()-1);
-    decltype(this->_F) F(2*this->_orders.size()-1);
-    // F̃^+ on the right side
-    for(long long i=0; i<this->_orders.size(); ++i)
-    {
-        F_orders[this->_orders.size()-1 + i] = this->_orders[i];
-        F[this->_orders.size()-1 + i] = this->_F[i];
-    }
-    // F̃^{-*} on the left side, reversed order
-    for(long long i=0; i<this->_orders.size(); ++i)
-    {
-        F_orders[this->_orders.size()-1 - i] = -this->_orders[i];
-        F[this->_orders.size()-1 - i] = std::conj(this->_F_star[i]);
-    }
+    this->_cache.update_shift(this->size());
     
-    // Shift according to Δk
-    for(auto && k: F_orders)
+    for(std::size_t i=0, end=this->size(); i != end; ++i)
     {
-        k += delta_k;
-    }
-
-    // Z̃-orders do not change
-    
-    // Fold the F̃-states: build the new orders (using a vector provides quicker
-    // iteration later than using a set) …
-    decltype(this->_orders) orders(F_orders.size()+this->_orders.size());
-    std::transform(
-        F_orders.begin(), F_orders.end(), orders.begin(), std::llabs);
-    std::copy(
-        this->_orders.begin(), this->_orders.end(), 
-        orders.begin()+F_orders.size());
-    std::sort(orders.begin(), orders.end());
-    auto const last = std::unique(orders.begin(), orders.end());
-    orders.resize(last-orders.begin());
-
-    // … then build the new states (create a new array for Z̃ states as we are
-    // getting their values from this->_Z)…
-    this->_F.resize(orders.size()); 
-    std::fill(this->_F.begin(), this->_F.end(), 0);
-    this->_F_star.resize(orders.size()); 
-    std::fill(this->_F_star.begin(), this->_F_star.end(), 0);
-    decltype(this->_Z) Z_new(orders.size(), 0);
-
-    // Find the smallest positive F̃-order, move towards larger orders
-    auto F_plus_order_it = std::lower_bound(F_orders.cbegin(), F_orders.cend(), 0);
-    auto F_plus_state_it = F.cbegin()+(F_plus_order_it-F_orders.cbegin());
-
-    // Find the largest negative F̃-order, move towards smaller orders
-    decltype(F_orders)::const_reverse_iterator F_minus_order_it(F_plus_order_it);
-    auto F_minus_state_it = F.crbegin()+(F_minus_order_it-F_orders.crbegin());
-
-    auto Z_order_it = this->_orders.cbegin();
-    auto Z_state_it = this->_Z.cbegin();
-
-    for(std::size_t index=0; index < orders.size(); ++index)
-    {
-        // If one of the iterators matches the order, fill the corresponding
-        // state and advance
-
-        if(F_plus_order_it != F_orders.cend() && *F_plus_order_it == orders[index])
+        auto const k = this->_orders[i];
+        
+        auto state = this->_Z[i];
+        if(state != 0.)
         {
-            this->_F[index] = *F_plus_state_it;
-            ++F_plus_order_it;
-            ++F_plus_state_it;
+            this->_cache.Z[this->_cache.get_location(k)] = state;
         }
-        if(F_minus_order_it != F_orders.crend() && *F_minus_order_it == -orders[index])
+        
+        state = this->_F[i];
+        if(state != 0.)
         {
-            this->_F_star[index] = std::conj(*F_minus_state_it);
-            ++F_minus_order_it;
-            ++F_minus_state_it;
+            auto k_F = k+delta_k;
+            
+            // Depending on whether the new order changed half space, conjugate
+            // the state and store it in F* instead of F.
+            auto destination = &this->_cache.F;
+            if(k_F < 0)
+            {
+                k_F *= -1;
+                destination = &this->_cache.F_star;
+                state = std::conj(state);
+            }
+            (*destination)[this->_cache.get_location(k_F)] = state;
         }
-        if(Z_order_it != this->_orders.cend() && *Z_order_it == orders[index])
+        
+        // WARNING: F* state at echo is a duplicate of F state.
+        state = this->_F_star[i];
+        if(i != 0 && state != 0.)
         {
-            Z_new[index] = *Z_state_it;
-            ++Z_order_it;
-            ++Z_state_it;
+            // The F* order corresponding to F order k+Δk is -(-k+Δk), i.e. k-Δk
+            auto k_F_star = k-delta_k;
+            
+            // Same as above.
+            auto destination = &this->_cache.F_star;
+            if(k_F_star < 0)
+            {
+                k_F_star *= -1;
+                destination = &this->_cache.F;
+                state = std::conj(state);
+            }
+            (*destination)[this->_cache.get_location(k_F_star)] = state;
         }
     }
-
-    // … and finally update F̃^*(-0)
-    this->_F_star[0] = std::conj(this->_F[0]);
     
-    this->_Z = std::move(Z_new);
-    this->_orders = std::move(orders);
+    // Update the current orders and states with the new ones.
+    this->_cache.orders.resize(this->_cache.locations.size());
+    this->_cache.F.resize(this->_cache.locations.size());
+    this->_cache.F_star.resize(this->_cache.locations.size());
+    this->_cache.Z.resize(this->_cache.locations.size());
+    
+    // Use swap and not move since we keep the temporary variables between runs.
+    std::swap(this->_cache.orders, this->_orders);
+    std::swap(this->_cache.F, this->_F);
+    std::swap(this->_cache.F_star, this->_F_star);
+    std::swap(this->_cache.Z, this->_Z);
+    
+    // Update the conjugate states of the echo magnetization.
+    if(this->_F[0] != 0.)
+    {
+        this->_F_star[0] = std::conj(this->_F[0]);
+    }
+    else if(this->_F_star[0] != 0.)
+    {
+        this->_F[0] = std::conj(this->_F_star[0]);
+    }
 }
 
 void
@@ -314,20 +305,17 @@ Discrete
         return;
     }
     
-    auto const delta_k = (sycomore::gamma*gradient*duration).magnitude;
+    auto const delta_k = (
+        sycomore::gamma.magnitude*gradient.magnitude*duration.magnitude);
     
-    std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(
-        this->_orders.size());
-    for(std::size_t i=0; i<k.size(); ++i)
-    {
-        k[i] = this->_orders[i] * this->_bin_width.magnitude;
-    }
+    this->_cache.update_diffusion(
+        this->size(), this->_orders, this->_bin_width.magnitude);
     
     auto const & tau = duration.magnitude;
     auto const & D = species.get_D()[0].magnitude;
     
     simd_api::diffusion(
-        delta_k, tau, D, k.data(),
+        delta_k, tau, D, this->_cache.k.data(),
         this->_F.data(), this->_F_star.data(), this->_Z.data(),
         this->_orders.size());
 }
@@ -337,11 +325,11 @@ Discrete
 ::off_resonance(Quantity const & duration)
 {
     auto const angle = 
-        duration * 2*M_PI*units::rad 
-        * (this->delta_omega+this->species.get_delta_omega());
-    if(angle.magnitude != 0)
+        duration.magnitude * 2*M_PI
+        * (this->delta_omega.magnitude+this->species.get_delta_omega().magnitude);
+    if(angle != 0)
     {
-        auto const rotations = operators::phase_accumulation(angle.magnitude);
+        auto const rotations = operators::phase_accumulation(angle);
         simd_api::off_resonance(
             rotations,
             this->_F.data(), this->_F_star.data(), this->_Z.data(),
@@ -381,6 +369,65 @@ Discrete
 ::bin_width() const
 {
     return this->_bin_width;
+}
+
+void
+Discrete::Cache
+::update_shift(std::size_t size)
+{
+    // New (i.e. shifted) orders. We will have at most 3*N_states new states
+    this->orders.resize(3*size);
+    this->locations.clear();
+    this->locations.reserve(3*size);
+    
+    // Make sure k=0 is in the first position.
+    this->orders[0] = 0;
+    this->locations[0] = 0;
+    
+    // Same for F states.
+    this->F.resize(3*size);
+    // NOTE memset is slightly faster than std::fill, but requires that Complex
+    // has a trivial representation.
+    static_assert(
+        std::is_trivially_copyable<Complex>::value, 
+        "Complex cannot be used with memset");
+    std::memset(this->F.data(), 0, this->F.size()*sizeof(decltype(this->F[0])));
+    
+    // Same for F* states.
+    this->F_star.resize(3*size);
+    std::memset(
+        this->F_star.data(), 0, 
+        this->F_star.size()*sizeof(decltype(this->F_star[0])));
+    
+    // Same for Z states.
+    this->Z.resize(3*size);
+    std::memset(this->Z.data(), 0, this->Z.size()*sizeof(decltype(this->Z[0])));
+}
+
+void
+Discrete::Cache
+::update_diffusion(
+    std::size_t size, decltype(Discrete::_orders) const & orders, 
+    Real bin_width)
+{
+    this->k.resize(size);
+    for(std::size_t order=0; order != size; ++order)
+    {
+        this->k[order] = orders[order]*bin_width;
+    }
+}
+
+std::size_t
+Discrete::Cache
+::get_location(long long order) 
+{
+    auto const location = this->locations.size();
+    auto const insert_result = this->locations.try_emplace(order, location);
+    if(insert_result.second)
+    {
+        this->orders[location] = order;
+    }
+    return insert_result.first->second;
 }
 
 }

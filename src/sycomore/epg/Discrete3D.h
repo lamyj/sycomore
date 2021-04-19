@@ -142,6 +142,8 @@ private:
         using RealVector = std::vector<Real, xsimd::aligned_allocator<Real, 64>>;
         
         // Shift-related data.
+        // Mapping between a normalized (i.e. folded) order and its location in
+        // the states vectors.
         robin_hood::unordered_flat_map<Bin, std::size_t> locations;
         decltype(Discrete3D::_orders) orders;
         decltype(Discrete3D::_F) F;
@@ -149,9 +151,6 @@ private:
         decltype(Discrete3D::_Z) Z;
         
         // Diffusion-related data.
-        
-        // Mapping between a normalized (i.e. folded) order and its location in
-        // the states vectors.
         std::vector<RealVector, xsimd::aligned_allocator<RealVector, 64>> k{3};
         RealVector b_L_D;
         RealVector b_T_plus_D;

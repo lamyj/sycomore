@@ -5,6 +5,7 @@
 
 #include <xsimd/xsimd.hpp>
 
+#include "sycomore/epg/robin_hood.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -119,6 +120,31 @@ private:
     
     Quantity _bin_width;
     std::vector<long long, xsimd::aligned_allocator<long long, 64>> _orders;
+    
+    // Data kept to avoid expansive re-allocation of memory.
+    class Cache
+    {
+    public:
+        // Shift-related data.
+        // Mapping between a normalized (i.e. folded) order and its location in
+        // the states vectors.
+        robin_hood::unordered_flat_map<long long, std::size_t> locations;
+        decltype(Discrete::_orders) orders;
+        decltype(Discrete::_F) F;
+        decltype(Discrete::_F_star) F_star;
+        decltype(Discrete::_Z) Z;
+        
+        // Diffusion-related data.
+        std::vector<Real, xsimd::aligned_allocator<Real, 64>> k;
+        
+        void update_shift(std::size_t size);
+        void update_diffusion(
+            std::size_t size, decltype(Discrete::_orders) const & orders,
+            Real bin_width);
+        std::size_t get_location(long long order);
+    };
+    
+    Cache _cache;
 };
     
 }
