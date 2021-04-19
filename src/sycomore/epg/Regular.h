@@ -125,6 +125,18 @@ private:
     
     /// @brief Shift all orders by given number of steps (may be negative).
     void _shift(int n);
+    
+    // Data kept to avoid expansive re-allocation of memory.
+    class Cache
+    {
+    public:
+        // Diffusion-related data.
+        std::vector<Real, xsimd::aligned_allocator<Real, 64>> k;
+        
+        void update_diffusion(std::size_t size, Real unit_gradient_area);
+    };
+    
+    Cache _cache;
 };
 
 }

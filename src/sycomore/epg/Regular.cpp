@@ -224,24 +224,43 @@ Regular
         return;
     }
     
-    auto const delta_k = (sycomore::gamma*gradient*duration).magnitude;
-    if(delta_k == 0)
+    auto const area = duration.magnitude*gradient.magnitude;
+    if(area == 0)
     {
         return;
     }
     
-    std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(
-        this->_states_count);
-    for(std::size_t i=0; i<k.size(); ++i)
+    auto const unit_gradient_area = this->_unit_gradient_area.magnitude;
+    if(unit_gradient_area == 0)
     {
-        k[i] = delta_k*i;
+        throw std::runtime_error(
+            "Cannot compute diffusion without unit gradient area");
     }
+    
+    auto const remainder = std::remainder(area, unit_gradient_area);
+    if(std::abs(remainder) >= this->_gradient_tolerance*unit_gradient_area)
+    {
+        throw std::runtime_error(
+            "Gradient is not a interger multiple of unit gradient");
+    }
+    
+    auto const delta_k = sycomore::gamma.magnitude*area;
+    
+    this->_cache.update_diffusion(
+        this->_states_count, unit_gradient_area);
+    
+    // std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(
+    //     this->_states_count);
+    // for(std::size_t i=0; i<k.size(); ++i)
+    // {
+    //     k[i] = unit_gradient_area*i;
+    // }
     
     auto const & tau = duration.magnitude;
     auto const & D = species.get_D()[0].magnitude;
     
     simd_api::diffusion(
-        delta_k, tau, D, k.data(),
+        delta_k, tau, D, this->_cache.k.data(),
         this->_F.data(), this->_F_star.data(), this->_Z.data(),
         this->_states_count);
 }
@@ -251,11 +270,11 @@ Regular
 ::off_resonance(Quantity const & duration)
 {
     auto const angle = 
-        duration * 2*M_PI*units::rad 
-        * (this->delta_omega+this->species.get_delta_omega());
-    if(angle.magnitude != 0)
+        duration.magnitude * 2*M_PI*units::rad 
+        * (this->delta_omega.magnitude+this->species.get_delta_omega().magnitude);
+    if(angle != 0)
     {
-        auto const rotations = operators::phase_accumulation(angle.magnitude);
+        auto const rotations = operators::phase_accumulation(angle);
         simd_api::off_resonance(
             rotations,
             this->_F.data(), this->_F_star.data(), this->_Z.data(),
@@ -272,7 +291,8 @@ Regular
         return;
     }
     
-    auto const delta_k = (sycomore::gamma*gradient*duration).magnitude;
+    auto const delta_k = (
+        sycomore::gamma.magnitude*gradient.magnitude*duration.magnitude);
     if(delta_k == 0)
     {
         return;
@@ -364,6 +384,17 @@ Regular
     else
     { 
         // n==0, nothing to do.
+    }
+}
+
+void
+Regular::Cache
+::update_diffusion(std::size_t size, Real unit_gradient_area)
+{
+    this->k.resize(size);
+    for(std::size_t order=0; order != size; ++order)
+    {
+        this->k[order] = order*unit_gradient_area;
     }
 }
 
