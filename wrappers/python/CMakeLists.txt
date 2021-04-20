@@ -31,24 +31,28 @@ if(BUILD_STANDALONE_PYTHON_WRAPPERS)
         COMPILE_FLAGS "${AVX512_FLAGS}")
     
     set(source_files ${source_files} ${lib_files})
-    if(WIN32)
-        add_definitions(-DBUILDING_SYCOMORE)
-    endif()
 endif()
-
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src ${PYTHON_INCLUDE_DIRS} ${xsimd_INCLUDE_DIRS})
 
 pybind11_add_module(pysycomore SHARED ${source_files} ${header_files})
 
-set_target_properties(pysycomore PROPERTIES OUTPUT_NAME _sycomore)
-if(APPLE)
-    set_target_properties(pysycomore PROPERTIES SUFFIX ".so")
-endif()
+target_compile_definitions(
+    pysycomore
+    PRIVATE
+    $<$<AND:$<PLATFORM_ID:Windows>,${BUILD_STANDALONE_PYTHON_WRAPPERS}>:BUILDING_SYCOMORE>)
+
+target_include_directories(
+    pysycomore 
+    PRIVATE 
+        ${CMAKE_SOURCE_DIR}/src ${PYTHON_INCLUDE_DIRS} ${xsimd_INCLUDE_DIRS})
 
 if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
     target_link_libraries(pysycomore PUBLIC libsycomore)
 endif()
+
+set_target_properties(
+    pysycomore PROPERTIES 
+    OUTPUT_NAME _sycomore
+    $<$<PLATFORM_ID:Darwin>:SUFFIX .so>)
 
 add_custom_target(
     pysycomore-pure ${CMAKE_COMMAND} -E echo "Pure-python files"

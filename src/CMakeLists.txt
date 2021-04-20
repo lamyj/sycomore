@@ -1,13 +1,5 @@
 find_package(PythonInterp REQUIRED)
 find_package(xsimd REQUIRED)
-if(USE_OPENMP)
-    find_package(OpenMP)
-    if(OPENMP_FOUND)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-    endif()
-endif()
 
 if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
     file(GLOB_RECURSE header_files "*.h")
@@ -34,29 +26,40 @@ if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
         sycomore/epg/simd_api_avx512.cpp PROPERTIES 
         COMPILE_FLAGS "${AVX512_FLAGS}")
     
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${xsimd_INCLUDE_DIRS})
-    
-    if(WIN32)
-        add_definitions(-DBUILDING_SYCOMORE)
-    endif()
-
     add_library(libsycomore ${source_files} ${header_files} ${template_files})
-    if(APPLE AND OPENMP_FOUND)
-        target_link_libraries(libsycomore ${OpenMP_omp_LIBRARY})
-    endif()
-    set_target_properties(libsycomore PROPERTIES OUTPUT_NAME sycomore)
-    set_target_properties(libsycomore PROPERTIES
-        VERSION ${sycomore_VERSION}
-        SOVERSION ${sycomore_MAJOR_VERSION})
-
-    install(
-        DIRECTORY sycomore/ DESTINATION include/sycomore
-        FILES_MATCHING PATTERN "*.h" PATTERN "*.txx")
+    
+    target_compile_definitions(
+        libsycomore
+        PRIVATE
+            $<$<PLATFORM_ID:Windows>:BUILDING_SYCOMORE>)
+    
+    target_include_directories(
+        libsycomore
+        PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/> $<INSTALL_INTERFACE:>
+            ${xsimd_INCLUDE_DIRS})
+    
+    set_target_properties(
+        libsycomore PROPERTIES 
+        OUTPUT_NAME sycomore 
+        VERSION ${sycomore_VERSION} 
+        SOVERSION ${sycomore_VERSION_MAJOR}
+        $<$<PLATFORM_ID:Darwin>:INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib>)
+    
     install(
         TARGETS libsycomore
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin)
+        EXPORT sycomoreTargets
+        ARCHIVE DESTINATION bin LIBRARY DESTINATION lib RUNTIME DESTINATION bin
+        PUBLIC_HEADER DESTINATION include/sycomore
+        INCLUDES DESTINATION include)
+    
+    foreach(include_file ${header_files} ${template_files})
+        file(
+            RELATIVE_PATH 
+            include_path ${CMAKE_CURRENT_SOURCE_DIR} ${include_file})
+        get_filename_component(include_path ${include_path} PATH)
+        install(FILES ${include_file} DESTINATION "include/${include_path}")
+    endforeach()
 endif()
 
 file(GLOB_RECURSE python_files "*.py")
