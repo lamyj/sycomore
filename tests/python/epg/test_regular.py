@@ -84,7 +84,7 @@ class TestRegular(unittest.TestCase):
     
     def test_diffusion(self):
         species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)
-        model = sycomore.epg.Regular(species)
+        model = sycomore.epg.Regular(species, unit_gradient_area=20*mT/m*ms)
         model.apply_pulse(47*deg, 23*deg)
         model.shift()
         model.relaxation(10*ms)
@@ -94,7 +94,7 @@ class TestRegular(unittest.TestCase):
             model,  
             [
                 [0, 0, 0.6851625292479138],
-                [0.25805111586158685-0.6079303318059787j, 0, 0]])
+                [0.2584947343504123-0.6089754314724013j, 0, 0]])
     
     def test_off_resonance(self):
         species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)
@@ -128,8 +128,8 @@ class TestRegular(unittest.TestCase):
             model, 
             [
                 [
-                    0.23262696138115807-0.5480347773241918j, 
-                    0.23262696138115807+0.5480347773241918j,
+                    0.23382875968307784-0.5508660366970124j, 
+                    0.23382875968307784+0.5508660366970124j,
                     0.6882952144238884]])
     
     def test_apply_time_interval_field_off_resonance(self):
