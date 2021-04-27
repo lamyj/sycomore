@@ -6,6 +6,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.name }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: "Debian 9 (Stretch)"
