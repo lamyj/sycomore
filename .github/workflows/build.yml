@@ -16,10 +16,24 @@ jobs:
             worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} worker"
             stop_worker: "docker kill worker"
             python: python3
-          - name: "Ubuntu 20.04 (Bionic)"
+          - name: "Debian 10 (Buster)"
+            os: ubuntu-latest
+            ci_type: deb
+            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm debian:buster"
+            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} worker"
+            stop_worker: "docker kill worker"
+            python: python3
+          - name: "Ubuntu 18.04 (Bionic)"
             os: ubuntu-latest
             ci_type: deb
             start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm ubuntu:bionic"
+            worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} worker"
+            stop_worker: "docker kill worker"
+            python: python3
+          - name: "Ubuntu 20.04 (Focal)"
+            os: ubuntu-latest
+            ci_type: deb
+            start_worker: "docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm ubuntu:focal"
             worker: "docker exec -w ${WORKSPACE} -e WORKSPACE=${WORKSPACE} worker"
             stop_worker: "docker kill worker"
             python: python3
