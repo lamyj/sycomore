@@ -9,7 +9,7 @@ export PYTHON=${PYTHON:-python}
 brew upgrade python || brew install python || true
 brew link --overwrite python || true
 
-for PACKAGE in boost cmake libomp ninja pybind11; do
+for PACKAGE in boost cmake libomp ninja pybind11 xsimd; do
     VERSIONS=$(brew ls --versions ${PACKAGE} || true)
     if [ -z "${VERSIONS}" ]; then
         COMMAND="install"
@@ -29,9 +29,3 @@ done
 
 NUMPY=$(${PYTHON} -c 'import sys; print("numpy" if sys.version >= "3.5" else "numpy<=1.16.4")')
 ${PYTHON} -m pip install -U ${NUMPY}
-
-wget -q -O /dev/stdout https://github.com/xtensor-stack/xsimd/archive/7.4.8.tar.gz | tar -x -z -f -
-cd xsimd-7.4.8
-cmake -DCMAKE_INSTALL_PREFIX=../vendor/xsimd .
-cmake --build . --target install
-cd ../
