@@ -22,7 +22,6 @@ for:
 install:
   - call "%VCVARS_PATH%" %PLATFORM%
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-  - dir %MINICONDA%
   - conda info -a
   - call .\.ci\windows\install.cmd
 build_script:
