@@ -30,13 +30,6 @@ build_stretch:
   image: debian:stretch
   variables:
     OS: deb
-  # Check the code samples in the documentation
-  after_script:
-    - apt-get update
-    - apt-get install -y python3-pip
-    - pip3 install sphinx sphinx_rtd_theme
-    - make -C docs html
-    - python3 docs/check_code_samples.py build 
 
 build_bionic:
   extends: .build_template

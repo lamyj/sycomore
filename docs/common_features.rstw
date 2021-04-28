@@ -14,25 +14,21 @@ Sycomore provides a unit system so that users do not have to convert their quant
 
 .. note:: The *micro* prefix is *u*, not *μ*, in order to keep ASCII names
 
+<<>>=
+import sycomore
+from sycomore.units import *
 
-.. code:: python
+# Combination of base units
+diffusion_coefficient = 0.89*um**2/ms
 
-    import sycomore
-    from sycomore.units import *
-    
-    # Combination of base units
-    diffusion_coefficient = 0.89*um**2/ms
-    
-    # Magnitude of the quantity, in SI unit
-    length = 180*cm
-    length_in_meters = length.magnitude # Equals to 1.8
-    
-    # Conversion: magnitude of the quantity, in specified unit
-    duration = 1*h
-    duration_in_seconds = duration.convert_to(s) # Equals to 3600
+# Magnitude of the quantity, in SI unit
+length = 180*cm
+length_in_meters = length.magnitude # Equals to 1.8
 
-
-
+# Conversion: magnitude of the quantity, in specified unit
+duration = 1*h
+duration_in_seconds = duration.convert_to(s) # Equals to 3600
+@
 
 .. note:: Take caution when importing all units name (``from sycomore.units import *``), as some names may clash with your code. In a long module with many variables, it is better to import only the required units (e.g. ``from sycomore.units import mT, m, ms``)
 
@@ -41,84 +37,53 @@ Species
 
 A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its diffusivity *D* and its relative resonance frequency Δω. It is described by the :class:`Species` class. |R1| and |R2| are mandatory parameters, all others are optional and are equal to 0 if unspecified. Using the :ref:`unit system<units>`, relaxation rates and relaxation times may be used interchangeably.
 
+<<>>=
+import sycomore
+from sycomore.units import *
 
-.. code:: python
-
-    import sycomore
-    from sycomore.units import *
-    
-    # Create a Species from either relaxation times, relaxation rates or both
-    species = sycomore.Species(1000*ms, 100*ms)
-    species = sycomore.Species(1*Hz, 10*Hz)
-    species = sycomore.Species(1000*ms, 10*Hz)
-
-
-
+# Create a Species from either relaxation times, relaxation rates or both
+species = sycomore.Species(1000*ms, 100*ms)
+species = sycomore.Species(1*Hz, 10*Hz)
+species = sycomore.Species(1000*ms, 10*Hz)
+@
 
 The diffusivity can be assigned either as a scalar (for isotropic diffusion) or as a tensor (for anistropic diffusion), but will always be returned as a tensor:
 
+<<>>=
+import sycomore
+from sycomore.units import *
 
-.. code:: python
+species = sycomore.Species(1000*ms, 100*ms)
+# Assign the diffusion coefficient as a scalar
+species.D = 3*um**2/s
+# The diffusion coefficient is stored on the diagonal of the tensor
+print(species.D[0])
 
-    import sycomore
-    from sycomore.units import *
-    
-    species = sycomore.Species(1000*ms, 100*ms)
-    # Assign the diffusion coefficient as a scalar
-    species.D = 3*um**2/s
-    # The diffusion coefficient is stored on the diagonal of the tensor
-    print(species.D[0])
-    
-    # Assign the diffusion coefficient as a tensor
-    species.D = [
-        3*um**2/s, 0*um**2/s, 0*um**2/s,
-        0*um**2/s, 2*um**2/s, 0*um**2/s,
-        0*um**2/s, 0*um**2/s, 1*um**2/s]
-    print(species.D)
-
-
-.. code::
-
-    3e-12 [ L^2 T^-1 ]
-    (3e-12 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 2e-12
-    [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 1e-12 [ L^2
-    T^-1 ])
-    
-
-
+# Assign the diffusion coefficient as a tensor
+species.D = [
+    3*um**2/s, 0*um**2/s, 0*um**2/s,
+    0*um**2/s, 2*um**2/s, 0*um**2/s,
+    0*um**2/s, 0*um**2/s, 1*um**2/s]
+print(species.D)
+@
 
 Time intervals
 --------------
 
 A time interval is specified by its duration and an optional magnetic field gradient. The gradient can be either as a scalar or as a 3D array, and can describe the amplitude (in *T/m*), the area (in *T/m\*s*) or the dephasing (in *rad/m*). A :func:`set_gradient` function is available for generic modification of the gradient.
 
+<<>>=
+import sycomore
+from sycomore.units import *
 
-.. code:: python
-
-    import sycomore
-    from sycomore.units import *
-    
-    # Scalar gradient, defined by its amplitude
-    interval = sycomore.TimeInterval(1*ms, 20*mT/m)
-    print(
-        interval.duration, "\n",
-        interval.gradient_amplitude, "\n",
-        interval.gradient_area/interval.duration, "\n",
-        interval.gradient_dephasing/(sycomore.gamma*interval.duration))
-
-
-.. code::
-
-    0.001 [ T ]
-     (0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M
-    T^-2 I^-1 ])
-     (0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M
-    T^-2 I^-1 ])
-     (0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M
-    T^-2 I^-1 ])
-    
-
-
+# Scalar gradient, defined by its amplitude
+interval = sycomore.TimeInterval(1*ms, 20*mT/m)
+print(
+    interval.duration, "\n",
+    interval.gradient_amplitude, "\n",
+    interval.gradient_area/interval.duration, "\n",
+    interval.gradient_dephasing/(sycomore.gamma*interval.duration))
+@
 
 Reference
 ---------

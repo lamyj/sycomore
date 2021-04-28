@@ -99,6 +99,14 @@ Reference
     
     The species being simulated
   
+  .. attribute:: threshold
+   
+    Minimum population of a state below which the state is considered emtpy (defaults to 0).
+  
+  .. attribute:: delta_omega
+   
+    Freqency offset (defaults to 0 Hz).
+  
   .. attribute:: orders
     
     The sequence of orders currently stored by the model, in the same order as
@@ -118,6 +126,7 @@ Reference
     Return the magnetization at a given state, expressed by its *index*.
   
   .. method:: state(order)
+    :noindex:
     
     Return the magnetization at a given state, expressed by its *order*.
 
@@ -128,6 +137,11 @@ Reference
   .. method:: apply_time_interval(duration, gradient=[0*T/m, 0*T/m, 0*T/m],  threshold=0.)
     
     Apply a time interval, i.e. relaxation, diffusion, and gradient. States with a population lower than *threshold* will be removed.
+  
+  .. method:: apply_time_interval(time_interval)
+    :noindex:
+    
+    Apply a time interval, i.e. relaxation, diffusion, and gradient.
   
   .. method:: shift(duration, gradient)
     
@@ -140,3 +154,7 @@ Reference
   .. method:: diffusion(duration, gradient)
     
     Simulate diffusion during given duration with given gradient amplitude.
+  
+  .. method:: off_resonance(duration)
+    
+    Simulate field- and species related off-resonance effects during given duration with given frequency offset.

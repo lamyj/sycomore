@@ -33,58 +33,49 @@ Usage
 
 The basic operators of Bloch simulation are :func:`sycomore.bloch.pulse` and :func:`sycomore.bloch.time_interval`. They both use the :class:`sycomore.Species` class and the :ref:`units<units>` system. The following code sample shows the simulation of a saturation-recuperation experiment: the system is idle for the first 100 ms, a 60° pulse is applied, and the system then relaxes for 1 s. The time step is 10 ms.
 
+<<name="saturation_recuperation", caption="Saturation-recuperation using Bloch simulation">>=
+import matplotlib.pyplot
+import numpy
+import sycomore
+from sycomore.units import *
 
-.. code:: python
+species = sycomore.Species(1000*ms, 100*ms)
+flip_angle = 60*deg
 
-    import matplotlib.pyplot
-    import numpy
-    import sycomore
-    from sycomore.units import *
-    
-    species = sycomore.Species(1000*ms, 100*ms)
-    flip_angle = 60*deg
-    
-    idle = sycomore.bloch.time_interval(species, 10*ms)
-    pulse = sycomore.bloch.pulse(flip_angle)
-    
-    t = 0*s
-    M = numpy.array([0,0,1,1])
-    
-    record = [[t, M[:3]/M[3]]]
-    for _ in range(10):
-        t = t+10*ms
-        M = idle @ M
-        record.append([t, M[:3]/M[3]])
-    
-    M = pulse @ M
+idle = sycomore.bloch.time_interval(species, 10*ms)
+pulse = sycomore.bloch.pulse(flip_angle)
+
+t = 0*s
+M = numpy.array([0,0,1,1])
+
+record = [[t, M[:3]/M[3]]]
+for _ in range(10):
+    t = t+10*ms
+    M = idle @ M
     record.append([t, M[:3]/M[3]])
-    
-    for _ in range(100):
-        t = t+10*ms
-        M = idle @ M
-        record.append([t, M[:3]/M[3]])
-    
-    time, magnetization = list(zip(*record))
-    magnetization = numpy.array(magnetization)
-    
-    x_axis = [x.convert_to(ms) for x in time]
-    matplotlib.pyplot.plot(
-        x_axis, numpy.linalg.norm(magnetization[:, :2], axis=-1), label="$M_\perp$")
-    matplotlib.pyplot.plot(x_axis, magnetization[:, 2], label="$M_z$")
-    matplotlib.pyplot.xlim(0)
-    matplotlib.pyplot.ylim(-0.02)
-    matplotlib.pyplot.xlabel("Time (ms)")
-    matplotlib.pyplot.ylabel("$M/M_0$")
-    matplotlib.pyplot.legend()
-    matplotlib.pyplot.tight_layout()
 
+M = pulse @ M
+record.append([t, M[:3]/M[3]])
 
-.. figure:: ./bloch_saturation_recuperation_1.png
-   :width: 15 cm
+for _ in range(100):
+    t = t+10*ms
+    M = idle @ M
+    record.append([t, M[:3]/M[3]])
 
-   Saturation-recuperation using Bloch simulation
+time, magnetization = list(zip(*record))
+magnetization = numpy.array(magnetization)
 
-
+x_axis = [x.convert_to(ms) for x in time]
+matplotlib.pyplot.plot(
+    x_axis, numpy.linalg.norm(magnetization[:, :2], axis=-1), label="$M_\perp$")
+matplotlib.pyplot.plot(x_axis, magnetization[:, 2], label="$M_z$")
+matplotlib.pyplot.xlim(0)
+matplotlib.pyplot.ylim(-0.02)
+matplotlib.pyplot.xlabel("Time (ms)")
+matplotlib.pyplot.ylabel("$M/M_0$")
+matplotlib.pyplot.legend()
+matplotlib.pyplot.tight_layout()
+@
 
 Reference
 ---------
