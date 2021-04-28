@@ -11,6 +11,8 @@ mkdir -p ${INSTALL_DIR}
 
 cd ${BUILD_DIR}
 
+export CMAKE_PREFIX_PATH=~/local
+
 cmake \
   -G Ninja \
   -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
