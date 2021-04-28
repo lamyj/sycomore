@@ -21,6 +21,6 @@ apt-get -y --no-install-recommends install \
 cd ~/
 wget -q -O /dev/stdout https://github.com/xtensor-stack/xsimd/archive/7.5.0.tar.gz | tar -x -z -f -
 cd xsimd-7.5.0
-cmake -DCMAKE_INSTALL_PREFIX=~/local/xsimd .
+cmake -DCMAKE_INSTALL_PREFIX=~/local .
 cmake --build . --target install
 cd ${WORKSPACE}

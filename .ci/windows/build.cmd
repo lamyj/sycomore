@@ -10,7 +10,6 @@ cmake ^
   -G Ninja ^
   -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% ^
   -DCMAKE_BUILD_TYPE=Release ^
-  -Dpybind11_DIR="C:/Libraries/pybind11/share/cmake/pybind11" ^
   -DBOOST_ROOT="C:/Libraries/boost_1_67_0" ^
   ${CMAKE_OPTIONS} ^
   ..

@@ -1,17 +1,5 @@
-REM WARNING: assume boost, cmake, and python are installed (this is the case
-REM with Appveyor). Otherwise, "choco install" works for CMake and Python.
-
-REM NOTE: OpenMP support is native in Visual C++
-
-REM NOTE: Ninja is installed on VS 2019 images
-choco install ninja
-
-cd C:\projects
-git clone https://github.com/pybind/pybind11.git
-cd pybind11
-git checkout v2.4.2
-cmake -DPYBIND11_TEST=OFF -DCMAKE_INSTALL_PREFIX=C:\Libraries\pybind11 -DCMAKE_GENERATOR_PLATFORM=%PLATFORM% .
-cmake --build . --config Release --target install
+REM Assume a working conda environment
+conda install -c conda-forge cmake ninja pybind11 xsimd
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 %PYTHON% -m pip install --upgrade pip

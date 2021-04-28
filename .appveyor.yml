@@ -3,9 +3,8 @@ image:
   - Visual Studio 2015
   - Visual Studio 2017
 environment:
-  PATH: C:\Python37-x64;C:\Python37-x64\Scripts;$(PATH)
+  MINICONDA: C:\Miniconda38-x64
   PLATFORM: x64
-  PYTHON: C:\Python37-x64\python.exe
   WORKSPACE: $(APPVEYOR_BUILD_FOLDER)
 for:
   - matrix:
@@ -22,6 +21,7 @@ for:
       BOOST_PATH: "C:\\Libraries\\boost_1_67_0\\lib64-msvc-14.1"
 install:
   - call "%VCVARS_PATH%" %PLATFORM%
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%PATH%"
   - call .\.ci\windows\install.cmd
 build_script:
   - call .\.ci\windows\build.cmd
