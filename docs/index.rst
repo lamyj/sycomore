@@ -1,7 +1,7 @@
 Sycomore -- an MRI simulation toolkit
 =====================================
 
-Sycomore is an MRI simulation toolkit providing :doc:`Bloch simulation<bloch>`, :doc:`Extended Phase Graphs (EPG)<epg/index>` (both :doc:`regular<epg/regular>` and :doc:`discrete<epg/discrete>`), and :doc:`Configuration Models<como>`. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime and further acceleration through `OpenMP`_.
+Sycomore is an MRI simulation toolkit providing :doc:`Bloch simulation<bloch>`, :doc:`Extended Phase Graphs (EPG)<epg/index>` (both :doc:`regular<epg/regular>` and :doc:`discrete<epg/discrete>`), and :doc:`Configuration Models<como>`. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime.
 
 Sycomore is free software, released under the `MIT license`_, and its source code is available on `GitHub`_.
 
@@ -22,11 +22,11 @@ Packaged versions of Sycomore are available on `pypi`_ and `Anaconda`_ for Linux
 | Windows          | 3.6, 3.7, 3.8 | 3.5, 3.6, 3.7, 3.8 |
 +------------------+---------------+--------------------+
 
-To install from `Anaconda`_, type ``conda install -c conda-forge sycomore``. To install from `pypi`_, type ``pip3 install sycomore`` (or ``pip install sycomore``). If you are installing from `pypi`_ and no pre-compiled version is available for your platform, pip will try to install from the source archive; in that case you will need a C++11 compiler, `CMake`_ and `pybind11`_ to successfully build Sycomore.
+To install from `Anaconda`_, type ``conda install -c conda-forge sycomore``. To install from `pypi`_, type ``pip3 install sycomore`` (or ``pip install sycomore``). If you are installing from `pypi`_ and no pre-compiled version is available for your platform, pip will try to install from the source archive; in that case you will need a C++11 compiler, `CMake`_, `xsimd`_ and `pybind11`_ to successfully build Sycomore.
 
 Additional details, including building from source, are provided in the :doc:`documentation<installation>`.
 
-As of November 2019, compatibility with Python 2 is still possible: however due to the `end of life of Python 2`_, ensuring this compatibility is not a goal of Sycomore, and no such package is distributed.
+As of April 2021, compatibility with Python 2 is still possible: however due to the `end of life of Python 2`_, ensuring this compatibility is not a goal of Sycomore, and no such package is distributed.
  
 Usage
 -----
@@ -97,7 +97,7 @@ Indices and tables
 .. _GitHub: https://github.com/lamyj/sycomore/
 .. _Heroku: https://sycomore.herokuapp.com/
 .. _MIT license: https://en.wikipedia.org/wiki/MIT_License
-.. _OpenMP: https://www.openmp.org/
 .. _pybind11: http://pybind11.readthedocs.io/
 .. _pypi: https://pypi.org/project/sycomore/
 .. _RARE sequence: https://doi.org/10.1002/mrm.1910030602
+.. _xsimd: https://xsimd.readthedocs.io/

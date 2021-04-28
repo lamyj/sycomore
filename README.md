@@ -3,7 +3,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/sycomore)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/sycomore.svg)](https://anaconda.org/conda-forge/sycomore)
 
-Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase Graphs (EPG) (both regular and discrete, including 3D), and Configuration Models. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime and further acceleration through [OpenMP][].
+Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase Graphs (EPG) (both regular and discrete, including 3D), and Configuration Models. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime.
 
 Sycomore is free software, released under the [MIT license][], and its source code is available on [GitHub][].
 
@@ -22,7 +22,7 @@ Packaged versions of Sycomore are available on [pypi][] and [Anaconda][] for Lin
 
 To install from [Anaconda][], type `conda install -c conda-forge sycomore`. To install from [pypi][], type `pip3 install sycomore` (or `pip install sycomore`). If you are installing from [pypi][] and no pre-compiled version is available for your platform, pip will try to install from the source archive.
 
-If you need to install Sycomore from source, you will need a C++11 compiler, [CMake][] and [pybind11][] to successfully build Sycomore. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test][].
+If you need to install Sycomore from source, you will need a C++11 compiler, [CMake][], [xsimd][] and [pybind11][] to successfully build Sycomore. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test][].
 
 Additional details are provided in the [documentation][].
 
@@ -82,8 +82,8 @@ The features and data structures are described in the documentation:
 [GitHub]: https://github.com/lamyj/sycomore/
 [Heroku]: https://sycomore.herokuapp.com/
 [MIT license]: https://en.wikipedia.org/wiki/MIT_License
-[OpenMP]: https://www.openmp.org/
 [pybind11]: http://pybind11.readthedocs.io/
 [pypi]: https://pypi.org/project/sycomore/
 [RARE sequence]: https://doi.org/10.1002/mrm.1910030602
 [regular EPG]: https://sycomore.readthedocs.io/en/latest/epg/regular.html
+[xsimd]: https://xsimd.readthedocs.io/
