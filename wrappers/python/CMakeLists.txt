@@ -38,7 +38,7 @@ pybind11_add_module(pysycomore SHARED ${source_files} ${header_files})
 target_compile_definitions(
     pysycomore
     PRIVATE
-    $<$<AND:$<PLATFORM_ID:Windows>,${BUILD_STANDALONE_PYTHON_WRAPPERS}>:BUILDING_SYCOMORE>)
+    $<$<AND:$<PLATFORM_ID:Windows>,$<BOOL:${BUILD_STANDALONE_PYTHON_WRAPPERS}>>:BUILDING_SYCOMORE>)
 
 target_include_directories(
     pysycomore 
