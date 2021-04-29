@@ -22,10 +22,10 @@ for:
 install:
   - call "%VCVARS_PATH%" %PLATFORM%
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-  - "set CMAKE_PREFIX_PATH=%MINICONDA%;%CMAKE_PREFIX_PATH%"
   - conda info -a
   - call .\.ci\windows\install.cmd
 build_script:
+  - "set CMAKE_PREFIX_PATH=%MINICONDA%;%CMAKE_PREFIX_PATH%"
   - call .\.ci\windows\build.cmd
 test_script:
   - call .\.ci\windows\post_build.cmd
