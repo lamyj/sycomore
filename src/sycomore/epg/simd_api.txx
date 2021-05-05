@@ -24,7 +24,7 @@ namespace simd_api
  ******************************************************************************/
 
 template<typename ValueType>
-void apply_pulse_d(
+void apply_pulse_w(
     std::vector<Complex> const & T,
     Complex * F, Complex * F_star, Complex * Z,
     std::size_t start, std::size_t end, std::size_t step)
@@ -58,8 +58,8 @@ apply_pulse_d(
     using Batch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % Batch::size;
     
-    apply_pulse_d<Batch>(T, F, F_star, Z, 0, simd_end, Batch::size);
-    apply_pulse_d<Complex>(T, F, F_star, Z, simd_end, states_count, 1);
+    apply_pulse_w<Batch>(T, F, F_star, Z, 0, simd_end, Batch::size);
+    apply_pulse_w<Complex>(T, F, F_star, Z, simd_end, states_count, 1);
 }
 
 /*******************************************************************************
@@ -67,7 +67,7 @@ apply_pulse_d(
  ******************************************************************************/
 
 template<typename ValueType>
-void relaxation_d(
+void relaxation_w(
     std::pair<Real, Real> const & E,
     Real * F, Real * F_star, Real * Z,
     std::size_t start, std::size_t end, std::size_t step)
@@ -98,8 +98,8 @@ relaxation_d(
     // Use 2*states_count as we are getting reinterpreted real arrays
     auto const simd_end = 2*states_count - 2*states_count % Batch::size;
     
-    relaxation_d<Batch>(E, F, F_star, Z, 0, simd_end, Batch::size);
-    relaxation_d<Real>(E, F, F_star, Z, simd_end, 2*states_count, 1);
+    relaxation_w<Batch>(E, F, F_star, Z, 0, simd_end, Batch::size);
+    relaxation_w<Real>(E, F, F_star, Z, simd_end, 2*states_count, 1);
 }
 
 /*******************************************************************************
@@ -107,7 +107,7 @@ relaxation_d(
  ******************************************************************************/
 
 template<typename RealType, typename ComplexType>
-void diffusion_d(
+void diffusion_w(
     Real delta_k, Real tau, Real D, Real const * k_array,
     Complex * F, Complex * F_star, Complex * Z,
     std::size_t begin, std::size_t end, std::size_t step)
@@ -143,9 +143,9 @@ diffusion_d(
     using ComplexBatch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % ComplexBatch::size;
     
-    diffusion_d<RealBatch, ComplexBatch>(
+    diffusion_w<RealBatch, ComplexBatch>(
         delta_k, tau, D, k, F, F_star, Z, 0, simd_end, ComplexBatch::size);
-    diffusion_d<Real, Complex>(
+    diffusion_w<Real, Complex>(
         delta_k, tau, D, k, F, F_star, Z, simd_end, states_count, 1);
 }
 
@@ -154,7 +154,7 @@ diffusion_d(
  ******************************************************************************/
 
 template<typename RealType, typename ComplexType>
-void diffusion_3d_d(
+void diffusion_3d_w(
     Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
     Complex * F, Complex * F_star, Complex * Z,
     std::size_t begin, std::size_t end, std::size_t step)
@@ -189,16 +189,16 @@ diffusion_3d_d(
     using ComplexBatch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % ComplexBatch::size;
     
-    diffusion_3d_d<RealBatch, ComplexBatch>(
+    diffusion_3d_w<RealBatch, ComplexBatch>(
         b_L_D, b_T_plus_D, b_T_minus_D, 
         F, F_star, Z, 0, simd_end, ComplexBatch::size);
-    diffusion_3d_d<Real, Complex>(
+    diffusion_3d_w<Real, Complex>(
         b_L_D, b_T_plus_D, b_T_minus_D, 
         F, F_star, Z, simd_end, states_count, 1);
 }
 
 template<typename ValueType>
-void diffusion_3d_b_d(
+void diffusion_3d_b_w(
     Real const * k_m, Real const * k_n, Real delta_k_m, Real delta_k_n, 
     Real delta_k_product_term, Real tau, Real D_mn,
     Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
@@ -242,11 +242,11 @@ diffusion_3d_b_d(
     using Batch = simd::Batch<Real, InstructionSet>;
     auto const simd_end = states_count - states_count % Batch::size;
     
-    diffusion_3d_b_d<Batch>(
+    diffusion_3d_b_w<Batch>(
         k_m, k_n, delta_k_m, delta_k_n, delta_k_product_term, tau, D_mn, 
         b_L_D, b_T_plus_D, b_T_minus_D,
         0, simd_end, Batch::size);
-    diffusion_3d_b_d<Real>(
+    diffusion_3d_b_w<Real>(
         k_m, k_n, delta_k_m, delta_k_n, delta_k_product_term, tau, D_mn, 
         b_L_D, b_T_plus_D, b_T_minus_D,
         simd_end, states_count, 1);
@@ -257,7 +257,7 @@ diffusion_3d_b_d(
  ******************************************************************************/
 
 template<typename ValueType>
-void off_resonance_d(
+void off_resonance_w(
     std::pair<Complex, Complex> const & phi,
     Complex * F, Complex * F_star, Complex * Z,
     std::size_t begin, std::size_t end, std::size_t step)
@@ -284,8 +284,8 @@ off_resonance_d(
     using Batch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % Batch::size;
     
-    off_resonance_d<Batch>(phi, F, F_star, Z, 0, simd_end, Batch::size);
-    off_resonance_d<Complex>(phi, F, F_star, Z, simd_end, states_count, 1);
+    off_resonance_w<Batch>(phi, F, F_star, Z, 0, simd_end, Batch::size);
+    off_resonance_w<Complex>(phi, F, F_star, Z, simd_end, states_count, 1);
 }
 
 /*******************************************************************************
@@ -293,7 +293,7 @@ off_resonance_d(
  ******************************************************************************/
 
 template<typename RealType, typename ComplexType>
-void bulk_motion_d(
+void bulk_motion_w(
     Real delta_k, Real v, Real tau, Real const * k_array,
     Complex * F, Complex * F_star, Complex * Z,
     std::size_t begin, std::size_t end, std::size_t step)
@@ -330,9 +330,9 @@ bulk_motion_d(
     using ComplexBatch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % ComplexBatch::size;
     
-    bulk_motion_d<RealBatch, ComplexBatch>(
+    bulk_motion_w<RealBatch, ComplexBatch>(
         delta_k, v, tau, k, F, F_star, Z, 0, simd_end, ComplexBatch::size);
-    bulk_motion_d<Real, Complex>(
+    bulk_motion_w<Real, Complex>(
         delta_k, v, tau, k, F, F_star, Z, simd_end, states_count, 1);
 }
 

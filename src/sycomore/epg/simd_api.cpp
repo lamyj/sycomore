@@ -25,7 +25,7 @@ apply_pulse_d<0>(
     std::vector<Complex> const & T,
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {
-    apply_pulse_d<Complex>(T, F, F_star, Z, 0, states_count, 1);
+    apply_pulse_w<Complex>(T, F, F_star, Z, 0, states_count, 1);
 }
 
 /*******************************************************************************
@@ -39,7 +39,7 @@ relaxation_d<0>(
     Real * F, Real * F_star, Real * Z, unsigned int states_count)
 {
     // Pass 2*states_count as we are getting reinterpreted real arrays
-    relaxation_d<Real>(E, F, F_star, Z, 0, 2*states_count, 1);
+    relaxation_w<Real>(E, F, F_star, Z, 0, 2*states_count, 1);
 }
 
 /*******************************************************************************
@@ -52,7 +52,7 @@ diffusion_d<0>(
     Real delta_k, Real tau, Real D, Real const * k,
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {
-    diffusion_d<Real, Complex>(
+    diffusion_w<Real, Complex>(
         delta_k, tau, D, k, F, F_star, Z, 0, states_count, 1);
 }
 
@@ -68,7 +68,7 @@ diffusion_3d_b_d<0>(
     Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D,
     unsigned int states_count)
 {
-    diffusion_3d_b_d<Real>(
+    diffusion_3d_b_w<Real>(
         k_m, k_n, delta_k_m, delta_k_n, delta_k_product_term, tau, D_mn, 
         b_L_D, b_T_plus_D, b_T_minus_D,
         0, states_count, 1);
@@ -80,7 +80,7 @@ diffusion_3d_d<0>(
     Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {
-    diffusion_3d_d<Real, Complex>(
+    diffusion_3d_w<Real, Complex>(
         b_L_D, b_T_plus_D, b_T_minus_D, F, F_star, Z, 0, states_count, 1);
 }
 
@@ -94,7 +94,7 @@ off_resonance_d<0>(
     std::pair<Complex, Complex> const & phi,
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {
-    off_resonance_d<Complex>(phi, F, F_star, Z, 0, states_count, 1);
+    off_resonance_w<Complex>(phi, F, F_star, Z, 0, states_count, 1);
 }
 
 /*******************************************************************************
@@ -107,7 +107,7 @@ bulk_motion_d<0>(
     Real delta_k, Real v, Real tau, Real const * k,
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {
-    bulk_motion_d<Real, Complex>(
+    bulk_motion_w<Real, Complex>(
         delta_k, v, tau, k, F, F_star, Z, 0, states_count, 1);
 }
 
