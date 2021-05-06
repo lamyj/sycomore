@@ -14,13 +14,13 @@ if(BUILD_STANDALONE_PYTHON_WRAPPERS)
     if(WIN32)
         set_source_files_properties(
             ${CMAKE_SOURCE_DIR}/src/sycomore/epg/simd_api_sse2.cpp PROPERTIES
-            COMPILE_FLAGS "/arch:sse2")
+            COMPILE_FLAGS "/arch:SSE2")
         set_source_files_properties(
             ${CMAKE_SOURCE_DIR}/src/sycomore/epg/simd_api_avx.cpp PROPERTIES
-            COMPILE_FLAGS "/arch:avx")
+            COMPILE_FLAGS "/arch:AVX")
         set_source_files_properties(
             ${CMAKE_SOURCE_DIR}/src/sycomore/epg/simd_api_avx512.cpp PROPERTIES
-            COMPILE_FLAGS "/arch:avx512")
+            COMPILE_FLAGS "/arch:AVX512")
     else()
         set_source_files_properties(
             ${CMAKE_SOURCE_DIR}/src/sycomore/epg/simd_api_sse2.cpp PROPERTIES

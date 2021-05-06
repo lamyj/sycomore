@@ -11,11 +11,14 @@ if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
     
     if(WIN32)
         set_source_files_properties(
-            sycomore/epg/simd_api_sse2.cpp PROPERTIES COMPILE_FLAGS "/arch:sse2")
+            sycomore/epg/simd_api_sse2.cpp PROPERTIES 
+            COMPILE_FLAGS "/arch:SSE2")
         set_source_files_properties(
-            sycomore/epg/simd_api_avx.cpp PROPERTIES COMPILE_FLAGS "/arch:avx")
+            sycomore/epg/simd_api_avx.cpp PROPERTIES
+            COMPILE_FLAGS "/arch:AVX")
         set_source_files_properties(
-            sycomore/epg/simd_api_avx512.cpp PROPERTIES COMPILE_FLAGS "/arch:avx512")
+            sycomore/epg/simd_api_avx512.cpp PROPERTIES
+            COMPILE_FLAGS "/arch:AVX512")
     else()
         set_source_files_properties(
             sycomore/epg/simd_api_sse2.cpp PROPERTIES COMPILE_FLAGS "-msse2")
