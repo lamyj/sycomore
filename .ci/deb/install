@@ -9,6 +9,9 @@ UNOFFICIAL=https://iris-packages.s3.unistra.fr
 apt-get -y --no-install-recommends install gnupg software-properties-common wget
 wget -O - https://iris-packages.s3.unistra.fr/gpg.key | apt-key add -
 DIST=$(lsb_release -cs)
+if [ "${DIST}" = "stretch"]; then
+  apt-get -y --no-install-recommends install apt-transport-https
+fi
 if wget -q -O /dev/null ${UNOFFICIAL}/apt/dists/${DIST}/Release; then
   add-apt-repository "deb ${UNOFFICIAL}/apt ${DIST} main"
 fi
