@@ -94,7 +94,7 @@ class TestRegular(unittest.TestCase):
             model,  
             [
                 [0, 0, 0.6851625292479138],
-                [0.2584947343504123-0.6089754314724013j, 0, 0]])
+                [0.25805111586158685-0.60793033180597855j, 0, 0]])
     
     def test_off_resonance(self):
         species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)

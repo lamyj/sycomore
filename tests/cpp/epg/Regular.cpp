@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(Diffusion, *boost::unit_test::tolerance(1e-9))
         model, 
         {
             {0, 0, 0.6851625292479138},
-            {{0.2584947343504123, -0.6089754314724013}, 0, 0}});
+            {{0.25805111586158685, -0.60793033180597855}, 0, 0}});
 }
 
 BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-9))

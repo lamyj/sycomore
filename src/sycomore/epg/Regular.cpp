@@ -246,15 +246,7 @@ Regular
     
     auto const delta_k = sycomore::gamma.magnitude*area;
     
-    this->_cache.update_diffusion(
-        this->_states_count, unit_gradient_area);
-    
-    // std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(
-    //     this->_states_count);
-    // for(std::size_t i=0; i<k.size(); ++i)
-    // {
-    //     k[i] = unit_gradient_area*i;
-    // }
+    this->_cache.update_diffusion(this->_states_count, unit_gradient_area);
     
     auto const & tau = duration.magnitude;
     auto const & D = species.get_D()[0].magnitude;
@@ -394,7 +386,7 @@ Regular::Cache
     this->k.resize(size);
     for(std::size_t order=0; order != size; ++order)
     {
-        this->k[order] = order*unit_gradient_area;
+        this->k[order] = order*sycomore::gamma.magnitude*unit_gradient_area;
     }
 }
 
