@@ -9,7 +9,7 @@ if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
     list(SORT source_files)
     list(SORT template_files)
     
-    if(WIN32)
+    if(MSVC)
         set_source_files_properties(
             sycomore/epg/simd_api_sse2.cpp PROPERTIES 
             COMPILE_FLAGS "/arch:SSE2")

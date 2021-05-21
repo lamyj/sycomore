@@ -11,7 +11,7 @@ list(SORT python_files)
 if(BUILD_STANDALONE_PYTHON_WRAPPERS)
     file(GLOB_RECURSE lib_files "${CMAKE_SOURCE_DIR}/src/*.cpp")
     
-    if(WIN32)
+    if(MSVC)
         set_source_files_properties(
             ${CMAKE_SOURCE_DIR}/src/sycomore/epg/simd_api_sse2.cpp PROPERTIES
             COMPILE_FLAGS "/arch:SSE2")
