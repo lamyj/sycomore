@@ -337,16 +337,9 @@ void
 Discrete3D
 ::diffusion(Quantity const & duration, Array<Quantity> const & gradient)
 {
-    bool all_zero=true;
-    for(std::size_t i=0; i<9; ++i)
-    {
-        if(this->species.get_D()[i].magnitude != 0)
-        {
-            all_zero = false;
-            break;
-        }
-    }
-    if(all_zero)
+    if(std::all_of(
+        this->species.get_D().begin(), this->species.get_D().end(), 
+        [](Quantity const & x) { return x.magnitude == 0;}))
     {
         return;
     }
@@ -358,6 +351,10 @@ Discrete3D
         sycomore::gamma.magnitude*gradient[1].magnitude*tau,
         sycomore::gamma.magnitude*gradient[2].magnitude*tau
     };
+    if(std::all_of(delta_k.begin(), delta_k.end(), [](Real x) { return x == 0;}))
+    {
+        return;
+    }
     
     this->_cache.update_diffusion(
         this->size(), this->_orders, this->_bin_width.magnitude);

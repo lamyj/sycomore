@@ -307,6 +307,10 @@ Discrete
     
     auto const delta_k = (
         sycomore::gamma.magnitude*gradient.magnitude*duration.magnitude);
+    if(delta_k == 0)
+    {
+        return;
+    }
     
     this->_cache.update_diffusion(
         this->size(), this->_orders, this->_bin_width.magnitude);
