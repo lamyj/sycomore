@@ -1,4 +1,4 @@
-name: Build Sycomore
+name: Build Sycomore (Unix)
 on: push
 
 jobs:
@@ -45,26 +45,12 @@ jobs:
             stop_worker: ""
             python: /usr/local/bin/python3
             cmake_options: "-DPYTHON_EXECUTABLE=/usr/local/bin/python3"
-          - name: "Windows Server 2019"
-            os: windows-latest
-            ci_type: windows
-            start_worker: ""
-            worker: ""
-            stop_worker: ""
-            python: python
     steps:
-      - name: Configure environment (Unix)
-        if: ${{ !contains(matrix.os, 'windows') }}
+      - name: Configure environment
         run: |
           echo "WORKSPACE=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
           echo "PYTHON=${{ matrix.python }}" >> $GITHUB_ENV
           echo "CMAKE_OPTIONS=${{ matrix.cmake_options }}" >> $GITHUB_ENV
-      - name: Configure environment (Windows)
-        if: ${{ contains(matrix.os, 'windows') }}
-        run: |
-          echo "WORKSPACE=$Env:GITHUB_WORKSPACE" >> $Env:GITHUB_ENV
-          echo "PYTHON=${{ matrix.python }}" >> $Env:GITHUB_ENV
-          echo "CMAKE_OPTIONS=${{ matrix.cmake_options }}" >> $Env:GITHUB_ENV
       - name: Checkout latest revision
         uses: actions/checkout@v2
       - name: Start the worker
