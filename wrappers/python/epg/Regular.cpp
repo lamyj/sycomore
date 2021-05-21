@@ -30,6 +30,9 @@ void wrap_epg_Regular(pybind11::module & m)
         .def_readwrite("delta_omega", &Regular::delta_omega)
         .def_readwrite("velocity", &Regular::velocity)
         .def_property_readonly(
+            "unit_gradient_area", &Regular::unit_gradient_area,
+            "Unit gradient area of the model.")
+        .def_property_readonly(
             "states_count", &Regular::states_count, 
             "Number of states in the model.")
         .def(
