@@ -21,7 +21,7 @@ namespace epg
 
 /**
  * @brief Regular EPG model, where the gradient moment is assumed to be
- * identical during each time interval.
+ * a multiple of a user-specified unitary moment during each time interval.
  *
  * In this model, the orders of the model are consecutive positive integers
  * starting at 0.

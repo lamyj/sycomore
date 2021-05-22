@@ -81,11 +81,11 @@ public:
 
     /**
      * @brief Return all states in the model, where each state is stored as
-     * F̃(k), Z̃(k).
+     * F(k), Z(k).
      */
     std::vector<Complex> states() const;
 
-    /// @brief Return the echo signal, i.e. F̃_0
+    /// @brief Return the echo signal, i.e. F_0
     Complex const & echo() const;
 
     /// @brief Apply an RF hard pulse.

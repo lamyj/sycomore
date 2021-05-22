@@ -60,8 +60,7 @@ BOOST_FIXTURE_TEST_CASE(Regular, Fixture, *boost::unit_test::tolerance(1e-5))
     BOOST_TEST(analytical.second == epg.second);
 }
 
-BOOST_FIXTURE_TEST_CASE(
-    RegularThreshold, Fixture, *boost::unit_test::tolerance(1e-5))
+BOOST_FIXTURE_TEST_CASE(RegularThreshold, Fixture, *boost::unit_test::tolerance(1e-5))
 {
     sycomore::epg::Regular model(species, {0,0,1}, 100, G_tau);
     model.threshold = 1e-6;
@@ -80,8 +79,7 @@ BOOST_FIXTURE_TEST_CASE(
     BOOST_TEST(analytical.second == epg.second);
 }
 
-BOOST_FIXTURE_TEST_CASE(
-    DiscreteNoReadout, Fixture, *boost::unit_test::tolerance(1e-5))
+BOOST_FIXTURE_TEST_CASE(DiscreteNoReadout, Fixture, *boost::unit_test::tolerance(1e-5))
 {
     sycomore::epg::Discrete model(species);
     std::pair<double, double> epg;
@@ -98,8 +96,7 @@ BOOST_FIXTURE_TEST_CASE(
     BOOST_TEST(analytical.second == epg.second);
 }
 
-BOOST_FIXTURE_TEST_CASE(
-    DiscreteThresholdNoReadout, Fixture, *boost::unit_test::tolerance(1e-5))
+BOOST_FIXTURE_TEST_CASE(DiscreteThresholdNoReadout, Fixture, *boost::unit_test::tolerance(1e-5))
 {
     sycomore::epg::Discrete model(species);
     model.threshold = 1e-6;
@@ -118,8 +115,7 @@ BOOST_FIXTURE_TEST_CASE(
     BOOST_TEST(analytical.second == epg.second);
 }
 
-BOOST_FIXTURE_TEST_CASE(
-    DiscreteWithReadout, Fixture, *boost::unit_test::tolerance(5e-5))
+BOOST_FIXTURE_TEST_CASE(DiscreteWithReadout, Fixture, *boost::unit_test::tolerance(5e-5))
 {
     // This follows the DW-DESS implementation in Fig. 2 of "Quantitative In 
     // Vivo Diffusion Imaging of Cartilage Using Double Echo Steady-State Free
@@ -165,8 +161,7 @@ BOOST_FIXTURE_TEST_CASE(
     BOOST_TEST(analytical.second == epg.second);
 }
 
-BOOST_FIXTURE_TEST_CASE(
-    DiscreteThresholdWithReadout, Fixture, *boost::unit_test::tolerance(5e-5))
+BOOST_FIXTURE_TEST_CASE(DiscreteThresholdWithReadout, Fixture, *boost::unit_test::tolerance(5e-5))
 {
     sycomore::Quantity const readout_duration = 0.1_us;
     sycomore::Quantity const voxel_size{10_cm};

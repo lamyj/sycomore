@@ -29,7 +29,7 @@ Discrete
 : species(species), _bin_width(bin_width), _F(1, 0), _F_star(1, 0), _Z(1, 0), 
     threshold(threshold)
 {
-    // Store magnetization as lines of F̃, F̃^*_, Z̃
+    // Store magnetization as lines of F, F*_, Z
     auto const magnetization = as_complex_magnetization(initial_magnetization);
     this->_F[0] = std::sqrt(2)*magnetization.p;
     this->_F_star[0] = std::sqrt(2)*magnetization.m;
