@@ -1,7 +1,7 @@
 Regular (constant gradient moment) EPG
 ======================================
 
-In the regular EPG model, the dephasing order is reduced to a unitless integer :math:`k\ge 0` which represents a multiplicative factor of some arbitrary basic dephasing. The implementation of regular EPG in Sycomore has two high-level operations: :meth:`Regular.apply_pulse` to simulate an RF hard pulse and :meth:`Regular.apply_time_interval` which simulates relaxation, diffusion and dephasing due to gradients. The lower-level EPG operators used by :meth:`Regular.apply_time_interval` are also accessible as :meth:`Regular.relaxation`, :meth:`Regular.diffusion` and :meth:`Regular.shift`. The states of the model are stored in :attr:`Regular.states`, and the fully-focused magnetization (i.e. :math:`\tilde{F}_0`) is stored in :attr:`Regular.echo`.
+In the regular EPG model, the dephasing order is reduced to a unitless integer :math:`k\ge 0` which represents a multiplicative factor of some arbitrary basic dephasing. The implementation of regular EPG in Sycomore has two high-level operations: :meth:`sycomore.Regular.apply_pulse` to simulate an RF hard pulse and :meth:`sycomore.Regular.apply_time_interval` which simulates relaxation, diffusion and dephasing due to gradients. The lower-level EPG operators used by :meth:`sycomore.Regular.apply_time_interval` are also accessible as :meth:`sycomore.Regular.relaxation`, :meth:`sycomore.Regular.diffusion` and :meth:`sycomore.Regular.shift`. The states of the model are stored in :attr:`sycomore.Regular.states`, and the fully-focused magnetization (i.e. :math:`F_0`) is stored in :attr:`sycomore.Regular.echo`.
 
 For simulations involving multiple gradient moments (all multiple of a given gradient moment), the "unit" gradient moment must be declared when creating the model; for simulations involving only a single gradient moment, this declaration is optional, but should be present nevertheless.
 
@@ -69,6 +69,10 @@ Reference
     
     Velocity of coherent motion (defaults to 0 m/s).
 
+  .. attribute:: unit_gradient_area
+    
+    Unit gradient area of the model.
+  
   .. attribute:: states_count
     
     The number of states currently stored by the model. This attribute is read-only.
@@ -79,7 +83,7 @@ Reference
   
   .. attribute:: echo
     
-    The echo signal, i.e. :math:`\tilde{F}_0` (read-only).
+    The echo signal, i.e. :math:`F_0` (read-only).
   
   .. method:: state(index)
     

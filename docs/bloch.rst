@@ -1,12 +1,12 @@
 Bloch simulation
 ================
 
-The Bloch simulation in Sycomore is based on Hargreaves's 2001 paper `Characterization and Reduction of the Transient Response in Steady-State MR Imaging`_ where limiting cases of the full spin behavior (instantaneous RF pulse, "pure" relaxation, "pure" precession, etc.) are expressed as matrices. The matrices representing building blocks of a sequence are multiplied amongst them, forming a single matrix operator for a repetition. Iterating this process yields a fast simulation of the evolution of a single isochromat and the eigenanalysis of the resulting matrix yields important insights on the steady-state of the sequence.
+The Bloch simulation (or isochromat simulation) in Sycomore is based on Hargreaves's 2001 paper `Characterization and Reduction of the Transient Response in Steady-State MR Imaging`_ where limiting cases of the full spin behavior (instantaneous RF pulse, "pure" relaxation, "pure" precession, etc.) are expressed as matrices. The matrices representing building blocks of a sequence are multiplied amongst them, forming a single matrix operator for a repetition. Iterating this process yields a fast simulation of the evolution of a single isochromat and the eigenanalysis of the resulting matrix yields important insights on the steady-state of the sequence.
 
 Homogeneous coordinates
 -----------------------
 
-An `homogeneous form`_ of all matrices and vectors is used to obtain a purely multiplicative form of the matrix operators. Using homogenous coordinates (also called projective coordinates), a vector in :math:`\mathbb{R}^3` with Cartesian coordinates :math:`(x_c, y_c, z_c)` is represented as a *set* of 4D vectors in :math:`\mathbb{PR}^3`, the three dimension projective space, :math:`(x_p, y_p, z_p, w)` so that :math:`(x_c, y_c, z_c) = (x_p/w, y_p/w, z_p/w)`. In this representation, any geometric transformation which can be expressed as a 3×3 matrix :math:`M` can also be represented as a 4×4 homogeneous matrix:
+An `homogeneous form`_ of all matrices and vectors is used to obtain a purely multiplicative form of the matrix operators. Using homogenous coordinates (also called projective coordinates), a vector in :math:`\mathbb{R}^3` with Cartesian coordinates :math:`(x_c, y_c, z_c)` is represented as a *set* of 4D vectors in :math:`\mathbb{PR}^3`, the three-dimensional projective space, :math:`(x_p, y_p, z_p, w)` so that :math:`(x_c, y_c, z_c) = (x_p/w, y_p/w, z_p/w)`. In this representation, any geometric transformation which can be expressed as a 3×3 matrix :math:`M` can also be represented as a 4×4 homogeneous matrix:
 
 .. math::
   

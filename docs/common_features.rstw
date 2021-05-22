@@ -8,9 +8,9 @@ Units
 
 MRI simulations deal with various quantities: times, frequencies and angular frequencies, magnetic field strength, gradient moments, etc. All those quantities use different usual prefixes, but not always the same: relaxation time and sequence timing are usually expressed in milliseconds, while the gyromagnetic ratio is expressed in *MHz/T* (i.e. inverse of microseconds) gradients moments are expressed in *mT/m⋅ms* and slice thickness in millimeters (on clinical scanners) or micrometers (on pre-clinical scanners). This wealth of units makes it very easy to get quantities wrong by a factor of 1000 or more.
 
-Sycomore provides a unit system so that users do not have to convert their quantities to a specific unit. Units may be declared by multiplying or dividing by the unit name (e.g. *500\*ms*). Those two syntaxes can be mixed in order to use more complex units (e.g. *267.522\*MHz/T*). Unit objects follow the usual arithmetic rules, and all SI `base units`_, `derived units`_ and `prefixes`_ are defined. 
+Sycomore provides a unit system so that users do not have to convert their quantities to a specific unit. Units may be declared by multiplying or dividing by the unit name (e.g. ``500*ms``). Those two syntaxes can be mixed in order to use more complex units (e.g. ``267.522*MHz/T``). Unit objects follow the usual arithmetic rules, and all SI `base units`_, `derived units`_ and `prefixes`_ are defined. 
 
-:class:`Quantity` objects contain their value in the base SI unit and may be converted to a compatible unit. Common arithmetic operations (addition, subtraction, multiplication, division, power) are implemented, as well as most of `numpy numeric functions`_. The following code sample summarizes these features.
+:class:`sycomore.Quantity` objects contain their value in the base SI unit and may be converted to a compatible unit. Common arithmetic operations (addition, subtraction, multiplication, division, power) are implemented, as well as most of `numpy numeric functions`_. The following code sample summarizes these features.
 
 .. note:: The *micro* prefix is *u*, not *μ*, in order to keep ASCII names
 
@@ -35,7 +35,7 @@ duration_in_seconds = duration.convert_to(s) # Equals to 3600
 Species
 -------
 
-A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its diffusivity *D* and its relative resonance frequency Δω. It is described by the :class:`Species` class. |R1| and |R2| are mandatory parameters, all others are optional and are equal to 0 if unspecified. Using the :ref:`unit system<units>`, relaxation rates and relaxation times may be used interchangeably.
+A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its diffusivity *D* and its relative resonance frequency Δω. It is described by the :class:`sycomore.Species` class. |R1| and |R2| are mandatory parameters, all others are optional and are equal to 0 if unspecified. Using the :ref:`unit system<units>`, relaxation rates and relaxation times may be used interchangeably.
 
 <<>>=
 import sycomore
@@ -70,7 +70,7 @@ print(species.D)
 Time intervals
 --------------
 
-A time interval is specified by its duration and an optional magnetic field gradient. The gradient can be either as a scalar or as a 3D array, and can describe the amplitude (in *T/m*), the area (in *T/m\*s*) or the dephasing (in *rad/m*). A :func:`set_gradient` function is available for generic modification of the gradient.
+A time interval is specified by its duration and an optional magnetic field gradient. The gradient can be either as a scalar or as a 3D array, and can describe the amplitude (in *T/m*), the area (in *T/m\*s*) or the dephasing (in *rad/m*). A :func:`sycomore.TimeInterval.set_gradient` function is available for generic modification of the gradient.
 
 <<>>=
 import sycomore
@@ -133,6 +133,8 @@ Reference
     Frequency offset
 
 .. class:: sycomore.TimeInterval(duration, gradient=0*T/m)
+  
+  Gradient may be specified as amplitude (in ``T/m``), area (in ``T/m*s``) or dephasing (in ``rad/m``).
   
   .. attribute:: duration
       

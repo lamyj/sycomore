@@ -22,7 +22,7 @@ import re
 # -- Project information -----------------------------------------------------
 
 project = 'Sycomore'
-copyright = '2019, Julien Lamy'
+copyright = '2019-2021, Julien Lamy'
 author = 'Julien Lamy'
 
 # The short X.Y version

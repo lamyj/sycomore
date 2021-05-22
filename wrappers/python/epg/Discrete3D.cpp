@@ -58,9 +58,9 @@ void wrap_epg_Discrete3D(pybind11::module & m)
                 return states_py;
             },
             "Return all states in the model, where each state is stored as "
-            "F̃(k), Z̃(k).")
+            "F(k), Z(k).")
         .def_property_readonly(
-            "echo", &Discrete3D::echo, "Echo signal, i.e. F̃_0")
+            "echo", &Discrete3D::echo, "Echo signal, i.e. F_0")
         .def(
             "apply_pulse", &Discrete3D::apply_pulse,
             arg("angle"), arg("phase")=0*units::rad,

@@ -5,85 +5,101 @@ In the 3D discrete EPG model, the gradient moments may vary across time interval
 
 The following code sample simulates a PGSE diffusion sequence in an anisotropic medium and shows the dependency of the signal attenuation to the relative orientation of diffusion tensor and of the diffusion gradient.
 
-.. code-block:: python
+
+.. code:: python
+
+    import numpy
+    import sycomore
+    from sycomore.units import *
+    import vtk
+    import vtk.numpy_interface.dataset_adapter
     
-  import mayavi.mlab
-  import numpy
-  import sycomore
-  from sycomore.units import *
-  from tvtk.api import tvtk
+    species = sycomore.Species(
+        1000*ms, 100*ms, numpy.diag([4000, 1500, 10])*um**2/s)
+    
+    TE = 50*ms
+    G = 50*mT/m
+    delta = 18*ms
+    # Since b = (γGδ)^2 ⋅ (Δ-δ/3) and Δ = TE-δ, the b-value is:
+    print(
+        "b={:.0f} s/mm²".format(
+            ((sycomore.gamma*G*delta)**2 * (TE-4/3*delta)).convert_to(s/mm**2)))
+    
+    def dw_se(species, TE, G, delta):
+        model = sycomore.epg.Discrete3D(species)
+        
+        # Excitation
+        model.apply_pulse(90*deg)
+        
+        # Diffusion-sensitization gradient and mixing time
+        model.apply_time_interval(delta, G)
+        model.apply_time_interval(TE/2-delta)
+        
+        # Refocussing
+        model.apply_pulse(180*deg)
+        
+        # Mixing time and diffusion-sensitization gradient
+        model.apply_time_interval(TE/2-delta)
+        model.apply_time_interval(delta, G)
+        
+        return numpy.abs(model.echo)
+    
+    # Generate a unit sphere
+    sphere_source = vtk.vtkSphereSource()
+    sphere_source.SetRadius(1)
+    sphere_source.SetThetaResolution(50)
+    sphere_source.SetPhiResolution(50)
+    sphere_source.Update()
+    sphere = vtk.numpy_interface.dataset_adapter.WrapDataObject(
+        sphere_source.GetOutput())
+    print(len(sphere.Points), "points on sphere")
+    
+    # Simulate the sequence with a diffusion gradient along each point on the sphere
+    S_0 = dw_se(species, TE, [0*mT/m, 0*mT/m, 0*mT/m], delta)
+    attenuation = numpy.zeros((len(sphere.Points))) 
+    for index, direction in enumerate(sphere.Points):
+        S = dw_se(species, TE, direction*G, delta)
+        attenuation[index] = S/S_0
+        sphere.Points[index] *= attenuation[index]
+    sphere.PointData.append(1-attenuation, "Attenuation")
+    sphere.PointData.SetActiveScalars("Attenuation")
+    
+    # Recompute the normals of the surface
+    normals = vtk.vtkPolyDataNormals()
+    normals.SetInputData(sphere.VTKObject)
+    
+    # Plot the result
+    mapper = vtk.vtkPolyDataMapper()
+    mapper.SetInputConnection(normals.GetOutputPort())
+    actor = vtk.vtkActor()
+    actor.SetMapper(mapper)
+    
+    renderer = vtk.vtkRenderer()
+    renderer.AddActor(actor)
+    renderer.SetBackground(1, 1, 1)
+    renderer.GetActiveCamera().SetPosition(4, -0.7, -0.3)
+    renderer.GetActiveCamera().SetViewUp(0.2, 0.9, 0.4)
+    
+    window = vtk.vtkRenderWindow()
+    window.AddRenderer(renderer)
+    window.SetSize(800, 800)
+    window.SetOffScreenRendering(True)
+    
+    to_image = vtk.vtkWindowToImageFilter()
+    to_image.SetInput(window)
+    png_writer = vtk.vtkPNGWriter()
+    png_writer.SetInputConnection(to_image.GetOutputPort())
+    png_writer.SetFileName("anisotropic_diffusion.png")
+    png_writer.Write()
 
-  # Values from "Diffusion tensor MR imaging of the human brain", 
-  # Pierpaoli et al., Radiology 201(3), 1996
-  D = (numpy.diag([1708, 303, 114])*um**2/s).ravel()
 
-  # Given the echo time, the maximum gradient amplitude and the requested b-value,
-  # compute the value of δ, the duration of the gradient pulse.
-  # Since b = (γGδ)^2 ⋅ (Δ-δ/3) and Δ = TE-δ, we can eliminate Δ:
-  #   b = (γGδ)^2 ⋅ (TE-δ-δ/3) = (γGδ)^2 ⋅ (TE-4/3⋅δ)
-  #   ⇔ -4/3⋅δ^3 + TE⋅δ^2 - b/(γG)^2 = 0
-  b = 1000*s/mm**2
-  G = 45*mT/m
-  TE = 50*ms
-  roots = numpy.polynomial.Polynomial(
-          [(-b/(sycomore.gamma*G)**2).magnitude, 0, TE.magnitude, -4./3.]
-      ).roots()
-  # Keep only real, positive roots which are less than TE/2 (i.e. before the
-  # refocussing pulse).
-  delta = [
-      x for x in roots 
-      if numpy.imag(x) == 0 and (0 < numpy.real(x) < (TE/2).magnitude)]
-  if not delta:
-      raise Exception("b value cannot be obtained")
-  delta = delta[0]*s
-  print("δ={} ms".format(delta.convert_to(ms)))
+.. code::
 
-  def pgse(species, TE, b, G, delta, trace=False):
-      model = sycomore.epg.Discrete3D(species)
-      
-      # Excitation
-      model.apply_pulse(90*deg)
-      
-      # Diffusion-sensitization gradient and mixing time
-      model.apply_time_interval(delta, G)
-      model.apply_time_interval(TE/2-delta)
-      
-      # Refocussing
-      model.apply_pulse(180*deg)
-      
-      # Mixing time and diffusion-sensitization gradient
-      model.apply_time_interval(TE/2-delta)
-      model.apply_time_interval(delta, G)
-      
-      return numpy.abs(model.echo)
+    b=1507 s/mm²
+    2402 points on sphere
+    
 
-  # Generate a unit sphere
-  sphere_source = tvtk.SphereSource(
-      center=[0,0,0], radius=1, theta_resolution=50, phi_resolution=50)
-  sphere_source.update()
-  sphere = sphere_source.output
-  print(len(sphere.points), "points on sphere")
 
-  # Simulate the sequence with a diffusion gradient along each point on the
-  # sphere
-  species = sycomore.Species(1000*ms, 100*ms, D)
-  S_0 = pgse(species, TE, b, [0*mT/m, 0*mT/m, 0*mT/m], delta)
-  attenuation = numpy.zeros((len(sphere.points))) 
-  for index, point in enumerate(sphere.points):
-      S = pgse(species, TE, b, [x*G for x in point], delta)
-      attenuation[index] = S/S_0
-      if attenuation[index] != 0:
-          # Exagerate attenuation for visualisation purposes
-          sphere.points[index] = [x*attenuation[index]**6 for x in point]
-  sphere.point_data.scalars = attenuation
-
-  # Recompute the normals of the surface and plot the result
-  normals = mayavi.tools.pipeline.poly_data_normals(sphere)
-  surface = mayavi.mlab.pipeline.surface(normals)
-  surface.module_manager.scalar_lut_manager.use_default_range = False
-  surface.module_manager.scalar_lut_manager.data_range = [
-      attenuation.min(), attenuation.max()]
-  mayavi.mlab.show()
 
 .. figure:: anisotropic_diffusion.png
   :alt: Anisotropic diffusion with discrete 3D EPG
@@ -115,11 +131,15 @@ Reference
   .. attribute:: states
     
     The sequence of states currently stored by the model, in the same order as
-    the :attr:`orders` member. This attribute is a read-only array of complex numbers (F̃(k), Z̃(k)).
+    the :attr:`orders` member. This attribute is a read-only array of complex numbers (F(k), Z(k)).
   
   .. attribute:: echo
     
-    The echo signal, i.e. :math:`\tilde{F}_0` (read-only).
+    The echo signal, i.e. :math:`F_0` (read-only).
+  
+  .. attribute:: bin_width
+    
+    Discretization of orders, in rad/m (read-only).
   
   .. method:: state(index)
     

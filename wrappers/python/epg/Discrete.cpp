@@ -57,7 +57,7 @@ void wrap_epg_Discrete(pybind11::module & m)
             "order as the orders member. This attribute is a read-only, 3×N "
             "array of complex numbers.")
         .def_property_readonly(
-            "echo", &Discrete::echo, "The echo signal, i.e. F̃_0.")
+            "echo", &Discrete::echo, "The echo signal, i.e. F_0.")
         .def(
             "apply_pulse", &Discrete::apply_pulse,
             arg("angle"), arg("phase")=0*units::rad,

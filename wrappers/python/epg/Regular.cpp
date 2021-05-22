@@ -47,8 +47,8 @@ void wrap_epg_Regular(pybind11::module & m)
                 return states_py;
             },
             "Return all states in the model, where each state is stored as "
-            "F̃_k, F̃^*_{-k}, Z̃_k, in order of increasing order.")
-        .def_property_readonly("echo", &Regular::echo, "Echo signal, i.e. F̃_0")
+            "F_k, F*_{-k}, Z_k, in order of increasing order.")
+        .def_property_readonly("echo", &Regular::echo, "Echo signal, i.e. F_0")
         .def(
             "apply_pulse", &Regular::apply_pulse,
             arg("angle"), arg("phase")=0*units::rad,

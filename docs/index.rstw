@@ -1,14 +1,10 @@
+<<>>=
+matplotlib.pyplot.rcParams["font.size"] = 6
 
-.. code:: python
-
-    matplotlib.pyplot.rcParams["font.size"] = 6
-    
-    import pweave
-    pweave.rcParams["chunk"]["defaultoptions"].update(
-        {"results": "hidden"})
-
-
-
+import pweave
+pweave.rcParams["chunk"]["defaultoptions"].update(
+    {"results": "hidden"})
+@
 
 Sycomore -- an MRI simulation toolkit
 =====================================
@@ -35,49 +31,40 @@ Usage
 
 The following code simulates a single repetition of a simple `RARE sequence`_ with :doc:`regular EPG<epg/regular>` and plots the transverse magnetization of each echo.
 
+<<name="rare", fig=True, caption="T2 decay in RARE">>=  
+import matplotlib.pyplot
+import numpy
+import sycomore
+from sycomore.units import *
 
-.. code:: python
+species = sycomore.Species(1000*ms, 100*ms, 1*um**2/ms)
+TE = 4*ms
+train_length = 40
 
-    import matplotlib.pyplot
-    import numpy
-    import sycomore
-    from sycomore.units import *
+model = sycomore.epg.Regular(species)
+data = numpy.zeros(
+    train_length, dtype=[("time", sycomore.Quantity), ("signal", complex)])
+
+model.apply_pulse(90*deg)
+for echo in range(train_length):
+    model.apply_time_interval(TE/2)
+    model.apply_pulse(180*deg)
+    model.apply_time_interval(TE/2)
     
-    species = sycomore.Species(1000*ms, 100*ms, 1*um**2/ms)
-    TE = 4*ms
-    train_length = 40
-    
-    model = sycomore.epg.Regular(species)
-    data = numpy.zeros(
-        train_length, dtype=[("time", sycomore.Quantity), ("signal", complex)])
-    
-    model.apply_pulse(90*deg)
-    for echo in range(train_length):
-        model.apply_time_interval(TE/2)
-        model.apply_pulse(180*deg)
-        model.apply_time_interval(TE/2)
-        
-        data[echo] = (((1+echo)*TE), model.echo)
-    
-    times = [x.convert_to(ms) for x in data["time"]]
-    magnitude = numpy.abs(data["signal"])
-    matplotlib.pyplot.plot(times, magnitude, ".", label="Simulated")
-    matplotlib.pyplot.plot(
-        times, [numpy.exp(-(x*species.R2).magnitude) for x in data["time"]],
-        label="$T_2$ decay")
-    
-    matplotlib.pyplot.ylim(0,1)
-    matplotlib.pyplot.xlabel("Time (ms)")
-    matplotlib.pyplot.ylabel("Magnitude")
-    matplotlib.pyplot.legend()
+    data[echo] = (((1+echo)*TE), model.echo)
 
+times = [x.convert_to(ms) for x in data["time"]]
+magnitude = numpy.abs(data["signal"])
+matplotlib.pyplot.plot(times, magnitude, ".", label="Simulated")
+matplotlib.pyplot.plot(
+    times, [numpy.exp(-(x*species.R2).magnitude) for x in data["time"]],
+    label="$T_2$ decay")
 
-.. figure:: ./index_rare_1.png
-   :width: 15 cm
-
-   T2 decay in RARE
-
-
+matplotlib.pyplot.ylim(0,1)
+matplotlib.pyplot.xlabel("Time (ms)")
+matplotlib.pyplot.ylabel("Magnitude")
+matplotlib.pyplot.legend()
+@
 
 .. toctree::
    :maxdepth: 2

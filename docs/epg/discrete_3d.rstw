@@ -1,0 +1,170 @@
+Discrete (arbitrary gradient moment) EPG in 3D
+==============================================
+
+In the 3D discrete EPG model, the gradient moments may vary across time intervals as in :doc:`regular EPG<regular>`, but their amplitude is specified on the three spatial axes.
+
+The following code sample simulates a PGSE diffusion sequence in an anisotropic medium and shows the dependency of the signal attenuation to the relative orientation of diffusion tensor and of the diffusion gradient.
+
+<<>>=
+import numpy
+import sycomore
+from sycomore.units import *
+import vtk
+import vtk.numpy_interface.dataset_adapter
+
+species = sycomore.Species(
+    1000*ms, 100*ms, numpy.diag([4000, 1500, 10])*um**2/s)
+
+TE = 50*ms
+G = 50*mT/m
+delta = 18*ms
+# Since b = (γGδ)^2 ⋅ (Δ-δ/3) and Δ = TE-δ, the b-value is:
+print(
+    "b={:.0f} s/mm²".format(
+        ((sycomore.gamma*G*delta)**2 * (TE-4/3*delta)).convert_to(s/mm**2)))
+
+def dw_se(species, TE, G, delta):
+    model = sycomore.epg.Discrete3D(species)
+    
+    # Excitation
+    model.apply_pulse(90*deg)
+    
+    # Diffusion-sensitization gradient and mixing time
+    model.apply_time_interval(delta, G)
+    model.apply_time_interval(TE/2-delta)
+    
+    # Refocussing
+    model.apply_pulse(180*deg)
+    
+    # Mixing time and diffusion-sensitization gradient
+    model.apply_time_interval(TE/2-delta)
+    model.apply_time_interval(delta, G)
+    
+    return numpy.abs(model.echo)
+
+# Generate a unit sphere
+sphere_source = vtk.vtkSphereSource()
+sphere_source.SetRadius(1)
+sphere_source.SetThetaResolution(50)
+sphere_source.SetPhiResolution(50)
+sphere_source.Update()
+sphere = vtk.numpy_interface.dataset_adapter.WrapDataObject(
+    sphere_source.GetOutput())
+print(len(sphere.Points), "points on sphere")
+
+# Simulate the sequence with a diffusion gradient along each point on the sphere
+S_0 = dw_se(species, TE, [0*mT/m, 0*mT/m, 0*mT/m], delta)
+attenuation = numpy.zeros((len(sphere.Points))) 
+for index, direction in enumerate(sphere.Points):
+    S = dw_se(species, TE, direction*G, delta)
+    attenuation[index] = S/S_0
+    sphere.Points[index] *= attenuation[index]
+sphere.PointData.append(1-attenuation, "Attenuation")
+sphere.PointData.SetActiveScalars("Attenuation")
+
+# Recompute the normals of the surface
+normals = vtk.vtkPolyDataNormals()
+normals.SetInputData(sphere.VTKObject)
+
+# Plot the result
+mapper = vtk.vtkPolyDataMapper()
+mapper.SetInputConnection(normals.GetOutputPort())
+actor = vtk.vtkActor()
+actor.SetMapper(mapper)
+
+renderer = vtk.vtkRenderer()
+renderer.AddActor(actor)
+renderer.SetBackground(1, 1, 1)
+renderer.GetActiveCamera().SetPosition(4, -0.7, -0.3)
+renderer.GetActiveCamera().SetViewUp(0.2, 0.9, 0.4)
+
+window = vtk.vtkRenderWindow()
+window.AddRenderer(renderer)
+window.SetSize(800, 800)
+window.SetOffScreenRendering(True)
+
+to_image = vtk.vtkWindowToImageFilter()
+to_image.SetInput(window)
+png_writer = vtk.vtkPNGWriter()
+png_writer.SetInputConnection(to_image.GetOutputPort())
+png_writer.SetFileName("anisotropic_diffusion.png")
+png_writer.Write()
+@
+
+.. figure:: anisotropic_diffusion.png
+  :alt: Anisotropic diffusion with discrete 3D EPG
+  
+  Simulation of signal attenuation due to anisotropic diffusion with discrete 3D EPG
+
+Reference
+---------
+
+.. class:: sycomore.epg.Discrete3D(species, initial_magnetization=Magnetization(0,0,1), bin_width=1*rad/m)
+  
+  .. attribute:: species
+    
+    The species being simulated
+  
+  .. attribute:: threshold
+   
+    Minimum population of a state below which the state is considered emtpy (defaults to 0).
+  
+  .. attribute:: delta_omega
+   
+    Freqency offset (defaults to 0 Hz).
+  
+  .. attribute:: orders
+    
+    The sequence of orders currently stored by the model, in the same order as
+    the :attr:`states` member. This attribute is read-only, Nx3 array of dephasing (in rad/m).
+  
+  .. attribute:: states
+    
+    The sequence of states currently stored by the model, in the same order as
+    the :attr:`orders` member. This attribute is a read-only array of complex numbers (F(k), Z(k)).
+  
+  .. attribute:: echo
+    
+    The echo signal, i.e. :math:`F_0` (read-only).
+  
+  .. attribute:: bin_width
+    
+    Discretization of orders, in rad/m (read-only).
+  
+  .. method:: state(index)
+    
+    Return the magnetization at a given state, expressed by its *index*.
+  
+  .. method:: state(order)
+    :noindex:
+    
+    Return the magnetization at a given state, expressed by its *order*.
+
+  .. method:: apply_pulse(angle, phase=0*rad)
+    
+    Apply an RF hard pulse.
+  
+  .. method:: apply_time_interval(duration, gradient=[0*T/m, 0*T/m, 0*T/m],  threshold=0.)
+    
+    Apply a time interval, i.e. relaxation, diffusion, and gradient. States with a population lower than *threshold* will be removed.
+  
+  .. method:: apply_time_interval(time_interval)
+    :noindex:
+    
+    Apply a time interval, i.e. relaxation, diffusion, and gradient.
+  
+  .. method:: shift(duration, gradient)
+    
+    Apply a gradient; in discrete EPG, this shifts all orders by specified value.
+  
+  .. method:: relaxation(duration, gradient)
+    
+    Simulate the relaxation during given duration.
+  
+  .. method:: diffusion(duration, gradient)
+    
+    Simulate diffusion during given duration with given gradient amplitude.
+  
+  .. method:: off_resonance(duration)
+    
+    Simulate field- and species related off-resonance effects during given duration with given frequency offset.

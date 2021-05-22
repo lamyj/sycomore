@@ -1,24 +1,17 @@
 # Sycomore &mdash; an MRI simulation toolkit
 
-![PyPI - Wheel](https://img.shields.io/pypi/wheel/sycomore)
+[![PyPI - Wheel](https://img.shields.io/pypi/v/sycomore)](https://pypi.org/project/sycomore/)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/sycomore.svg)](https://anaconda.org/conda-forge/sycomore)
 
-Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase Graphs (EPG) (both regular and discrete, including 3D), and Configuration Models. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime.
+Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase Graph (EPG) (both regular and discrete, including 3D), and Configuration Model. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime.
 
 Sycomore is free software, released under the [MIT license][], and its source code is available on [GitHub][].
 
-A sample web application, using Sycomore paired with [Bokeh][] is available on [Heroku][] (note that this is using the free Heroku hosting, and start-up times might be rather long; this does not impact the performance when the application is running): it presents classical MRI experiments (RARE, RF-spoiling, slice profile with a selective sinc pulse), using the different simulation models of Sycomore.
+A sample web application, using Sycomore paired with [Bokeh][] is available on [Heroku][]: it presents classical MRI experiments (RARE, RF-spoiling, slice profile with a selective sinc pulse), using the different simulation models of Sycomore.
 
 ## Installation
 
-Packaged versions of Sycomore are available on [pypi][] and [Anaconda][] for Linux, macOS and Windows. The following table summarizes the availability of packages according to the version of the Python interpreter.
-
-
-| Operating system | conda-forge   | PyPI               |
-| ---------------- | ------------- | ------------------ |
-| Linux            | 3.6, 3.7, 3.8 | 3.5, 3.6, 3.7, 3.8 |
-| macOS (≥ 9)      | 3.6, 3.7, 3.8 | 3.6, 3.7, 3.8      |
-| Windows          | 3.6, 3.7, 3.8 | 3.5, 3.6, 3.7, 3.8 |
+Packaged versions of Sycomore are available on [pypi][] and [Anaconda][] for Linux, macOS and Windows.
 
 To install from [Anaconda][], type `conda install -c conda-forge sycomore`. To install from [pypi][], type `pip3 install sycomore` (or `pip install sycomore`). If you are installing from [pypi][] and no pre-compiled version is available for your platform, pip will try to install from the source archive.
 
@@ -71,10 +64,10 @@ The features and data structures are described in the documentation:
 
 - [Common features](https://sycomore.readthedocs.io/en/latest/common_features.html)
 - [Bloch simulation](https://sycomore.readthedocs.io/en/latest/bloch.html)
-- [Extended Phase Graphs](https://sycomore.readthedocs.io/en/latest/epg/index.html)
-- [Configuration Models](https://sycomore.readthedocs.io/en/latest/como.html)
+- [Extended Phase Graph](https://sycomore.readthedocs.io/en/latest/epg/index.html)
+- [Configuration Model](https://sycomore.readthedocs.io/en/latest/como.html)
 
-[Anaconda]: https://www.anaconda.com/distribution/
+[Anaconda]: https://anaconda.org/conda-forge/dicomifier
 [Bokeh]: https://bokeh.org
 [Boost.Test]: https://www.boost.org/doc/libs/release/libs/test/
 [CMake]: https://cmake.org/
