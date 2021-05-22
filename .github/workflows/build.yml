@@ -1,4 +1,4 @@
-name: Build Sycomore (Unix)
+name: Build Sycomore
 on: push
 
 jobs:
@@ -40,19 +40,35 @@ jobs:
           - name: "macOS 10.15 (Catalina)"
             os: macos-10.15
             ci_type: brew
-            start_worker: ""
-            worker: ""
-            stop_worker: ""
             python: /usr/local/bin/python3
             cmake_options: "-DPYTHON_EXECUTABLE=/usr/local/bin/python3"
+          - name: "Window Server 2019"
+            os: windows-latest
+            ci_type: windows
+            python: python
     steps:
-      - name: Configure environment
+      - name: Configure environment (Unix)
+        if: ${{ !contains(matrix.os, 'windows') }}
         run: |
           echo "WORKSPACE=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
           echo "PYTHON=${{ matrix.python }}" >> $GITHUB_ENV
           echo "CMAKE_OPTIONS=${{ matrix.cmake_options }}" >> $GITHUB_ENV
+      - name: Configure environment (Windows)
+        if: ${{ contains(matrix.os, 'windows') }}
+        run: |
+          echo "WORKSPACE=$Env:GITHUB_WORKSPACE" >> $Env:GITHUB_ENV
+          echo "PYTHON=python" >> $Env:GITHUB_ENV
+      
+      - name: Setup conda
+        if: ${{ contains(matrix.os, 'windows') }}
+        run: C:\Miniconda\condabin\conda.bat init powershell
+      - name: Set up dev environment
+        if: ${{ contains(matrix.os, 'windows') }}
+        uses: seanmiddleditch/gha-setup-vsdevenv@master
+      
       - name: Checkout latest revision
         uses: actions/checkout@v2
+      
       - name: Start the worker
         run: ${{ matrix.start_worker }}
       - name: Configure the build
