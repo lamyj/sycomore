@@ -339,36 +339,38 @@ Regular
         
         if(n == +1)
         {
-            // Shift positive F̃ states right
+            // Shift positive F states right
             std::copy_backward(
                 this->_F.begin(), this->_F.begin()+this->_states_count, 
                 this->_F.begin()+this->_states_count+1);
             
-            // Shift negative F̃^* states left
+            // Shift negative F* states left
             std::copy(
                 this->_F_star.begin()+1, 
                 this->_F_star.begin()+this->_states_count+1, 
                 this->_F_star.begin());
             
-            // Update F̃_{+0} using F̃^*_{-0}
+            // Update extremal states: F_{+0} using F*_{-0}, F*_{-max+1}=0
             this->_F[0] = std::conj(this->_F_star[0]);
+            this->_F_star[this->_states_count] = 0;
         }
         else
         {
-            // Shift negative F̃^* states right
+            // Shift negative F* states right
             std::copy_backward(
                 this->_F_star.begin(), 
                 this->_F_star.begin()+this->_states_count, 
                 this->_F_star.begin()+this->_states_count+1);
             
-            // Shift positive F̃ states left
+            // Shift positive F states left
             std::copy(
                 this->_F.begin()+1, 
                 this->_F.begin()+this->_states_count+1, 
                 this->_F.begin());
             
-            // Update F̃^*_{-0} using F̃_{+0}
+            // Update extremal states: F*_{-0} using F_{+0}, F_{max+1}=0
             this->_F_star[0] = std::conj(this->_F[0]);
+            this->_F[this->_states_count] = 0;
         }
         
         ++this->_states_count;
