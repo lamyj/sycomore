@@ -20,6 +20,10 @@ jobs:
     steps:
       - name: Checkout latest revision
         uses: actions/checkout@v2
+        with:
+          # NOTE: setuptools_scm does not work well with the default shallow
+          # clone.
+          fetch-depth: 0
       - name: Start the worker
         run: |
           docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm quay.io/pypa/manylinux${{ matrix.tag }}_x86_64:latest
