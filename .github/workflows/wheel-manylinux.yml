@@ -50,3 +50,8 @@ jobs:
           docker exec -w ${WORKSPACE} worker ${{ matrix.python }} -c 'import sycomore; sycomore.gamma'
       - name: Stop the worker
         run: docker kill worker
+      - name: Archive wheels
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: dist/*whl
