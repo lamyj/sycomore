@@ -1,0 +1,48 @@
+name: Build wheels (manylinux)
+on: [push, create]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "Python 3.6", python: /opt/python/cp36-cp36m/bin/python, tag: 2010 }
+          - { name: "Python 3.7", python: /opt/python/cp37-cp37m/bin/python, tag: 2010 }
+          - { name: "Python 3.8", python: /opt/python/cp38-cp38/bin/python, tag: 2010 }
+          - { name: "Python 3.9", python: /opt/python/cp39-cp39/bin/python, tag: 2010 }
+          - { name: "Python 3.10", python: /opt/python/cp310-cp310/bin/python, tag: 2010 }
+    env:
+      WORKSPACE: "${{ github.workspace }}"
+    
+    steps:
+      - name: Checkout latest revision
+        uses: actions/checkout@v2
+      - name: Start the worker
+        run: |
+          docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm quay.io/pypa/manylinux${{ matrix.tag }}_x86_64:latest
+      - name: Get xsimd
+        run: |
+          docker exec -w ${WORKSPACE} worker curl -LO https://github.com/xtensor-stack/xsimd/archive/refs/tags/7.5.0.tar.gz
+          docker exec -w ${WORKSPACE} worker tar -x -z -f 7.5.0.tar.gz 
+          docker exec -w ${WORKSPACE}/xsimd-7.5.0 worker cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
+          docker exec -w ${WORKSPACE}/xsimd-7.5.0 worker make install
+          docker exec -w ${WORKSPACE} worker rm -rf xsimd-7.5.0 7.5.0.tar.gz
+      - name: Get pybind11
+        run: |
+          docker exec -w ${WORKSPACE} worker curl -LO https://github.com/pybind/pybind11/archive/refs/tags/v2.6.2.tar.gz
+          docker exec -w ${WORKSPACE} worker tar -x -z -f v2.6.2.tar.gz
+          docker exec -w ${WORKSPACE}/pybind11-2.6.2 worker cmake -DPYBIND11_TEST=OFF -DCMAKE_INSTALL_PREFIX=/usr/local .
+          docker exec -w ${WORKSPACE}/pybind11-2.6.2 worker make install
+          docker exec -w ${WORKSPACE} worker rm -rf pybind11-2.6.2 v2.6.2.tar.gz
+      - name: Build wheel
+        run: |
+          docker exec -w ${WORKSPACE} worker ${{ matrix.python }} setup.py bdist_wheel
+      - name: Test the package
+        run: |
+          docker exec -w ${WORKSPACE} worker ${{ matrix.python }} -m pip install dist/*whl
+          docker exec -w ${WORKSPACE} worker ${{ matrix.python }} -c 'import sycomore; sycomore.gamma'
+      - name: Stop the worker
+        run: docker kill worker
