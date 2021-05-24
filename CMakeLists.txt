@@ -53,18 +53,20 @@ if(BUILD_TESTING)
 endif()
 
 # Export the build tree (don't install the generated file)
-export(
-    TARGETS libsycomore NAMESPACE sycomore:: 
-    FILE "${PROJECT_BINARY_DIR}/sycomoreTargets.cmake")
+if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
+    export(
+        TARGETS libsycomore NAMESPACE sycomore:: 
+        FILE "${PROJECT_BINARY_DIR}/sycomoreTargets.cmake")
 
-# Export the install tree
-write_basic_package_version_file(
-    "sycomoreConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
-set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib/CMake/sycomore")
-install(EXPORT sycomoreTargets NAMESPACE sycomore:: DESTINATION "${INSTALL_CMAKE_DIR}")
-configure_file(sycomoreConfig.cmake.in sycomoreConfig.cmake @ONLY)
-install(
-    FILES 
-        ${CMAKE_CURRENT_BINARY_DIR}/sycomoreConfig.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/sycomoreConfigVersion.cmake
-    DESTINATION "${INSTALL_CMAKE_DIR}")
+    # Export the install tree
+    write_basic_package_version_file(
+        "sycomoreConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
+    set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib/CMake/sycomore")
+    install(EXPORT sycomoreTargets NAMESPACE sycomore:: DESTINATION "${INSTALL_CMAKE_DIR}")
+    configure_file(sycomoreConfig.cmake.in sycomoreConfig.cmake @ONLY)
+    install(
+        FILES 
+            ${CMAKE_CURRENT_BINARY_DIR}/sycomoreConfig.cmake
+            ${CMAKE_CURRENT_BINARY_DIR}/sycomoreConfigVersion.cmake
+        DESTINATION "${INSTALL_CMAKE_DIR}")
+endif()

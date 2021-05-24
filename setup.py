@@ -22,7 +22,6 @@ class build_ext(setuptools.command.build_ext.build_ext):
             "-DCMAKE_BUILD_TYPE:STRING=Release",
             "-DBUILD_TESTING:BOOL=OFF",
             "-DBUILD_STANDALONE_PYTHON_WRAPPERS:BOOL=ON",
-            "-DUSE_OPENMP:BOOL=OFF",
             "-DPYTHON_EXECUTABLE:FILEPATH={}".format(sys.executable),
         ]
     
@@ -92,7 +91,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
             self.cmake, "--build", self.build_temp, "--target", "install"])
 
 with open(os.path.join(here, "CMakeLists.txt")) as fd:
-    version = re.search(r"set\(sycomore_VERSION (.+?)\)", fd.read())
+    version = re.search(r"project\(\"sycomore\" VERSION (.+?)\)", fd.read())
 if not version:
     raise Exception("Could not get version from CMakeLists.txt")
 version = version.group(1)
