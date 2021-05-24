@@ -144,13 +144,11 @@ setuptools.setup(
     
     packages=["sycomore"],
     package_dir={"sycomore": "src"},
-    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,",
+    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*",
     
     setup_requires=["setuptools_scm"],
     use_scm_version=True,
     
     ext_modules=[setuptools.Extension("_sycomore", sources)],
     cmdclass={"build_ext": build_ext},
-    # WARNING: numpy >= 1.17 requires >= 3.5
-    install_requires=["numpy" if sys.version >= "3.5" else "numpy<=1.16.4"],
 )
