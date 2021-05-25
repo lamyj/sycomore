@@ -27,45 +27,10 @@ jobs:
           fetch-depth: 0
       - name: Get cibuildwheel
         run: python3 -m pip install cibuildwheel
-      - name: Get xsimd
-        run: |
-          curl -LO https://github.com/xtensor-stack/xsimd/archive/refs/tags/7.5.0.tar.gz
-          tar -x -z -f 7.5.0.tar.gz
-          cd xsimd-7.5.0
-          cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
-          make install
-          rm -rf xsimd-7.5.0 7.5.0.tar.gz
-      - name: Get pybind11
-        run: |
-          curl -LO https://github.com/pybind/pybind11/archive/refs/tags/v2.6.2.tar.gz
-          tar -x -z -f v2.6.2.tar.gz
-          cd pybind11-2.6.2
-          cmake -DPYBIND11_TEST=OFF -DCMAKE_INSTALL_PREFIX=/usr/local .
-          make install
-          rm -rf pybind11-2.6.2 v2.6.2.tar.gz
+      - name: Provision environment
+        run: ./.ci/wheels/provision.sh
       - name: Build wheels
-        shell: "python3 {0}"
-        run: |
-          import os
-          import subprocess
-          
-          import cibuildwheel
-          import cibuildwheel.macos
-          configurations = cibuildwheel.macos.get_python_configurations(
-              cibuildwheel.util.BuildSelector(
-                  build_config="${{ matrix.python }}*", skip_config=""), 
-              [cibuildwheel.architecture.Architecture.x86_64])
-          print(configurations)
-          for configuration in configurations:
-              path = cibuildwheel.macos.install_cpython(
-                configuration.version, configuration.url)
-              python = os.path.join(path, "python3")
-              pip = os.path.join(path, "pip3")
-              subprocess.check_call([
-                  python, "-m", "pip", "install", "--force-reinstall", "pip"])
-              subprocess.check_call([
-                  pip, "install", "setuptools", "wheel", "setuptools_scm"])
-              subprocess.check_call([python, "setup.py", "bdist_wheel"])
+        run: python3 ./.ci/wheels/build.py '${{ matrix.python }}*'
       - name: Archive wheels
         uses: actions/upload-artifact@v2
         with:
