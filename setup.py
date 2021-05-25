@@ -151,4 +151,5 @@ setuptools.setup(
     
     ext_modules=[setuptools.Extension("_sycomore", sources)],
     cmdclass={"build_ext": build_ext},
+    install_requires=["numpy"],
 )
