@@ -7,7 +7,7 @@ curl -LO https://github.com/xtensor-stack/xsimd/archive/refs/tags/7.5.0.tar.gz
 tar -x -z -f 7.5.0.tar.gz
 cd xsimd-7.5.0
 cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
-sudo make install
+make install
 rm -rf xsimd-7.5.0 7.5.0.tar.gz
 
 # Install pybind11

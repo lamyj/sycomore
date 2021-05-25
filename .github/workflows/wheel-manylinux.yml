@@ -29,7 +29,7 @@ jobs:
           docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm quay.io/pypa/manylinux${{ matrix.tag }}_x86_64:latest
       - name: Provision environment
         run: |
-          docker exec -w ${WORKSPACE} ./.ci/wheels/provision.sh
+          docker exec -w ${WORKSPACE} worker ./.ci/wheels/provision.sh
       - name: Build wheel
         run: |
           docker exec -w ${WORKSPACE} worker ${{ matrix.python }} setup.py bdist_wheel
