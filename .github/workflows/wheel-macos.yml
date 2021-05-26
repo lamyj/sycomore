@@ -9,7 +9,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: "Python 3.5", python: cp35 }
           - { name: "Python 3.6", python: cp36 }
           - { name: "Python 3.7", python: cp37 }
           - { name: "Python 3.8", python: cp38 }

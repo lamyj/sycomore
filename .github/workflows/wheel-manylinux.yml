@@ -13,7 +13,6 @@ jobs:
           - { name: "Python 3.7", python: /opt/python/cp37-cp37m/bin/python, tag: 2010 }
           - { name: "Python 3.8", python: /opt/python/cp38-cp38/bin/python, tag: 2010 }
           - { name: "Python 3.9", python: /opt/python/cp39-cp39/bin/python, tag: 2010 }
-          - { name: "Python 3.10", python: /opt/python/cp310-cp310/bin/python, tag: 2010 }
     env:
       WORKSPACE: "${{ github.workspace }}"
     
