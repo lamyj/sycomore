@@ -9,10 +9,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: "Python 3.6", python: /opt/python/cp36-cp36m/bin/python, tag: 2010 }
-          - { name: "Python 3.7", python: /opt/python/cp37-cp37m/bin/python, tag: 2010 }
-          - { name: "Python 3.8", python: /opt/python/cp38-cp38/bin/python, tag: 2010 }
-          - { name: "Python 3.9", python: /opt/python/cp39-cp39/bin/python, tag: 2010 }
+          - { name: "Python 3.6", python: /opt/python/cp36-cp36m/bin/python }
+          - { name: "Python 3.7", python: /opt/python/cp37-cp37m/bin/python }
+          - { name: "Python 3.8", python: /opt/python/cp38-cp38/bin/python }
+          - { name: "Python 3.9", python: /opt/python/cp39-cp39/bin/python }
     env:
       WORKSPACE: "${{ github.workspace }}"
     
@@ -25,17 +25,19 @@ jobs:
           fetch-depth: 0
       - name: Start the worker
         run: |
-          docker run -di -v ${WORKSPACE}:${WORKSPACE} --name worker --rm quay.io/pypa/manylinux${{ matrix.tag }}_x86_64:latest
+          docker run -di \
+            -v ${WORKSPACE}:${WORKSPACE} -w ${WORKSPACE} --name worker --rm \
+            quay.io/pypa/manylinux2010_x86_64
       - name: Provision environment
         run: |
-          docker exec -w ${WORKSPACE} worker ./.ci/wheels/provision.sh
+          docker exec worker ./.ci/wheels/provision.sh
       - name: Build wheel
         run: |
-          docker exec -w ${WORKSPACE} worker ${{ matrix.python }} setup.py bdist_wheel
+          docker exec worker ${{ matrix.python }} setup.py bdist_wheel
       - name: Test the package
         run: |
-          docker exec -w ${WORKSPACE} worker ${{ matrix.python }} -m pip install dist/*whl
-          docker exec -w ${WORKSPACE} worker ${{ matrix.python }} -c 'import sycomore; sycomore.gamma'
+          docker exec worker ${{ matrix.python }} -m pip install dist/*whl
+          docker exec worker ${{ matrix.python }} -c 'import sycomore; sycomore.gamma'
       - name: Stop the worker
         run: docker kill worker
       - name: Archive wheels
