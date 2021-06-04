@@ -28,8 +28,7 @@ if sys.platform.startswith("linux"):
     
     interpreter = glob.glob(os.path.join(roots[version], "python"))[0]
 elif sys.platform == "darwin":
-    # Assume x86_64 and Python >= 3.5
-    import urllib.request
+    # Assume x86_64
     
     urls = {
         "3.6": "https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.9.pkg",
