@@ -6,8 +6,8 @@ import sys
 import tempfile
 
 if sys.version_info >= (3, 5):
-    import urllib.requests
-    urlopen = urllib.requests.urlopen
+    import urllib.request
+    urlopen = urllib.request.urlopen
 else:
     import urllib
     urlopen = urllib.urlopen
