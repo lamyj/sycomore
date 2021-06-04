@@ -1,8 +1,16 @@
 import glob
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
+
+if sys.version_info >= (3, 5):
+    import urllib.requests
+    urlopen = urllib.requests.urlopen
+else:
+    import urllib
+    urlopen = urllib.urlopen
 
 version = sys.argv[1]
 
@@ -32,13 +40,16 @@ elif sys.platform == "darwin":
     if version not in urls:
         raise NotImplementedError("Unknown interpreter version: {0}".format(version))
     
-    with tempfile.TemporaryDirectory() as directory:
-        data = urllib.request.urlopen(urls[version]).read()
+    directory = tempfile.mkdtemp()
+    try:
+        data = urlopen(urls[version]).read()
         path = os.path.join(directory, urls[version].split("/")[-1])
         with open(path, "wb") as fd:
             fd.write(data)
         subprocess.check_call([
             "sudo", "installer", "-pkg", path, "-target", "/"])
+    finally:
+        shutil.rmtree(directory)
     
     frameworks = "/Library/Frameworks/Python.framework/Versions"
     interpreter = glob.glob(os.path.join(frameworks, version, "bin/python3"))[0]
