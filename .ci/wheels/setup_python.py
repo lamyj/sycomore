@@ -73,6 +73,6 @@ else:
 
 if "GITHUB_ENV" in os.environ:
     with open(os.environ["GITHUB_ENV"], "a") as fd:
-        fd.write("PYTHON={}\n".format(interpreter))
+        fd.write("PYTHON={0}\n".format(interpreter))
 else:
     print(interpreter)
