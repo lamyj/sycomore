@@ -3,7 +3,6 @@ import os
 import subprocess
 import sys
 import tempfile
-import urllib.request
 
 version = sys.argv[1]
 
@@ -21,7 +20,9 @@ if sys.platform.startswith("linux"):
     
     interpreter = glob.glob(os.path.join(roots[version], "python"))[0]
 elif sys.platform == "darwin":
-    # Assume x86_64
+    # Assume x86_64 and Python >= 3.5
+    import urllib.request
+    
     urls = {
         "3.6": "https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.9.pkg",
         "3.7": "https://www.python.org/ftp/python/3.7.9/python-3.7.9-macosx10.9.pkg",
