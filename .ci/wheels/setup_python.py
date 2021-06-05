@@ -39,21 +39,27 @@ def setup_linux(version):
 def setup_macos(version):
     # Assume x86_64
     
+    root = "https://www.python.org/ftp/python"
     urls = {
-        "3.6": "https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.9.pkg",
-        "3.7": "https://www.python.org/ftp/python/3.7.9/python-3.7.9-macosx10.9.pkg",
-        "3.8": "https://www.python.org/ftp/python/3.8.10/python-3.8.10-macosx10.9.pkg",
-        "3.9": "https://www.python.org/ftp/python/3.9.5/python-3.9.5-macos11.pkg",
+        "3.6": root+"/3.6.8/python-3.6.8-macosx10.9.pkg",
+        "3.7": root+"/3.7.9/python-3.7.9-macosx10.9.pkg",
+        "3.8": root+"/3.8.10/python-3.8.10-macosx10.9.pkg",
+        "3.9": root+"/3.9.5/python-3.9.5-macos11.pkg",
     }
     if version not in urls:
-        raise NotImplementedError("Unknown interpreter version: {0}".format(version))
+        raise NotImplementedError(
+            "Unknown interpreter version: {0}".format(version))
     
     directory = tempfile.mkdtemp()
     try:
         data = urlopen(urls[version]).read()
         path = os.path.join(directory, urls[version].split("/")[-1])
-        with open(path, "wb") as fd:
-            fd.write(data)
+        # NOTE: manylinux1 has Python 2.4, causing a syntax error when using
+        # "with open(...) as fd".
+        fd = open(path, "wb")
+        fd.write(data)
+        fd.close()
+        
         subprocess.check_call([
             "sudo", "installer", "-pkg", path, "-target", "/"])
     finally:
