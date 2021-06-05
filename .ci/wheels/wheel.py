@@ -4,5 +4,5 @@ import sys
 import setup_python
 
 version = sys.argv[1]
-interpreter = setup_python(version)
+interpreter = setup_python.setup_python(version)
 process = subprocess.check_call([interpreter, "install.py"])
