@@ -8,10 +8,10 @@ import urllib.request
 import zipfile
 
 subprocess.check_call([
-    sys.executable, "-m", "pip", "install", "--force-reinstall", "pip"])
+    sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
 
 subprocess.check_call([
-    sys.executable, "-m", "pip", "install", "--user", 
+    sys.executable, "-m", "pip", "install", "--user", "--upgrade",
     "requests", "setuptools", "setuptools_scm", "wheel", 
     "cmake", "pybind11"])
 
