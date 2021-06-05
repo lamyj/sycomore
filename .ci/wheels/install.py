@@ -29,11 +29,7 @@ with tempfile.TemporaryDirectory() as directory:
     with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
         archive.extractall(directory)
     subprocess.check_call(
-        [
-            "cmake", 
-            "-DCMAKE_INSTALL_PREFIX={}".format(
-                os.path.join(site.USER_BASE, "include")), 
-            "."], 
+        ["cmake", "-DCMAKE_INSTALL_PREFIX={}".format(site.USER_BASE), "."], 
         cwd=os.path.join(directory, "xsimd-7.5.0"))
     subprocess.check_call(
         ["cmake", "--build", ".", "--config", "Release", "--target", "install"],
