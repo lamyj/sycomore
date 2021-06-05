@@ -12,9 +12,17 @@ else:
     import urllib
     urlopen = urllib.urlopen
 
-version = sys.argv[1]
+def setup_python(version):
+    if sys.platform.startswith("linux"):
+        return setup_linux(version)
+    elif sys.platform == "darwin":
+        return setup_macos(version)
+    elif sys.platform == "win32":
+        return setup_windows(version)
+    else:
+        raise NotImplementedError(sys.platform)
 
-if sys.platform.startswith("linux"):
+def setup_linux(version):
     # Assume we are running in manylinux
     roots = {
         "3.6": "/opt/python/cp36-cp36m/bin",
@@ -26,8 +34,9 @@ if sys.platform.startswith("linux"):
         raise NotImplementedError(
             "Unknown interpreter version: {0}".format(version))
     
-    interpreter = glob.glob(os.path.join(roots[version], "python"))[0]
-elif sys.platform == "darwin":
+    return glob.glob(os.path.join(roots[version], "python"))[0]
+
+def setup_macos(version):
     # Assume x86_64
     
     urls = {
@@ -51,8 +60,9 @@ elif sys.platform == "darwin":
         shutil.rmtree(directory)
     
     frameworks = "/Library/Frameworks/Python.framework/Versions"
-    interpreter = glob.glob(os.path.join(frameworks, version, "bin/python3"))[0]
-elif sys.platform == "win32":
+    return glob.glob(os.path.join(frameworks, version, "bin/python3"))[0]
+
+def setup_windows(version):
     versions = {
         "3.6": "3.6.8",
         "3.7": "3.7.9",
@@ -67,12 +77,5 @@ elif sys.platform == "win32":
         "nuget", "install", "python", 
         "-Version", version, "-OutputDirectory", "C:\\wheel_python", 
         "-Verbosity", "quiet"])
-    interpreter = glob.glob("C:\\wheel_python\\*\\tools\\python.exe")[0]
-else:
-    raise NotImplementedError(sys.platform)
-
-if "GITHUB_ENV" in os.environ:
-    with open(os.environ["GITHUB_ENV"], "a") as fd:
-        fd.write("PYTHON={0}\n".format(interpreter))
-else:
-    print(interpreter)
+    
+    return glob.glob("C:\\wheel_python\\*\\tools\\python.exe")[0]
