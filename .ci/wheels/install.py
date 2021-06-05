@@ -12,8 +12,10 @@ subprocess.check_call([
 
 subprocess.check_call([
     sys.executable, "-m", "pip", "install", "--user", 
-    "setuptools", "wheel", "setuptools_scm",
+    "requests", "setuptools", "setuptools_scm", "wheel", 
     "cmake", "pybind11"])
+
+import requests
 
 os.environ["PATH"] = os.pathsep.join([
     os.environ["PATH"], 
@@ -21,8 +23,9 @@ os.environ["PATH"] = os.pathsep.join([
     os.path.join(site.USER_SITE, "../Scripts")])
 
 with tempfile.TemporaryDirectory() as directory:
-    with urllib.request.urlopen("https://github.com/xtensor-stack/xsimd/archive/refs/tags/7.5.0.zip") as fd:
-        archive = zipfile.ZipFile(io.BytesIO(fd.read()))
+    response = requests.get("https://github.com/xtensor-stack/xsimd/archive/refs/tags/7.5.0.zip")
+    response.raise_for_status()
+    with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
         archive.extractall(directory)
     subprocess.check_call(
         [
