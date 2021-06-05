@@ -15,6 +15,7 @@ subprocess.check_call([
     "requests", "setuptools", "setuptools_scm", "wheel", 
     "cmake", "pybind11"])
 
+sys.path.append(site.USER_SITE)
 import requests
 
 os.environ["PATH"] = os.pathsep.join([
