@@ -1,3 +1,4 @@
+import multiprocessing
 import os
 import re
 import shlex
@@ -78,7 +79,9 @@ class build_ext(setuptools.command.build_ext.build_ext):
         subprocess.check_call(command, cwd=self.build_temp)
     
     def _build(self, extension):
-        command = [self.cmake, "--build", self.build_temp]
+        command = [
+            self.cmake, "--build", self.build_temp, 
+            "--parallel", str(multiprocessing.cpu_count())]
         
         self.announce("Building in {}".format(self.build_temp), 3)
         
