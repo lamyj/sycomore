@@ -14,5 +14,6 @@ if sys.version_info < (2, 6):
 
 version = sys.argv[1]
 interpreter = setup_python.setup_python(version)
-process = subprocess.check_call([interpreter, ".ci/wheels/install.py"])
-process = subprocess.check_call([interpreter, ".ci/wheels/build.py"])
+subprocess.check_call([interpreter, ".ci/wheels/install.py"])
+subprocess.check_call([interpreter, ".ci/wheels/build.py"])
+subprocess.check_call([interpreter, ".ci/wheels/post_build.py"])
