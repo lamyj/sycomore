@@ -1,0 +1,28 @@
+name: Build some wheels
+on: push
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
+    name: ${{ matrix.os }} ${{ matrix.python }} ${{ matrix.container }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # NOTE manylinux1 has gcc 4.8, with no "is_trivially_copyable": 
+          # use manylinux2010
+          - { os: "ubuntu-latest", python: "3.9", container: quay.io/pypa/manylinux2010_x86_64 }
+          - { os: "macos-latest", python: "3.9" }
+          - { os: "windows-latest", python: "3.9" }
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "10.9"
+    steps:
+      # NOTE manylinux2010 does not have a working nodejs. Use git and curl
+      # instead of actions
+      - name: Checkout latest revision
+        run: git clone https://github.com/lamyj/sycomore.git .
+      - name: Built-in Python version
+        run: python -V
+      - name: Build wheel
+        run: python .ci/wheels/wheel.py ${{ matrix.python }}
