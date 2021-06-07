@@ -26,6 +26,6 @@ subprocess.check_call(
 
 subprocess.check_call(
     [
-        "cmake", "--build", ".", "--target", "install",
+        "cmake", "--build", ".", "--target", "install", "--config", "Release",
         "--parallel", str(multiprocessing.cpu_count())],
     cwd=build_dir)
