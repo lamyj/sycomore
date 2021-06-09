@@ -1,5 +1,5 @@
 name: Build all wheels
-on: create
+on: [create, workflow_dispatch]
 
 jobs:
   build:

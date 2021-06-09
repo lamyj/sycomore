@@ -15,6 +15,15 @@ subprocess.check_call([
     "requests", "setuptools", "setuptools_scm", "wheel", 
     "cmake", "pybind11"])
 
+if sys.platform.startswith("linux"):
+    subprocess.check_call([
+        sys.executable, "-m", "pip", "install", "--user", "--upgrade",
+        "auditwheel"])
+elif sys.platform == "darwin":
+    subprocess.check_call([
+        sys.executable, "-m", "pip", "install", "--user", "--upgrade",
+        "delocate"])
+
 sys.path.append(site.USER_SITE)
 import requests
 
