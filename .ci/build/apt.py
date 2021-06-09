@@ -14,6 +14,7 @@ if pybind11_version >= (2,2):
 else:
     pybind11 = []
 
+os.environ["DEBIAN_FRONTEND"] = "noninteractive"
 subprocess.check_call([
     "apt-get", "-y", "--no-install-recommends", "install",
     "cmake", "g++", "libboost-dev", "make", "ninja-build",
