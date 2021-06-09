@@ -1,5 +1,6 @@
 import multiprocessing
 import os
+import re
 import subprocess
 import sys
 
@@ -24,8 +25,20 @@ subprocess.check_call(
         workspace],
     cwd=build_dir)
 
+cmake_version = {}
+with open(os.path.join(build_dir, "CMakeCache.txt")) as fd:
+    for line in fd.readlines():
+        match = re.match(r"CMAKE_CACHE_([^_]+)_VERSION:[^=]+=(\d+)", line)
+        if match:
+            cmake_version[match.group(1)] = int(match.group(2))
+cmake_version = tuple(cmake_version[x] for x in ["MAJOR", "MINOR", "PATCH"])
+
+if cmake_version >= (3, 12, 0):
+    parallel = ["--parallel", str(multiprocessing.cpu_count())]
+else:
+    parallel = []
 subprocess.check_call(
     [
         "cmake", "--build", ".", "--target", "install", "--config", "Release",
-        "--parallel", str(multiprocessing.cpu_count())],
+        *parallel],
     cwd=build_dir)
