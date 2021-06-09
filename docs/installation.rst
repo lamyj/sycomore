@@ -6,7 +6,7 @@ Packaged
 
 Packaged versions of Sycomore are available on `pypi`_ and `Anaconda`_ for Linux, macOS and Windows.
 
-To install from `Anaconda`_, type ``conda install -c conda-forge sycomore``. To install from `pypi`_, type ``pip3 install sycomore`` (or ``pip install sycomore``). If you are installing from `pypi`_ and no pre-compiled version is available for your platform, pip will try to install from the source archive; in that case you will need a C++11 compiler, `CMake`_, `xsimd`_ and `pybind11`_ to successfully build Sycomore.
+To install from `Anaconda`_, type ``conda install -c conda-forge sycomore``. To install from `pypi`_, type ``pip3 install sycomore`` (or ``pip install sycomore``). If you are installing from `pypi`_ and no pre-compiled version is available for your platform, pip will try to install from the source archive; in that case you will need a C++11 compiler, `CMake`_ (≥ 3.5), `xsimd`_ and `pybind11`_ (≥ 2.2.0) to successfully build Sycomore.
 
 As of May 2021, compatibility with Python 2 is still possible: however due to the `end of life of Python 2`_, ensuring this compatibility is not a goal of Sycomore, and no such package is distributed.
 
