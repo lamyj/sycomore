@@ -5,7 +5,7 @@ else()
     cmake_policy(SET CMP0074 NEW)
 endif()
 
-project("sycomore" VERSION 1.2.1)
+project("sycomore" VERSION 1.3.0)
 
 option(BUILD_SHARED_LIBS "Build Sycomore with shared libraries." ON)
 option(BUILD_TESTING "Build unit tests." ON)
