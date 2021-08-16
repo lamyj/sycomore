@@ -21,7 +21,7 @@ jobs:
       # NOTE manylinux2010 does not have a working nodejs. Use git and curl
       # instead of actions
       - name: Checkout latest revision
-        run: git clone https://github.com/lamyj/sycomore.git .
+        run: git clone --depth=1 https://github.com/lamyj/sycomore.git .
       - name: Built-in Python version
         run: python -V
       - name: Build wheel

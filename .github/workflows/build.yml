@@ -12,6 +12,7 @@ jobs:
         include:
           - { os: "ubuntu-latest", packaging: "apt", container: "debian:stretch", python: "python3" }
           - { os: "ubuntu-latest", packaging: "apt", container: "debian:buster", python: "python3" }
+          - { os: "ubuntu-latest", packaging: "apt", container: "debian:bullseye", python: "python3" }
           - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:bionic", python: "python3" }
           - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
           - { os: "macos-10.15", packaging: "brew", python: "python3" }
