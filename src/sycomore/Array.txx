@@ -1,3 +1,6 @@
+#ifndef _79d4d9c6_9ddd_4709_954d_8be28c8660ce
+#define _79d4d9c6_9ddd_4709_954d_8be28c8660ce
+
 #include "Array.h"
 
 #include <algorithm>
@@ -76,24 +79,27 @@ Array<T> &
 Array<T>
 ::operator=(Array<T> const & other)
 {
-    if(this->_is_view)
+    if(this != &other)
     {
-        if(this->_size != other.size())
+        if(this->_is_view)
         {
-            throw std::runtime_error("Assigning to a view must preserve size");
+            if(this->_size != other.size())
+            {
+                throw std::runtime_error("Assigning to a view must preserve size");
+            }
         }
-    }
-    else
-    {
-        this->_size = other._size;
+        else
+        {
+            this->_size = other._size;
 
-        if(this->_data != nullptr)
-        {
-            delete[] this->_data;
+            if(this->_data != nullptr)
+            {
+                delete[] this->_data;
+            }
+            this->_data = new T[this->_size];
         }
-        this->_data = new T[this->_size];
+        std::copy(other.begin(), other.end(), this->begin());
     }
-    std::copy(other.begin(), other.end(), this->begin());
     return *this;
 }
 
@@ -102,13 +108,32 @@ Array<T> &
 Array<T>
 ::operator=(Array<T> && other)
 {
-    this->_size = other._size;
-    this->_is_view = other._is_view;
-    this->_data = other._data;
+    if(this != &other)
+    {
+        
+        if(this->_is_view)
+        {
+            if(this->_size != other.size())
+            {
+                throw std::runtime_error("Assigning to a view must preserve size");
+            }
+        }
+        else
+        {
+            if(this->_data != nullptr)
+            {
+                delete[] this->_data;
+            }
+        }
+        
+        this->_size = other._size;
+        this->_is_view = other._is_view;
+        this->_data = other._data;
 
-    other._size = 0;
-    other._is_view = false;
-    other._data = nullptr;
+        other._size = 0;
+        other._is_view = false;
+        other._data = nullptr;
+    }
 
     return *this;
 }
@@ -484,3 +509,5 @@ hash<sycomore::Array<T>>
 }
 
 }
+
+#endif // _79d4d9c6_9ddd_4709_954d_8be28c8660ce
