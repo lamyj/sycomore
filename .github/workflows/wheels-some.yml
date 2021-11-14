@@ -12,9 +12,9 @@ jobs:
         include:
           # NOTE manylinux1 has gcc 4.8, with no "is_trivially_copyable": 
           # use manylinux2010
-          - { os: "ubuntu-latest", python: "3.9", container: quay.io/pypa/manylinux2010_x86_64 }
-          - { os: "macos-latest", python: "3.9" }
-          - { os: "windows-latest", python: "3.9" }
+          - { os: "ubuntu-latest", python: "3.10", container: quay.io/pypa/manylinux2010_x86_64 }
+          - { os: "macos-latest", python: "3.10" }
+          - { os: "windows-latest", python: "3.10" }
     env:
       MACOSX_DEPLOYMENT_TARGET: "10.9"
     steps:
