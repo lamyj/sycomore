@@ -29,6 +29,7 @@ def setup_linux(version):
         "3.7": "/opt/python/cp37-cp37m/bin",
         "3.8": "/opt/python/cp38-cp38/bin",
         "3.9": "/opt/python/cp39-cp39/bin",
+        "3.10": "/opt/python/cp310-cp310/bin",
     }
     if version not in roots:
         raise NotImplementedError(
@@ -45,6 +46,7 @@ def setup_macos(version):
         "3.7": root+"/3.7.9/python-3.7.9-macosx10.9.pkg",
         "3.8": root+"/3.8.10/python-3.8.10-macosx10.9.pkg",
         "3.9": root+"/3.9.5/python-3.9.5-macos11.pkg",
+        "3.10": root+"/3.10.0/python-3.10.0-macos11.pkg",
     }
     if version not in urls:
         raise NotImplementedError(
@@ -74,6 +76,7 @@ def setup_windows(version):
         "3.7": "3.7.9",
         "3.8": "3.8.10",
         "3.9": "3.9.5",
+        "3.10": "3.10.0",
     }
     if version not in versions:
         raise NotImplementedError(
