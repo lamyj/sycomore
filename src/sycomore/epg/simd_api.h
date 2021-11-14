@@ -17,8 +17,8 @@ namespace simd_api
 {
 
 #define SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(return_, name, parameters) \
-    template<int InstructionSet> return_ name parameters; \
-    template<> return_ name<0> parameters; \
+    template<INSTRUCTION_SET_TYPE InstructionSet> return_ name parameters; \
+    template<> return_ name<unsupported> parameters; \
     extern template return_ name<XSIMD_X86_SSE2_VERSION> parameters; \
     extern template return_ name<XSIMD_X86_AVX_VERSION> parameters; \
     extern template return_ name<XSIMD_X86_AVX512_VERSION> parameters;
@@ -147,13 +147,13 @@ SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
  *                          Function table and set-up                          *
  ******************************************************************************/
 
-extern decltype(&apply_pulse_d<0>) apply_pulse;
-extern decltype(&relaxation_d<0>) relaxation;
-extern decltype(&diffusion_d<0>) diffusion;
-extern decltype(&diffusion_3d_b_d<0>) diffusion_3d_b;
-extern decltype(&diffusion_3d_d<0>) diffusion_3d;
-extern decltype(&off_resonance_d<0>) off_resonance;
-extern decltype(&bulk_motion_d<0>) bulk_motion;
+extern decltype(&apply_pulse_d<unsupported>) apply_pulse;
+extern decltype(&relaxation_d<unsupported>) relaxation;
+extern decltype(&diffusion_d<unsupported>) diffusion;
+extern decltype(&diffusion_3d_b_d<unsupported>) diffusion_3d_b;
+extern decltype(&diffusion_3d_d<unsupported>) diffusion_3d;
+extern decltype(&off_resonance_d<unsupported>) off_resonance;
+extern decltype(&bulk_motion_d<unsupported>) bulk_motion;
 
 void set_api(int instruction_set);
 

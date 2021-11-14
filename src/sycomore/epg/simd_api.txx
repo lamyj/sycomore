@@ -49,7 +49,7 @@ void apply_pulse_w(
     }
 }
 
-template<int InstructionSet>
+template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 apply_pulse_d(
     std::vector<Complex> const & T,
@@ -88,7 +88,7 @@ void relaxation_w(
     }
 }
 
-template<int InstructionSet>
+template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 relaxation_d(
     std::pair<Real, Real> const & E,
@@ -133,7 +133,7 @@ void diffusion_w(
     }
 }
 
-template<int InstructionSet>
+template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 diffusion_d(
     Real delta_k, Real tau, Real D, Real const * k,
@@ -179,7 +179,7 @@ void diffusion_3d_w(
     }
 }
 
-template<int InstructionSet>
+template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 diffusion_3d_d(
     Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
@@ -231,7 +231,7 @@ void diffusion_3d_b_w(
     }
 }
 
-template<int InstructionSet>
+template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 diffusion_3d_b_d(
     Real const * k_m, Real const * k_n, Real delta_k_m, Real delta_k_n, 
@@ -275,7 +275,7 @@ void off_resonance_w(
     }
 }
 
-template<int InstructionSet>
+template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 off_resonance_d(
     std::pair<Complex, Complex> const & phi,
@@ -320,7 +320,7 @@ void bulk_motion_w(
     }
 }
 
-template<int InstructionSet>
+template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 bulk_motion_d(
     Real delta_k, Real v, Real tau, Real const * k,

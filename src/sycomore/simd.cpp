@@ -37,6 +37,9 @@ std::vector<unsigned int> get_cpu_info(unsigned int leaf, unsigned int subleaf)
 
 int get_instruction_set()
 {
+#if XSIMD_VERSION_MAJOR >= 8
+    return xsimd::available_architectures().best;
+#else
     auto info = get_cpu_info(1);
     auto const ecx = info[2];
     auto const edx = info[3];
@@ -56,6 +59,7 @@ int get_instruction_set()
     if((ebx & 1<<16) != 0) { instruction_set = XSIMD_X86_AVX512_VERSION; }
     
     return instruction_set;
+#endif
 }
 
 }

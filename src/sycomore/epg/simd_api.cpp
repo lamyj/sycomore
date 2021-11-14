@@ -21,7 +21,7 @@ namespace simd_api
 
 template<>
 void
-apply_pulse_d<0>(
+apply_pulse_d<unsupported>(
     std::vector<Complex> const & T,
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {
@@ -34,7 +34,7 @@ apply_pulse_d<0>(
 
 template<>
 void
-relaxation_d<0>(
+relaxation_d<unsupported>(
     std::pair<Real, Real> const & E,
     Real * F, Real * F_star, Real * Z, unsigned int states_count)
 {
@@ -48,7 +48,7 @@ relaxation_d<0>(
 
 template<>
 void
-diffusion_d<0>(
+diffusion_d<unsupported>(
     Real delta_k, Real tau, Real D, Real const * k,
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {
@@ -62,7 +62,7 @@ diffusion_d<0>(
 
 template<>
 void
-diffusion_3d_b_d<0>(
+diffusion_3d_b_d<unsupported>(
     Real const * k_m, Real const * k_n, Real delta_k_m, Real delta_k_n, 
     Real delta_k_product_term, Real tau, Real D_mn,
     Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D,
@@ -76,7 +76,7 @@ diffusion_3d_b_d<0>(
 
 template<>
 void
-diffusion_3d_d<0>(
+diffusion_3d_d<unsupported>(
     Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {
@@ -90,7 +90,7 @@ diffusion_3d_d<0>(
 
 template<>
 void
-off_resonance_d<0>(
+off_resonance_d<unsupported>(
     std::pair<Complex, Complex> const & phi,
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {
@@ -103,7 +103,7 @@ off_resonance_d<0>(
 
 template<>
 void
-bulk_motion_d<0>(
+bulk_motion_d<unsupported>(
     Real delta_k, Real v, Real tau, Real const * k,
     Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
 {
@@ -115,13 +115,13 @@ bulk_motion_d<0>(
  *                          Function table and set-up                          *
  ******************************************************************************/
 
-decltype(&apply_pulse_d<0>) apply_pulse = nullptr;
-decltype(&relaxation_d<0>) relaxation = nullptr;
-decltype(&diffusion_d<0>) diffusion = nullptr;
-decltype(&diffusion_3d_b_d<0>) diffusion_3d_b = nullptr;
-decltype(&diffusion_3d_d<0>) diffusion_3d = nullptr;
-decltype(&off_resonance_d<0>) off_resonance = nullptr;
-decltype(&bulk_motion_d<0>) bulk_motion = nullptr;
+decltype(&apply_pulse_d<unsupported>) apply_pulse = nullptr;
+decltype(&relaxation_d<unsupported>) relaxation = nullptr;
+decltype(&diffusion_d<unsupported>) diffusion = nullptr;
+decltype(&diffusion_3d_b_d<unsupported>) diffusion_3d_b = nullptr;
+decltype(&diffusion_3d_d<unsupported>) diffusion_3d = nullptr;
+decltype(&off_resonance_d<unsupported>) off_resonance = nullptr;
+decltype(&bulk_motion_d<unsupported>) bulk_motion = nullptr;
 
 void set_api(int instruction_set)
 {
