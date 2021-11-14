@@ -50,7 +50,7 @@ with tempfile.TemporaryDirectory() as directory:
             "cmake", 
             "-DCMAKE_INSTALL_PREFIX={}".format(os.path.expanduser("~/local")),
             "."], 
-        cwd=os.path.join(directory, "xsimd-7.5.0"))
+        cwd=os.path.join(directory, "xsimd-8.0.3"))
     subprocess.check_call(
         ["cmake", "--build", ".", "--config", "Release", "--target", "install"],
-        cwd=os.path.join(directory, "xsimd-7.5.0"))
+        cwd=os.path.join(directory, "xsimd-8.0.3"))
