@@ -41,7 +41,7 @@ if not pybind11:
             cwd=os.path.join(directory, "pybind11-2.6.2"))
 
 with tempfile.TemporaryDirectory() as directory:
-    response = requests.get("https://github.com/xtensor-stack/xsimd/archive/refs/tags/7.5.0.zip")
+    response = requests.get("https://github.com/xtensor-stack/xsimd/archive/refs/tags/8.0.3.zip")
     response.raise_for_status()
     with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
         archive.extractall(directory)
