@@ -5,6 +5,7 @@
 
 #include <xsimd/xsimd.hpp>
 
+#include "sycomore/epg/pool_storage.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
@@ -115,7 +116,7 @@ public:
     void bulk_motion(Quantity const & duration, Quantity const & gradient);
     
 private:
-    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F, _F_star, _Z;
+    pool_storage::SinglePool _storage;
     Real _M_z_eq;
     
     Quantity _bin_width;
@@ -130,9 +131,7 @@ private:
         // the states vectors.
         robin_hood::unordered_flat_map<long long, std::size_t> locations;
         decltype(Discrete::_orders) orders;
-        decltype(Discrete::_F) F;
-        decltype(Discrete::_F_star) F_star;
-        decltype(Discrete::_Z) Z;
+        pool_storage::Vector F, F_star, Z;
         
         // Diffusion-related data.
         std::vector<Real, xsimd::aligned_allocator<Real, 64>> k;

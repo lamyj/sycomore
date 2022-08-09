@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "sycomore/epg/operators.h"
+#include "sycomore/epg/pool_storage.h"
 #include "sycomore/simd.h"
 #include "sycomore/sycomore.h"
 
@@ -20,11 +21,11 @@ namespace simd_api
 {
     
 /*******************************************************************************
- *                                Pulse operator                               *
+ *                                Pulse operators                              *
  ******************************************************************************/
 
 template<typename ValueType>
-void apply_pulse_w(
+void apply_pulse_single_pool_w(
     std::vector<Complex> const & T,
     Complex * F, Complex * F_star, Complex * Z,
     std::size_t start, std::size_t end, std::size_t step)
@@ -51,15 +52,136 @@ void apply_pulse_w(
 
 template<INSTRUCTION_SET_TYPE InstructionSet>
 void
-apply_pulse_d(
+apply_pulse_single_pool_d(
     std::vector<Complex> const & T,
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+    pool_storage::SinglePool & storage, unsigned int states_count)
 {    
     using Batch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % Batch::size;
     
-    apply_pulse_w<Batch>(T, F, F_star, Z, 0, simd_end, Batch::size);
-    apply_pulse_w<Complex>(T, F, F_star, Z, simd_end, states_count, 1);
+    apply_pulse_single_pool_w<Batch>(
+        T,
+        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        0, simd_end, Batch::size);
+    apply_pulse_single_pool_w<Complex>(
+        T,
+        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        simd_end, states_count, 1);
+}
+
+template<typename ValueType>
+void apply_pulse_exchange_w(
+    std::vector<Complex> const & T,
+    Complex * F_a, Complex * F_star_a, Complex * Z_a,
+    Complex * F_b, Complex * F_star_b, Complex * Z_b,
+    std::size_t start, std::size_t end, std::size_t step)
+{
+    for(std::size_t i=start; i<end; i+=step)
+    {
+        ValueType F_a_i, F_star_a_i, Z_a_i;
+        sycomore::simd::load_aligned(F_a+i, F_a_i);
+        sycomore::simd::load_aligned(F_star_a+i, F_star_a_i);
+        sycomore::simd::load_aligned(Z_a+i, Z_a_i);
+    
+        auto const F_a_i_new = 
+            T[3*0+0] * F_a_i + T[3*0+1] * F_star_a_i + T[3*0+2] * Z_a_i;
+        auto const F_star_a_i_new = 
+            T[3*1+0] * F_a_i + T[3*1+1] * F_star_a_i + T[3*1+2] * Z_a_i;
+        auto const Z_a_i_new =
+            T[3*2+0] * F_a_i + T[3*2+1] * F_star_a_i + T[3*2+2] * Z_a_i;
+        
+        sycomore::simd::store_aligned(F_a_i_new, F_a+i);
+        sycomore::simd::store_aligned(F_star_a_i_new, F_star_a+i);
+        sycomore::simd::store_aligned(Z_a_i_new, Z_a+i);
+        
+        ValueType F_b_i, F_star_b_i, Z_b_i;
+        sycomore::simd::load_aligned(F_b+i, F_b_i);
+        sycomore::simd::load_aligned(F_star_b+i, F_star_b_i);
+        sycomore::simd::load_aligned(Z_b+i, Z_b_i);
+    
+        auto const F_b_i_new = 
+            T[3*3+0] * F_b_i + T[3*3+1] * F_star_b_i + T[3*3+2] * Z_b_i;
+        auto const F_star_b_i_new = 
+            T[3*4+0] * F_b_i + T[3*4+1] * F_star_b_i + T[3*4+2] * Z_b_i;
+        auto const Z_b_i_new =
+            T[3*5+0] * F_b_i + T[3*5+1] * F_star_b_i + T[3*5+2] * Z_b_i;
+        
+        sycomore::simd::store_aligned(F_b_i_new, F_b+i);
+        sycomore::simd::store_aligned(F_star_b_i_new, F_star_b+i);
+        sycomore::simd::store_aligned(Z_b_i_new, Z_b+i);
+    }
+}
+
+template<INSTRUCTION_SET_TYPE InstructionSet>
+void
+apply_pulse_exchange_d(
+    std::vector<Complex> const & T,
+    pool_storage::Exchange & storage,
+    unsigned int states_count)
+{
+    using Batch = simd::Batch<Complex, InstructionSet>;
+    auto const simd_end = states_count - states_count % Batch::size;
+    
+    apply_pulse_exchange_w<Batch>(
+        T,
+        storage.F_a.data(), storage.F_star_a.data(), storage.Z_a.data(),
+        storage.F_b.data(), storage.F_star_b.data(), storage.Z_b.data(),
+        0, simd_end, Batch::size);
+    apply_pulse_exchange_w<Complex>(
+        T,
+        storage.F_a.data(), storage.F_star_a.data(), storage.Z_a.data(),
+        storage.F_b.data(), storage.F_star_b.data(), storage.Z_b.data(),
+        simd_end, states_count, 1);
+}
+
+template<typename ValueType>
+void apply_pulse_magnetization_transfer_w(
+    std::vector<Complex> const & T,
+    Complex * F, Complex * F_star, Complex * Z_a, Complex * Z_b,
+    std::size_t start, std::size_t end, std::size_t step)
+{
+    for(std::size_t i=start; i<end; i+=step)
+    {
+        ValueType F_i, F_star_i, Z_a_i;
+        sycomore::simd::load_aligned(F+i, F_i);
+        sycomore::simd::load_aligned(F_star+i, F_star_i);
+        sycomore::simd::load_aligned(Z_a+i, Z_a_i);
+    
+        auto const F_i_new = 
+            T[3*0+0] * F_i + T[3*0+1] * F_star_i + T[3*0+2] * Z_a_i;
+        auto const F_i_star_new = 
+            T[3*1+0] * F_i + T[3*1+1] * F_star_i + T[3*1+2] * Z_a_i;
+        auto const Z_a_i_new =
+            T[3*2+0] * F_i + T[3*2+1] * F_star_i + T[3*2+2] * Z_a_i;
+        
+        sycomore::simd::store_aligned(F_i_new, F+i);
+        sycomore::simd::store_aligned(F_i_star_new, F_star+i);
+        sycomore::simd::store_aligned(Z_a_i_new, Z_a+i);
+        
+        ValueType Z_b_i;
+        sycomore::simd::load_aligned(Z_b+i, Z_b_i);
+        sycomore::simd::store_aligned(Z_b_i*T[9], Z_b+i);
+    }
+}
+
+template<INSTRUCTION_SET_TYPE InstructionSet>
+void
+apply_pulse_magnetization_transfer_d(
+    std::vector<Complex> const & T,
+    pool_storage::MagnetizationTransfer & storage,
+    unsigned int states_count)
+{    
+    using Batch = simd::Batch<Complex, InstructionSet>;
+    auto const simd_end = states_count - states_count % Batch::size;
+    
+    apply_pulse_magnetization_transfer_w<Batch>(
+        T,
+        storage.F.data(), storage.F_star.data(), storage.Z_a.data(),
+        storage.Z_b.data(), 0, simd_end, Batch::size);
+    apply_pulse_magnetization_transfer_w<Complex>(
+        T,
+        storage.F.data(), storage.F_star.data(), storage.Z_a.data(),
+        storage.Z_b.data(), simd_end, states_count, 1);
 }
 
 /*******************************************************************************

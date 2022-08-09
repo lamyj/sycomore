@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "sycomore/epg/operators.h"
+#include "sycomore/epg/pool_storage.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
@@ -26,14 +27,13 @@ Discrete
 ::Discrete(
     Species const & species, Magnetization const & initial_magnetization, 
     Quantity bin_width, Real threshold)
-: species(species), _bin_width(bin_width), _F(1, 0), _F_star(1, 0), _Z(1, 0), 
-    threshold(threshold)
+: species(species), _bin_width(bin_width), _storage(1), threshold(threshold)
 {
     // Store magnetization as lines of F, F*_, Z
     auto const magnetization = as_complex_magnetization(initial_magnetization);
-    this->_F[0] = std::sqrt(2)*magnetization.p;
-    this->_F_star[0] = std::sqrt(2)*magnetization.m;
-    this->_Z[0] = magnetization.z;
+    this->_storage.F[0] = std::sqrt(2)*magnetization.p;
+    this->_storage.F_star[0] = std::sqrt(2)*magnetization.m;
+    this->_storage.Z[0] = magnetization.z;
     this->_M_z_eq = magnetization.z;
     
     this->_orders.push_back(0);
@@ -61,7 +61,10 @@ std::vector<Complex>
 Discrete
 ::state(std::size_t order) const
 {
-    return {this->_F[order], this->_F_star[order], this->_Z[order]};
+    return {
+        this->_storage.F[order],
+        this->_storage.F_star[order],
+        this->_storage.Z[order]};
 }
 
 std::vector<Complex>
@@ -91,9 +94,9 @@ Discrete
     std::vector<Complex> result(3*this->_orders.size());
     for(unsigned int order=0; order<this->_orders.size(); ++order)
     {
-        result[3*order+0] = this->_F[order];
-        result[3*order+1] = this->_F_star[order];
-        result[3*order+2] = this->_Z[order];
+        result[3*order+0] = this->_storage.F[order];
+        result[3*order+1] = this->_storage.F_star[order];
+        result[3*order+2] = this->_storage.Z[order];
     }
     return result;
 }
@@ -102,17 +105,16 @@ Complex const &
 Discrete
 ::echo() const
 {
-    return this->_F[0];
+    return this->_storage.F[0];
 }
 
 void
 Discrete
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    simd_api::apply_pulse(
+    simd_api::apply_pulse_single_pool(
         operators::pulse_single_pool(angle.magnitude, phase.magnitude), 
-        this->_F.data(), this->_F_star.data(), this->_Z.data(), 
-        this->_orders.size());
+        this->_storage, this->_orders.size());
 }
 
 void
@@ -152,9 +154,9 @@ Discrete
         for(std::size_t source=1, end=this->size(); source != end; ++source)
         {
             auto const magnitude_squared =
-                std::pow(std::abs(this->_F[source]), 2)
-                +std::pow(std::abs(this->_F_star[source]), 2)
-                +std::pow(std::abs(this->_Z[source]), 2);
+                std::pow(std::abs(this->_storage.F[source]), 2)
+                +std::pow(std::abs(this->_storage.F_star[source]), 2)
+                +std::pow(std::abs(this->_storage.Z[source]), 2);
             // Always include the zero order (implicit since we start at 1),
             // include other order if population is above threshold.
             if(magnitude_squared >= threshold_squared)
@@ -162,18 +164,18 @@ Discrete
                 if(source != destination)
                 {
                     this->_orders[destination] = this->_orders[source];
-                    this->_F[destination] = this->_F[source];
-                    this->_F_star[destination] = this->_F_star[source];
-                    this->_Z[destination] = this->_Z[source];
+                    this->_storage.F[destination] = this->_storage.F[source];
+                    this->_storage.F_star[destination] = this->_storage.F_star[source];
+                    this->_storage.Z[destination] = this->_storage.Z[source];
                 }
                 ++destination;
             }
         }
 
         this->_orders.resize(destination);
-        this->_F.resize(destination);
-        this->_F_star.resize(destination);
-        this->_Z.resize(destination);
+        this->_storage.F.resize(destination);
+        this->_storage.F_star.resize(destination);
+        this->_storage.Z.resize(destination);
         
         // No need to update the iterator pointing to the echo magnetization.
     }
@@ -208,13 +210,13 @@ Discrete
     {
         auto const k = this->_orders[i];
         
-        auto state = this->_Z[i];
+        auto state = this->_storage.Z[i];
         if(state != 0.)
         {
             this->_cache.Z[this->_cache.get_location(k)] = state;
         }
         
-        state = this->_F[i];
+        state = this->_storage.F[i];
         if(state != 0.)
         {
             auto k_F = k+delta_k;
@@ -232,7 +234,7 @@ Discrete
         }
         
         // WARNING: F* state at echo is a duplicate of F state.
-        state = this->_F_star[i];
+        state = this->_storage.F_star[i];
         if(i != 0 && state != 0.)
         {
             // The F* order corresponding to F order k+Δk is -(-k+Δk), i.e. k-Δk
@@ -258,18 +260,18 @@ Discrete
     
     // Use swap and not move since we keep the temporary variables between runs.
     std::swap(this->_cache.orders, this->_orders);
-    std::swap(this->_cache.F, this->_F);
-    std::swap(this->_cache.F_star, this->_F_star);
-    std::swap(this->_cache.Z, this->_Z);
+    std::swap(this->_cache.F, this->_storage.F);
+    std::swap(this->_cache.F_star, this->_storage.F_star);
+    std::swap(this->_cache.Z, this->_storage.Z);
     
     // Update the conjugate states of the echo magnetization.
-    if(this->_F[0] != 0.)
+    if(this->_storage.F[0] != 0.)
     {
-        this->_F_star[0] = std::conj(this->_F[0]);
+        this->_storage.F_star[0] = std::conj(this->_storage.F[0]);
     }
-    else if(this->_F_star[0] != 0.)
+    else if(this->_storage.F_star[0] != 0.)
     {
-        this->_F[0] = std::conj(this->_F_star[0]);
+        this->_storage.F[0] = std::conj(this->_storage.F_star[0]);
     }
 }
 
@@ -288,12 +290,12 @@ Discrete
     
     simd_api::relaxation(
         E,
-        reinterpret_cast<Real*>(this->_F.data()),
-        reinterpret_cast<Real*>(this->_F_star.data()),
-        reinterpret_cast<Real*>(this->_Z.data()),
+        reinterpret_cast<Real*>(this->_storage.F.data()),
+        reinterpret_cast<Real*>(this->_storage.F_star.data()),
+        reinterpret_cast<Real*>(this->_storage.Z.data()),
         this->_orders.size());
     
-    this->_Z[0] += this->_M_z_eq*(1.-E.first);
+    this->_storage.Z[0] += this->_M_z_eq*(1.-E.first);
 }
 
 void
@@ -320,7 +322,9 @@ Discrete
     
     simd_api::diffusion(
         delta_k, tau, D, this->_cache.k.data(),
-        this->_F.data(), this->_F_star.data(), this->_Z.data(),
+        this->_storage.F.data(),
+        this->_storage.F_star.data(),
+        this->_storage.Z.data(),
         this->_orders.size());
 }
 
@@ -336,7 +340,9 @@ Discrete
         auto const rotations = operators::phase_accumulation(angle);
         simd_api::off_resonance(
             rotations,
-            this->_F.data(), this->_F_star.data(), this->_Z.data(),
+            this->_storage.F.data(),
+            this->_storage.F_star.data(),
+            this->_storage.Z.data(),
             this->_orders.size());
     }
 }
@@ -364,7 +370,9 @@ Discrete
     
     simd_api::bulk_motion(
         delta_k, this->velocity.magnitude, duration.magnitude, k.data(),
-        this->_F.data(), this->_F_star.data(), this->_Z.data(),
+        this->_storage.F.data(),
+        this->_storage.F_star.data(),
+        this->_storage.Z.data(),
         this->size());
 }
 

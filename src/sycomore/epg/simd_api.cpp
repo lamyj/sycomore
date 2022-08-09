@@ -3,6 +3,7 @@
 #include <utility>
 #include <vector>
 
+#include "sycomore/epg/pool_storage.h"
 #include "sycomore/simd.h"
 #include "sycomore/sycomore.h"
 
@@ -16,16 +17,46 @@ namespace simd_api
 {
 
 /*******************************************************************************
- *                                Pulse operator                               *
+ *                                Pulse operators                              *
  ******************************************************************************/
 
 template<>
 void
-apply_pulse_d<unsupported>(
+apply_pulse_single_pool_d<unsupported>(
     std::vector<Complex> const & T,
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+    pool_storage::SinglePool & storage, unsigned int states_count)
 {
-    apply_pulse_w<Complex>(T, F, F_star, Z, 0, states_count, 1);
+    apply_pulse_single_pool_w<Complex>(
+        T,
+        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        0, states_count, 1);
+}
+
+template<>
+void
+apply_pulse_exchange_d<unsupported>(
+    std::vector<Complex> const & T,
+    pool_storage::Exchange & storage,
+    unsigned int states_count)
+{
+    apply_pulse_exchange_w<Complex>(
+        T,
+        storage.F_a.data(), storage.F_star_a.data(), storage.Z_a.data(),
+        storage.F_b.data(), storage.F_star_b.data(), storage.Z_b.data(),
+        0, states_count, 1);
+}
+
+template<>
+void
+apply_pulse_magnetization_transfer_d<unsupported>(
+    std::vector<Complex> const & T,
+    pool_storage::MagnetizationTransfer & storage,
+    unsigned int states_count)
+{
+    apply_pulse_magnetization_transfer_w<Complex>(
+        T,
+        storage.F.data(), storage.F_star.data(), storage.Z_a.data(),
+        storage.Z_b.data(), 0, states_count, 1);
 }
 
 /*******************************************************************************
@@ -115,7 +146,11 @@ bulk_motion_d<unsupported>(
  *                          Function table and set-up                          *
  ******************************************************************************/
 
-decltype(&apply_pulse_d<unsupported>) apply_pulse = nullptr;
+decltype(&apply_pulse_single_pool_d<unsupported>)
+    apply_pulse_single_pool = nullptr;
+decltype(&apply_pulse_exchange_d<unsupported>) apply_pulse_exchange = nullptr;
+decltype(&apply_pulse_magnetization_transfer_d<unsupported>)
+    apply_pulse_magnetization_transfer = nullptr;
 decltype(&relaxation_d<unsupported>) relaxation = nullptr;
 decltype(&diffusion_d<unsupported>) diffusion = nullptr;
 decltype(&diffusion_3d_b_d<unsupported>) diffusion_3d_b = nullptr;
@@ -125,7 +160,9 @@ decltype(&bulk_motion_d<unsupported>) bulk_motion = nullptr;
 
 void set_api(int instruction_set)
 {
-    SYCOMORE_SET_API_FUNCTION(apply_pulse)
+    SYCOMORE_SET_API_FUNCTION(apply_pulse_single_pool)
+    SYCOMORE_SET_API_FUNCTION(apply_pulse_exchange)
+    SYCOMORE_SET_API_FUNCTION(apply_pulse_magnetization_transfer)
     SYCOMORE_SET_API_FUNCTION(relaxation)
     SYCOMORE_SET_API_FUNCTION(diffusion)
     SYCOMORE_SET_API_FUNCTION(diffusion_3d_b)

@@ -5,6 +5,7 @@
 
 #include <xsimd/xsimd.hpp>
 
+#include "sycomore/epg/pool_storage.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -110,7 +111,7 @@ public:
     double gradient_tolerance() const;
     
 private:
-    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F, _F_star, _Z;
+    pool_storage::SinglePool _storage;
     Real _M_z_eq;
     unsigned int _states_count;
     

@@ -10,9 +10,22 @@ namespace simd_api
 {
 
 template 
-void apply_pulse_d<XSIMD_X86_AVX_VERSION>(
+void apply_pulse_single_pool_d<XSIMD_X86_AVX_VERSION>(
     std::vector<Complex> const & T, 
-    Complex * F, Complex * F_star, Complex * Z,
+    pool_storage::SinglePool & storage,
+    unsigned int states_count);
+
+template
+void
+apply_pulse_magnetization_transfer_d<XSIMD_X86_AVX_VERSION>(
+    std::vector<Complex> const & T,
+    pool_storage::MagnetizationTransfer & storage,
+    unsigned int states_count);
+
+template 
+void apply_pulse_exchange_d<XSIMD_X86_AVX_VERSION>(
+    std::vector<Complex> const & T, 
+    pool_storage::Exchange & storage,
     unsigned int states_count);
 
 template 

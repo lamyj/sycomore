@@ -7,6 +7,7 @@
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/Array.h"
+#include "sycomore/epg/pool_storage.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
@@ -128,9 +129,7 @@ public:
 private:
     using Bin = std::array<int64_t, 3>;
     std::vector<Bin::value_type, xsimd::aligned_allocator<Bin::value_type, 64>> _orders;
-    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F;
-    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _F_star;
-    std::vector<Complex, xsimd::aligned_allocator<Complex, 64>> _Z;
+    pool_storage::SinglePool _storage;
     Real _M_z_eq;
 
     Quantity _bin_width;
@@ -146,9 +145,7 @@ private:
         // the states vectors.
         robin_hood::unordered_flat_map<Bin, std::size_t> locations;
         decltype(Discrete3D::_orders) orders;
-        decltype(Discrete3D::_F) F;
-        decltype(Discrete3D::_F_star) F_star;
-        decltype(Discrete3D::_Z) Z;
+        pool_storage::Vector F, F_star, Z;
         
         // Diffusion-related data.
         std::vector<RealVector, xsimd::aligned_allocator<RealVector, 64>> k{3};

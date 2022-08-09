@@ -5,6 +5,7 @@
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/epg/operators.h"
+#include "sycomore/epg/pool_storage.h"
 #include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
@@ -26,14 +27,14 @@ Regular
     unsigned int initial_size, 
     Quantity const & unit_gradient_area, double gradient_tolerance)
 : species(species),
-    _F(initial_size, 0), _F_star(initial_size, 0), _Z(initial_size, 0),
+    _storage(initial_size, 0),
     _unit_gradient_area(unit_gradient_area), 
     _gradient_tolerance(gradient_tolerance)
 {
     auto const magnetization = as_complex_magnetization(initial_magnetization);
-    this->_F[0] = std::sqrt(2)*magnetization.p;
-    this->_F_star[0] = std::sqrt(2)*magnetization.m;
-    this->_Z[0] = magnetization.z;
+    this->_storage.F[0] = std::sqrt(2)*magnetization.p;
+    this->_storage.F_star[0] = std::sqrt(2)*magnetization.m;
+    this->_storage.Z[0] = magnetization.z;
     this->_M_z_eq = magnetization.z;
     
     this->_states_count = 1;
@@ -50,7 +51,10 @@ std::vector<Complex>
 Regular
 ::state(std::size_t order) const
 {
-    return {this->_F[order], this->_F_star[order], this->_Z[order]};
+    return {
+        this->_storage.F[order],
+        this->_storage.F_star[order],
+        this->_storage.Z[order]};
 }
 
 std::vector<Complex>
@@ -60,9 +64,9 @@ Regular
     std::vector<Complex> result(3*this->_states_count);
     for(unsigned int order=0; order<this->_states_count; ++order)
     {
-        result[3*order+0] = this->_F[order];
-        result[3*order+1] = this->_F_star[order];
-        result[3*order+2] = this->_Z[order];
+        result[3*order+0] = this->_storage.F[order];
+        result[3*order+1] = this->_storage.F_star[order];
+        result[3*order+2] = this->_storage.Z[order];
     }
     return result;
 }
@@ -71,17 +75,16 @@ Complex const &
 Regular
 ::echo() const
 {
-    return this->_F[0];
+    return this->_storage.F[0];
 }
 
 void
 Regular
 ::apply_pulse(Quantity angle, Quantity phase)
 {
-    simd_api::apply_pulse(
+    simd_api::apply_pulse_single_pool(
         operators::pulse_single_pool(angle.magnitude, phase.magnitude), 
-        this->_F.data(), this->_F_star.data(), this->_Z.data(), 
-        this->_states_count);
+        this->_storage, this->_states_count);
 }
 
 void
@@ -126,9 +129,9 @@ Regular
         while(this->_states_count>1 && !done)
         {
             auto const magnitude_squared =
-                std::pow(std::abs(this->_F[this->_states_count-1]), 2)
-                +std::pow(std::abs(this->_F_star[this->_states_count-1]), 2)
-                +std::pow(std::abs(this->_Z[this->_states_count-1]), 2);
+                std::pow(std::abs(this->_storage.F[this->_states_count-1]), 2)
+                +std::pow(std::abs(this->_storage.F_star[this->_states_count-1]), 2)
+                +std::pow(std::abs(this->_storage.Z[this->_states_count-1]), 2);
             
             if(magnitude_squared > threshold_squared)
             {
@@ -145,9 +148,9 @@ Regular
         // Remove empty states with high order.
         while(
             this->_states_count > 1
-            && this->_F[this->_states_count-1] == 0. 
-            && this->_F_star[this->_states_count-1] == 0.
-            && this->_Z[this->_states_count-1] == 0.)
+            && this->_storage.F[this->_states_count-1] == 0. 
+            && this->_storage.F_star[this->_states_count-1] == 0.
+            && this->_storage.Z[this->_states_count-1] == 0.)
         {
             --this->_states_count;
         }
@@ -207,12 +210,12 @@ Regular
     
     simd_api::relaxation(
         E,
-        reinterpret_cast<Real*>(this->_F.data()),
-        reinterpret_cast<Real*>(this->_F_star.data()),
-        reinterpret_cast<Real*>(this->_Z.data()),
+        reinterpret_cast<Real*>(this->_storage.F.data()),
+        reinterpret_cast<Real*>(this->_storage.F_star.data()),
+        reinterpret_cast<Real*>(this->_storage.Z.data()),
         this->_states_count);
     
-    this->_Z[0] += this->_M_z_eq*(1.-E.first);
+    this->_storage.Z[0] += this->_M_z_eq*(1.-E.first);
 }
 
 void
@@ -253,7 +256,9 @@ Regular
     
     simd_api::diffusion(
         delta_k, tau, D, this->_cache.k.data(),
-        this->_F.data(), this->_F_star.data(), this->_Z.data(),
+        this->_storage.F.data(),
+        this->_storage.F_star.data(),
+        this->_storage.Z.data(),
         this->_states_count);
 }
 
@@ -269,7 +274,9 @@ Regular
         auto const rotations = operators::phase_accumulation(angle);
         simd_api::off_resonance(
             rotations,
-            this->_F.data(), this->_F_star.data(), this->_Z.data(),
+            this->_storage.F.data(),
+            this->_storage.F_star.data(),
+            this->_storage.Z.data(),
             this->_states_count);
     }
 }
@@ -299,7 +306,9 @@ Regular
     
     simd_api::bulk_motion(
         delta_k, this->velocity.magnitude, duration.magnitude, k.data(),
-        this->_F.data(), this->_F_star.data(), this->_Z.data(),
+        this->_storage.F.data(),
+        this->_storage.F_star.data(),
+        this->_storage.Z.data(),
         this->_states_count);
 }
 
@@ -330,47 +339,43 @@ Regular
     }
     else if(n==1 || n==-1)
     {
-        if(this->_states_count >= this->_F.size())
+        auto & [F, F_star, Z] = this->_storage;
+        if(this->_states_count >= F.size())
         {
-            this->_F.resize(this->_F.size()+100, 0);
-            this->_F_star.resize(this->_F_star.size()+100, 0);
-            this->_Z.resize(this->_Z.size()+100, 0);
+            F.resize(F.size()+100, 0);
+            F_star.resize(F_star.size()+100, 0);
+            Z.resize(Z.size()+100, 0);
         }
         
         if(n == +1)
         {
             // Shift positive F states right
             std::copy_backward(
-                this->_F.begin(), this->_F.begin()+this->_states_count, 
-                this->_F.begin()+this->_states_count+1);
+                F.begin(), F.begin()+this->_states_count, 
+                F.begin()+this->_states_count+1);
             
             // Shift negative F* states left
             std::copy(
-                this->_F_star.begin()+1, 
-                this->_F_star.begin()+this->_states_count+1, 
-                this->_F_star.begin());
+                F_star.begin()+1, F_star.begin()+this->_states_count+1, 
+                F_star.begin());
             
             // Update extremal states: F_{+0} using F*_{-0}, F*_{-max+1}=0
-            this->_F[0] = std::conj(this->_F_star[0]);
-            this->_F_star[this->_states_count] = 0;
+            F[0] = std::conj(F_star[0]);
+            F_star[this->_states_count] = 0;
         }
         else
         {
             // Shift negative F* states right
             std::copy_backward(
-                this->_F_star.begin(), 
-                this->_F_star.begin()+this->_states_count, 
-                this->_F_star.begin()+this->_states_count+1);
+                F_star.begin(), F_star.begin()+this->_states_count, 
+                F_star.begin()+this->_states_count+1);
             
             // Shift positive F states left
-            std::copy(
-                this->_F.begin()+1, 
-                this->_F.begin()+this->_states_count+1, 
-                this->_F.begin());
+            std::copy(F.begin()+1, F.begin()+this->_states_count+1, F.begin());
             
             // Update extremal states: F*_{-0} using F_{+0}, F_{max+1}=0
-            this->_F_star[0] = std::conj(this->_F[0]);
-            this->_F[this->_states_count] = 0;
+            F_star[0] = std::conj(F[0]);
+            F[this->_states_count] = 0;
         }
         
         ++this->_states_count;

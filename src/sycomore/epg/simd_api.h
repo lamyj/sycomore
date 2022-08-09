@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+#include "sycomore/epg/pool_storage.h"
 #include "sycomore/simd.h"
 #include "sycomore/sycomore.h"
 
@@ -27,20 +28,47 @@ namespace simd_api
 // are dispatcher functions.
 
 /*******************************************************************************
- *                                Pulse operator                               *
+ *                                Pulse operators                              *
  ******************************************************************************/
 
 template<typename ValueType>
-void apply_pulse_w(
+void apply_pulse_single_pool_w(
     std::vector<Complex> const & T,
     Complex * F, Complex * F_star, Complex * Z,
     std::size_t start, std::size_t end, std::size_t step);
 
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
-   void, apply_pulse_d, 
+   void, apply_pulse_single_pool_d, 
     (
         std::vector<Complex> const & T, 
-        Complex * F, Complex * F_star, Complex * Z,
+        pool_storage::SinglePool & storage,
+        unsigned int states_count))
+
+template<typename ValueType>
+void apply_pulse_exchange_w(
+    std::vector<Complex> const & T,
+    Complex * F_a, Complex * F_star_a, Complex * Z_a,
+    Complex * F_b, Complex * F_star_b, Complex * Z_b,
+    std::size_t start, std::size_t end, std::size_t step);
+
+SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
+   void, apply_pulse_exchange_d, 
+    (
+        std::vector<Complex> const & T, 
+        pool_storage::Exchange & storage,
+        unsigned int states_count))
+
+template<typename ValueType>
+void apply_pulse_magnetization_transfer_w(
+    std::vector<Complex> const & T,
+    Complex * F, Complex * F_star, Complex * Z_a, Complex * Z_b,
+    std::size_t start, std::size_t end, std::size_t step);
+
+SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
+   void, apply_pulse_magnetization_transfer_d, 
+    (
+        std::vector<Complex> const & T, 
+        pool_storage::MagnetizationTransfer & storage,
         unsigned int states_count))
 
 /*******************************************************************************
@@ -147,7 +175,10 @@ SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
  *                          Function table and set-up                          *
  ******************************************************************************/
 
-extern decltype(&apply_pulse_d<unsupported>) apply_pulse;
+extern decltype(&apply_pulse_single_pool_d<unsupported>) apply_pulse_single_pool;
+extern decltype(&apply_pulse_exchange_d<unsupported>) apply_pulse_exchange;
+extern decltype(&apply_pulse_magnetization_transfer_d<unsupported>)
+    apply_pulse_magnetization_transfer;
 extern decltype(&relaxation_d<unsupported>) relaxation;
 extern decltype(&diffusion_d<unsupported>) diffusion;
 extern decltype(&diffusion_3d_b_d<unsupported>) diffusion_3d_b;
