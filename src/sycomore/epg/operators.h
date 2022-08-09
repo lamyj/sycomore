@@ -17,8 +17,28 @@ namespace epg
 namespace operators
 {
 
-/// @brief Return the row-wise matrix corresponding to the EPG pulse operator.
-SYCOMORE_API std::vector<Complex> pulse(Real angle, Real phase);
+/**
+ * @brief Return the row-wise matrix corresponding to the single-pool EPG pulse
+ * operator.
+ */
+SYCOMORE_API std::vector<Complex> pulse_single_pool(Real angle, Real phase);
+
+/**
+ * @brief Return the row-wise matrix corresponding to the two-pools exchange EPG
+ * pulse operator.
+ */
+SYCOMORE_API
+std::vector<Complex>
+pulse_exchange(Real angle_a, Real phase_a, Real angle_b, Real phase_b);
+
+/**
+ * @brief Return the row-wise matrix corresponding to the two-pools 
+ * magnetization transfer EPG pulse operator.
+ */
+SYCOMORE_API
+std::vector<Complex>
+pulse_magnetization_transfer(
+    Real angle_a, Real phase_a, Real saturation_rate, Real duration);
 
 /**
  * @brief Return the scalars associated respectively with relaxation of 

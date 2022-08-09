@@ -79,7 +79,7 @@ Regular
 ::apply_pulse(Quantity angle, Quantity phase)
 {
     simd_api::apply_pulse(
-        operators::pulse(angle.magnitude, phase.magnitude), 
+        operators::pulse_single_pool(angle.magnitude, phase.magnitude), 
         this->_F.data(), this->_F_star.data(), this->_Z.data(), 
         this->_states_count);
 }
