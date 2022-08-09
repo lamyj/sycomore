@@ -15,7 +15,7 @@ Packaged versions of Sycomore are available on [pypi][] and [Anaconda][] for Lin
 
 To install from [Anaconda][], type `conda install -c conda-forge sycomore`. To install from [pypi][], type `pip3 install sycomore` (or `pip install sycomore`). If you are installing from [pypi][] and no pre-compiled version is available for your platform, pip will try to install from the source archive.
 
-If you need to install Sycomore from source, you will need a C++11 compiler, [CMake][], [xsimd][] and [pybind11][] to successfully build Sycomore. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test][].
+If you need to install Sycomore from source, you will need a C++17 compiler, [CMake][], [xsimd][] and [pybind11][] to successfully build Sycomore. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test][].
 
 Additional details are provided in the [documentation][].
 
