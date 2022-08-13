@@ -4,8 +4,8 @@
 
 #include <xsimd/xsimd.hpp>
 
+#include "sycomore/epg/Base.h"
 #include "sycomore/epg/operators.h"
-#include "sycomore/epg/pool_storage.h"
 #include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
@@ -26,17 +26,10 @@ Regular
     Species const & species, Magnetization const & initial_magnetization, 
     unsigned int initial_size, 
     Quantity const & unit_gradient_area, double gradient_tolerance)
-: species(species),
-    _storage(initial_size, 0),
+: Base(species, initial_magnetization, initial_size),
     _unit_gradient_area(unit_gradient_area), 
     _gradient_tolerance(gradient_tolerance)
 {
-    auto const magnetization = as_complex_magnetization(initial_magnetization);
-    this->_storage.F[0] = std::sqrt(2)*magnetization.p;
-    this->_storage.F_star[0] = std::sqrt(2)*magnetization.m;
-    this->_storage.Z[0] = magnetization.z;
-    this->_M_z_eq = magnetization.z;
-    
     this->_states_count = 1;
 }
 
@@ -116,7 +109,7 @@ Regular
         duration.magnitude != 0 
         && (
             this->delta_omega.magnitude != 0 
-            || species.get_delta_omega().magnitude != 0))
+            || this->_model.species.get_delta_omega().magnitude != 0))
     {
         this->off_resonance(duration);
     }
@@ -198,14 +191,15 @@ Regular
 ::relaxation(Quantity const & duration)
 {
     if(
-        this->species.get_R1().magnitude == 0 
-        && this->species.get_R2().magnitude == 0)
+        this->_model.species.get_R1().magnitude == 0 
+        && this->_model.species.get_R2().magnitude == 0)
     {
         return;
     }
     
     auto const E = operators::relaxation(
-        this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
+        this->_model.species.get_R1().magnitude,
+        this->_model.species.get_R2().magnitude, 
         duration.magnitude);
     
     simd_api::relaxation(
@@ -215,14 +209,14 @@ Regular
         reinterpret_cast<Real*>(this->_storage.Z.data()),
         this->_states_count);
     
-    this->_storage.Z[0] += this->_M_z_eq*(1.-E.first);
+    this->_storage.Z[0] += this->_model.M_z_eq*(1.-E.first);
 }
 
 void
 Regular
 ::diffusion(Quantity const & duration, Quantity const & gradient)
 {
-    if(this->species.get_D()[0].magnitude == 0)
+    if(this->_model.species.get_D()[0].magnitude == 0)
     {
         return;
     }
@@ -252,7 +246,7 @@ Regular
     this->_cache.update_diffusion(this->_states_count, unit_gradient_area);
     
     auto const & tau = duration.magnitude;
-    auto const & D = species.get_D()[0].magnitude;
+    auto const & D = this->_model.species.get_D()[0].magnitude;
     
     simd_api::diffusion(
         delta_k, tau, D, this->_cache.k.data(),
@@ -268,7 +262,9 @@ Regular
 {
     auto const angle = 
         duration.magnitude * 2*M_PI*units::rad 
-        * (this->delta_omega.magnitude+this->species.get_delta_omega().magnitude);
+        * (
+            this->delta_omega.magnitude
+            + this->_model.species.get_delta_omega().magnitude);
     if(angle != 0)
     {
         auto const rotations = operators::phase_accumulation(angle);

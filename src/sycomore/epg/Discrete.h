@@ -5,7 +5,7 @@
 
 #include <xsimd/xsimd.hpp>
 
-#include "sycomore/epg/pool_storage.h"
+#include "sycomore/epg/Base.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
@@ -28,14 +28,12 @@ namespace epg
  * In this model, the orders of the model are stored in bins of user-specified
  * width (hence the term "discrete"), expressed in rad/m.
  */
-class SYCOMORE_API Discrete
+class SYCOMORE_API Discrete: public Base
 {
 public:
     using Order = Quantity;
     using State = std::vector<Complex>;
-
-    Species species;
-    Real threshold;
+    
     Quantity delta_omega=0*units::Hz;
     Quantity velocity=0*units::m/units::s;
     
@@ -49,7 +47,7 @@ public:
     Discrete(Discrete &&) = default;
     Discrete & operator=(Discrete const &) = default;
     Discrete & operator=(Discrete &&) = default;
-    ~Discrete() = default;
+    virtual ~Discrete() = default;
 
     /// @brief Return the number of states of the model.
     std::size_t size() const;
@@ -116,9 +114,6 @@ public:
     void bulk_motion(Quantity const & duration, Quantity const & gradient);
     
 private:
-    pool_storage::SinglePool _storage;
-    Real _M_z_eq;
-    
     Quantity _bin_width;
     std::vector<long long, xsimd::aligned_allocator<long long, 64>> _orders;
     

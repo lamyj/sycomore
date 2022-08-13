@@ -5,7 +5,7 @@
 
 #include <xsimd/xsimd.hpp>
 
-#include "sycomore/epg/pool_storage.h"
+#include "sycomore/epg/Base.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -27,11 +27,9 @@ namespace epg
  * In this model, the orders of the model are consecutive positive integers
  * starting at 0.
  */
-class SYCOMORE_API Regular
+class SYCOMORE_API Regular: public Base
 {
 public:
-    Species species;
-    Real threshold=0;
     Quantity delta_omega=0*units::Hz;
     Quantity velocity=0*units::m/units::s;
     
@@ -46,7 +44,7 @@ public:
     Regular(Regular &&) = default;
     Regular & operator=(Regular const &) = default;
     Regular & operator=(Regular &&) = default;
-    ~Regular() = default;
+    virtual ~Regular() = default;
     
     /// @brief Return the number of states in the model.
     std::size_t const states_count() const;
@@ -111,8 +109,6 @@ public:
     double gradient_tolerance() const;
     
 private:
-    pool_storage::SinglePool _storage;
-    Real _M_z_eq;
     unsigned int _states_count;
     
     /// @brief Area of the unit gradient, in T/m*s.

@@ -21,7 +21,11 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             init<Species, Magnetization, Quantity>(),
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
             arg("bin_width")=1*units::rad/units::m)
-        .def_readwrite("species", &Discrete3D::species)
+        .def_property(
+            "species",
+            [](Discrete3D const & model) -> Species & { return model.species; },
+            [](Discrete3D & model, Species const & species) -> void {
+                model.species = species; })
         .def_readwrite("delta_omega", &Discrete3D::delta_omega)
         .def_readwrite("threshold", &Discrete3D::threshold)
         .def_property_readonly(

@@ -7,8 +7,8 @@
 #include <iostream>
 #include <vector>
 
+#include "sycomore/epg/Base.h"
 #include "sycomore/epg/operators.h"
-#include "sycomore/epg/pool_storage.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/epg/simd_api.h"
 #include "sycomore/magnetization.h"
@@ -27,15 +27,9 @@ Discrete
 ::Discrete(
     Species const & species, Magnetization const & initial_magnetization, 
     Quantity bin_width, Real threshold)
-: species(species), _bin_width(bin_width), _storage(1), threshold(threshold)
+: Base(species, initial_magnetization, 1),_bin_width(bin_width)
 {
-    // Store magnetization as lines of F, F*_, Z
-    auto const magnetization = as_complex_magnetization(initial_magnetization);
-    this->_storage.F[0] = std::sqrt(2)*magnetization.p;
-    this->_storage.F_star[0] = std::sqrt(2)*magnetization.m;
-    this->_storage.Z[0] = magnetization.z;
-    this->_M_z_eq = magnetization.z;
-    
+    this->threshold = threshold;
     this->_orders.push_back(0);
 }
 
@@ -279,13 +273,16 @@ void
 Discrete
 ::relaxation(Quantity const & duration)
 {
-    if(this->species.get_R1().magnitude == 0 && this->species.get_R2().magnitude == 0)
+    if(
+        this->_model.species.get_R1().magnitude == 0
+        && this->_model.species.get_R2().magnitude == 0)
     {
         return;
     }
     
     auto const E = operators::relaxation(
-        this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
+        this->_model.species.get_R1().magnitude,
+        this->_model.species.get_R2().magnitude, 
         duration.magnitude);
     
     simd_api::relaxation(
@@ -295,14 +292,14 @@ Discrete
         reinterpret_cast<Real*>(this->_storage.Z.data()),
         this->_orders.size());
     
-    this->_storage.Z[0] += this->_M_z_eq*(1.-E.first);
+    this->_storage.Z[0] += this->_model.M_z_eq*(1.-E.first);
 }
 
 void
 Discrete
 ::diffusion(Quantity const & duration, Quantity const & gradient)
 {
-    if(this->species.get_D()[0].magnitude == 0)
+    if(this->_model.species.get_D()[0].magnitude == 0)
     {
         return;
     }
@@ -318,7 +315,7 @@ Discrete
         this->size(), this->_orders, this->_bin_width.magnitude);
     
     auto const & tau = duration.magnitude;
-    auto const & D = species.get_D()[0].magnitude;
+    auto const & D = this->_model.species.get_D()[0].magnitude;
     
     simd_api::diffusion(
         delta_k, tau, D, this->_cache.k.data(),
@@ -334,7 +331,9 @@ Discrete
 {
     auto const angle = 
         duration.magnitude * 2*M_PI
-        * (this->delta_omega.magnitude+this->species.get_delta_omega().magnitude);
+        * (
+            this->delta_omega.magnitude
+            + this->_model.species.get_delta_omega().magnitude);
     if(angle != 0)
     {
         auto const rotations = operators::phase_accumulation(angle);

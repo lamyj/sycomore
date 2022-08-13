@@ -25,7 +25,11 @@ void wrap_epg_Regular(pybind11::module & m)
             arg("initial_size")=100, 
             arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
             arg("gradient_tolerance")=1e-5)
-        .def_readwrite("species", &Regular::species)
+        .def_property(
+            "species",
+            [](Regular const & model) -> Species & { return model.species; },
+            [](Regular & model, Species const & species) -> void {
+                model.species = species; })
         .def_readwrite("threshold", &Regular::threshold)
         .def_readwrite("delta_omega", &Regular::delta_omega)
         .def_readwrite("velocity", &Regular::velocity)

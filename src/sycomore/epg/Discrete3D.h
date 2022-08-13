@@ -7,7 +7,7 @@
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/Array.h"
-#include "sycomore/epg/pool_storage.h"
+#include "sycomore/epg/Base.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
@@ -47,14 +47,12 @@ namespace epg
  * @brief Discrete EPG in which the gradients may be specified in three 
  * dimensions.
  */
-class SYCOMORE_API Discrete3D
+class SYCOMORE_API Discrete3D: public Base
 {
 public:
     using Order = Array<Quantity>;
     using State = std::vector<Complex>;
-
-    Species species;
-    Real threshold;
+    
     Quantity delta_omega=0*units::Hz;
 
     Discrete3D(
@@ -67,7 +65,7 @@ public:
     Discrete3D(Discrete3D &&) = default;
     Discrete3D & operator=(Discrete3D const &) = default;
     Discrete3D & operator=(Discrete3D &&) = default;
-    ~Discrete3D() = default;
+    virtual ~Discrete3D() = default;
 
     /// @brief Return the number of states of the model.
     std::size_t size() const;
@@ -129,8 +127,6 @@ public:
 private:
     using Bin = std::array<int64_t, 3>;
     std::vector<Bin::value_type, xsimd::aligned_allocator<Bin::value_type, 64>> _orders;
-    pool_storage::SinglePool _storage;
-    Real _M_z_eq;
 
     Quantity _bin_width;
     

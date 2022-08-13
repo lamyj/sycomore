@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "sycomore/Array.h"
-#include "sycomore/epg/pool_storage.h"
+#include "sycomore/epg/Base.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/epg/operators.h"
 #include "sycomore/epg/simd_api.h"
@@ -31,14 +31,10 @@ Discrete3D
 ::Discrete3D(
     Species const & species, Magnetization const & initial_magnetization,
     Quantity bin_width, Real threshold)
-: species(species), _bin_width(bin_width), _storage(1), threshold(threshold)
+: Base(species, initial_magnetization, 1), _bin_width(bin_width)
 {
-    auto const M = as_complex_magnetization(initial_magnetization);
+    this->threshold = threshold;
     this->_orders = {0,0,0};
-    this->_storage.F[0] = std::sqrt(2)*M.p;
-    this->_storage.F_star[0] = std::sqrt(2)*M.m;
-    this->_storage.Z[0] = M.z;
-    this->_M_z_eq = M.z;
 }
 
 std::size_t
@@ -316,13 +312,16 @@ void
 Discrete3D
 ::relaxation(Quantity const & duration)
 {
-    if(this->species.get_R1().magnitude == 0 && this->species.get_R2().magnitude == 0)
+    if(
+        this->_model.species.get_R1().magnitude == 0
+        && this->_model.species.get_R2().magnitude == 0)
     {
         return;
     }
 
     auto const E = operators::relaxation(
-        this->species.get_R1().magnitude, this->species.get_R2().magnitude, 
+        this->_model.species.get_R1().magnitude,
+        this->_model.species.get_R2().magnitude, 
         duration.magnitude);
     
     simd_api::relaxation(
@@ -332,7 +331,7 @@ Discrete3D
         reinterpret_cast<Real*>(this->_storage.Z.data()),
         this->_storage.F.size());
     
-    this->_storage.Z[0] += this->_M_z_eq*(1.-E.first);
+    this->_storage.Z[0] += this->_model.M_z_eq*(1.-E.first);
 }
 
 void
@@ -340,7 +339,8 @@ Discrete3D
 ::diffusion(Quantity const & duration, Array<Quantity> const & gradient)
 {
     if(std::all_of(
-        this->species.get_D().begin(), this->species.get_D().end(), 
+        this->_model.species.get_D().begin(),
+        this->_model.species.get_D().end(), 
         [](Quantity const & x) { return x.magnitude == 0;}))
     {
         return;
@@ -371,7 +371,7 @@ Discrete3D
             simd_api::diffusion_3d_b(
                 this->_cache.k[m].data(), this->_cache.k[n].data(), 
                 delta_k[m], delta_k[n], delta_k_product_term,
-                tau, this->species.get_D()[3*m+n].magnitude,
+                tau, this->_model.species.get_D()[3*m+n].magnitude,
                 this->_cache.b_L_D.data(), 
                 this->_cache.b_T_plus_D.data(), this->_cache.b_T_minus_D.data(),
                 this->_storage.F.size());
@@ -393,7 +393,9 @@ Discrete3D
 {
     auto const angle = 
         duration.magnitude * 2*M_PI
-        * (this->delta_omega.magnitude+this->species.get_delta_omega().magnitude);
+        * (
+            this->delta_omega.magnitude
+            + this->_model.species.get_delta_omega().magnitude);
     if(angle != 0)
     {
         auto const rotations = operators::phase_accumulation(angle);
