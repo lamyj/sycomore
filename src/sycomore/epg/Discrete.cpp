@@ -280,7 +280,7 @@ Discrete
         return;
     }
     
-    auto const E = operators::relaxation(
+    auto const E = operators::relaxation_single_pool(
         this->_model->species.get_R1().magnitude,
         this->_model->species.get_R2().magnitude, 
         duration.magnitude);

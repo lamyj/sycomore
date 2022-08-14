@@ -1,6 +1,7 @@
 #ifndef _faa6a046_30f6_4e87_91a6_033e2330b405
 #define _faa6a046_30f6_4e87_91a6_033e2330b405
 
+#include <array>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -44,7 +45,28 @@ pulse_magnetization_transfer(
  * @brief Return the scalars associated respectively with relaxation of 
  * the F̃ states and Z̃ states.
  */
-SYCOMORE_API std::pair<Real, Real> relaxation(Real R1, Real R2, Real duration);
+SYCOMORE_API std::pair<Real, Real> relaxation_single_pool(
+    Real R1, Real R2, Real duration);
+
+/**
+ * @brief Return the exchange-relaxation matrices.
+ */
+SYCOMORE_API
+std::pair<std::array<Complex, 8>, std::array<Real, 4>>
+relaxation_exchange(
+    Real R1_a, Real R2_a, Real R1_b, Real R2_b,
+    Real k_a, Real k_b, Real delta_b,
+    Real M0_a, Real M0_b,
+    Real duration);
+
+SYCOMORE_API
+std::array<Complex, 8>
+relaxation_and_exchange_T(
+    Real R2_a, Real R2_b, Real k_a, Real k_b, Real delta_b);
+
+SYCOMORE_API
+std::array<Real, 4>
+relaxation_and_exchange_L(Real R1_a, Real R1_b, Real k_a, Real k_b);
 
 /**
  * @brief Return the scalars associated respectively with diffusion of 
