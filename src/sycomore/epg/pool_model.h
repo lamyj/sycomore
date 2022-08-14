@@ -27,6 +27,11 @@ struct Base
     Real M_z_eq;
     
     Base(Species const & species, Real M_z_eq);
+    
+    Base(Base const &) = default;
+    Base(Base &&) = default;
+    Base & operator=(Base const &) = default;
+    Base & operator=(Base &&) = default;
     virtual ~Base() = default;
 };
 

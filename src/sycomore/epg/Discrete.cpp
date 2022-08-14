@@ -56,9 +56,9 @@ Discrete
 ::state(std::size_t order) const
 {
     return {
-        this->_storage.F[order],
-        this->_storage.F_star[order],
-        this->_storage.Z[order]};
+        this->_storage->F[order],
+        this->_storage->F_star[order],
+        this->_storage->Z[order]};
 }
 
 std::vector<Complex>
@@ -88,9 +88,9 @@ Discrete
     std::vector<Complex> result(3*this->_orders.size());
     for(unsigned int order=0; order<this->_orders.size(); ++order)
     {
-        result[3*order+0] = this->_storage.F[order];
-        result[3*order+1] = this->_storage.F_star[order];
-        result[3*order+2] = this->_storage.Z[order];
+        result[3*order+0] = this->_storage->F[order];
+        result[3*order+1] = this->_storage->F_star[order];
+        result[3*order+2] = this->_storage->Z[order];
     }
     return result;
 }
@@ -99,7 +99,7 @@ Complex const &
 Discrete
 ::echo() const
 {
-    return this->_storage.F[0];
+    return this->_storage->F[0];
 }
 
 void
@@ -108,7 +108,7 @@ Discrete
 {
     simd_api::apply_pulse_single_pool(
         operators::pulse_single_pool(angle.magnitude, phase.magnitude), 
-        this->_storage, this->_orders.size());
+        *this->_storage, this->_orders.size());
 }
 
 void
@@ -148,9 +148,9 @@ Discrete
         for(std::size_t source=1, end=this->size(); source != end; ++source)
         {
             auto const magnitude_squared =
-                std::pow(std::abs(this->_storage.F[source]), 2)
-                +std::pow(std::abs(this->_storage.F_star[source]), 2)
-                +std::pow(std::abs(this->_storage.Z[source]), 2);
+                std::pow(std::abs(this->_storage->F[source]), 2)
+                +std::pow(std::abs(this->_storage->F_star[source]), 2)
+                +std::pow(std::abs(this->_storage->Z[source]), 2);
             // Always include the zero order (implicit since we start at 1),
             // include other order if population is above threshold.
             if(magnitude_squared >= threshold_squared)
@@ -158,18 +158,18 @@ Discrete
                 if(source != destination)
                 {
                     this->_orders[destination] = this->_orders[source];
-                    this->_storage.F[destination] = this->_storage.F[source];
-                    this->_storage.F_star[destination] = this->_storage.F_star[source];
-                    this->_storage.Z[destination] = this->_storage.Z[source];
+                    this->_storage->F[destination] = this->_storage->F[source];
+                    this->_storage->F_star[destination] = this->_storage->F_star[source];
+                    this->_storage->Z[destination] = this->_storage->Z[source];
                 }
                 ++destination;
             }
         }
 
         this->_orders.resize(destination);
-        this->_storage.F.resize(destination);
-        this->_storage.F_star.resize(destination);
-        this->_storage.Z.resize(destination);
+        this->_storage->F.resize(destination);
+        this->_storage->F_star.resize(destination);
+        this->_storage->Z.resize(destination);
         
         // No need to update the iterator pointing to the echo magnetization.
     }
@@ -204,13 +204,13 @@ Discrete
     {
         auto const k = this->_orders[i];
         
-        auto state = this->_storage.Z[i];
+        auto state = this->_storage->Z[i];
         if(state != 0.)
         {
             this->_cache.Z[this->_cache.get_location(k)] = state;
         }
         
-        state = this->_storage.F[i];
+        state = this->_storage->F[i];
         if(state != 0.)
         {
             auto k_F = k+delta_k;
@@ -228,7 +228,7 @@ Discrete
         }
         
         // WARNING: F* state at echo is a duplicate of F state.
-        state = this->_storage.F_star[i];
+        state = this->_storage->F_star[i];
         if(i != 0 && state != 0.)
         {
             // The F* order corresponding to F order k+Δk is -(-k+Δk), i.e. k-Δk
@@ -254,18 +254,18 @@ Discrete
     
     // Use swap and not move since we keep the temporary variables between runs.
     std::swap(this->_cache.orders, this->_orders);
-    std::swap(this->_cache.F, this->_storage.F);
-    std::swap(this->_cache.F_star, this->_storage.F_star);
-    std::swap(this->_cache.Z, this->_storage.Z);
+    std::swap(this->_cache.F, this->_storage->F);
+    std::swap(this->_cache.F_star, this->_storage->F_star);
+    std::swap(this->_cache.Z, this->_storage->Z);
     
     // Update the conjugate states of the echo magnetization.
-    if(this->_storage.F[0] != 0.)
+    if(this->_storage->F[0] != 0.)
     {
-        this->_storage.F_star[0] = std::conj(this->_storage.F[0]);
+        this->_storage->F_star[0] = std::conj(this->_storage->F[0]);
     }
-    else if(this->_storage.F_star[0] != 0.)
+    else if(this->_storage->F_star[0] != 0.)
     {
-        this->_storage.F[0] = std::conj(this->_storage.F_star[0]);
+        this->_storage->F[0] = std::conj(this->_storage->F_star[0]);
     }
 }
 
@@ -274,32 +274,32 @@ Discrete
 ::relaxation(Quantity const & duration)
 {
     if(
-        this->_model.species.get_R1().magnitude == 0
-        && this->_model.species.get_R2().magnitude == 0)
+        this->_model->species.get_R1().magnitude == 0
+        && this->_model->species.get_R2().magnitude == 0)
     {
         return;
     }
     
     auto const E = operators::relaxation(
-        this->_model.species.get_R1().magnitude,
-        this->_model.species.get_R2().magnitude, 
+        this->_model->species.get_R1().magnitude,
+        this->_model->species.get_R2().magnitude, 
         duration.magnitude);
     
     simd_api::relaxation(
         E,
-        reinterpret_cast<Real*>(this->_storage.F.data()),
-        reinterpret_cast<Real*>(this->_storage.F_star.data()),
-        reinterpret_cast<Real*>(this->_storage.Z.data()),
+        reinterpret_cast<Real*>(this->_storage->F.data()),
+        reinterpret_cast<Real*>(this->_storage->F_star.data()),
+        reinterpret_cast<Real*>(this->_storage->Z.data()),
         this->_orders.size());
     
-    this->_storage.Z[0] += this->_model.M_z_eq*(1.-E.first);
+    this->_storage->Z[0] += this->_model->M_z_eq*(1.-E.first);
 }
 
 void
 Discrete
 ::diffusion(Quantity const & duration, Quantity const & gradient)
 {
-    if(this->_model.species.get_D()[0].magnitude == 0)
+    if(this->_model->species.get_D()[0].magnitude == 0)
     {
         return;
     }
@@ -315,13 +315,13 @@ Discrete
         this->size(), this->_orders, this->_bin_width.magnitude);
     
     auto const & tau = duration.magnitude;
-    auto const & D = this->_model.species.get_D()[0].magnitude;
+    auto const & D = this->_model->species.get_D()[0].magnitude;
     
     simd_api::diffusion(
         delta_k, tau, D, this->_cache.k.data(),
-        this->_storage.F.data(),
-        this->_storage.F_star.data(),
-        this->_storage.Z.data(),
+        this->_storage->F.data(),
+        this->_storage->F_star.data(),
+        this->_storage->Z.data(),
         this->_orders.size());
 }
 
@@ -333,15 +333,15 @@ Discrete
         duration.magnitude * 2*M_PI
         * (
             this->delta_omega.magnitude
-            + this->_model.species.get_delta_omega().magnitude);
+            + this->_model->species.get_delta_omega().magnitude);
     if(angle != 0)
     {
         auto const rotations = operators::phase_accumulation(angle);
         simd_api::off_resonance(
             rotations,
-            this->_storage.F.data(),
-            this->_storage.F_star.data(),
-            this->_storage.Z.data(),
+            this->_storage->F.data(),
+            this->_storage->F_star.data(),
+            this->_storage->Z.data(),
             this->_orders.size());
     }
 }
@@ -369,9 +369,9 @@ Discrete
     
     simd_api::bulk_motion(
         delta_k, this->velocity.magnitude, duration.magnitude, k.data(),
-        this->_storage.F.data(),
-        this->_storage.F_star.data(),
-        this->_storage.Z.data(),
+        this->_storage->F.data(),
+        this->_storage->F_star.data(),
+        this->_storage->Z.data(),
         this->size());
 }
 

@@ -45,9 +45,9 @@ Regular
 ::state(std::size_t order) const
 {
     return {
-        this->_storage.F[order],
-        this->_storage.F_star[order],
-        this->_storage.Z[order]};
+        this->_storage->F[order],
+        this->_storage->F_star[order],
+        this->_storage->Z[order]};
 }
 
 std::vector<Complex>
@@ -57,9 +57,9 @@ Regular
     std::vector<Complex> result(3*this->_states_count);
     for(unsigned int order=0; order<this->_states_count; ++order)
     {
-        result[3*order+0] = this->_storage.F[order];
-        result[3*order+1] = this->_storage.F_star[order];
-        result[3*order+2] = this->_storage.Z[order];
+        result[3*order+0] = this->_storage->F[order];
+        result[3*order+1] = this->_storage->F_star[order];
+        result[3*order+2] = this->_storage->Z[order];
     }
     return result;
 }
@@ -68,7 +68,7 @@ Complex const &
 Regular
 ::echo() const
 {
-    return this->_storage.F[0];
+    return this->_storage->F[0];
 }
 
 void
@@ -77,7 +77,7 @@ Regular
 {
     simd_api::apply_pulse_single_pool(
         operators::pulse_single_pool(angle.magnitude, phase.magnitude), 
-        this->_storage, this->_states_count);
+        *this->_storage, this->_states_count);
 }
 
 void
@@ -109,7 +109,7 @@ Regular
         duration.magnitude != 0 
         && (
             this->delta_omega.magnitude != 0 
-            || this->_model.species.get_delta_omega().magnitude != 0))
+            || this->_model->species.get_delta_omega().magnitude != 0))
     {
         this->off_resonance(duration);
     }
@@ -122,9 +122,9 @@ Regular
         while(this->_states_count>1 && !done)
         {
             auto const magnitude_squared =
-                std::pow(std::abs(this->_storage.F[this->_states_count-1]), 2)
-                +std::pow(std::abs(this->_storage.F_star[this->_states_count-1]), 2)
-                +std::pow(std::abs(this->_storage.Z[this->_states_count-1]), 2);
+                std::pow(std::abs(this->_storage->F[this->_states_count-1]), 2)
+                +std::pow(std::abs(this->_storage->F_star[this->_states_count-1]), 2)
+                +std::pow(std::abs(this->_storage->Z[this->_states_count-1]), 2);
             
             if(magnitude_squared > threshold_squared)
             {
@@ -141,9 +141,9 @@ Regular
         // Remove empty states with high order.
         while(
             this->_states_count > 1
-            && this->_storage.F[this->_states_count-1] == 0. 
-            && this->_storage.F_star[this->_states_count-1] == 0.
-            && this->_storage.Z[this->_states_count-1] == 0.)
+            && this->_storage->F[this->_states_count-1] == 0. 
+            && this->_storage->F_star[this->_states_count-1] == 0.
+            && this->_storage->Z[this->_states_count-1] == 0.)
         {
             --this->_states_count;
         }
@@ -191,32 +191,32 @@ Regular
 ::relaxation(Quantity const & duration)
 {
     if(
-        this->_model.species.get_R1().magnitude == 0 
-        && this->_model.species.get_R2().magnitude == 0)
+        this->_model->species.get_R1().magnitude == 0 
+        && this->_model->species.get_R2().magnitude == 0)
     {
         return;
     }
     
     auto const E = operators::relaxation(
-        this->_model.species.get_R1().magnitude,
-        this->_model.species.get_R2().magnitude, 
+        this->_model->species.get_R1().magnitude,
+        this->_model->species.get_R2().magnitude, 
         duration.magnitude);
     
     simd_api::relaxation(
         E,
-        reinterpret_cast<Real*>(this->_storage.F.data()),
-        reinterpret_cast<Real*>(this->_storage.F_star.data()),
-        reinterpret_cast<Real*>(this->_storage.Z.data()),
+        reinterpret_cast<Real*>(this->_storage->F.data()),
+        reinterpret_cast<Real*>(this->_storage->F_star.data()),
+        reinterpret_cast<Real*>(this->_storage->Z.data()),
         this->_states_count);
     
-    this->_storage.Z[0] += this->_model.M_z_eq*(1.-E.first);
+    this->_storage->Z[0] += this->_model->M_z_eq*(1.-E.first);
 }
 
 void
 Regular
 ::diffusion(Quantity const & duration, Quantity const & gradient)
 {
-    if(this->_model.species.get_D()[0].magnitude == 0)
+    if(this->_model->species.get_D()[0].magnitude == 0)
     {
         return;
     }
@@ -246,13 +246,13 @@ Regular
     this->_cache.update_diffusion(this->_states_count, unit_gradient_area);
     
     auto const & tau = duration.magnitude;
-    auto const & D = this->_model.species.get_D()[0].magnitude;
+    auto const & D = this->_model->species.get_D()[0].magnitude;
     
     simd_api::diffusion(
         delta_k, tau, D, this->_cache.k.data(),
-        this->_storage.F.data(),
-        this->_storage.F_star.data(),
-        this->_storage.Z.data(),
+        this->_storage->F.data(),
+        this->_storage->F_star.data(),
+        this->_storage->Z.data(),
         this->_states_count);
 }
 
@@ -264,15 +264,15 @@ Regular
         duration.magnitude * 2*M_PI*units::rad 
         * (
             this->delta_omega.magnitude
-            + this->_model.species.get_delta_omega().magnitude);
+            + this->_model->species.get_delta_omega().magnitude);
     if(angle != 0)
     {
         auto const rotations = operators::phase_accumulation(angle);
         simd_api::off_resonance(
             rotations,
-            this->_storage.F.data(),
-            this->_storage.F_star.data(),
-            this->_storage.Z.data(),
+            this->_storage->F.data(),
+            this->_storage->F_star.data(),
+            this->_storage->Z.data(),
             this->_states_count);
     }
 }
@@ -302,9 +302,9 @@ Regular
     
     simd_api::bulk_motion(
         delta_k, this->velocity.magnitude, duration.magnitude, k.data(),
-        this->_storage.F.data(),
-        this->_storage.F_star.data(),
-        this->_storage.Z.data(),
+        this->_storage->F.data(),
+        this->_storage->F_star.data(),
+        this->_storage->Z.data(),
         this->_states_count);
 }
 
@@ -335,7 +335,7 @@ Regular
     }
     else if(n==1 || n==-1)
     {
-        auto & [F, F_star, Z] = this->_storage;
+        auto & [F, F_star, Z] = *this->_storage;
         if(this->_states_count >= F.size())
         {
             F.resize(F.size()+100, 0);
