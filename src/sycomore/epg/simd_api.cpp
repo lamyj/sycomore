@@ -60,17 +60,21 @@ apply_pulse_magnetization_transfer_d<unsupported>(
 }
 
 /*******************************************************************************
- *                             Relaxation operator                             *
+ *                             Relaxation operators                            *
  ******************************************************************************/
 
 template<>
 void
-relaxation_d<unsupported>(
+relaxation_single_pool_d<unsupported>(
     std::pair<Real, Real> const & E,
-    Real * F, Real * F_star, Real * Z, unsigned int states_count)
+    pool_storage::SinglePool & storage,
+    unsigned int states_count)
 {
     // Pass 2*states_count as we are getting reinterpreted real arrays
-    relaxation_w<Real>(E, F, F_star, Z, 0, 2*states_count, 1);
+    relaxation_single_pool_w<Complex>(
+        E,
+        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        0, 2*states_count, 1);
 }
 
 /*******************************************************************************
@@ -151,7 +155,7 @@ decltype(&apply_pulse_single_pool_d<unsupported>)
 decltype(&apply_pulse_exchange_d<unsupported>) apply_pulse_exchange = nullptr;
 decltype(&apply_pulse_magnetization_transfer_d<unsupported>)
     apply_pulse_magnetization_transfer = nullptr;
-decltype(&relaxation_d<unsupported>) relaxation = nullptr;
+decltype(&relaxation_single_pool_d<unsupported>) relaxation_single_pool = nullptr;
 decltype(&diffusion_d<unsupported>) diffusion = nullptr;
 decltype(&diffusion_3d_b_d<unsupported>) diffusion_3d_b = nullptr;
 decltype(&diffusion_3d_d<unsupported>) diffusion_3d = nullptr;
@@ -163,7 +167,7 @@ void set_api(int instruction_set)
     SYCOMORE_SET_API_FUNCTION(apply_pulse_single_pool)
     SYCOMORE_SET_API_FUNCTION(apply_pulse_exchange)
     SYCOMORE_SET_API_FUNCTION(apply_pulse_magnetization_transfer)
-    SYCOMORE_SET_API_FUNCTION(relaxation)
+    SYCOMORE_SET_API_FUNCTION(relaxation_single_pool)
     SYCOMORE_SET_API_FUNCTION(diffusion)
     SYCOMORE_SET_API_FUNCTION(diffusion_3d_b)
     SYCOMORE_SET_API_FUNCTION(diffusion_3d)

@@ -8,6 +8,8 @@
 #include <vector>
 
 #include "sycomore/epg/Base.h"
+#include "sycomore/epg/pool_model.h"
+#include "sycomore/epg/pool_storage.h"
 #include "sycomore/epg/operators.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/epg/simd_api.h"
@@ -280,16 +282,13 @@ Discrete
         return;
     }
     
+    auto model = std::dynamic_pointer_cast<pool_model::SinglePool>(this->_model);
     auto const E = operators::relaxation_single_pool(
-        this->_model->species.get_R1().magnitude,
-        this->_model->species.get_R2().magnitude, 
+        model->species.get_R1().magnitude, model->species.get_R2().magnitude, 
         duration.magnitude);
     
-    simd_api::relaxation(
-        E,
-        reinterpret_cast<Real*>(this->_storage->F.data()),
-        reinterpret_cast<Real*>(this->_storage->F_star.data()),
-        reinterpret_cast<Real*>(this->_storage->Z.data()),
+    simd_api::relaxation_single_pool(
+        E, *std::dynamic_pointer_cast<pool_storage::SinglePool>(this->_storage),
         this->_orders.size());
     
     this->_storage->Z[0] += this->_model->M_z_eq*(1.-E.first);

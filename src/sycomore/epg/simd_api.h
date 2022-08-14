@@ -72,20 +72,19 @@ SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
         unsigned int states_count))
 
 /*******************************************************************************
- *                             Relaxation operator                             *
+ *                             Relaxation operators                            *
  ******************************************************************************/
 
 template<typename ValueType>
-void relaxation_w(
+void relaxation_single_pool_w(
     std::pair<Real, Real> const & E,
-    Real * F, Real * F_star, Real * Z,
+    Complex * F, Complex * F_star, Complex * Z,
     std::size_t start, std::size_t end, std::size_t step);
 
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
-   void, relaxation_d, 
+   void, relaxation_single_pool_d, 
     (
-        std::pair<Real, Real> const & E,
-        Real * F, Real * F_star, Real * Z, 
+        std::pair<Real, Real> const & E, pool_storage::SinglePool & storage, 
         unsigned int states_count))
 
 /*******************************************************************************
@@ -179,7 +178,7 @@ extern decltype(&apply_pulse_single_pool_d<unsupported>) apply_pulse_single_pool
 extern decltype(&apply_pulse_exchange_d<unsupported>) apply_pulse_exchange;
 extern decltype(&apply_pulse_magnetization_transfer_d<unsupported>)
     apply_pulse_magnetization_transfer;
-extern decltype(&relaxation_d<unsupported>) relaxation;
+extern decltype(&relaxation_single_pool_d<unsupported>) relaxation_single_pool;
 extern decltype(&diffusion_d<unsupported>) diffusion;
 extern decltype(&diffusion_3d_b_d<unsupported>) diffusion_3d_b;
 extern decltype(&diffusion_3d_d<unsupported>) diffusion_3d;

@@ -29,9 +29,9 @@ void apply_pulse_exchange_d<XSIMD_X86_AVX_VERSION>(
     unsigned int states_count);
 
 template 
-void relaxation_d<XSIMD_X86_AVX_VERSION>(
+void relaxation_single_pool_d<XSIMD_X86_AVX_VERSION>(
     std::pair<Real, Real> const & E,
-    Real * F, Real * F_star, Real * Z, unsigned int states_count);
+    pool_storage::SinglePool & storage, unsigned int states_count);
 
 template 
 void diffusion_d<XSIMD_X86_AVX_VERSION>(

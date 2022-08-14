@@ -185,13 +185,13 @@ apply_pulse_magnetization_transfer_d(
 }
 
 /*******************************************************************************
- *                             Relaxation operator                             *
+ *                             Relaxation operators                            *
  ******************************************************************************/
 
 template<typename ValueType>
-void relaxation_w(
+void relaxation_single_pool_w(
     std::pair<Real, Real> const & E,
-    Real * F, Real * F_star, Real * Z,
+    Complex * F, Complex * F_star, Complex * Z,
     std::size_t start, std::size_t end, std::size_t step)
 {
     for(std::size_t i=start; i<end; i+=step)
@@ -212,16 +212,21 @@ void relaxation_w(
 
 template<INSTRUCTION_SET_TYPE InstructionSet>
 void
-relaxation_d(
-    std::pair<Real, Real> const & E,
-    Real * F, Real * F_star, Real * Z, unsigned int states_count)
+relaxation_single_pool_d(
+    std::pair<Real, Real> const & E, pool_storage::SinglePool & storage,
+    unsigned int states_count)
 {
-    using Batch = simd::Batch<Real, InstructionSet>;
-    // Use 2*states_count as we are getting reinterpreted real arrays
-    auto const simd_end = 2*states_count - 2*states_count % Batch::size;
+    using Batch = simd::Batch<Complex, InstructionSet>;
+    auto const simd_end = states_count - states_count % Batch::size;
     
-    relaxation_w<Batch>(E, F, F_star, Z, 0, simd_end, Batch::size);
-    relaxation_w<Real>(E, F, F_star, Z, simd_end, 2*states_count, 1);
+    relaxation_single_pool_w<Batch>(
+        E,
+        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        0, simd_end, Batch::size);
+    relaxation_single_pool_w<Complex>(
+        E,
+        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        simd_end, states_count, 1);
 }
 
 /*******************************************************************************

@@ -1,4 +1,5 @@
 #include "simd_api.h"
+#include "sycomore/epg/pool_storage.h"
 
 namespace sycomore
 {
@@ -29,9 +30,9 @@ apply_pulse_magnetization_transfer_d<XSIMD_X86_SSE2_VERSION>(
     unsigned int states_count);
 
 template 
-void relaxation_d<XSIMD_X86_SSE2_VERSION>(
+void relaxation_single_pool_d<XSIMD_X86_SSE2_VERSION>(
     std::pair<Real, Real> const & E,
-    Real * F, Real * F_star, Real * Z, unsigned int states_count);
+    pool_storage::SinglePool & storage, unsigned int states_count);
 
 template 
 void diffusion_d<XSIMD_X86_SSE2_VERSION>(
