@@ -34,8 +34,8 @@ void wrap_epg_Discrete(pybind11::module & m)
         .def(
             "state",
             static_cast<
-                    std::vector<Complex> (Discrete::*)(std::size_t) const
-                >(&Discrete::state),
+                    std::vector<Complex> (Base::*)(std::size_t) const
+                >(&Base::state),
             arg("bin"),
             "Magnetization at a given state, expressed by its *index*")
         .def(

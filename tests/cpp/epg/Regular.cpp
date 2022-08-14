@@ -18,10 +18,10 @@ void test_model(
 {
     
     auto const & states = model.states();
-    BOOST_TEST(model.states_count() == expected_states.size());
+    BOOST_TEST(model.size() == expected_states.size());
     BOOST_TEST(states.size() == 3*expected_states.size());
     
-    for(std::size_t i=0; i<model.states_count(); ++i)
+    for(std::size_t i=0; i<model.size(); ++i)
     {
         auto && expected_state = expected_states[i];
         auto && state = model.state(i);

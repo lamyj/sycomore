@@ -30,7 +30,6 @@ namespace epg
 class SYCOMORE_API Regular: public Base
 {
 public:
-    Quantity delta_omega=0*units::Hz;
     Quantity velocity=0*units::m/units::s;
     
     Regular(
@@ -46,24 +45,9 @@ public:
     Regular & operator=(Regular &&) = default;
     virtual ~Regular() = default;
     
-    /// @brief Return the number of states in the model.
-    std::size_t const states_count() const;
-
-    /// @brief Return a given state of the model.
-    std::vector<Complex> state(std::size_t order) const;
-
-    /**
-     * @brief Return all states in the model, where each state is stored as
-     * F_k, F*_{-k}, Z_k, in order of increasing order.
-     */
-    std::vector<Complex> states() const;
-
-    /// @brief Return the echo signal, i.e. F_0
-    Complex const & echo() const;
+    /// @brief Return the number of states of the model.
+    virtual std::size_t size() const;
     
-    /// @brief Apply an RF hard pulse.
-    void apply_pulse(Quantity angle, Quantity phase=0*units::rad);
-
     /** 
      * @brief Apply a time interval, i.e. relaxation, diffusion, gradient, and
      * off-resonance effects.
@@ -88,20 +72,11 @@ public:
      */
     void shift(Quantity const & duration, Quantity const & gradient);
 
-    /// @brief Simulate the relaxation during given duration.
-    void relaxation(Quantity const & duration);
-
     /**
      * @brief Simulate diffusion during given duration with given gradient
      * amplitude.
      */
     void diffusion(Quantity const & duration, Quantity const & gradient);
-    
-    /**
-     * @brief Simulate field- and species-related off-resonance effects during 
-     * given duration with given frequency offset.
-     */
-    void off_resonance(Quantity const & duration);
     
     void bulk_motion(Quantity const & duration, Quantity const & gradient);
     

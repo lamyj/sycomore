@@ -35,51 +35,11 @@ Regular
     this->_states_count = 1;
 }
 
-std::size_t const 
+std::size_t 
 Regular
-::states_count() const
+::size() const
 {
     return this->_states_count;
-}
-
-std::vector<Complex>
-Regular
-::state(std::size_t order) const
-{
-    return {
-        this->_storage->F[order],
-        this->_storage->F_star[order],
-        this->_storage->Z[order]};
-}
-
-std::vector<Complex>
-Regular
-::states() const
-{
-    std::vector<Complex> result(3*this->_states_count);
-    for(unsigned int order=0; order<this->_states_count; ++order)
-    {
-        result[3*order+0] = this->_storage->F[order];
-        result[3*order+1] = this->_storage->F_star[order];
-        result[3*order+2] = this->_storage->Z[order];
-    }
-    return result;
-}
-
-Complex const &
-Regular
-::echo() const
-{
-    return this->_storage->F[0];
-}
-
-void
-Regular
-::apply_pulse(Quantity angle, Quantity phase)
-{
-    simd_api::apply_pulse_single_pool(
-        operators::pulse_single_pool(angle.magnitude, phase.magnitude), 
-        *this->_storage, this->_states_count);
 }
 
 void
@@ -190,29 +150,6 @@ Regular
 
 void
 Regular
-::relaxation(Quantity const & duration)
-{
-    if(
-        this->_model->species.get_R1().magnitude == 0 
-        && this->_model->species.get_R2().magnitude == 0)
-    {
-        return;
-    }
-    
-    auto model = std::dynamic_pointer_cast<pool_model::SinglePool>(this->_model);
-    auto const E = operators::relaxation_single_pool(
-        model->species.get_R1().magnitude, model->species.get_R2().magnitude, 
-        duration.magnitude);
-    
-    simd_api::relaxation_single_pool(
-        E, *std::dynamic_pointer_cast<pool_storage::SinglePool>(this->_storage),
-        this->_states_count);
-    
-    this->_storage->Z[0] += this->_model->M_z_eq*(1.-E.first);
-}
-
-void
-Regular
 ::diffusion(Quantity const & duration, Quantity const & gradient)
 {
     if(this->_model->species.get_D()[0].magnitude == 0)
@@ -253,27 +190,6 @@ Regular
         this->_storage->F_star.data(),
         this->_storage->Z.data(),
         this->_states_count);
-}
-
-void
-Regular
-::off_resonance(Quantity const & duration)
-{
-    auto const angle = 
-        duration.magnitude * 2*M_PI*units::rad 
-        * (
-            this->delta_omega.magnitude
-            + this->_model->species.get_delta_omega().magnitude);
-    if(angle != 0)
-    {
-        auto const rotations = operators::phase_accumulation(angle);
-        simd_api::off_resonance(
-            rotations,
-            this->_storage->F.data(),
-            this->_storage->F_star.data(),
-            this->_storage->Z.data(),
-            this->_states_count);
-    }
 }
 
 void

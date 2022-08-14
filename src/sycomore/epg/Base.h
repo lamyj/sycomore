@@ -7,6 +7,7 @@
 #include "sycomore/epg/pool_storage.h"
 #include "sycomore/magnetization.h"
 #include "sycomore/Species.h"
+#include "sycomore/units.h"
 
 namespace sycomore
 {
@@ -18,6 +19,8 @@ namespace epg
 class Base
 {
 public:
+    Quantity delta_omega=0*units::Hz;
+    
     Real threshold=0;
     
     Base(
@@ -31,6 +34,33 @@ public:
     
     Species const & get_species() const;
     void set_species(Species const & species);
+    
+    virtual std::size_t size() const = 0;
+    
+    /// @brief Return a given state of the model.
+    std::vector<Complex> state(std::size_t order) const;
+    
+    /**
+     * @brief Return all states in the model, where each state is stored as
+     * F_k, F*_{-k}, Z_k, in order of increasing order.
+     */
+    std::vector<Complex> states() const;
+    
+    /// @brief Return the echo signal, i.e. F_0
+    Complex const & echo() const;
+    
+    /// @brief Apply an RF hard pulse.
+    void apply_pulse(Quantity angle, Quantity phase=0*units::rad);
+    
+    /// @brief Simulate the relaxation during given duration.
+    void relaxation(Quantity const & duration);
+    
+    /**
+     * @brief Simulate field- and species-related off-resonance effects during 
+     * given duration with given frequency offset.
+     */
+    void off_resonance(Quantity const & duration);
+    
 protected:
     std::shared_ptr<pool_storage::Base> _storage;
     std::shared_ptr<pool_model::Base> _model;

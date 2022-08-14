@@ -175,7 +175,7 @@ class TestRegular(unittest.TestCase):
     
     def _test_model(self, model, states):
         numpy.testing.assert_array_almost_equal(states, model.states)
-        self.assertEqual(len(states), model.states_count)
+        self.assertEqual(len(states), len(model))
         numpy.testing.assert_almost_equal(states[0][0], model.echo)
         for i, state in enumerate(states):
             numpy.testing.assert_almost_equal(state, model.state(i))

@@ -57,17 +57,7 @@ Discrete3D
     return orders;
 }
 
-Discrete3D::State
-Discrete3D
-::state(std::size_t order) const
-{
-    return {
-        this->_storage->F[order],
-        this->_storage->F_star[order],
-        this->_storage->Z[order]};
-}
-
-Discrete3D::State
+std::vector<Complex>
 Discrete3D
 ::state(Order const & order) const
 {
@@ -98,37 +88,7 @@ Discrete3D
     }
 
     auto const index = (it-this->_orders.begin())/3;
-    return this->state(index);
-}
-
-std::vector<Complex>
-Discrete3D
-::states() const
-{
-    std::vector<Complex> result(3*this->size());
-    for(std::size_t order=0, end=this->size(); order != end; ++order)
-    {
-        result[3*order+0] = this->_storage->F[order];
-        result[3*order+1] = this->_storage->F_star[order];
-        result[3*order+2] = this->_storage->Z[order];
-    }
-    return result;
-}
-
-Complex const &
-Discrete3D
-::echo() const
-{
-    return this->_storage->F[0];
-}
-
-void
-Discrete3D
-::apply_pulse(Quantity angle, Quantity phase)
-{
-    simd_api::apply_pulse_single_pool(
-        operators::pulse_single_pool(angle.magnitude, phase.magnitude), 
-        *this->_storage, this->_storage->F.size());
+    return this->Base::state(index);
 }
 
 void
@@ -299,29 +259,6 @@ Discrete3D
 
 void
 Discrete3D
-::relaxation(Quantity const & duration)
-{
-    if(
-        this->_model->species.get_R1().magnitude == 0
-        && this->_model->species.get_R2().magnitude == 0)
-    {
-        return;
-    }
-
-    auto model = std::dynamic_pointer_cast<pool_model::SinglePool>(this->_model);
-    auto const E = operators::relaxation_single_pool(
-        model->species.get_R1().magnitude, model->species.get_R2().magnitude, 
-        duration.magnitude);
-    
-    simd_api::relaxation_single_pool(
-        E, *std::dynamic_pointer_cast<pool_storage::SinglePool>(this->_storage),
-        this->_storage->F.size());
-    
-    this->_storage->Z[0] += this->_model->M_z_eq*(1.-E.first);
-}
-
-void
-Discrete3D
 ::diffusion(Quantity const & duration, Array<Quantity> const & gradient)
 {
     if(std::all_of(
@@ -371,27 +308,6 @@ Discrete3D
         this->_storage->F_star.data(),
         this->_storage->Z.data(), 
         this->_storage->F.size());
-}
-
-void
-Discrete3D
-::off_resonance(Quantity const & duration)
-{
-    auto const angle = 
-        duration.magnitude * 2*M_PI
-        * (
-            this->delta_omega.magnitude
-            + this->_model->species.get_delta_omega().magnitude);
-    if(angle != 0)
-    {
-        auto const rotations = operators::phase_accumulation(angle);
-        simd_api::off_resonance(
-            rotations,
-            this->_storage->F.data(),
-            this->_storage->F_star.data(),
-            this->_storage->Z.data(),
-            this->_storage->F.size());
-    }
 }
 
 Quantity const & 

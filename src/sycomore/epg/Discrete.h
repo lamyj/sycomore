@@ -34,7 +34,6 @@ public:
     using Order = Quantity;
     using State = std::vector<Complex>;
     
-    Quantity delta_omega=0*units::Hz;
     Quantity velocity=0*units::m/units::s;
     
     Discrete(
@@ -50,28 +49,13 @@ public:
     virtual ~Discrete() = default;
 
     /// @brief Return the number of states of the model.
-    std::size_t size() const;
+    virtual std::size_t size() const;
     
     /// @brief Return the orders of the model.
     std::vector<Quantity> orders() const;
 
     /// @brief Return a given state of the model.
-    std::vector<Complex> state(std::size_t bin) const;
-
-    /// @brief Return a given state of the model.
     std::vector<Complex> state(Quantity const & order) const;
-
-    /**
-     * @brief Return all states in the model, where each state is stored as
-     * F(k), F*(-k), Z(k), in order of increasing order.
-     */
-    std::vector<Complex> states() const;
-
-    /// @brief Return the echo signal, i.e. F_0
-    Complex const & echo() const;
-    
-    /// @brief Apply an RF hard pulse.
-    void apply_pulse(Quantity angle, Quantity phase=0*units::rad);
 
     /** 
      * @brief Apply a time interval, i.e. relaxation, diffusion, gradient, and
@@ -93,20 +77,11 @@ public:
      */
     void shift(Quantity const & duration, Quantity const & gradient);
 
-    /// @brief Simulate the relaxation during given duration.
-    void relaxation(Quantity const & duration);
-
     /**
      * @brief Simulate diffusion during given duration with given gradient
      * amplitude.
      */
     void diffusion(Quantity const & duration, Quantity const & gradient);
-    
-    /**
-     * @brief Simulate field- and species-related off-resonance effects during 
-     * given duration with given frequency offset.
-     */
-    void off_resonance(Quantity const & duration);
     
     /// @brief Return the bin width.
     Quantity const & bin_width() const;
