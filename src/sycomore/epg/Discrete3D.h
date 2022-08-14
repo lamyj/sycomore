@@ -94,8 +94,7 @@ public:
     void apply_time_interval(
         Quantity const & duration,
         Array<Quantity> const & gradient={
-            0*units::T/units::m,0*units::T/units::m,0*units::T/units::m,},
-        Real threshold=0);
+            0*units::T/units::m,0*units::T/units::m,0*units::T/units::m});
     
     /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
     void apply_time_interval(TimeInterval const & interval);

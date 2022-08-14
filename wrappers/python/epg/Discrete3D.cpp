@@ -70,18 +70,17 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             "apply_time_interval",
             [](
                 Discrete3D & model, Quantity const & duration,
-                sequence const & gradient, Real threshold)
+                sequence const & gradient)
             {
                 Array<Quantity> array(gradient.size());
                 for(std::size_t i=0; i<array.size(); ++i)
                 {
                     array[i] = gradient[i].cast<Quantity>();
                 }
-                model.apply_time_interval(duration, array, threshold);
+                model.apply_time_interval(duration, array);
             },
             arg("duration"), arg("gradient")=Array<Quantity>{
                 0*units::T/units::m, 0*units::T/units::m, 0*units::T/units::m},
-            arg("threshold")=0., 
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects. States with a population lower than "
             "*threshold* will be removed.")

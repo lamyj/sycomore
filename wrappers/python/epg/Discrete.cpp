@@ -64,10 +64,9 @@ void wrap_epg_Discrete(pybind11::module & m)
             "Apply an RF hard pulse.")
         .def(
             "apply_time_interval", 
-            static_cast<void(Discrete::*)(Quantity const &, Quantity const &, Real)>(
+            static_cast<void(Discrete::*)(Quantity const &, Quantity const &)>(
                 &Discrete::apply_time_interval),
             arg("duration"), arg("gradient")=0*units::T/units::m,
-            arg("threshold")=0.,
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects. States with a population lower than "
             "*threshold* will be removed.")

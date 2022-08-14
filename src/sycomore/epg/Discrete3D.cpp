@@ -134,17 +134,8 @@ Discrete3D
 void
 Discrete3D
 ::apply_time_interval(
-    Quantity const & duration, Array<Quantity> const & gradient, Real threshold)
+    Quantity const & duration, Array<Quantity> const & gradient)
 {
-    static bool warning_displayed = false;
-    if(!warning_displayed && threshold > 0)
-    {
-        std::cout 
-            << "WARNING: threshold argument is deprecated "
-            << "and will be removed from Discrete::apply_time_interval\n";
-        warning_displayed = true;
-    }
-    
     if(duration.magnitude == 0)
     {
         return;
@@ -155,13 +146,9 @@ Discrete3D
     this->shift(duration, gradient);
     this->off_resonance(duration);
     
-    if(threshold == 0)
+    if(this->threshold > 0)
     {
-        threshold = this->threshold;
-    }
-    if(threshold > 0)
-    {
-        auto const threshold_squared = std::pow(threshold, 2);
+        auto const threshold_squared = std::pow(this->threshold, 2);
         
         std::size_t destination=1;
         for(std::size_t source=1, end=this->size(); source != end; ++source)
@@ -202,7 +189,7 @@ Discrete3D
 ::apply_time_interval(TimeInterval const & interval)
 {
     this->apply_time_interval(
-        interval.get_duration(), interval.get_gradient_amplitude(), 0);
+        interval.get_duration(), interval.get_gradient_amplitude());
 }
 
 void

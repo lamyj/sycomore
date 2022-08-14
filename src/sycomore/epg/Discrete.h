@@ -79,7 +79,7 @@ public:
      */
     void apply_time_interval(
         Quantity const & duration, 
-        Quantity const & gradient=0*units::T/units::m, Real threshold=0);
+        Quantity const & gradient=0*units::T/units::m);
     
     /** 
      * @brief Apply a time interval, i.e. relaxation, diffusion, gradient, and
