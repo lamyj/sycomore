@@ -30,11 +30,21 @@ namespace epg
 class SYCOMORE_API Regular: public Base
 {
 public:
+    using Order = Quantity;
+    
     Quantity velocity=0*units::m/units::s;
     
     Regular(
         Species const & species, 
         Magnetization const & initial_magnetization={0,0,1}, 
+        unsigned int initial_size=100, 
+        Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
+        double gradient_tolerance=1e-5);
+    
+    Regular(
+        Species const & species_a, Species const & species_b,
+        Magnetization const & M0_a, Magnetization const & M0_b,
+        Quantity const & k_a, Quantity const & delta_b,
         unsigned int initial_size=100, 
         Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
         double gradient_tolerance=1e-5);
@@ -47,6 +57,9 @@ public:
     
     /// @brief Return the number of states of the model.
     virtual std::size_t size() const;
+    
+    /// @brief Return the orders or the models.
+    std::vector<Order> orders() const;
     
     /** 
      * @brief Apply a time interval, i.e. relaxation, diffusion, gradient, and
@@ -84,7 +97,7 @@ public:
     double gradient_tolerance() const;
     
 private:
-    unsigned int _states_count;
+    std::size_t _states_count;
     
     /// @brief Area of the unit gradient, in T/m*s.
     Quantity _unit_gradient_area;

@@ -23,7 +23,10 @@ void wrap_epg_Discrete(pybind11::module & m)
             init<Species, Magnetization, Quantity>(),
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
             arg("bin_width")=1*units::rad/units::m)
-        .def_property("species", &Discrete::get_species, &Discrete::set_species)
+        .def_property(
+            "species",
+            [](Discrete const & d){ return d.get_species();},
+            [](Discrete & d, Species const & s){ return d.set_species(s);})
         .def_readwrite("delta_omega", &Discrete::delta_omega)
         .def_readwrite("threshold", &Discrete::threshold)
         .def_property_readonly(
@@ -57,9 +60,12 @@ void wrap_epg_Discrete(pybind11::module & m)
             "order as the orders member. This attribute is a read-only, 3×N "
             "array of complex numbers.")
         .def_property_readonly(
-            "echo", &Discrete::echo, "The echo signal, i.e. F_0.")
+            "echo", [](Discrete const & r){ return r.echo(); },
+            "Echo signal, i.e. F_0")
         .def(
-            "apply_pulse", &Discrete::apply_pulse,
+            "apply_pulse", 
+            static_cast<void(Discrete::*)(Quantity const &, Quantity const &)>(
+                &Discrete::apply_pulse),
             arg("angle"), arg("phase")=0*units::rad,
             "Apply an RF hard pulse.")
         .def(

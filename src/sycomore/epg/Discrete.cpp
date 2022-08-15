@@ -1,15 +1,14 @@
 #include "Discrete.h"
 
 #include <algorithm>
+#include <cmath>
 #include <complex>
-#include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <vector>
 
+#include <xsimd/xsimd.hpp>
+
 #include "sycomore/epg/Base.h"
-#include "sycomore/epg/pool_model.h"
-#include "sycomore/epg/pool_storage.h"
 #include "sycomore/epg/operators.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/epg/simd_api.h"
@@ -28,11 +27,11 @@ namespace epg
 Discrete
 ::Discrete(
     Species const & species, Magnetization const & initial_magnetization, 
-    Quantity bin_width, Real threshold)
-: Base(species, initial_magnetization, 1),_bin_width(bin_width)
+    Quantity bin_width)
+: Base(species, initial_magnetization, 1), _bin_width(bin_width), _orders{0},
+    _cache(this->_model.pools)
 {
-    this->threshold = threshold;
-    this->_orders.push_back(0);
+    // Nothing else
 }
 
 std::size_t
@@ -42,14 +41,14 @@ Discrete
     return this->_orders.size();
 }
 
-std::vector<Quantity>
+std::vector<Discrete::Order>
 Discrete
 ::orders() const
 {
-    std::vector<Quantity> orders(this->_orders.size());
+    std::vector<Order> orders(this->size());
     std::transform(
         this->_orders.begin(), this->_orders.end(), orders.begin(),
-        [&](decltype(this->_orders[0]) k){ return k*this->_bin_width; });
+        [&](Order const & k){ return k*this->_bin_width; });
     return orders;
 }
 
@@ -57,8 +56,6 @@ std::vector<Complex>
 Discrete
 ::state(Quantity const & order) const
 {
-    using namespace sycomore::units;
-
     std::size_t const k = std::round(double(order/this->_bin_width));
 
     auto const it = std::find(this->_orders.begin(), this->_orders.end(), k);
@@ -69,8 +66,8 @@ Discrete
         throw std::runtime_error(message.str());
     }
 
-    auto const index = it-this->_orders.begin();
-    return this->Base::state(index);
+    auto const position = it-this->_orders.begin();
+    return this->Base::state(position);
 }
 
 void
@@ -93,34 +90,51 @@ Discrete
     {
         auto const threshold_squared = std::pow(this->threshold, 2);
         
+        // Always include the zero order (implicit since we start at 1),
+        // include other order if population is above threshold.
         std::size_t destination=1;
         for(std::size_t source=1, end=this->size(); source != end; ++source)
         {
-            auto const magnitude_squared =
-                std::pow(std::abs(this->_storage->F[source]), 2)
-                +std::pow(std::abs(this->_storage->F_star[source]), 2)
-                +std::pow(std::abs(this->_storage->Z[source]), 2);
-            // Always include the zero order (implicit since we start at 1),
-            // include other order if population is above threshold.
-            if(magnitude_squared >= threshold_squared)
+            Real max_magnitude_squared = 0.;
+            for(std::size_t pool=0; pool<this->_model.pools; ++pool)
+            {
+                using std::pow; using std::abs;
+                auto const magnitude_squared = 
+                    pow(abs(this->_model.F[pool][source]), 2)
+                    +pow(abs(this->_model.F_star[pool][source]), 2)
+                    +pow(abs(this->_model.Z[pool][source]), 2);
+                max_magnitude_squared = std::max(
+                    max_magnitude_squared, magnitude_squared);
+            }
+            
+            if(max_magnitude_squared >= threshold_squared)
             {
                 if(source != destination)
                 {
                     this->_orders[destination] = this->_orders[source];
-                    this->_storage->F[destination] = this->_storage->F[source];
-                    this->_storage->F_star[destination] = this->_storage->F_star[source];
-                    this->_storage->Z[destination] = this->_storage->Z[source];
+                    for(std::size_t pool=0; pool<this->_model.pools; ++pool)
+                    {
+                        this->_model.F[pool][destination] =
+                            this->_model.F[pool][source];
+                        this->_model.F_star[pool][destination] =
+                            this->_model.F_star[pool][source];
+                        this->_model.Z[pool][destination] =
+                            this->_model.Z[pool][source];
+                    }
                 }
                 ++destination;
             }
         }
-
-        this->_orders.resize(destination);
-        this->_storage->F.resize(destination);
-        this->_storage->F_star.resize(destination);
-        this->_storage->Z.resize(destination);
         
-        // No need to update the iterator pointing to the echo magnetization.
+        this->_orders.resize(destination);
+        for(std::size_t pool=0; pool<this->_model.pools; ++pool)
+        {
+            this->_model.F[pool].resize(destination);
+            this->_model.F_star[pool].resize(destination);
+            this->_model.Z[pool].resize(destination);
+                
+            // No need to update the iterator pointing to the echo magnetization.
+        }
     }
 }
 
@@ -153,68 +167,82 @@ Discrete
     {
         auto const k = this->_orders[i];
         
-        auto state = this->_storage->Z[i];
-        if(state != 0.)
+        for(std::size_t pool=0; pool<this->_model.pools; ++pool)
         {
-            this->_cache.Z[this->_cache.get_location(k)] = state;
-        }
-        
-        state = this->_storage->F[i];
-        if(state != 0.)
-        {
-            auto k_F = k+delta_k;
-            
-            // Depending on whether the new order changed half space, conjugate
-            // the state and store it in F* instead of F.
-            auto destination = &this->_cache.F;
-            if(k_F < 0)
+            auto state = this->_model.Z[pool][i];
+            if(state != 0.)
             {
-                k_F *= -1;
-                destination = &this->_cache.F_star;
-                state = std::conj(state);
+                this->_cache.Z[pool][this->_cache.get_location(k)] = state;
             }
-            (*destination)[this->_cache.get_location(k_F)] = state;
-        }
-        
-        // WARNING: F* state at echo is a duplicate of F state.
-        state = this->_storage->F_star[i];
-        if(i != 0 && state != 0.)
-        {
-            // The F* order corresponding to F order k+Δk is -(-k+Δk), i.e. k-Δk
-            auto k_F_star = k-delta_k;
             
-            // Same as above.
-            auto destination = &this->_cache.F_star;
-            if(k_F_star < 0)
+            state = this->_model.F[pool][i];
+            if(state != 0.)
             {
-                k_F_star *= -1;
-                destination = &this->_cache.F;
-                state = std::conj(state);
+                auto k_F = k+delta_k;
+                
+                // Depending on whether the new order changed half space,
+                // conjugate the state and store it in F* instead of F.
+                auto destination = &this->_cache.F[pool];
+                if(k_F < 0)
+                {
+                    k_F *= -1;
+                    destination = &this->_cache.F_star[pool];
+                    state = std::conj(state);
+                }
+                (*destination)[this->_cache.get_location(k_F)] = state;
             }
-            (*destination)[this->_cache.get_location(k_F_star)] = state;
+            
+            // WARNING: F* state at echo is a duplicate of F state.
+            state = this->_model.F_star[pool][i];
+            if(i != 0 && state != 0.)
+            {
+                // The F* order corresponding to F order k+Δk is -(-k+Δk),
+                // i.e. k-Δk
+                auto k_F_star = k-delta_k;
+                
+                // Same as above.
+                auto destination = &this->_cache.F_star[pool];
+                if(k_F_star < 0)
+                {
+                    k_F_star *= -1;
+                    destination = &this->_cache.F[pool];
+                    state = std::conj(state);
+                }
+                (*destination)[this->_cache.get_location(k_F_star)] = state;
+            }
         }
     }
     
     // Update the current orders and states with the new ones.
     this->_cache.orders.resize(this->_cache.locations.size());
-    this->_cache.F.resize(this->_cache.locations.size());
-    this->_cache.F_star.resize(this->_cache.locations.size());
-    this->_cache.Z.resize(this->_cache.locations.size());
-    
-    // Use swap and not move since we keep the temporary variables between runs.
+    for(std::size_t pool=0; pool<this->_model.pools; ++pool)
+    {
+        this->_cache.F[pool].resize(this->_cache.locations.size());
+        this->_cache.F_star[pool].resize(this->_cache.locations.size());
+        this->_cache.Z[pool].resize(this->_cache.locations.size());
+    }
+        
+    // Use swap and not move since we keep the temporary variables between
+    // runs.
     std::swap(this->_cache.orders, this->_orders);
-    std::swap(this->_cache.F, this->_storage->F);
-    std::swap(this->_cache.F_star, this->_storage->F_star);
-    std::swap(this->_cache.Z, this->_storage->Z);
+    for(std::size_t pool=0; pool<this->_model.pools; ++pool)
+    {
+        std::swap(this->_cache.F[pool], this->_model.F[pool]);
+        std::swap(this->_cache.F_star[pool], this->_model.F_star[pool]);
+        std::swap(this->_cache.Z[pool], this->_model.Z[pool]);
+    }
     
     // Update the conjugate states of the echo magnetization.
-    if(this->_storage->F[0] != 0.)
+    for(std::size_t pool=0; pool<this->_model.pools; ++pool)
     {
-        this->_storage->F_star[0] = std::conj(this->_storage->F[0]);
-    }
-    else if(this->_storage->F_star[0] != 0.)
-    {
-        this->_storage->F[0] = std::conj(this->_storage->F_star[0]);
+        if(this->_model.F[pool][0] != 0.)
+        {
+            this->_model.F_star[pool][0] = std::conj(this->_model.F[pool][0]);
+        }
+        else if(this->_model.F_star[pool][0] != 0.)
+        {
+            this->_model.F[pool][0] = std::conj(this->_model.F_star[pool][0]);
+        }
     }
 }
 
@@ -222,7 +250,10 @@ void
 Discrete
 ::diffusion(Quantity const & duration, Quantity const & gradient)
 {
-    if(this->_model->species.get_D()[0].magnitude == 0)
+    if(
+        std::all_of(
+            this->_model.species.begin(), this->_model.species.end(),
+            [](Species const & s) { return s.get_D()[0].magnitude == 0; }))
     {
         return;
     }
@@ -238,14 +269,20 @@ Discrete
         this->size(), this->_orders, this->_bin_width.magnitude);
     
     auto const & tau = duration.magnitude;
-    auto const & D = this->_model->species.get_D()[0].magnitude;
     
-    simd_api::diffusion(
-        delta_k, tau, D, this->_cache.k.data(),
-        this->_storage->F.data(),
-        this->_storage->F_star.data(),
-        this->_storage->Z.data(),
-        this->_orders.size());
+    for(std::size_t pool=0; pool<this->_model.pools; ++pool)
+    {
+        auto const & D = this->_model.species[pool].get_D()[0].magnitude;
+        if(D == 0.)
+        {
+            continue;
+        }
+        
+        simd_api::diffusion(
+            delta_k, tau, D, this->_cache.k.data(),
+            this->_model.F[pool], this->_model.F_star[pool], this->_model.Z[pool],
+            this->size());
+    }
 }
 
 void
@@ -271,10 +308,7 @@ Discrete
     
     simd_api::bulk_motion(
         delta_k, this->velocity.magnitude, duration.magnitude, k.data(),
-        this->_storage->F.data(),
-        this->_storage->F_star.data(),
-        this->_storage->Z.data(),
-        this->size());
+        this->_model, this->size());
 }
 
 Quantity const & 
@@ -282,6 +316,13 @@ Discrete
 ::bin_width() const
 {
     return this->_bin_width;
+}
+
+Discrete::Cache
+::Cache(std::size_t pools)
+: orders(0), F(pools), F_star(pools), Z(pools)
+{
+    // Nothing else.
 }
 
 void
@@ -298,30 +339,35 @@ Discrete::Cache
     this->locations[0] = 0;
     
     // Same for F states.
-    this->F.resize(3*size);
-    // NOTE memset is slightly faster than std::fill, but requires that Complex
-    // has a trivial representation.
-    static_assert(
-        std::is_trivially_copyable<Complex>::value, 
-        "Complex cannot be used with memset");
-    std::memset(this->F.data(), 0, this->F.size()*sizeof(decltype(this->F[0])));
+    for(auto & F: this->F)
+    {
+        F.resize(3*size);
+        // NOTE memset is slightly faster than std::fill, but requires that
+        // Complex has a trivial representation.
+        static_assert(
+            std::is_trivially_copyable<Complex>::value, 
+            "Complex cannot be used with memset");
+        std::memset(F.data(), 0, F.size()*sizeof(Complex));
+    }
     
     // Same for F* states.
-    this->F_star.resize(3*size);
-    std::memset(
-        this->F_star.data(), 0, 
-        this->F_star.size()*sizeof(decltype(this->F_star[0])));
+    for(auto & F_star: this->F_star)
+    {
+        F_star.resize(3*size);
+        std::memset(F_star.data(), 0, F_star.size()*sizeof(Complex));
+    }
     
     // Same for Z states.
-    this->Z.resize(3*size);
-    std::memset(this->Z.data(), 0, this->Z.size()*sizeof(decltype(this->Z[0])));
+    for(auto & Z: this->Z)
+    {
+        Z.resize(3*size);
+        std::memset(Z.data(), 0, Z.size()*sizeof(Complex));
+    }
 }
 
 void
 Discrete::Cache
-::update_diffusion(
-    std::size_t size, decltype(Discrete::_orders) const & orders, 
-    Real bin_width)
+::update_diffusion(std::size_t size, Orders const & orders, Real bin_width)
 {
     this->k.resize(size);
     for(std::size_t order=0; order != size; ++order)

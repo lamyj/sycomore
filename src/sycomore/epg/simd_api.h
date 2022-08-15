@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "sycomore/epg/pool_storage.h"
+#include "sycomore/epg/Model.h"
 #include "sycomore/simd.h"
 #include "sycomore/sycomore.h"
 
@@ -39,10 +39,7 @@ void apply_pulse_single_pool_w(
 
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
    void, apply_pulse_single_pool_d, 
-    (
-        std::vector<Complex> const & T, 
-        pool_storage::SinglePool & storage,
-        unsigned int states_count))
+    (std::vector<Complex> const & T, Model & model, std::size_t states_count))
 
 template<typename ValueType>
 void apply_pulse_exchange_w(
@@ -53,10 +50,7 @@ void apply_pulse_exchange_w(
 
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
    void, apply_pulse_exchange_d, 
-    (
-        std::vector<Complex> const & T, 
-        pool_storage::Exchange & storage,
-        unsigned int states_count))
+    (std::vector<Complex> const & T, Model & model, std::size_t states_count))
 
 template<typename ValueType>
 void apply_pulse_magnetization_transfer_w(
@@ -66,10 +60,7 @@ void apply_pulse_magnetization_transfer_w(
 
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
    void, apply_pulse_magnetization_transfer_d, 
-    (
-        std::vector<Complex> const & T, 
-        pool_storage::MagnetizationTransfer & storage,
-        unsigned int states_count))
+    (std::vector<Complex> const & T, Model & model, std::size_t states_count))
 
 /*******************************************************************************
  *                             Relaxation operators                            *
@@ -83,9 +74,19 @@ void relaxation_single_pool_w(
 
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
    void, relaxation_single_pool_d, 
-    (
-        std::pair<Real, Real> const & E, pool_storage::SinglePool & storage, 
-        unsigned int states_count))
+    (std::pair<Real, Real> const & E, Model & model, std::size_t states_count))
+
+// template<typename ValueType>
+// void relaxation_exchange_w(
+//     std::pair<Real, Real> const & E, pool_storage::Exchange & storage,
+//     std::size_t start, std::size_t end, std::size_t step);
+
+// SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
+//    void, relaxation_single_pool_d, 
+//     (
+//         std::pair<Real, Real> const & E,
+//         Real * F, Real * F_star, Real * Z, 
+//         unsigned int states_count))
 
 /*******************************************************************************
  *                             Diffusion operator                              *
@@ -100,9 +101,9 @@ void diffusion_w(
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
    void, diffusion_d, 
     (
-        Real delta_k, Real tau, Real D, Real const * k_array,
-        Complex * F, Complex * F_star, Complex * Z,
-        unsigned int states_count))
+        Real delta_k, Real tau, Real D, Real const * k_array, 
+        Model::Population & F, Model::Population & F_star, Model::Population & Z,
+        std::size_t states_count))
 
 /*******************************************************************************
  *                           3D diffusion operator                             *
@@ -143,15 +144,15 @@ SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
 template<typename ValueType>
 void off_resonance_w(
     std::pair<Complex, Complex> const & phi,
-    Complex * F, Complex * F_star, Complex * Z,
+    Complex * F, Complex * F_star,
     std::size_t begin, std::size_t end, std::size_t step);
 
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
    void, off_resonance_d, 
     (
-        std::pair<Complex, Complex> const & phi,
-        Complex * F, Complex * F_star, Complex * Z, 
-        unsigned int states_count))
+        std::pair<Complex, Complex> const & phi, 
+        Model::Population & F, Model::Population & F_star,
+        std::size_t states_count))
 
 /*******************************************************************************
  *                            Bulk motion operator                             *
@@ -166,9 +167,8 @@ void bulk_motion_w(
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
    void, bulk_motion_d, 
     (
-        Real delta_k, Real v, Real tau, Real const * k_array,
-        Complex * F, Complex * F_star, Complex * Z,
-        unsigned int states_count))
+        Real delta_k, Real v, Real tau, Real const * k_array, Model & model,
+        std::size_t states_count))
 
 /*******************************************************************************
  *                          Function table and set-up                          *
@@ -179,6 +179,7 @@ extern decltype(&apply_pulse_exchange_d<unsupported>) apply_pulse_exchange;
 extern decltype(&apply_pulse_magnetization_transfer_d<unsupported>)
     apply_pulse_magnetization_transfer;
 extern decltype(&relaxation_single_pool_d<unsupported>) relaxation_single_pool;
+// extern decltype(&relaxation_exchange_d<unsupported>) relaxation_exchange;
 extern decltype(&diffusion_d<unsupported>) diffusion;
 extern decltype(&diffusion_3d_b_d<unsupported>) diffusion_3d_b;
 extern decltype(&diffusion_3d_d<unsupported>) diffusion_3d;

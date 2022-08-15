@@ -3,7 +3,6 @@
 #include <utility>
 #include <vector>
 
-#include "sycomore/epg/pool_storage.h"
 #include "sycomore/simd.h"
 #include "sycomore/sycomore.h"
 
@@ -23,40 +22,35 @@ namespace simd_api
 template<>
 void
 apply_pulse_single_pool_d<unsupported>(
-    std::vector<Complex> const & T,
-    pool_storage::SinglePool & storage, unsigned int states_count)
+    std::vector<Complex> const & T, Model & model, std::size_t states_count)
 {
     apply_pulse_single_pool_w<Complex>(
         T,
-        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
         0, states_count, 1);
 }
 
 template<>
 void
 apply_pulse_exchange_d<unsupported>(
-    std::vector<Complex> const & T,
-    pool_storage::Exchange & storage,
-    unsigned int states_count)
+    std::vector<Complex> const & T, Model & model, std::size_t states_count)
 {
     apply_pulse_exchange_w<Complex>(
         T,
-        storage.F_a.data(), storage.F_star_a.data(), storage.Z_a.data(),
-        storage.F_b.data(), storage.F_star_b.data(), storage.Z_b.data(),
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
+        model.F[1].data(), model.F_star[1].data(), model.Z[1].data(),
         0, states_count, 1);
 }
 
 template<>
 void
 apply_pulse_magnetization_transfer_d<unsupported>(
-    std::vector<Complex> const & T,
-    pool_storage::MagnetizationTransfer & storage,
-    unsigned int states_count)
+    std::vector<Complex> const & T, Model & model, std::size_t states_count)
 {
     apply_pulse_magnetization_transfer_w<Complex>(
         T,
-        storage.F.data(), storage.F_star.data(), storage.Z_a.data(),
-        storage.Z_b.data(), 0, states_count, 1);
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
+        model.Z[1].data(), 0, states_count, 1);
 }
 
 /*******************************************************************************
@@ -66,14 +60,12 @@ apply_pulse_magnetization_transfer_d<unsupported>(
 template<>
 void
 relaxation_single_pool_d<unsupported>(
-    std::pair<Real, Real> const & E,
-    pool_storage::SinglePool & storage,
-    unsigned int states_count)
+    std::pair<Real, Real> const & E, Model & model, std::size_t states_count)
 {
     // Pass 2*states_count as we are getting reinterpreted real arrays
     relaxation_single_pool_w<Complex>(
         E,
-        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
         0, 2*states_count, 1);
 }
 
@@ -85,10 +77,12 @@ template<>
 void
 diffusion_d<unsupported>(
     Real delta_k, Real tau, Real D, Real const * k,
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+    Model::Population & F, Model::Population & F_star, Model::Population & Z,
+    std::size_t states_count)
 {
     diffusion_w<Real, Complex>(
-        delta_k, tau, D, k, F, F_star, Z, 0, states_count, 1);
+        delta_k, tau, D, k, F.data(), F_star.data(), Z.data(),
+        0, states_count, 1);
 }
 
 /*******************************************************************************
@@ -127,9 +121,10 @@ template<>
 void
 off_resonance_d<unsupported>(
     std::pair<Complex, Complex> const & phi,
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+    Model::Population & F, Model::Population & F_star,
+    std::size_t states_count)
 {
-    off_resonance_w<Complex>(phi, F, F_star, Z, 0, states_count, 1);
+    off_resonance_w<Complex>(phi, F.data(), F_star.data(), 0, states_count, 1);
 }
 
 /*******************************************************************************
@@ -139,11 +134,18 @@ off_resonance_d<unsupported>(
 template<>
 void
 bulk_motion_d<unsupported>(
-    Real delta_k, Real v, Real tau, Real const * k,
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+    Real delta_k, Real v, Real tau, Real const * k, Model & model,
+    std::size_t states_count)
 {
-    bulk_motion_w<Real, Complex>(
-        delta_k, v, tau, k, F, F_star, Z, 0, states_count, 1);
+    for(std::size_t pool=0; pool<model.F.size(); ++pool)
+    {
+        auto F = model.F[pool].data();
+        auto F_star = model.F_star[pool].data();
+        auto Z = model.Z[pool].data();
+        
+        bulk_motion_w<Real, Complex>(
+            delta_k, v, tau, k, F, F_star, Z, 0, states_count, 1);
+    }
 }
 
 /*******************************************************************************

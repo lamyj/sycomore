@@ -25,7 +25,10 @@ void wrap_epg_Regular(pybind11::module & m)
             arg("initial_size")=100, 
             arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
             arg("gradient_tolerance")=1e-5)
-        .def_property("species", &Regular::get_species, &Regular::set_species)
+        .def_property(
+            "species",
+            [](Regular const & r){ return r.get_species();},
+            [](Regular & r, Species const & s){ return r.set_species(s);})
         .def_readwrite("threshold", &Regular::threshold)
         .def_readwrite("delta_omega", &Regular::delta_omega)
         .def_readwrite("velocity", &Regular::velocity)
@@ -45,9 +48,13 @@ void wrap_epg_Regular(pybind11::module & m)
             },
             "Return all states in the model, where each state is stored as "
             "F_k, F*_{-k}, Z_k, in order of increasing order.")
-        .def_property_readonly("echo", &Regular::echo, "Echo signal, i.e. F_0")
+        .def_property_readonly(
+            "echo", [](Regular const & r){ return r.echo(); },
+            "Echo signal, i.e. F_0")
         .def(
-            "apply_pulse", &Regular::apply_pulse,
+            "apply_pulse", 
+            static_cast<void(Regular::*)(Quantity const &, Quantity const &)>(
+                &Regular::apply_pulse),
             arg("angle"), arg("phase")=0*units::rad,
             "Apply an RF hard pulse.")
         .def(

@@ -39,8 +39,7 @@ public:
     Discrete(
         Species const & species, 
         Magnetization const & initial_magnetization={0,0,1}, 
-        Quantity bin_width=1*units::rad/units::m,
-        Real threshold=0);
+        Quantity bin_width=1*units::rad/units::m);
     
     Discrete(Discrete const &) = default;
     Discrete(Discrete &&) = default;
@@ -52,10 +51,10 @@ public:
     virtual std::size_t size() const;
     
     /// @brief Return the orders of the model.
-    std::vector<Quantity> orders() const;
+    std::vector<Order> orders() const;
 
     /// @brief Return a given state of the model.
-    std::vector<Complex> state(Quantity const & order) const;
+    std::vector<Complex> state(Order const & order) const;
 
     /** 
      * @brief Apply a time interval, i.e. relaxation, diffusion, gradient, and
@@ -89,8 +88,9 @@ public:
     void bulk_motion(Quantity const & duration, Quantity const & gradient);
     
 private:
+    using Orders = std::vector<long long, xsimd::aligned_allocator<long long, 64>>;
     Quantity _bin_width;
-    std::vector<long long, xsimd::aligned_allocator<long long, 64>> _orders;
+    Orders _orders;
     
     // Data kept to avoid expansive re-allocation of memory.
     class Cache
@@ -100,16 +100,17 @@ private:
         // Mapping between a normalized (i.e. folded) order and its location in
         // the states vectors.
         robin_hood::unordered_flat_map<long long, std::size_t> locations;
-        decltype(Discrete::_orders) orders;
-        pool_storage::Vector F, F_star, Z;
+        Orders orders;
+        std::vector<Model::Population> F, F_star, Z;
         
         // Diffusion-related data.
         std::vector<Real, xsimd::aligned_allocator<Real, 64>> k;
         
+        Cache(std::size_t pools);
+        
         void update_shift(std::size_t size);
         void update_diffusion(
-            std::size_t size, decltype(Discrete::_orders) const & orders,
-            Real bin_width);
+            std::size_t size, Orders const & orders, Real bin_width);
         std::size_t get_location(long long order);
     };
     

@@ -55,8 +55,7 @@ public:
     Discrete3D(
         Species const & species,
         Magnetization const & initial_magnetization={0,0,1},
-        Quantity bin_width=1*units::rad/units::m,
-        Real threshold=0);
+        Quantity bin_width=1*units::rad/units::m);
 
     Discrete3D(Discrete3D const &) = default;
     Discrete3D(Discrete3D &&) = default;
@@ -68,7 +67,7 @@ public:
     virtual std::size_t size() const;
 
     /// @brief Return the orders of the model.
-    std::vector<Quantity> orders() const;
+    std::vector<Order::value_type> orders() const;
     
     /// @brief Return a given state of the model.
     std::vector<Complex> state(Order const & order) const;
@@ -99,7 +98,8 @@ public:
 
 private:
     using Bin = std::array<int64_t, 3>;
-    std::vector<Bin::value_type, xsimd::aligned_allocator<Bin::value_type, 64>> _orders;
+    using Orders = std::vector<Bin::value_type, xsimd::aligned_allocator<Bin::value_type, 64>>;
+    Orders _orders;
 
     Quantity _bin_width;
     
@@ -113,8 +113,8 @@ private:
         // Mapping between a normalized (i.e. folded) order and its location in
         // the states vectors.
         robin_hood::unordered_flat_map<Bin, std::size_t> locations;
-        decltype(Discrete3D::_orders) orders;
-        pool_storage::Vector F, F_star, Z;
+        Orders orders;
+        std::vector<Model::Population> F, F_star, Z;
         
         // Diffusion-related data.
         std::vector<RealVector, xsimd::aligned_allocator<RealVector, 64>> k{3};
@@ -122,10 +122,11 @@ private:
         RealVector b_T_plus_D;
         RealVector b_T_minus_D;
         
+        Cache(std::size_t pools);
+        
         void update_shift(std::size_t size);
         void update_diffusion(
-            std::size_t size, decltype(Discrete3D::_orders) const & orders,
-            Real bin_width);
+            std::size_t size, Orders const & orders, Real bin_width);
         std::size_t get_location(Bin const & order);
     };
     

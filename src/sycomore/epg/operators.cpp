@@ -44,15 +44,14 @@ pulse_exchange(Real angle_a, Real phase_a, Real angle_b, Real phase_b)
 }
 
 std::vector<Complex>
-pulse_magnetization_transfer(
-    Real angle_a, Real phase_a, Real saturation_rate, Real duration)
+pulse_magnetization_transfer(Real angle_a, Real phase_a, Real saturation)
 {
     using std::cos; using std::exp; using std::pow;
     constexpr Complex const i{0,1};
 
     return {
         PULSE_MATRIX(angle_a, phase_a),
-        exp(-saturation_rate*duration)
+        exp(-saturation)
     };
 }
 

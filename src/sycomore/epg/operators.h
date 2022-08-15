@@ -38,8 +38,7 @@ pulse_exchange(Real angle_a, Real phase_a, Real angle_b, Real phase_b);
  */
 SYCOMORE_API
 std::vector<Complex>
-pulse_magnetization_transfer(
-    Real angle_a, Real phase_a, Real saturation_rate, Real duration);
+pulse_magnetization_transfer(Real angle_a, Real phase_a, Real saturation);
 
 /**
  * @brief Return the scalars associated respectively with relaxation of 

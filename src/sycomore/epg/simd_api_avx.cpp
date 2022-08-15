@@ -11,33 +11,26 @@ namespace simd_api
 
 template 
 void apply_pulse_single_pool_d<XSIMD_X86_AVX_VERSION>(
-    std::vector<Complex> const & T, 
-    pool_storage::SinglePool & storage,
-    unsigned int states_count);
+    std::vector<Complex> const & T,  Model & model, std::size_t states_count);
 
 template
 void
 apply_pulse_magnetization_transfer_d<XSIMD_X86_AVX_VERSION>(
-    std::vector<Complex> const & T,
-    pool_storage::MagnetizationTransfer & storage,
-    unsigned int states_count);
+    std::vector<Complex> const & T,  Model & model, std::size_t states_count);
 
 template 
 void apply_pulse_exchange_d<XSIMD_X86_AVX_VERSION>(
-    std::vector<Complex> const & T, 
-    pool_storage::Exchange & storage,
-    unsigned int states_count);
+    std::vector<Complex> const & T,  Model & model, std::size_t states_count);
 
 template 
 void relaxation_single_pool_d<XSIMD_X86_AVX_VERSION>(
-    std::pair<Real, Real> const & E,
-    pool_storage::SinglePool & storage, unsigned int states_count);
+    std::pair<Real, Real> const & E, Model & model, std::size_t states_count);
 
 template 
 void diffusion_d<XSIMD_X86_AVX_VERSION>(
     Real delta_k, Real tau, Real D, Real const * k_array,
-    Complex * F, Complex * F_star, Complex * Z,
-    unsigned int states_count);
+    Model::Population & F, Model::Population & F_star, Model::Population & Z,
+    std::size_t states_count);
 
 template 
 void diffusion_3d_b_d<XSIMD_X86_AVX_VERSION>(
@@ -56,13 +49,14 @@ template
 void
 off_resonance_d<XSIMD_X86_AVX_VERSION>(
     std::pair<Complex, Complex> const & phi,
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count);
+    Model::Population & F, Model::Population & F_star,
+    std::size_t states_count);
 
 template
 void
 bulk_motion_d<XSIMD_X86_AVX_VERSION>(
-    Real delta_k, Real v, Real tau, Real const * k,
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count);
+    Real delta_k, Real v, Real tau, Real const * k,  Model & model,
+    std::size_t states_count);
 
 }
 

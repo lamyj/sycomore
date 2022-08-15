@@ -22,7 +22,9 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
             arg("bin_width")=1*units::rad/units::m)
         .def_property(
-            "species", &Discrete3D::get_species, &Discrete3D::set_species)
+            "species",
+            [](Discrete3D const & d){ return d.get_species();},
+            [](Discrete3D & d, Species const & s){ return d.set_species(s);})
         .def_readwrite("delta_omega", &Discrete3D::delta_omega)
         .def_readwrite("threshold", &Discrete3D::threshold)
         .def_property_readonly(
@@ -61,9 +63,12 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             "Return all states in the model, where each state is stored as "
             "F(k), Z(k).")
         .def_property_readonly(
-            "echo", &Discrete3D::echo, "Echo signal, i.e. F_0")
+            "echo", [](Discrete3D const & r){ return r.echo(); },
+            "Echo signal, i.e. F_0")
         .def(
-            "apply_pulse", &Discrete3D::apply_pulse,
+            "apply_pulse", 
+            static_cast<void(Discrete3D::*)(Quantity const &, Quantity const &)>(
+                &Discrete3D::apply_pulse),
             arg("angle"), arg("phase")=0*units::rad,
             "Apply an RF hard pulse.")
         .def(

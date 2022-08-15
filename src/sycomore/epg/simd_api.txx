@@ -6,8 +6,8 @@
 #include <utility>
 #include <vector>
 
+#include "sycomore/epg/Model.h"
 #include "sycomore/epg/operators.h"
-#include "sycomore/epg/pool_storage.h"
 #include "sycomore/simd.h"
 #include "sycomore/sycomore.h"
 
@@ -53,19 +53,18 @@ void apply_pulse_single_pool_w(
 template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 apply_pulse_single_pool_d(
-    std::vector<Complex> const & T,
-    pool_storage::SinglePool & storage, unsigned int states_count)
+    std::vector<Complex> const & T, Model & model, std::size_t states_count)
 {    
     using Batch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % Batch::size;
     
     apply_pulse_single_pool_w<Batch>(
         T,
-        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
         0, simd_end, Batch::size);
     apply_pulse_single_pool_w<Complex>(
         T,
-        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
         simd_end, states_count, 1);
 }
 
@@ -115,22 +114,20 @@ void apply_pulse_exchange_w(
 template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 apply_pulse_exchange_d(
-    std::vector<Complex> const & T,
-    pool_storage::Exchange & storage,
-    unsigned int states_count)
+    std::vector<Complex> const & T, Model & model, std::size_t states_count)
 {
     using Batch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % Batch::size;
     
     apply_pulse_exchange_w<Batch>(
         T,
-        storage.F_a.data(), storage.F_star_a.data(), storage.Z_a.data(),
-        storage.F_b.data(), storage.F_star_b.data(), storage.Z_b.data(),
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
+        model.F[1].data(), model.F_star[1].data(), model.Z[1].data(),
         0, simd_end, Batch::size);
     apply_pulse_exchange_w<Complex>(
         T,
-        storage.F_a.data(), storage.F_star_a.data(), storage.Z_a.data(),
-        storage.F_b.data(), storage.F_star_b.data(), storage.Z_b.data(),
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
+        model.F[1].data(), model.F_star[1].data(), model.Z[1].data(),
         simd_end, states_count, 1);
 }
 
@@ -167,21 +164,19 @@ void apply_pulse_magnetization_transfer_w(
 template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 apply_pulse_magnetization_transfer_d(
-    std::vector<Complex> const & T,
-    pool_storage::MagnetizationTransfer & storage,
-    unsigned int states_count)
+    std::vector<Complex> const & T, Model & model, std::size_t states_count)
 {    
     using Batch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % Batch::size;
     
     apply_pulse_magnetization_transfer_w<Batch>(
         T,
-        storage.F.data(), storage.F_star.data(), storage.Z_a.data(),
-        storage.Z_b.data(), 0, simd_end, Batch::size);
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
+        model.Z[1].data(), 0, simd_end, Batch::size);
     apply_pulse_magnetization_transfer_w<Complex>(
         T,
-        storage.F.data(), storage.F_star.data(), storage.Z_a.data(),
-        storage.Z_b.data(), simd_end, states_count, 1);
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
+        model.Z[1].data(), simd_end, states_count, 1);
 }
 
 /*******************************************************************************
@@ -213,19 +208,18 @@ void relaxation_single_pool_w(
 template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 relaxation_single_pool_d(
-    std::pair<Real, Real> const & E, pool_storage::SinglePool & storage,
-    unsigned int states_count)
+    std::pair<Real, Real> const & E, Model & model, std::size_t states_count)
 {
     using Batch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % Batch::size;
     
     relaxation_single_pool_w<Batch>(
         E,
-        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
         0, simd_end, Batch::size);
     relaxation_single_pool_w<Complex>(
         E,
-        storage.F.data(), storage.F_star.data(), storage.Z.data(),
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
         simd_end, states_count, 1);
 }
 
@@ -264,16 +258,19 @@ template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 diffusion_d(
     Real delta_k, Real tau, Real D, Real const * k,
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+    Model::Population & F, Model::Population & F_star, Model::Population & Z,
+    std::size_t states_count)
 {    
     using RealBatch = simd::Batch<Real, InstructionSet>;
     using ComplexBatch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % ComplexBatch::size;
     
     diffusion_w<RealBatch, ComplexBatch>(
-        delta_k, tau, D, k, F, F_star, Z, 0, simd_end, ComplexBatch::size);
+        delta_k, tau, D, k, F.data(), F_star.data(), Z.data(),
+        0, simd_end, ComplexBatch::size);
     diffusion_w<Real, Complex>(
-        delta_k, tau, D, k, F, F_star, Z, simd_end, states_count, 1);
+        delta_k, tau, D, k, F.data(), F_star.data(), Z.data(),
+        simd_end, states_count, 1);
 }
 
 /*******************************************************************************
@@ -386,7 +383,7 @@ diffusion_3d_b_d(
 template<typename ValueType>
 void off_resonance_w(
     std::pair<Complex, Complex> const & phi,
-    Complex * F, Complex * F_star, Complex * Z,
+    Complex * F, Complex * F_star,
     std::size_t begin, std::size_t end, std::size_t step)
 {
     for(int i=begin; i<end; i+=step)
@@ -406,13 +403,16 @@ template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 off_resonance_d(
     std::pair<Complex, Complex> const & phi,
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+    Model::Population & F, Model::Population & F_star,
+    std::size_t states_count)
 {    
     using Batch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % Batch::size;
     
-    off_resonance_w<Batch>(phi, F, F_star, Z, 0, simd_end, Batch::size);
-    off_resonance_w<Complex>(phi, F, F_star, Z, simd_end, states_count, 1);
+    off_resonance_w<Batch>(
+        phi, F.data(), F_star.data(), 0, simd_end, Batch::size);
+    off_resonance_w<Complex>(
+        phi, F.data(), F_star.data(), simd_end, states_count, 1);
 }
 
 /*******************************************************************************
@@ -450,17 +450,23 @@ void bulk_motion_w(
 template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 bulk_motion_d(
-    Real delta_k, Real v, Real tau, Real const * k,
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+    Real delta_k, Real v, Real tau, Real const * k, Model & model,
+    std::size_t states_count)
 {    
     using RealBatch = simd::Batch<Real, InstructionSet>;
     using ComplexBatch = simd::Batch<Complex, InstructionSet>;
     auto const simd_end = states_count - states_count % ComplexBatch::size;
     
-    bulk_motion_w<RealBatch, ComplexBatch>(
-        delta_k, v, tau, k, F, F_star, Z, 0, simd_end, ComplexBatch::size);
-    bulk_motion_w<Real, Complex>(
-        delta_k, v, tau, k, F, F_star, Z, simd_end, states_count, 1);
+    for(std::size_t pool=0; pool<model.pools; ++pool)
+    {
+        auto F = model.F[pool].data();
+        auto F_star = model.F_star[pool].data();
+        auto Z = model.Z[pool].data();
+        bulk_motion_w<RealBatch, ComplexBatch>(
+            delta_k, v, tau, k, F, F_star, Z, 0, simd_end, ComplexBatch::size);
+        bulk_motion_w<Real, Complex>(
+            delta_k, v, tau, k, F, F_star, Z, simd_end, states_count, 1);
+    }
 }
 
 }
