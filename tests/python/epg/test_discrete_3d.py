@@ -276,6 +276,7 @@ class TestDiscrete3D(unittest.TestCase):
         self.assertEqual(model.states.shape, (len(orders), 3))
         numpy.testing.assert_array_almost_equal(states, model.states)
         for i, order in enumerate(orders):
+            numpy.testing.assert_almost_equal(model.state(i), states[i])
             numpy.testing.assert_almost_equal(model.state(order), states[i])
         
         try:

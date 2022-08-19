@@ -48,13 +48,13 @@ Discrete
     std::vector<Order> orders(this->size());
     std::transform(
         this->_orders.begin(), this->_orders.end(), orders.begin(),
-        [&](Order const & k){ return k*this->_bin_width; });
+        [&](Orders::value_type const & k){ return k*this->_bin_width; });
     return orders;
 }
 
 std::vector<Complex>
 Discrete
-::state(Quantity const & order) const
+::state(Order const & order) const
 {
     std::size_t const k = std::round(double(order/this->_bin_width));
 
@@ -66,8 +66,8 @@ Discrete
         throw std::runtime_error(message.str());
     }
 
-    auto const position = it-this->_orders.begin();
-    return this->Base::state(position);
+    std::size_t const position = it-this->_orders.begin();
+    return this->state(position);
 }
 
 void

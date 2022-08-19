@@ -49,7 +49,7 @@ Discrete3D
     std::vector<Order::value_type> orders(this->_orders.size());
     std::transform(
         this->_orders.begin(), this->_orders.end(), orders.begin(),
-        [&](Order::value_type const & k){ return k*this->_bin_width; });
+        [&](Orders::value_type const & k){ return k*this->_bin_width; });
     return orders;
 }
 
@@ -83,8 +83,8 @@ Discrete3D
         throw std::runtime_error(message.str());
     }
 
-    auto const position = (it-this->_orders.begin())/3;
-    return this->Base::state(position);
+    std::size_t const position = (it-this->_orders.begin())/3;
+    return this->state(position);
 }
 
 void

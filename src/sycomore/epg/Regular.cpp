@@ -69,6 +69,32 @@ Regular
     return result;
 }
 
+std::vector<Complex>
+Regular
+::state(Order const & order) const
+{
+    std::size_t position;
+    if(order.dimensions == Dimensions())
+    {
+        position = std::size_t(order.magnitude);
+    }
+    else
+    {
+        auto const epsilon = 
+            this->_gradient_tolerance*this->_unit_gradient_area.magnitude;
+        auto const remainder = std::remainder(
+            order.magnitude, this->_unit_gradient_area.magnitude);
+        if(std::abs(remainder) >= epsilon)
+        {
+            throw std::runtime_error(
+                "Gradient is not a interger multiple of unit gradient");
+        }
+        position = std::round(order/this->_unit_gradient_area);
+    }
+    
+    return this->state(position);
+}
+
 void
 Regular
 ::apply_time_interval(Quantity const & duration, Quantity const & gradient)

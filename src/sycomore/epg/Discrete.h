@@ -52,7 +52,9 @@ public:
     
     /// @brief Return the orders of the model.
     std::vector<Order> orders() const;
-
+    
+    using Base::state;
+    
     /// @brief Return a given state of the model.
     std::vector<Complex> state(Order const & order) const;
 

@@ -12,10 +12,19 @@
         BOOST_TEST(c1.imag() == c2.imag()); \
     }
 
+#define TEST_ORDER(o1, o2) \
+    { \
+        BOOST_TEST(o1.magnitude == o2.magnitude); \
+        BOOST_TEST(o1.dimensions == o2.dimensions); \
+    }
+
 void test_model(
     sycomore::epg::Regular const & model,
-    std::vector<std::vector<sycomore::Complex>> const & expected_states)
+    std::vector<sycomore::epg::Regular::Order> const & expected_orders,
+    std::vector<sycomore::epg::Regular::State> const & expected_states)
 {
+    auto && orders = model.orders();
+    BOOST_TEST(orders.size() == expected_orders.size());
     
     auto const & states = model.states();
     BOOST_TEST(model.size() == expected_states.size());
@@ -23,14 +32,35 @@ void test_model(
     
     for(std::size_t i=0; i<model.size(); ++i)
     {
-        auto && expected_state = expected_states[i];
-        auto && state = model.state(i);
+        auto && expected_order = expected_orders[i];
+        auto && order = orders[i];
+        TEST_ORDER(order, expected_order);
         
-        BOOST_TEST(state.size() == expected_state.size());
-        for(std::size_t j=0; j<state.size(); ++j)
+        auto && expected_state = expected_states[i];
         {
-            TEST_COMPLEX_EQUAL(states[3*i+j], expected_state[j]);
-            TEST_COMPLEX_EQUAL(state[j], expected_state[j]);
+            auto && state = model.state(i);
+            BOOST_TEST(state.size() == expected_state.size());
+            for(std::size_t j=0; j<state.size(); ++j)
+            {
+                TEST_COMPLEX_EQUAL(state[j], expected_state[j]);
+            }
+        }
+        {
+            auto && state = model.state(order);
+            BOOST_TEST(state.size() == expected_state.size());
+            for(std::size_t j=0; j<state.size(); ++j)
+            {
+                TEST_COMPLEX_EQUAL(state[j], expected_state[j]);
+            }
+        }
+        {
+            sycomore::epg::Regular::State const state{
+                states[3*i+0], states[3*i+1], states[3*i+2]};
+            BOOST_TEST(state.size() == expected_state.size());
+            for(std::size_t j=0; j<state.size(); ++j)
+            {
+                TEST_COMPLEX_EQUAL(state[j], expected_state[j]);
+            }
         }
     }
     BOOST_TEST(model.echo() == expected_states[0][0]);
@@ -43,7 +73,7 @@ BOOST_AUTO_TEST_CASE(Empty)
         
     sycomore::epg::Regular model(species);
     
-    test_model(model, {{0,0,1}});
+    test_model(model, {0}, {{0,0,1}});
 }
 
 BOOST_AUTO_TEST_CASE(Pulse, *boost::unit_test::tolerance(1e-9))
@@ -56,6 +86,7 @@ BOOST_AUTO_TEST_CASE(Pulse, *boost::unit_test::tolerance(1e-9))
     
     test_model(
         model, 
+        {0},
         {
             {
                 {0.2857626571584661, -0.6732146319308543},
@@ -73,7 +104,8 @@ BOOST_AUTO_TEST_CASE(Gradient, *boost::unit_test::tolerance(1e-9))
     model.shift();
     
     test_model(
-        model, 
+        model,
+        {0, 1},
         {
             {0, 0, 0.6819983600624985},
             {{0.2857626571584661, -0.6732146319308543}, 0, 0}});
@@ -91,6 +123,7 @@ BOOST_AUTO_TEST_CASE(Relaxation, *boost::unit_test::tolerance(1e-9))
     
     test_model(
         model, 
+        {0, 1},
         {
             {0, 0, 0.6851625292479138},
             {{0.2585687448743616, -0.6091497893403431}, 0, 0}});
@@ -109,6 +142,7 @@ BOOST_AUTO_TEST_CASE(Diffusion, *boost::unit_test::tolerance(1e-9))
     
     test_model(
         model, 
+        {0*mT/m*ms, 20*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.25805111586158685, -0.60793033180597855}, 0, 0}});
@@ -127,6 +161,7 @@ BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-9))
     model.off_resonance(10*ms);
     test_model(
         model, 
+        {0, 1},
         {
             {0, 0, 0.6819983600624985},
             {{0.6268924782754024, -0.37667500256027975}, 0, 0}});
@@ -143,6 +178,7 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     
     test_model(
         model, 
+        {0*mT/m*ms, 20*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.2584947343504123, -0.6089754314724013}, 0, 0}});
@@ -160,6 +196,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalFieldOffResonance, *boost::unit_test::tolerance
     model.apply_time_interval(10*ms, 2*mT/m);
     test_model(
         model, 
+        {0*mT/m*ms, 20*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.56707341067384409, -0.34073208057155585}, 0, 0}});
@@ -176,6 +213,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalSpeciesOffResonance, *boost::unit_test::toleran
 
     test_model(
         model, 
+        {0*mT/m*ms, 20*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.56707341067384409, -0.34073208057155585}, 0, 0}});
@@ -193,6 +231,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalBothOffResonance, *boost::unit_test::tolerance(
     
     test_model(
         model, 
+        {0*mT/m*ms, 20*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.2584947343504123, -0.6089754314724013}, 0, 0}});
@@ -211,6 +250,7 @@ BOOST_AUTO_TEST_CASE(UnitGradient, *boost::unit_test::tolerance(1e-9))
     
     test_model(
         model, 
+        {0*mT/m*ms, 10*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.2585687448743616, -0.609149789340343}, 0, 0}});
@@ -219,6 +259,7 @@ BOOST_AUTO_TEST_CASE(UnitGradient, *boost::unit_test::tolerance(1e-9))
     model.apply_time_interval(10*ms, 2*mT/m);
     test_model(
         model, 
+        {0*mT/m*ms, 10*mT/m*ms, 20*mT/m*ms, 30*mT/m*ms},
         {
             {0, 0, 0.6882952144238884},
             {0, 0, 0},
@@ -229,6 +270,7 @@ BOOST_AUTO_TEST_CASE(UnitGradient, *boost::unit_test::tolerance(1e-9))
     model.apply_time_interval(10*ms, -3*mT/m);
     test_model(
         model, 
+        {0*mT/m*ms},
         {
             {
                 {0.2116981832134146, -0.49872966576391303}, 
@@ -253,6 +295,7 @@ BOOST_AUTO_TEST_CASE(BulkMotion, *boost::unit_test::tolerance(1e-9))
     
     test_model(
         model, 
+        {0*mT/m*ms, 10*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{-0.33529079864474892, -0.57052724915068997}, 0, 0}});

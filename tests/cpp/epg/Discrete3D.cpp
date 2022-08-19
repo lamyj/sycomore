@@ -12,6 +12,16 @@
         BOOST_TEST(c1.imag() == c2.imag()); \
     }
 
+#define TEST_ORDER(o1, o2) \
+    { \
+        BOOST_TEST(o1.size() == o2.size()); \
+        for(std::size_t _i=0; _i<o1.size(); ++_i) \
+        { \
+            BOOST_TEST(o1[_i].magnitude == o2[_i].magnitude); \
+            BOOST_TEST(o1[_i].dimensions == o2[_i].dimensions); \
+        } \
+    }
+
 void test_model(
     sycomore::epg::Discrete3D const & model,
     std::vector<sycomore::epg::Discrete3D::Order> const & expected_orders,
@@ -21,6 +31,7 @@ void test_model(
     BOOST_TEST(orders.size() == 3*expected_orders.size());
 
     auto && states = model.states();
+    BOOST_TEST(model.size() == expected_states.size());
     BOOST_TEST(states.size() == 3*expected_states.size());
 
     for(std::size_t i=0; i<model.size(); ++i)
@@ -28,12 +39,11 @@ void test_model(
         auto && expected_order = expected_orders[i];
         sycomore::epg::Discrete3D::Order const order{
             orders[3*i+0], orders[3*i+1], orders[3*i+2]};
-        BOOST_TEST(order == expected_order);
+        TEST_ORDER(order, expected_order);
 
         auto && expected_state = expected_states[i];
         {
-            std::vector<sycomore::Complex> const state{
-                states[3*i+0], states[3*i+1], states[3*i+2]};
+            auto && state = model.state(i);
             BOOST_TEST(state.size() == expected_state.size());
             for(std::size_t j=0; j<state.size(); ++j)
             {
@@ -48,7 +58,15 @@ void test_model(
                 TEST_COMPLEX_EQUAL(state[j], expected_state[j]);
             }
         }
-
+        {
+            std::vector<sycomore::Complex> const state{
+                states[3*i+0], states[3*i+1], states[3*i+2]};
+            BOOST_TEST(state.size() == expected_state.size());
+            for(std::size_t j=0; j<state.size(); ++j)
+            {
+                TEST_COMPLEX_EQUAL(state[j], expected_state[j]);
+            }
+        }
     }
 }
 

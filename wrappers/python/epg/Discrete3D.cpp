@@ -42,6 +42,13 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             "Orders of the model.")
         .def_property_readonly("bin_width", &Discrete3D::bin_width)
         .def(
+            "state",
+            static_cast<
+                    std::vector<Complex> (Discrete3D::*)(std::size_t) const
+                >(&Discrete3D::state),
+            arg("bin"),
+            "Magnetization at a given state, expressed by its *index*")
+        .def(
             "state", 
             [](Discrete3D const & model, sequence order_py) {
                 Discrete3D::Order order_cpp(order_py.size());

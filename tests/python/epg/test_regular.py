@@ -9,7 +9,7 @@ class TestRegular(unittest.TestCase):
         species = sycomore.Species(1000*ms, 100*ms)
         model = sycomore.epg.Regular(species)
         
-        self._test_model(model, [[0,0,1]])
+        self._test_model(model, [0], [[0,0,1]])
     
     def test_pulse(self):
         species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)
@@ -18,6 +18,7 @@ class TestRegular(unittest.TestCase):
         
         self._test_model(
             model,  
+            [0],
             [[
                 0.2857626571584661-0.6732146319308543j,
                 0.2857626571584661+0.6732146319308543j,
@@ -31,6 +32,7 @@ class TestRegular(unittest.TestCase):
         
         self._test_model(
             model,  
+            [0, 1],
             [
                 [0, 0, 0.6819983600624985],
                 [0.2857626571584661-0.6732146319308543j, 0, 0]])
@@ -43,6 +45,7 @@ class TestRegular(unittest.TestCase):
         model.shift(1*ms, 1*mT/m)
         self._test_model(
             model,  
+            [0*mT/m*ms, 1*mT/m*ms],
             [
                 [0, 0, 0.6819983600624985],
                 [0.2857626571584661-0.6732146319308543j, 0, 0]])
@@ -50,6 +53,7 @@ class TestRegular(unittest.TestCase):
         model.shift(2*ms, 1*mT/m)
         self._test_model(
             model,  
+            [0*mT/m*ms, 1*mT/m*ms, 2*mT/m*ms, 3*mT/m*ms],
             [
                 [0, 0, 0.6819983600624985],
                 [0, 0, 0],
@@ -59,6 +63,7 @@ class TestRegular(unittest.TestCase):
         model.shift(1*ms, -1*mT/m)
         self._test_model(
             model,  
+            [0*mT/m*ms, 1*mT/m*ms, 2*mT/m*ms, 3*mT/m*ms, 4*mT/m*ms],
             [
                 [0, 0, 0.6819983600624985],
                 [0, 0, 0],
@@ -78,6 +83,7 @@ class TestRegular(unittest.TestCase):
         
         self._test_model(
             model,  
+            [0, 1],
             [
                 [0, 0, 0.6851625292479138],
                 [0.2585687448743616-0.6091497893403431j, 0, 0]])
@@ -92,6 +98,7 @@ class TestRegular(unittest.TestCase):
         
         self._test_model(
             model,  
+            [0*mT/m*ms, 20*mT/m*ms],
             [
                 [0, 0, 0.6851625292479138],
                 [0.25805111586158685-0.60793033180597855j, 0, 0]])
@@ -106,6 +113,7 @@ class TestRegular(unittest.TestCase):
         
         self._test_model(
             model,
+            [0, 1],
             [
                 [0, 0, 0.6819983600624985], 
                 [0.6268924782754024-0.37667500256027975j, 0, 0]])
@@ -118,6 +126,7 @@ class TestRegular(unittest.TestCase):
         
         self._test_model(
             model,  
+            [0*mT/m*ms, 10*mT/m*ms, 20*mT/m*ms],
             [
                 [0, 0, 0.6851625292479138],
                 [0, 0, 0],
@@ -126,6 +135,7 @@ class TestRegular(unittest.TestCase):
         model.apply_time_interval(10*ms, -2*mT/m)
         self._test_model(
             model, 
+            [0*mT/m*ms],
             [
                 [
                     0.23382875968307784-0.5508660366970124j, 
@@ -141,6 +151,7 @@ class TestRegular(unittest.TestCase):
         
         self._test_model(
             model, 
+            [0*mT/m*ms, 10*mT/m*ms, 20*mT/m*ms],
             [
                 [0, 0, 0.6851625292479138], 
                 [0, 0, 0],
@@ -154,6 +165,7 @@ class TestRegular(unittest.TestCase):
         
         self._test_model(
             model, 
+            [0*mT/m*ms, 10*mT/m*ms, 20*mT/m*ms],
             [
                 [0, 0, 0.6851625292479138], 
                 [0, 0, 0],
@@ -168,17 +180,26 @@ class TestRegular(unittest.TestCase):
         
         self._test_model(
             model, 
+            [0*mT/m*ms, 10*mT/m*ms, 20*mT/m*ms],
             [
                 [0, 0, 0.6851625292479138], 
                 [0, 0, 0],
                 [0.2584947343504123-0.6089754314724013j, 0, 0]])
     
-    def _test_model(self, model, states):
+    def _test_model(self, model, orders, states):
+        self.assertEqual(len(orders), len(model.orders))
+        for o1, o2 in zip(orders, model.orders):
+            if isinstance(o1, (int, float)):
+                o1 = sycomore.Quantity(o1, sycomore.Dimensions())
+            numpy.testing.assert_almost_equal(o1.magnitude, o2.magnitude)
+            self.assertEqual(o1.dimensions, o2.dimensions)
+        
         numpy.testing.assert_array_almost_equal(states, model.states)
         self.assertEqual(len(states), len(model))
         numpy.testing.assert_almost_equal(states[0][0], model.echo)
         for i, state in enumerate(states):
             numpy.testing.assert_almost_equal(state, model.state(i))
+            numpy.testing.assert_almost_equal(state, model.state(orders[i]))
         
 if __name__ == "__main__":
     unittest.main()

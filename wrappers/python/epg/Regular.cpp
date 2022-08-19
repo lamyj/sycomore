@@ -35,9 +35,24 @@ void wrap_epg_Regular(pybind11::module & m)
         .def_property_readonly(
             "unit_gradient_area", &Regular::unit_gradient_area,
             "Unit gradient area of the model.")
+        .def_property_readonly(
+            "orders", &Regular::orders, 
+            "The sequence of orders currently stored by the model, in the same "
+            "order as the states member. This attribute is read-only.")
         .def(
-            "state", &Regular::state, arg("order"), 
-            "Access a given state of the model.")
+            "state",
+            static_cast<
+                    std::vector<Complex> (Regular::*)(std::size_t) const
+                >(&Regular::state),
+            arg("bin"),
+            "Magnetization at a given state, expressed by its *index*")
+        .def(
+            "state",
+            static_cast<
+                    std::vector<Complex> (Regular::*)(Quantity const &) const
+                >(&Regular::state),
+            arg("order"),
+            "Magnetization at a given state, expressed by its *order*.")
         .def_property_readonly(
             "states", [](Regular const & model){
                 auto const states_cpp = model.states();
