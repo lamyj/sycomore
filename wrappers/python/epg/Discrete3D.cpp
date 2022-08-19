@@ -12,7 +12,7 @@ void wrap_epg_Discrete3D(pybind11::module & m)
     using namespace sycomore;
     using namespace sycomore::epg;
 
-    class_<Discrete3D>(
+    class_<Discrete3D, Base>(
             m, "Discrete3D",
             "Discrete EPG in which the gradients may be specified in three "
             "dimensions."
@@ -21,12 +21,6 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             init<Species, Magnetization, Quantity>(),
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
             arg("bin_width")=1*units::rad/units::m)
-        .def_property(
-            "species",
-            [](Discrete3D const & d){ return d.get_species();},
-            [](Discrete3D & d, Species const & s){ return d.set_species(s);})
-        .def_readwrite("delta_omega", &Discrete3D::delta_omega)
-        .def_readwrite("threshold", &Discrete3D::threshold)
         .def_property_readonly(
             "orders", 
             [](Discrete3D const & model){
@@ -59,25 +53,6 @@ void wrap_epg_Discrete3D(pybind11::module & m)
                 return model.state(order_cpp);
             },
             arg("order"), "Access a given state of the model")
-        .def_property_readonly(
-            "states", [](Discrete3D const & model){
-                auto const states_cpp = model.states();
-                std::vector<std::size_t> const shape{model.size(),3};
-                auto && data = states_cpp.data();
-                array_t<Complex> states_py(shape, data);
-                return states_py;
-            },
-            "Return all states in the model, where each state is stored as "
-            "F(k), Z(k).")
-        .def_property_readonly(
-            "echo", [](Discrete3D const & r){ return r.echo(); },
-            "Echo signal, i.e. F_0")
-        .def(
-            "apply_pulse", 
-            static_cast<void(Discrete3D::*)(Quantity const &, Quantity const &)>(
-                &Discrete3D::apply_pulse),
-            arg("angle"), arg("phase")=0*units::rad,
-            "Apply an RF hard pulse.")
         .def(
             "apply_time_interval",
             [](
@@ -118,9 +93,6 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             "Apply a gradient; in discrete EPG, this shifts all orders by "
             "specified value.")
         .def(
-            "relaxation", &Discrete3D::relaxation, arg("duration"), 
-            "Simulate the relaxation during given duration.")
-        .def(
             "diffusion", 
             [](Discrete3D & model, Quantity duration, sequence gradient_py) {
                 Discrete3D::Order gradient_cpp(gradient_py.size());
@@ -133,11 +105,5 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             arg("duration"), arg("gradient"),
             "Simulate diffusion during given duration with given gradient "
             "amplitude.")
-        .def(
-            "off_resonance", &Discrete3D::off_resonance, 
-            arg("duration"), 
-            "Simulate field- and species related off-resonance effects during "
-            "given duration with given frequency offset.")
-        .def("__len__", &Discrete3D::size, "Number of states of the model")
     ;
 }
