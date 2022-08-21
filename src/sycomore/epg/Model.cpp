@@ -47,7 +47,7 @@ Model
     Quantity const & k_a,
     std::size_t initial_size)
 : kind(MagnetizationTransfer), pools(2),
-    species({species_a, Species(R1_b_or_T1_b, 0*units::Hz)}),
+    species({species_a, Species(R1_b_or_T1_b, 1*units::ns)}),
     M0(pools), k(pools), delta_b(0*units::Hz),
     F(pools), F_star(pools), Z(pools)
 {

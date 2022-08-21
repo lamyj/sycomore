@@ -49,6 +49,14 @@ public:
         Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
         double gradient_tolerance=1e-5);
     
+    Regular(
+        Species const & species_a, Quantity const & R1_b_or_T1_b,
+        Magnetization const & M0_a, Magnetization const & M0_b,
+        Quantity const & k_a,
+        unsigned int initial_size=100, 
+        Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
+        double gradient_tolerance=1e-5);
+    
     Regular(Regular const &) = default;
     Regular(Regular &&) = default;
     Regular & operator=(Regular const &) = default;

@@ -47,6 +47,20 @@ Regular
     // Nothing else.
 }
 
+Regular
+::Regular(
+    Species const & species_a, Quantity const & R1_b_or_T1_b,
+    Magnetization const & M0_a, Magnetization const & M0_b,
+    Quantity const & k_a,
+    unsigned int initial_size, Quantity const & unit_gradient_area,
+    double gradient_tolerance)
+: Base(species_a, R1_b_or_T1_b, M0_a, M0_b, k_a, initial_size),
+    _unit_gradient_area(unit_gradient_area), 
+    _gradient_tolerance(gradient_tolerance), _states_count(1)
+{
+    // Nothing else.
+}
+
 std::size_t 
 Regular
 ::size() const

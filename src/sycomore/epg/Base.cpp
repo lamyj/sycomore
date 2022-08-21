@@ -247,7 +247,9 @@ Base
         simd_api::relaxation_single_pool(E, this->_model, this->size());
         this->_model.Z[0][0] += this->_model.M0[0]*(1.-E.first);
     }
-    else if(this->_model.kind == Model::Exchange)
+    else if(
+        this->_model.kind == Model::Exchange
+        || this->_model.kind == Model::MagnetizationTransfer)
     {
         auto const E = operators::relaxation_exchange(
             this->_model.species[0].get_R1().magnitude,
@@ -265,19 +267,6 @@ Base
         this->_model.Z[0][0] += recovery[0];
         this->_model.Z[1][0] += recovery[1];
     }
-    /*
-    else if(this->_model.kind == Model::MagnetizationTransfer)
-    {
-        auto const E = operators::relaxation_magnetization_transfer(
-            this->_model.species[0].get_R1().magnitude,
-            this->_model.species[0].get_R2().magnitude,
-            this->_model.species[1].get_R1().magnitude,
-            this->_model.k[0].magnitude, this->_model.k[1].magnitude,
-            this->_model.M0[0], this->_model.M0[1],
-            duration.magnitude);
-        throw std::runtime_error("TODO");
-    }
-    */
     else
     {
         throw std::runtime_error("Invalid model");
