@@ -28,8 +28,30 @@ Discrete
 ::Discrete(
     Species const & species, Magnetization const & initial_magnetization, 
     Quantity bin_width)
-: Base(species, initial_magnetization, 1), _bin_width(bin_width), _orders{0},
-    _cache(this->_model.pools)
+: Base(species, initial_magnetization, 1),
+    _bin_width(bin_width), _orders{0}, _cache(this->_model.pools)
+{
+    // Nothing else
+}
+
+Discrete
+::Discrete(
+    Species const & species_a, Species const & species_b,
+    Magnetization const & M0_a, Magnetization const & M0_b,
+    Quantity const & k_a, Quantity const & delta_b, Quantity bin_width)
+: Base(species_a, species_b, M0_a, M0_b, k_a, delta_b, 1),
+    _bin_width(bin_width), _orders{0}, _cache(this->_model.pools)
+{
+    // Nothing else
+}
+
+Discrete
+::Discrete(
+    Species const & species_a, Quantity const & R1_b_or_T1_b,
+    Magnetization const & M0_a, Magnetization const & M0_b,
+    Quantity const & k_a, Quantity bin_width)
+: Base(species_a, R1_b_or_T1_b, M0_a, M0_b, k_a, 1),
+    _bin_width(bin_width), _orders{0}, _cache(this->_model.pools)
 {
     // Nothing else
 }

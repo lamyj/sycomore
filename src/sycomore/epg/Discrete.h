@@ -41,6 +41,18 @@ public:
         Magnetization const & initial_magnetization={0,0,1}, 
         Quantity bin_width=1*units::rad/units::m);
     
+    Discrete(
+        Species const & species_a, Species const & species_b,
+        Magnetization const & M0_a, Magnetization const & M0_b,
+        Quantity const & k_a, Quantity const & delta_b=0*units::Hz,
+        Quantity bin_width=1*units::rad/units::m);
+    
+    Discrete(
+        Species const & species_a, Quantity const & R1_b_or_T1_b,
+        Magnetization const & M0_a, Magnetization const & M0_b,
+        Quantity const & k_a,
+        Quantity bin_width=1*units::rad/units::m);
+    
     Discrete(Discrete const &) = default;
     Discrete(Discrete &&) = default;
     Discrete & operator=(Discrete const &) = default;

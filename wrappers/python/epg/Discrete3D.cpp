@@ -21,6 +21,21 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             init<Species, Magnetization, Quantity>(),
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
             arg("bin_width")=1*units::rad/units::m)
+        .def(
+            init<
+                Species const &, Species const &,
+                Magnetization const &, Magnetization const &,
+                Quantity const &, Quantity const &, Quantity const &>(),
+            arg("species_a"), arg("species_b"), arg("M0_a"), arg("M0_b"),
+            arg("k_a"), arg("delta_b")=0*units::Hz,
+            arg("bin_width")=1*units::rad/units::m)
+        .def(
+            init<
+                Species const &, Quantity const &,
+                Magnetization const &, Magnetization const &,
+                Quantity const &, Quantity const &>(),
+            arg("species_a"), arg("R1_b_or_T1_b"), arg("M0_a"), arg("M0_b"),
+            arg("k_a"), arg("bin_width")=1*units::rad/units::m)
         .def_property_readonly(
             "orders", 
             [](Discrete3D const & model){
