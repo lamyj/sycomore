@@ -114,14 +114,23 @@ void
 Base
 ::apply_pulse(Quantity const & angle, Quantity const & phase)
 {
-    if(this->_model.kind != Model::SinglePool)
+    if(this->_model.kind == Model::SinglePool)
+    {
+        auto const T = operators::pulse_single_pool(
+        angle.magnitude, phase.magnitude);
+        simd_api::apply_pulse_single_pool(T, this->_model, this->size());
+    }
+    else if(this->_model.kind == Model::Exchange)
+    {
+        auto const T = operators::pulse_exchange(
+            angle.magnitude, phase.magnitude,
+            angle.magnitude, phase.magnitude);
+        simd_api::apply_pulse_exchange(T, this->_model, this->size());
+    }
+    else
     {
         throw std::runtime_error("Invalid model");
     }
-    
-    auto const T = operators::pulse_single_pool(
-        angle.magnitude, phase.magnitude);
-    simd_api::apply_pulse_single_pool(T, this->_model, this->size());
 }
 
 void
@@ -130,7 +139,7 @@ Base
     Quantity const & angle_a, Quantity const & phase_a,
     Quantity const & angle_b, Quantity const & phase_b)
 {
-    if(this->_model.kind != Model::SinglePool)
+    if(this->_model.kind != Model::Exchange)
     {
         throw std::runtime_error("Invalid model");
     }
@@ -173,9 +182,40 @@ Base
         simd_api::relaxation_single_pool(E, this->_model, this->size());
         this->_model.Z[0][0] += this->_model.M0[0]*(1.-E.first);
     }
+    else if(this->_model.kind == Model::Exchange)
+    {
+        auto const E = operators::relaxation_exchange(
+            this->_model.species[0].get_R1().magnitude,
+            this->_model.species[0].get_R2().magnitude,
+            this->_model.species[1].get_R1().magnitude,
+            this->_model.species[1].get_R2().magnitude,
+            this->_model.k[0].magnitude, this->_model.k[1].magnitude,
+            this->_model.delta_b.magnitude,
+            this->_model.M0[0], this->_model.M0[1],
+            duration.magnitude);
+        simd_api::relaxation_exchange(
+            std::get<0>(E), std::get<1>(E), this->_model, this->size());
+        
+        auto const & recovery = std::get<2>(E);
+        this->_model.Z[0][0] += recovery[0];
+        this->_model.Z[1][0] += recovery[1];
+    }
+    /*
+    else if(this->_model.kind == Model::MagnetizationTransfer)
+    {
+        auto const E = operators::relaxation_magnetization_transfer(
+            this->_model.species[0].get_R1().magnitude,
+            this->_model.species[0].get_R2().magnitude,
+            this->_model.species[1].get_R1().magnitude,
+            this->_model.k[0].magnitude, this->_model.k[1].magnitude,
+            this->_model.M0[0], this->_model.M0[1],
+            duration.magnitude);
+        throw std::runtime_error("TODO");
+    }
+    */
     else
     {
-        throw std::runtime_error("TODO");
+        throw std::runtime_error("Invalid model");
     }
 }
 

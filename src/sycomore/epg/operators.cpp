@@ -63,7 +63,7 @@ relaxation_single_pool(Real R1, Real R2, Real duration)
     return std::make_pair(E_1, E_2);
 }
 
-std::pair<std::array<Complex, 8>, std::array<Real, 4>>
+std::tuple<std::array<Complex, 8>, std::array<Real, 4>, std::array<Real, 2>>
 relaxation_exchange(
     Real R1_a, Real R2_a, Real R1_b, Real R2_b,
     Real k_a, Real k_b, Real delta_b,
@@ -71,21 +71,24 @@ relaxation_exchange(
     Real duration)
 {
     auto const exp_Lambda_T = relaxation_and_exchange_T(
-        R2_a, R2_b, k_a, k_b, delta_b);
-    auto const exp_Lambda_L = relaxation_and_exchange_L(R1_a, R1_b, k_a, k_b);
-    return {exp_Lambda_T, exp_Lambda_L};
+        R2_a, R2_b, k_a, k_b, delta_b, duration);
+    auto const exp_Lambda_L = relaxation_and_exchange_L(R1_a, R1_b, k_a, k_b, duration);
+    auto const recovery = relaxation_and_exchange_recovery(
+        R1_a, R1_b, k_a, k_b, M0_a, M0_b, exp_Lambda_L);
+    return {exp_Lambda_T, exp_Lambda_L, recovery};
 }
 
 std::array<Complex, 8>
-relaxation_and_exchange_T(Real R2_a, Real R2_b, Real k_a, Real k_b, Real delta_b)
+relaxation_and_exchange_T(
+    Real R2_a, Real R2_b, Real k_a, Real k_b, Real delta_b, Real duration)
 {
     constexpr Complex const i{0,1};
     
-    Real const a = -R2_a - k_a;
-    Real const b = k_b;
-    Real const c = k_a;
-    Complex const d = -R2_b - k_b - 2*M_PI*i*delta_b;
-    Complex const e = -R2_b - k_b + 2*M_PI*i*delta_b;
+    Real const a = duration*(-R2_a - k_a);
+    Real const b = duration*(k_b);
+    Real const c = duration*(k_a);
+    Complex const d = duration*(-R2_b - k_b - 2*M_PI*i*delta_b);
+    Complex const e = duration*(-R2_b - k_b + 2*M_PI*i*delta_b);
     
     if(b == 0. && c == 0.)
     {
@@ -147,11 +150,12 @@ relaxation_and_exchange_T(Real R2_a, Real R2_b, Real k_a, Real k_b, Real delta_b
 }
 
 std::array<Real, 4>
-relaxation_and_exchange_L(Real R1_a, Real R1_b, Real k_a, Real k_b)
+relaxation_and_exchange_L(
+    Real R1_a, Real R1_b, Real k_a, Real k_b, Real duration)
 {
     std::array<Real, 4> const A{
-        -R1_a-k_a,       k_b,
-              k_a, -R1_b-k_b};
+        duration*(-R1_a-k_a),       duration*(k_b),
+              duration*(k_a), duration*(-R1_b-k_b)};
     auto const Delta = std::pow(A[0]-A[3], 2) + 4*A[1]*A[2];
     
     static std::array<Real,4> const I{
@@ -216,6 +220,33 @@ relaxation_and_exchange_L(Real R1_a, Real R1_b, Real k_a, Real k_b)
     }
     
     return result;
+}
+
+std::array<Real, 2>
+relaxation_and_exchange_recovery(
+    Real R1_a, Real R1_b, Real k_a, Real k_b, Real M0_a, Real M0_b,
+    std::array<Real, 4> const & Xi_L)
+{
+    std::array<Real, 4> const Xi_L_minus_I{
+        Xi_L[0]-1, Xi_L[1],
+        Xi_L[2]  , Xi_L[3]-1};
+        
+    auto const det_Lambda_L = R1_a*R1_b + R1_a*k_b + R1_b*k_a;
+    std::array<Real, 4> const inv_Lambda_L{
+        (-R1_b-k_b)/det_Lambda_L,        -k_b/det_Lambda_L,
+               -k_a/det_Lambda_L, (-R1_a-k_a)/det_Lambda_L};
+    
+    std::array<Real, 4> const product{
+        Xi_L_minus_I[0]*inv_Lambda_L[0]+Xi_L_minus_I[1]*inv_Lambda_L[2],
+        Xi_L_minus_I[0]*inv_Lambda_L[1]+Xi_L_minus_I[1]*inv_Lambda_L[3],
+        Xi_L_minus_I[2]*inv_Lambda_L[0]+Xi_L_minus_I[3]*inv_Lambda_L[2],
+        Xi_L_minus_I[2]*inv_Lambda_L[1]+Xi_L_minus_I[3]*inv_Lambda_L[3]};
+    
+    std::array<Real, 2> const C{R1_a*M0_a, R1_b*M0_b};
+    
+    return {
+        product[0]*C[0]+product[1]*C[1],
+        product[2]*C[0]+product[3]*C[1]};
 }
 
 std::pair<Complex, Complex> phase_accumulation(Real angle)

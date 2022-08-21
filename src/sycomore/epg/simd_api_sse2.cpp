@@ -27,6 +27,11 @@ void relaxation_single_pool_d<XSIMD_X86_SSE2_VERSION>(
     std::pair<Real, Real> const & E, Model & model, std::size_t states_count);
 
 template 
+void relaxation_exchange_d<XSIMD_X86_SSE2_VERSION>(
+    std::array<Complex, 8> const & Xi_T, std::array<Real, 4> const & Xi_L,
+    Model & model, std::size_t states_count);
+
+template 
 void diffusion_d<XSIMD_X86_SSE2_VERSION>(
     Real delta_k, Real tau, Real D, Real const * k_array,
     Model::Population & F, Model::Population & F_star, Model::Population & Z,

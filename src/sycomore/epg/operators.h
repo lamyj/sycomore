@@ -51,7 +51,7 @@ SYCOMORE_API std::pair<Real, Real> relaxation_single_pool(
  * @brief Return the exchange-relaxation matrices.
  */
 SYCOMORE_API
-std::pair<std::array<Complex, 8>, std::array<Real, 4>>
+std::tuple<std::array<Complex, 8>, std::array<Real, 4>, std::array<Real, 2>>
 relaxation_exchange(
     Real R1_a, Real R2_a, Real R1_b, Real R2_b,
     Real k_a, Real k_b, Real delta_b,
@@ -61,11 +61,18 @@ relaxation_exchange(
 SYCOMORE_API
 std::array<Complex, 8>
 relaxation_and_exchange_T(
-    Real R2_a, Real R2_b, Real k_a, Real k_b, Real delta_b);
+    Real R2_a, Real R2_b, Real k_a, Real k_b, Real delta_b, Real duration);
 
 SYCOMORE_API
 std::array<Real, 4>
-relaxation_and_exchange_L(Real R1_a, Real R1_b, Real k_a, Real k_b);
+relaxation_and_exchange_L(
+    Real R1_a, Real R1_b, Real k_a, Real k_b, Real duration);
+
+SYCOMORE_API
+std::array<Real, 2>
+relaxation_and_exchange_recovery(
+    Real R1_a, Real R1_b, Real k_a, Real k_b, Real M0_a, Real M0_b,
+    std::array<Real, 4> const & Xi_L);
 
 /**
  * @brief Return the scalars associated respectively with diffusion of 
