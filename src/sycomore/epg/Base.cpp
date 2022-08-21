@@ -49,6 +49,20 @@ Base
     // Nothing else.
 }
 
+Model::Kind
+Base
+::kind() const
+{
+    return this->_model.kind;
+}
+
+std::size_t
+Base
+::pools() const
+{
+    return this->_model.pools;
+}
+
 Species const &
 Base
 ::get_species(std::size_t pool) const
@@ -68,6 +82,55 @@ Base
 ::set_species(Species const & species)
 {
     this->set_species(0, species);
+}
+
+Real const &
+Base
+::get_M0(std::size_t pool) const
+{
+    return this->_model.M0[pool];
+}
+
+void
+Base
+::set_M0(std::size_t pool, Real const & M0)
+{
+    this->_model.M0[pool] = M0;
+}
+
+void
+Base
+::set_M0(Real const & M0)
+{
+    this->set_M0(0, M0);
+}
+
+Quantity const &
+Base
+::get_k(std::size_t pool) const
+{
+    return this->_model.k[pool];
+}
+
+void
+Base
+::set_k(std::size_t pool, Quantity const & k)
+{
+    this->_model.k[pool] = k;
+}
+
+Quantity const &
+Base
+::get_delta_b() const
+{
+    return this->_model.delta_b;
+}
+
+void
+Base
+::set_delta_b(Quantity const & delta_b)
+{
+    this->_model.delta_b = delta_b;
 }
 
 Base::State

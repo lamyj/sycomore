@@ -48,9 +48,22 @@ public:
     Base & operator=(Base && other) = default;
     virtual ~Base() = default;
     
+    Model::Kind kind() const;
+    std::size_t pools() const;
+    
     Species const & get_species(std::size_t pool=0) const;
     void set_species(std::size_t pool, Species const & species);
     void set_species(Species const & species);
+    
+    Real const & get_M0(std::size_t pool=0) const;
+    void set_M0(std::size_t pool, Real const & M0);
+    void set_M0(Real const & M0);
+    
+    Quantity const & get_k(std::size_t pool) const;
+    void set_k(std::size_t pool, Quantity const & k);
+    
+    Quantity const & get_delta_b() const;
+    void set_delta_b(Quantity const & delta_b);
     
     /// @brief Return the number of states of a pool.
     virtual std::size_t size() const = 0;
