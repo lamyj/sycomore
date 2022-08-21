@@ -151,15 +151,17 @@ Base::States
 Base
 ::states() const
 {
+    // We are keeping one set of orders for all pools: it is more logical to
+    // order the dimensions as order > pool > (F, F*, Z)
     Base::States result(3*this->size()*this->_model.pools);
-    for(std::size_t pool=0; pool < this->_model.pools; ++pool)
+    auto it = result.begin();
+    for(std::size_t order=0; order<this->size(); ++order)
     {
-        for(std::size_t order=0; order<this->size(); ++order)
+        for(std::size_t pool=0; pool < this->_model.pools; ++pool)
         {
-            auto const base = 3*(pool*this->size()+order);
-            result[base+0] = this->_model.F[pool][order];
-            result[base+1] = this->_model.F_star[pool][order];
-            result[base+2] = this->_model.Z[pool][order];
+            *(it++) = this->_model.F[pool][order];
+            *(it++) = this->_model.F_star[pool][order];
+            *(it++) = this->_model.Z[pool][order];
         }
     }
     

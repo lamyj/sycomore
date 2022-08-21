@@ -21,9 +21,19 @@ void wrap_epg_Base(pybind11::module & m)
         .def_readwrite("delta_omega", &Base::delta_omega)
         .def_property_readonly(
             "states", [](Base const & model){
+                std::vector<std::size_t> shape;
+                if(model.kind() == Model::SinglePool)
+                {
+                    shape = {model.size(), 3};
+                }
+                else 
+                {
+                    shape = {model.size(), model.pools(), 3};
+                }
+                
                 auto const states_cpp = model.states();
-                std::vector<std::size_t> const shape{model.size(), 3};
-                Complex const * data = states_cpp.data();
+                auto const * data = states_cpp.data();
+                
                 array_t<Complex> states_py(shape, data);
                 return states_py;
             },
