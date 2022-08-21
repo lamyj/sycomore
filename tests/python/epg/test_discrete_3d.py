@@ -269,6 +269,7 @@ class TestDiscrete3D(unittest.TestCase):
             ])
     
     def _test_model(self, model, orders, states):
+        self.assertEqual(len(orders), len(model))
         self.assertEqual(len(orders), len(model.orders))
         for o1, o2 in zip(orders, model.orders):
             self.assertSequenceEqual(o1, o2)

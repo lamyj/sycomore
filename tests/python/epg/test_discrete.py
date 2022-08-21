@@ -175,6 +175,7 @@ class TestDiscrete(unittest.TestCase):
                 [0.10210725404661349-0.17685495183007738j, 0, 0]])
     
     def _test_model(self, model, orders, states):
+        self.assertEqual(len(orders), len(model))
         self.assertEqual(len(orders), len(model.orders))
         for o1, o2 in zip(orders, model.orders):
             self.assertEqual(o1, o2)

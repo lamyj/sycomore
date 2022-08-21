@@ -187,6 +187,7 @@ class TestRegular(unittest.TestCase):
                 [0.2584947343504123-0.6089754314724013j, 0, 0]])
     
     def _test_model(self, model, orders, states):
+        self.assertEqual(len(orders), len(model))
         self.assertEqual(len(orders), len(model.orders))
         for o1, o2 in zip(orders, model.orders):
             if isinstance(o1, (int, float)):
