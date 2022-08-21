@@ -49,6 +49,22 @@ void wrap_epg_Base(pybind11::module & m)
             arg("angle"), arg("phase")=0*units::rad,
             "Apply an RF hard pulse.")
         .def(
+            "apply_pulse", 
+            static_cast<
+                    void(Base::*)(
+                        Quantity const &, Quantity const &,
+                        Quantity const &, Quantity const &)
+                >(&Base::apply_pulse),
+            arg("angle_a"), arg("phase_a"), arg("angle_B"), arg("phase_b"),
+            "Apply an RF hard pulse.")
+        .def(
+            "apply_pulse", 
+            static_cast<
+                    void(Base::*)(Quantity const &, Quantity const &, Real)
+                >(&Base::apply_pulse),
+            arg("angle_a"), arg("phase_a"), arg("saturation"),
+            "Apply an RF hard pulse.")
+        .def(
             "relaxation", &Base::relaxation, arg("duration"),
             "Simulate the relaxation during given duration.")
         .def(

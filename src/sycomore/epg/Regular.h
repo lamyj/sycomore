@@ -44,7 +44,7 @@ public:
     Regular(
         Species const & species_a, Species const & species_b,
         Magnetization const & M0_a, Magnetization const & M0_b,
-        Quantity const & k_a, Quantity const & delta_b,
+        Quantity const & k_a, Quantity const & delta_b=0*units::Hz,
         unsigned int initial_size=100, 
         Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
         double gradient_tolerance=1e-5);

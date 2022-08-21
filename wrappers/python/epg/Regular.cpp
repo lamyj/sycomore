@@ -20,8 +20,32 @@ void wrap_epg_Regular(pybind11::module & m)
             "In this model, the orders of the model are consecutive positive "
             "integers starting at 0.")
         .def(
-            init<Species, Magnetization, unsigned int, Quantity const &, double>(),
+            init<
+                Species const &, Magnetization const &, unsigned int,
+                Quantity const &, double>(),
             arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
+            arg("initial_size")=100, 
+            arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
+            arg("gradient_tolerance")=1e-5)
+        .def(
+            init<
+                Species const &, Species const &,
+                Magnetization const &, Magnetization const &,
+                Quantity const &, Quantity const &,
+                unsigned int, Quantity const &, double>(),
+            arg("species_a"), arg("species_b"), arg("M0_a"), arg("M0_b"),
+            arg("k_a"), arg("delta_b")=0*units::Hz,
+            arg("initial_size")=100, 
+            arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
+            arg("gradient_tolerance")=1e-5)
+        .def(
+            init<
+                Species const &, Quantity const &,
+                Magnetization const &, Magnetization const &,
+                Quantity const &, 
+                unsigned int, Quantity const &, double>(),
+            arg("species_a"), arg("R1_b_or_T1_b"), arg("M0_a"), arg("M0_b"),
+            arg("k_a"), 
             arg("initial_size")=100, 
             arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
             arg("gradient_tolerance")=1e-5)
