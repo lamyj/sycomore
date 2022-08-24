@@ -59,6 +59,14 @@ relaxation_exchange(
     Real duration);
 
 SYCOMORE_API
+std::tuple<Real, std::array<Real, 4>, std::array<Real, 2>>
+relaxation_magnetization_transfer(
+    Real R1_a, Real R2_a, Real R1_b,
+    Real k_a, Real k_b,
+    Real M0_a, Real M0_b,
+    Real duration);
+
+SYCOMORE_API
 std::array<Complex, 8>
 relaxation_and_exchange_T(
     Real R2_a, Real R2_b, Real k_a, Real k_b, Real delta_b, Real duration);
@@ -73,6 +81,9 @@ std::array<Real, 2>
 relaxation_and_exchange_recovery(
     Real R1_a, Real R1_b, Real k_a, Real k_b, Real M0_a, Real M0_b,
     std::array<Real, 4> const & Xi_L);
+
+SYCOMORE_API
+std::array<Real, 4> expm(std::array<Real, 4> const & A);
 
 /**
  * @brief Return the scalars associated respectively with diffusion of 

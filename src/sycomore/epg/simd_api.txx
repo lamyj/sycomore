@@ -293,6 +293,60 @@ relaxation_exchange_d(
         simd_end, states_count, 1);
 }
 
+template<typename ValueType>
+void relaxation_magnetization_transfer_w(
+    Real const & Xi_T, std::array<Real, 4> const & Xi_L,
+    Complex * F_a, Complex * F_star_a, Complex * Z_a,
+    Complex * F_b, Complex * F_star_b, Complex * Z_b,
+    std::size_t start, std::size_t end, std::size_t step)
+{
+    for(std::size_t i=start; i<end; i+=step)
+    {
+        ValueType F_a_i;
+        sycomore::simd::load_aligned(F_a+i, F_a_i);
+        sycomore::simd::store_aligned(F_a_i*Xi_T, F_a+i);
+        
+        ValueType F_star_a_i;
+        sycomore::simd::load_aligned(F_star_a+i, F_star_a_i);
+        sycomore::simd::store_aligned(F_star_a_i*Xi_T, F_star_a+i);
+    }
+    
+    for(std::size_t i=start; i<end; i+=step)
+    {
+        ValueType Z_a_i;
+        sycomore::simd::load_aligned(Z_a+i, Z_a_i);
+        
+        ValueType Z_b_i;
+        sycomore::simd::load_aligned(Z_b+i, Z_b_i);
+        
+        auto const Z_a_i_new = Xi_L[0]*Z_a_i+Xi_L[1]*Z_b_i;
+        auto const Z_b_i_new = Xi_L[2]*Z_a_i+Xi_L[3]*Z_b_i;
+        
+        sycomore::simd::store_aligned(Z_a_i_new, Z_a+i);
+        sycomore::simd::store_aligned(Z_b_i_new, Z_b+i);
+    }
+}
+
+template<INSTRUCTION_SET_TYPE InstructionSet>
+void relaxation_magnetization_transfer_d(
+    Real const & Xi_T, std::array<Real, 4> const & Xi_L,
+    Model & model, std::size_t states_count)
+{
+    using Batch = simd::Batch<Complex, InstructionSet>;
+    auto const simd_end = states_count - states_count % Batch::size;
+    
+    relaxation_magnetization_transfer_w<Batch>(
+        Xi_T, Xi_L,
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
+        model.F[1].data(), model.F_star[1].data(), model.Z[1].data(),
+        0, simd_end, Batch::size);
+    relaxation_magnetization_transfer_w<Complex>(
+        Xi_T, Xi_L,
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
+        model.F[1].data(), model.F_star[1].data(), model.Z[1].data(),
+        simd_end, states_count, 1);
+}
+
 /*******************************************************************************
  *                             Diffusion operator                              *
  ******************************************************************************/

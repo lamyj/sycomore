@@ -81,6 +81,18 @@ relaxation_exchange_d<unsupported>(
         0, states_count, 1);
 }
 
+template<>
+void relaxation_magnetization_transfer_d<unsupported>(
+    Real const & Xi_T, std::array<Real, 4> const & Xi_L,
+    Model & model, std::size_t states_count)
+{
+    relaxation_magnetization_transfer_w<Complex>(
+        Xi_T, Xi_L,
+        model.F[0].data(), model.F_star[0].data(), model.Z[0].data(),
+        model.F[1].data(), model.F_star[1].data(), model.Z[1].data(),
+        0, states_count, 1);
+}
+
 /*******************************************************************************
  *                             Diffusion operator                              *
  ******************************************************************************/
@@ -172,6 +184,8 @@ decltype(&apply_pulse_magnetization_transfer_d<unsupported>)
 decltype(&relaxation_single_pool_d<unsupported>)
     relaxation_single_pool = nullptr;
 decltype(&relaxation_exchange_d<unsupported>) relaxation_exchange = nullptr;
+decltype(&relaxation_magnetization_transfer_d<unsupported>)
+    relaxation_magnetization_transfer = nullptr;
 decltype(&diffusion_d<unsupported>) diffusion = nullptr;
 decltype(&diffusion_3d_b_d<unsupported>) diffusion_3d_b = nullptr;
 decltype(&diffusion_3d_d<unsupported>) diffusion_3d = nullptr;
@@ -185,6 +199,7 @@ void set_api(int instruction_set)
     SYCOMORE_SET_API_FUNCTION(apply_pulse_magnetization_transfer)
     SYCOMORE_SET_API_FUNCTION(relaxation_single_pool)
     SYCOMORE_SET_API_FUNCTION(relaxation_exchange)
+    SYCOMORE_SET_API_FUNCTION(relaxation_magnetization_transfer)
     SYCOMORE_SET_API_FUNCTION(diffusion)
     SYCOMORE_SET_API_FUNCTION(diffusion_3d_b)
     SYCOMORE_SET_API_FUNCTION(diffusion_3d)

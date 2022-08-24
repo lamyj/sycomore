@@ -32,6 +32,11 @@ void relaxation_exchange_d<XSIMD_X86_AVX512_VERSION>(
     Model & model, std::size_t states_count);
 
 template 
+void relaxation_magnetization_transfer_d<XSIMD_X86_AVX512_VERSION>(
+    Real const & Xi_T, std::array<Real, 4> const & Xi_L,
+    Model & model, std::size_t states_count);
+
+template 
 void diffusion_d<XSIMD_X86_AVX512_VERSION>(
     Real delta_k, Real tau, Real D, Real const * k_array,
     Model::Population & F, Model::Population & F_star, Model::Population & Z,

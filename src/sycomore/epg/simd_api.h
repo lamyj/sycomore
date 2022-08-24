@@ -89,6 +89,19 @@ SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
         std::array<Complex, 8> const & Xi_T, std::array<Real, 4> const & Xi_L,
         Model & model, std::size_t states_count))
 
+template<typename ValueType>
+void relaxation_magnetization_transfer_w(
+    Real const & Xi_T, std::array<Real, 4> const & Xi_L,
+    Complex * F_a, Complex * F_star_a, Complex * Z_a,
+    Complex * F_b, Complex * F_star_b, Complex * Z_b,
+    std::size_t start, std::size_t end, std::size_t step);
+
+SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
+   void, relaxation_magnetization_transfer_d, 
+    (
+        Real const & Xi_T, std::array<Real, 4> const & Xi_L,
+        Model & model, std::size_t states_count))
+
 /*******************************************************************************
  *                             Diffusion operator                              *
  ******************************************************************************/
@@ -181,6 +194,8 @@ extern decltype(&apply_pulse_magnetization_transfer_d<unsupported>)
     apply_pulse_magnetization_transfer;
 extern decltype(&relaxation_single_pool_d<unsupported>) relaxation_single_pool;
 extern decltype(&relaxation_exchange_d<unsupported>) relaxation_exchange;
+extern decltype(&relaxation_magnetization_transfer_d<unsupported>)
+    relaxation_magnetization_transfer;
 extern decltype(&diffusion_d<unsupported>) diffusion;
 extern decltype(&diffusion_3d_b_d<unsupported>) diffusion_3d_b;
 extern decltype(&diffusion_3d_d<unsupported>) diffusion_3d;
