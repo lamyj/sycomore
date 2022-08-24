@@ -33,81 +33,106 @@ class TestEPG_X(unittest.TestCase):
         # Exchange model
         self.T1x, self.T2x = (1000*ms, 500*ms), (100*ms, 20*ms)
         self.kx, self.fx, = 2e-3*kHz, 0.2
-        
         self.delta_b = 2 # ppm
         self.delta_b = self.delta_b*1e-6 * self.gamma/(2*numpy.pi) * self.B0
+        
+        gradient = 10*mT/m
+        self.classes = [
+            lambda *args: sycomore.epg.Regular(
+                *args, unit_gradient_area=self.TR*gradient),
+            sycomore.epg.Discrete,
+            sycomore.epg.Discrete3D
+        ]
+        self.apply_time_interval = [
+            lambda model, TR: model.apply_time_interval(TR, gradient),
+            lambda model, TR: model.apply_time_interval(TR, gradient),
+            lambda model, TR: model.apply_time_interval(
+                TR, sycomore.Array[sycomore.Quantity](gradient, 0*mT/m, 0*mT/m))
+        ]
     
-    def test_single_pool(self):
-        species = sycomore.Species(self.T1, self.T2)
-        model = sycomore.epg.Regular(species)
-        states = self._run(model)
+    def _test_single_pool(self):
+        for Class, apply_time_interval in zip(self.classes, self.apply_time_interval):
+            species = sycomore.Species(self.T1, self.T2)
+            model = Class(species)
+            states = self._run(model, apply_time_interval)
+            
+            # Unfold F states, keep the same states as EPG-X
+            F = numpy.hstack([states[:, -1:0:-1, 1].conj(), states[:, :, 0]])
+            offset = F.shape[1]//2 - self.epgx["Fn0"].shape[0]//2
+            F = F[:, offset:-offset].T
+            
+            # WARNING: EPG-X does not store all states
+            y, x = numpy.meshgrid(
+                *[range(0, n) for n in F.shape], indexing="ij")
+            distance = numpy.abs(x-offset)+numpy.abs(y-offset)
+            mask = distance < self.npulse/2
+            numpy.testing.assert_allclose(F[mask], self.epgx["Fn0"][mask])
         
-        # Unfold F states, keep the same states as EPG-X
-        F = numpy.hstack([states[:, -1:0:-1, 1].conj(), states[:, :, 0]])
-        offset = F.shape[1]//2 - self.epgx["Fn0"].shape[0]//2
-        F = F[:, offset:-offset].T
-        
-        # WARNING: EPG-X does not store all states
-        y, x = numpy.meshgrid(*[range(0, n) for n in F.shape], indexing="ij")
-        distance = numpy.abs(x-offset)+numpy.abs(y-offset)
-        mask = distance < self.npulse/2
-        numpy.testing.assert_allclose(F[mask], self.epgx["Fn0"][mask])
-    
-        # Keep the same Z astates as EPG-X
-        Z = states[:, :self.npulse//2+1, 2].T
-        
-        # WARNING: EPG-X does not store all states
-        y, x = numpy.meshgrid(*[range(0, n) for n in Z.shape], indexing="ij")
-        mask = (x <= y)
-        numpy.testing.assert_allclose(Z[mask], self.epgx["Zn0"][mask])
+            # Keep the same Z astates as EPG-X
+            Z = states[:, :self.npulse//2+1, 2].T
+            
+            # WARNING: EPG-X does not store all states
+            y, x = numpy.meshgrid(
+                *[range(0, n) for n in Z.shape], indexing="ij")
+            mask = (x <= y)
+            numpy.testing.assert_allclose(Z[mask], self.epgx["Zn0"][mask])
     
     def test_magnetization_transfer(self):
-        species = sycomore.Species(self.T1_MT[0], self.T2_MT)
-        M0 = [sycomore.Array[float](0, 0, z) for z in [1-self.f_MT, self.f_MT]]
-        model = sycomore.epg.Regular(species, self.T1_MT[1], *M0, self.k_MT)
+        for Class, apply_time_interval in zip(self.classes, self.apply_time_interval):
+            species = sycomore.Species(self.T1_MT[0], self.T2_MT)
+            M0 = [
+                sycomore.Array[float](0, 0, z)
+                for z in [1-self.f_MT, self.f_MT]]
+            model = Class(species, self.T1_MT[1], *M0, self.k_MT)
+            
+            # RF duration
+            tau = self.alpha/(self.gamma*self.B1)
+            # Saturation rate
+            W = numpy.pi * self.gamma**2 * self.B1**2 * self.G
+            
+            states = self._run(model, apply_time_interval, W*tau)
+            
+            # For MT, there is only a single pool of F states
+            F = numpy.hstack(
+                [states[:, -1:0:-1, 0, 1].conj(), states[:, :, 0, 0]])
+            offset = F.shape[1]//2 - self.epgx["Fnmt"].shape[0]//2
+            F = F[:, offset:-offset].T
+            
+            # WARNING: EPG-X does not store all states
+            y, x = numpy.meshgrid(
+                *[range(0, n) for n in F.shape], indexing="ij")
+            distance = numpy.abs(x-offset)+numpy.abs(y-offset)
+            mask = distance < self.npulse/2
+            numpy.testing.assert_allclose(F[mask], self.epgx["Fnmt"][mask])
         
-        # RF duration
-        tau = self.alpha/(self.gamma*self.B1)
-        # Saturation rate
-        W = numpy.pi * self.gamma**2 * self.B1**2 * self.G
-        
-        states = self._run(model, W*tau)
-        
-        # For MT, there is only a single pool of F states
-        F = numpy.hstack([states[:, -1:0:-1, 0, 1].conj(), states[:, :, 0, 0]])
-        offset = F.shape[1]//2 - self.epgx["Fnmt"].shape[0]//2
-        F = F[:, offset:-offset].T
-        
-        # WARNING: EPG-X does not store all states
-        y, x = numpy.meshgrid(*[range(0, n) for n in F.shape], indexing="ij")
-        distance = numpy.abs(x-offset)+numpy.abs(y-offset)
-        mask = distance < self.npulse/2
-        numpy.testing.assert_allclose(F[mask], self.epgx["Fnmt"][mask])
-    
-        # Test the two pools of Z states
-        Z = states[:, :self.npulse//2+1, :, 2].transpose(1, 0, 2)
-        y, x = numpy.meshgrid(*[range(0, n) for n in Z.shape[:2]], indexing="ij")
-        mask = (x <= y)
-        numpy.testing.assert_allclose(Z[mask], self.epgx["Znmt"][mask])
+            # Test the two pools of Z states
+            Z = states[:, :self.npulse//2+1, :, 2].transpose(1, 0, 2)
+            y, x = numpy.meshgrid(
+                *[range(0, n) for n in Z.shape[:2]], indexing="ij")
+            mask = (x <= y)
+            numpy.testing.assert_allclose(Z[mask], self.epgx["Znmt"][mask])
     
     def test_exchange(self):
-        species = [sycomore.Species(T1, T2) for T1, T2 in zip(self.T1x, self.T2x)]
-        M0 = [sycomore.Array[float](0, 0, z) for z in [1-self.fx, self.fx]]
-        model = sycomore.epg.Regular(*species, *M0, self.kx, self.delta_b)
+        for Class, apply_time_interval in zip(self.classes, self.apply_time_interval):
+            species = [
+                sycomore.Species(T1, T2) for T1, T2 in zip(self.T1x, self.T2x)]
+            M0 = [sycomore.Array[float](0, 0, z) for z in [1-self.fx, self.fx]]
+            model = Class(*species, *M0, self.kx, self.delta_b)
+        
+            states = self._run(model, apply_time_interval)
+            
+            F = numpy.hstack(
+                [states[..., -1:0:-1, :, 1].conj(), states[..., 0]])
+            offset = F.shape[1]//2 - self.epgx["Fnx"].shape[0]//2
+            F = F[:, offset:-offset].transpose(1, 0, 2)
+            
+            numpy.testing.assert_allclose(F, self.epgx["Fnx"], atol=1e-5)
+            
+            Z = states[..., 2]
+            Z = Z[:, :-offset, :].transpose(1,0,2)
+            numpy.testing.assert_allclose(Z, self.epgx["Znx"], atol=1e-5)
     
-        states = self._run(model)
-        
-        F = numpy.hstack([states[..., -1:0:-1, :, 1].conj(), states[..., 0]])
-        offset = F.shape[1]//2 - self.epgx["Fnx"].shape[0]//2
-        F = F[:, offset:-offset].transpose(1, 0, 2)
-        
-        numpy.testing.assert_allclose(F, self.epgx["Fnx"], atol=1e-5)
-        
-        Z = states[..., 2]
-        Z = Z[:, :-offset, :].transpose(1,0,2)
-        numpy.testing.assert_allclose(Z, self.epgx["Znx"], atol=1e-5)
-    
-    def _run(self, model, saturation=None):
+    def _run(self, model, apply_time_interval, saturation=None):
         states_array = (
             numpy.zeros((len(self.phi), len(self.phi), 2, 3), complex)
             if model.pools == 2
@@ -121,8 +146,7 @@ class TestEPG_X(unittest.TestCase):
             
             states_array[i, :len(model)] = model.states
             
-            model.shift()
-            model.relaxation(self.TR)
+            apply_time_interval(model, self.TR)
         
         return states_array
 
