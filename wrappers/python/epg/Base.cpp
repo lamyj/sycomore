@@ -19,6 +19,8 @@ void wrap_epg_Base(pybind11::module & m)
             [](Base & r, Species const & s){ return r.set_species(s);})
         .def_readwrite("threshold", &Base::threshold)
         .def_readwrite("delta_omega", &Base::delta_omega)
+        .def_property_readonly("kind", &Base::kind)
+        .def_property_readonly("pools", &Base::pools)
         .def_property_readonly(
             "states", [](Base const & model){
                 std::vector<std::size_t> shape;
