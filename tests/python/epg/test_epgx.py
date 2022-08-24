@@ -13,6 +13,8 @@ class TestEPG_X(unittest.TestCase):
                 os.environ["SYCOMORE_TEST_DATA"], "baseline", "EPGX_GRE.mat"))
         
         # Sequence parameters
+        self.gamma = 267.5221*1e6*rad/s/T
+        self.B0 = 2.89*T
         self.TR, self.alpha, phi0 = 5*ms, 10*deg, 117*deg
         self.npulse = 200
         self.phi = (
@@ -25,13 +27,15 @@ class TestEPG_X(unittest.TestCase):
         # MT model
         self.T1_MT, self.T2_MT = (779*ms, 779*ms), 45*ms
         self.k_MT, self.f_MT = 4.3e-3*kHz, 0.117
-        self.G = 15.1*us
-        self.B1 = 13*uT
-        self.gamma = 267.5221*1e6*rad/s/T
+        self.G = 15.1*us # absorption lineshape
+        self.B1 = 13*uT        
         
         # Exchange model
         self.T1x, self.T2x = (1000*ms, 500*ms), (100*ms, 20*ms)
-        self.kx, self.fx = 2e-3*kHz, 0.2
+        self.kx, self.fx, = 2e-3*kHz, 0.2
+        
+        self.delta_b = 2 # ppm
+        self.delta_b = self.delta_b*1e-6 * self.gamma/(2*numpy.pi) * self.B0
     
     def test_single_pool(self):
         species = sycomore.Species(self.T1, self.T2)
@@ -89,7 +93,7 @@ class TestEPG_X(unittest.TestCase):
     def test_exchange(self):
         species = [sycomore.Species(T1, T2) for T1, T2 in zip(self.T1x, self.T2x)]
         M0 = [sycomore.Array[float](0, 0, z) for z in [1-self.fx, self.fx]]
-        model = sycomore.epg.Regular(*species, *M0, self.kx)
+        model = sycomore.epg.Regular(*species, *M0, self.kx, self.delta_b)
     
         states = self._run(model)
         
