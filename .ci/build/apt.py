@@ -19,7 +19,7 @@ subprocess.check_call([
     "apt-get", "-y", "--no-install-recommends", "install",
     "cmake", "g++", "libboost-dev", "make", "ninja-build",
     *pybind11, "python3-dev", 
-    "python3-requests", "libboost-test-dev", "python3-numpy"])
+    "python3-requests", "libboost-test-dev", "python3-numpy", "python3-scipy"])
 
 import requests
 

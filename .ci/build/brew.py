@@ -14,7 +14,9 @@ outdated = [x.split(" ")[0] for x in data.splitlines() if x]
 
 install = []
 upgrade = []
-for package in ["boost", "cmake", "libomp", "ninja", "numpy", "pybind11", "xsimd"]:
+for package in [
+        "boost", "cmake", "libomp", "ninja", "numpy", "pybind11", "scipy",
+        "xsimd"]:
     if package not in versions:
         install.append(package)
     elif package in outdated:
