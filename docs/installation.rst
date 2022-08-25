@@ -27,7 +27,7 @@ In addition to the common CMake options (e.g. *CMAKE_BUILD_TYPE* or *CMAKE_INSTA
 - *BUILD_SHARED_LIBS* controls the generation of static libraries or share libraries; defaults to *ON*, i.e. building shared libraries
 - *BUILD_TESTING* controls the build of the C++ unit test executables; defaults to *ON*, i.e. the unit tests are compiled
 - *BUILD_PYTHON_WRAPPERS* controls the build of the Python wrappers; defaults to *ON*, i.e. the Python wrappers are built
-- *BUILD_STANDALONE_PYTHON_WRAPPERS*, controls whether a standalone Python library is built, wihtout any pure C++ compatibility; defaults to *OFF*, i.e. both the C++ and Python libraries are built
+- *BUILD_STANDALONE_PYTHON_WRAPPERS*, controls whether a standalone Python library is built, without any pure C++ compatibility; defaults to *OFF*, i.e. both the C++ and Python libraries are built
 
 The compilation can take advantage of a multi-core CPU either by using `make`_ with the *-jN* flag (where *N* is the number of concurrent tasks, i.e. the number of cores) or by using `Ninja`_. Once the compilation succeeds, the units tests can be run from the build directory:
 

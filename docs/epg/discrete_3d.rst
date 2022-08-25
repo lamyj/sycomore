@@ -93,12 +93,6 @@ The following code sample simulates a PGSE diffusion sequence in an anisotropic 
     png_writer.Write()
 
 
-.. code::
-
-    b=1507 s/mm²
-    2402 points on sphere
-    
-
 
 
 .. figure:: anisotropic_diffusion.png
@@ -117,11 +111,11 @@ Reference
   
   .. attribute:: threshold
    
-    Minimum population of a state below which the state is considered emtpy (defaults to 0).
+    Minimum population of a state below which the state is considered empty (defaults to 0).
   
   .. attribute:: delta_omega
    
-    Freqency offset (defaults to 0 Hz).
+    Frequency offset (defaults to 0 Hz).
   
   .. attribute:: orders
     

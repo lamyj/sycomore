@@ -28,7 +28,7 @@ class TestEPG_X(unittest.TestCase):
         self.T1_MT, self.T2_MT = (779*ms, 779*ms), 45*ms
         self.k_MT, self.f_MT = 4.3e-3*kHz, 0.117
         self.G = 15.1*us # absorption lineshape
-        self.B1 = 13*uT        
+        self.B1 = 13*uT
         
         # Exchange model
         self.T1x, self.T2x = (1000*ms, 500*ms), (100*ms, 20*ms)

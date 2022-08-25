@@ -1,19 +1,10 @@
 
-.. code:: python
-
-    matplotlib.pyplot.rcParams["font.size"] = 6
-    
-    import pweave
-    pweave.rcParams["chunk"]["defaultoptions"].update(
-        {"results": "hidden"})
-
-
 
 
 Sycomore -- an MRI simulation toolkit
 =====================================
 
-Sycomore is an MRI simulation toolkit providing :doc:`Bloch simulation<bloch>`, :doc:`Extended Phase Graph (EPG)<epg/index>` (both :doc:`regular<epg/regular>` and :doc:`discrete<epg/discrete>`, including :doc:`3D<epg/discrete_3d>`), and :doc:`Configuration Model<como>`. Sycomore is a Python packge in which all computationnaly-intensive operations are run by a C++ backend, providing a very fast runtime.
+Sycomore is an MRI simulation toolkit providing :doc:`Bloch simulation<bloch>`, :doc:`Extended Phase Graph (EPG)<epg/index>` (both :doc:`regular<epg/regular>` and :doc:`discrete<epg/discrete>`, including :doc:`3D<epg/discrete_3d>`), and :doc:`Configuration Model<como>`. Sycomore is a Python package in which all computationally-intensive operations are run by a C++ backend, providing a very fast runtime.
 
 Sycomore is free software, released under the `MIT license`_, and its source code is available on `GitHub`_.
 

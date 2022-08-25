@@ -55,7 +55,7 @@ A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its d
 
 
 
-The diffusivity can be assigned either as a scalar (for isotropic diffusion) or as a tensor (for anistropic diffusion), but will always be returned as a tensor:
+The diffusivity can be assigned either as a scalar (for isotropic diffusion) or as a tensor (for anisotropic diffusion), but will always be returned as a tensor:
 
 
 .. code:: python

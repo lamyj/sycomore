@@ -55,11 +55,11 @@ Reference
   
   .. attribute:: threshold
     
-    Minimum population of a state below which the state is considered emtpy (defaults to 0).
+    Minimum population of a state below which the state is considered empty (defaults to 0).
 
   .. attribute:: delta_omega
     
-    Freqency offset (defaults to 0 Hz).
+    Frequency offset (defaults to 0 Hz).
   
   .. attribute:: velocity
     

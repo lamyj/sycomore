@@ -5,7 +5,7 @@ In the 3D discrete EPG model, the gradient moments may vary across time interval
 
 The following code sample simulates a PGSE diffusion sequence in an anisotropic medium and shows the dependency of the signal attenuation to the relative orientation of diffusion tensor and of the diffusion gradient.
 
-<<>>=
+<<results="hidden">>=
 import numpy
 import sycomore
 from sycomore.units import *
@@ -107,11 +107,11 @@ Reference
   
   .. attribute:: threshold
    
-    Minimum population of a state below which the state is considered emtpy (defaults to 0).
+    Minimum population of a state below which the state is considered empty (defaults to 0).
   
   .. attribute:: delta_omega
    
-    Freqency offset (defaults to 0 Hz).
+    Frequency offset (defaults to 0 Hz).
   
   .. attribute:: orders
     

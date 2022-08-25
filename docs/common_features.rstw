@@ -47,7 +47,7 @@ species = sycomore.Species(1*Hz, 10*Hz)
 species = sycomore.Species(1000*ms, 10*Hz)
 @
 
-The diffusivity can be assigned either as a scalar (for isotropic diffusion) or as a tensor (for anistropic diffusion), but will always be returned as a tensor:
+The diffusivity can be assigned either as a scalar (for isotropic diffusion) or as a tensor (for anisotropic diffusion), but will always be returned as a tensor:
 
 <<>>=
 import sycomore
