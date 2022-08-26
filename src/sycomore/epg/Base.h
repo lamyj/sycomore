@@ -16,7 +16,7 @@ namespace epg
 {
 
 /// @brief Base class for all EPG models.
-class Base
+class SYCOMORE_API Base
 {
 public:
     using State = std::vector<Complex>;
