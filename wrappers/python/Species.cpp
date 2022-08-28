@@ -89,5 +89,30 @@ void wrap_Species(pybind11::module & m)
         .def_property(
             "delta_omega", &Species::get_delta_omega, &Species::set_delta_omega,
             "Frequency offset.")
-        .def_readwrite("w", &Species::w, "Relative weight.");
+        .def_readwrite("w", &Species::w, "Relative weight.")
+        .def(pickle(
+            [](Species const & s) {
+                auto const D = s.get_D();
+                return make_tuple(
+                    s.get_R1(), s.get_R2(),
+                    D[0], D[1], D[2], D[3], D[4], D[5], D[6], D[7], D[8],
+                    s.get_R2_prime(),
+                    s.get_delta_omega(), s.w);
+            },
+            [](tuple t) {
+                if(t.size() != 14)
+                {
+                    throw std::runtime_error("Invalid state!");
+                }
+                return Species(
+                    t[0].cast<Quantity>(), t[1].cast<Quantity>(),
+                    {
+                        t[2].cast<Quantity>(), t[3].cast<Quantity>(), t[4].cast<Quantity>(),
+                        t[5].cast<Quantity>(), t[6].cast<Quantity>(), t[7].cast<Quantity>(),
+                        t[8].cast<Quantity>(), t[9].cast<Quantity>(), t[10].cast<Quantity>(),
+                    },
+                    t[11].cast<Quantity>(),
+                    t[12].cast<Quantity>(), t[13].cast<Real>());
+            }
+        ));
 }
