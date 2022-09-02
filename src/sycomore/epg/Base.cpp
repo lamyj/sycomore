@@ -190,7 +190,7 @@ Base
     if(this->_model.kind == Model::SinglePool)
     {
         auto const T = operators::pulse_single_pool(
-        angle.magnitude, phase.magnitude);
+            angle.magnitude, phase.magnitude);
         simd_api::apply_pulse_single_pool(T, this->_model, this->size());
     }
     else if(this->_model.kind == Model::Exchange)

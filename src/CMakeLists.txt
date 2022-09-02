@@ -1,5 +1,6 @@
 find_package(PythonInterp REQUIRED)
 find_package(xsimd REQUIRED)
+find_package(xtensor REQUIRED)
 
 if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
     file(GLOB_RECURSE header_files "*.h")
@@ -50,6 +51,8 @@ if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
         PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/> $<INSTALL_INTERFACE:>
             ${xsimd_INCLUDE_DIRS})
+    
+    target_link_libraries(libsycomore PUBLIC xtensor xtensor::use_xsimd)
     
     set_target_properties(
         libsycomore PROPERTIES 
