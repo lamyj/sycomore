@@ -37,6 +37,11 @@ public:
     
     Operator build_relaxation(Real duration) const;
     void build_relaxation(Real duration, Operator & op) const;
+    
+    Operator build_phase_accumulation(Real angle) const;
+    Operator build_phase_accumulation(Array const & angle) const;
+    void build_phase_accumulation(Real angle, Operator & op) const;
+    void build_phase_accumulation(Array angle, Operator & op) const;
 
 private:
     using Matrix = xt::xtensor_fixed<Operator::value_type, xt::xshape<4, 4>>;

@@ -95,3 +95,23 @@ BOOST_AUTO_TEST_CASE(Relaxation)
     };
     BOOST_TEST(xt::allclose(op, relaxation));
 }
+
+BOOST_AUTO_TEST_CASE(PhaseAccumulation)
+{
+    sycomore::isochromat::Positions positions{{{0,0,0}, {1,0,0}}};
+    sycomore::isochromat::Model model(1., 0.1, {0,0,1}, positions);
+    
+    auto op = model.build_phase_accumulation({M_PI/6., M_PI/3.});
+    
+    sycomore::isochromat::Operator phase_accumulation{
+        {{ std::sqrt(3.)/2.,             -0.5, 0, 0},
+         {              0.5, std::sqrt(3.)/2., 0, 0},
+         {                0,                0, 1, 0},
+         {                0,                0, 0, 1}},
+        {{              0.5, -std::sqrt(3.)/2., 0, 0},
+         { std::sqrt(3.)/2.,               0.5, 0, 0},
+         {                0,                 0, 1, 0},
+         {                0,                 0, 0, 1}},
+    };
+    BOOST_TEST(xt::allclose(op, phase_accumulation));
+}

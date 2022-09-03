@@ -117,6 +117,47 @@ Model
     this->_combine(this->build_relaxation(duration), op);
 }
 
+Operator
+Model
+::build_phase_accumulation(Real angle) const
+{
+    return this->build_phase_accumulation(Array{angle});
+}
+
+Operator
+Model
+::build_phase_accumulation(Array const & angle) const
+{
+    Operator op = xt::zeros<Operator::value_type>(
+        Operator::shape_type{angle.size(), 4, 4});
+    for(std::size_t i=0; i<angle.size(); ++i)
+    {
+        auto const ca=std::cos(angle[i]), sa=std::sin(angle[i]);
+        xt::view(op, i) = Matrix{
+            {ca, -sa, 0, 0},
+            {sa,  ca, 0, 0},
+            { 0,   0, 1, 0},
+            { 0,   0, 0, 1}
+        };
+    }
+    return op;
+}
+
+void
+Model
+::build_phase_accumulation(Real angle, Operator & op) const
+{
+    this->_combine(this->build_phase_accumulation(angle), op);
+}
+
+void
+Model
+::build_phase_accumulation(Array angle, Operator & op) const
+{
+    this->_combine(this->build_phase_accumulation(angle), op);
+}
+
+
 void
 Model
 ::_combine(Operator const & left, Operator & right) const
