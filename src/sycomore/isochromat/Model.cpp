@@ -30,11 +30,14 @@ Model
 }
 
 Model
-::Model(Array T1, Array T2, Magnetizations M0, Positions const & positions)
-: _T1(T1), _T2(T2), _M0(M0), _positions(positions)
+::Model(
+    Array const & T1, Array const & T2, Magnetizations const & M0,
+    Positions const & positions)
+: _T1(T1), _T2(T2), _M0(xt::view(M0, xt::all(), 2)), _magnetization(M0),
+    _positions(positions)
 {
     if(
-        T1.size() != T2.size() || T1.size() != M0.size()
+        T1.size() != T2.size() || T1.size() != M0.shape()[0]
         || T1.size() != positions.shape()[0])
     {
         throw std::runtime_error("Size mismatch");
@@ -89,6 +92,29 @@ Model
     Array const & angle, Array const & phase, Operator & op) const
 {
     this->_combine(this->build_pulse(angle, phase), op);
+}
+
+Operator
+Model
+::build_relaxation(Real duration) const
+{
+    Operator op = xt::zeros<Operator::value_type>(
+        Operator::shape_type{this->_positions.shape()[0], 4, 4});
+    auto const E1 = xt::exp(-duration/this->_T1);
+    auto const E2 = xt::exp(-duration/this->_T2);
+    xt::view(op, xt::all(), 0, 0) = E2;
+    xt::view(op, xt::all(), 1, 1) = E2;
+    xt::view(op, xt::all(), 2, 2) = E1;
+    xt::view(op, xt::all(), 3, 3) = 1;
+    xt::view(op, xt::all(), 2, 3) = this->_M0*(1-E1);
+    return op;
+}
+
+void
+Model
+::build_relaxation(Real duration, Operator & op) const
+{
+    this->_combine(this->build_relaxation(duration), op);
 }
 
 void

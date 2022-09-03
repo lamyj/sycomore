@@ -72,3 +72,26 @@ BOOST_AUTO_TEST_CASE(PulseUniformCombine)
     };
     BOOST_TEST(xt::allclose(op, pulse));
 }
+
+BOOST_AUTO_TEST_CASE(Relaxation)
+{
+    sycomore::isochromat::Positions positions{{{0,0,0}, {1,0,0}}};
+    sycomore::isochromat::Model model(
+        {1., 2.}, {0.1, 0.2}, {{0,0,2}, {0,0,1}}, positions);
+    
+    auto op = model.build_relaxation(1e-3);
+    
+    std::vector<sycomore::Real> E1{std::exp(-1e-3/1.), std::exp(-1e-3/2.)};
+    std::vector<sycomore::Real> E2{std::exp(-1e-3/0.1), std::exp(-1e-3/0.2)};
+    sycomore::isochromat::Operator relaxation{
+        {{ E2[0],     0,     0,           0},
+         {     0, E2[0],     0,           0},
+         {     0,     0, E1[0], 2*(1-E1[0])},
+         {     0,     0,     0,           1}},
+        {{ E2[1],     0,     0,           0},
+         {     0, E2[1],     0,           0},
+         {     0,     0, E1[1], 1*(1-E1[1])},
+         {     0,     0,     0,           1}},
+    };
+    BOOST_TEST(xt::allclose(op, relaxation));
+}

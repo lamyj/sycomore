@@ -25,13 +25,18 @@ public:
     using Array = xt::xtensor<Real, 1>;
     
     Model(Real T1, Real T2, Magnetization M0, Positions const & positions);
-    Model(Array T1, Array T2, Magnetizations M0, Positions const & positions);
+    Model(
+        Array const & T1, Array const & T2, Magnetizations const & M0,
+        Positions const & positions);
     
     Operator build_pulse(Real angle, Real phase) const;
     Operator build_pulse(Array const & angle, Array const & phase) const;
     void build_pulse(Real angle, Real phase, Operator & op) const;
     void build_pulse(
         Array const & angle, Array const & phase, Operator & op) const;
+    
+    Operator build_relaxation(Real duration) const;
+    void build_relaxation(Real duration, Operator & op) const;
 
 private:
     using Matrix = xt::xtensor_fixed<Operator::value_type, xt::xshape<4, 4>>;
