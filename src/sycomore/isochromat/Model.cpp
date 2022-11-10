@@ -9,9 +9,6 @@
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xview.hpp>
 
-#include <iostream>
-#include <xtensor/xio.hpp>
-
 namespace sycomore
 {
 
@@ -20,8 +17,8 @@ namespace isochromat
 
 Model
 ::Model(
-    Real T1, Real T2, xt::xtensor_fixed<Real, xt::xshape<3>> const & M0,
-    xt::xtensor<Real, 2> const & positions)
+    Real T1, Real T2,
+    xt::xtensor<Real, 1> const & M0, xt::xtensor<Real, 2> const & positions)
 : _T1{std::array<std::size_t, 1>{1}}, _T2{std::array<std::size_t, 1>{1}},
     _M0{std::array<std::size_t, 1>{1}},
     _magnetization{std::array<std::size_t, 2>{positions.shape()[0], 4}},
@@ -158,6 +155,41 @@ Model
         };
     }
     return op;
+}
+
+xt::xtensor<Real, 1> const &
+Model
+::T1() const
+{
+    return this->_T1;
+}
+
+xt::xtensor<Real, 1> const &
+Model
+::T2() const
+{
+    return this->_T2;
+}
+
+xt::xtensor<Real, 1> const &
+Model
+::M0() const
+{
+    return this->_M0;
+}
+
+xt::xtensor<Real, 2> const &
+Model
+::magnetization() const
+{
+    return this->_magnetization;
+}
+
+xt::xtensor<Real, 2> const &
+Model
+::positions() const
+{
+    return this->_positions;
 }
 
 }

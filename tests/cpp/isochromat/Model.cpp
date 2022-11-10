@@ -121,3 +121,64 @@ BOOST_AUTO_TEST_CASE(TimeIntervalVariable)
     combined.preMultiply(model.build_relaxation(10e-3));
     BOOST_TEST(xt::allclose(xt::view(op.array(), 1), combined.array()));
 }
+
+BOOST_AUTO_TEST_CASE(T1)
+{
+    sycomore::isochromat::Model const model_1(
+        1., 2., {3., 4., 5.}, {{0., 0., 11.}, {0., 0., 12.}});
+    BOOST_TEST((model_1.T1() == xt::xtensor<double, 1>{{1.}}));
+    
+    sycomore::isochromat::Model const model_2(
+        {1., 2.}, {3., 4.},
+        {{5., 6., 7., 1.}, {8., 9., 10., 1.}}, {{0., 0., 11.}, {0., 0., 12.}});
+    BOOST_TEST((model_2.T1() == xt::xtensor<double, 1>{{1., 2.}}));
+}
+
+BOOST_AUTO_TEST_CASE(T2)
+{
+    sycomore::isochromat::Model const model_1(
+        1., 2., {3., 4., 5.}, {{0., 0., 11.}, {0., 0., 12.}});
+    BOOST_TEST((model_1.T2() == xt::xtensor<double, 1>{{2.}}));
+    
+    sycomore::isochromat::Model const model_2(
+        {1., 2.}, {3., 4.},
+        {{5., 6., 7., 1.}, {8., 9., 10., 1.}}, {{0., 0., 11.}, {0., 0., 12.}});
+    BOOST_TEST((model_2.T2() == xt::xtensor<double, 1>{{3., 4.}}));
+}
+
+BOOST_AUTO_TEST_CASE(M0)
+{
+    sycomore::isochromat::Model const model_1(
+        1., 2., {3., 4., 5.}, {{0., 0., 11.}, {0., 0., 12.}});
+    BOOST_TEST((model_1.M0() == xt::xtensor<double, 1>{{5.}}));
+    
+    sycomore::isochromat::Model const model_2(
+        {1., 2.}, {3., 4.},
+        {{5., 6., 7., 1.}, {8., 9., 10., 1.}}, {{0., 0., 11.}, {0., 0., 12.}});
+    BOOST_TEST((model_2.M0() == xt::xtensor<double, 1>{{7., 10.}}));
+}
+
+BOOST_AUTO_TEST_CASE(Magnetization)
+{
+    sycomore::isochromat::Model const model_1(
+        1., 2., {3., 4., 5.}, {{0., 0., 11.}, {0., 0., 12.}});
+    BOOST_TEST((
+        model_1.magnetization()
+        == xt::xtensor<double, 2>{{3., 4., 5., 1.}, {3., 4., 5., 1.}}));
+    
+    sycomore::isochromat::Model const model_2(
+        {1., 2.}, {3., 4.},
+        {{5., 6., 7., 1.}, {8., 9., 10., 1.}}, {{0., 0., 11.}, {0., 0., 12.}});
+    BOOST_TEST((
+        model_2.magnetization()
+        == xt::xtensor<double, 2>{{5., 6., 7., 1.}, {8., 9., 10., 1.}}));
+}
+
+BOOST_AUTO_TEST_CASE(Positions)
+{
+    sycomore::isochromat::Model const model(
+        1., 2., {3., 4., 5.}, {{0., 0., 11.}, {0., 0., 12.}});
+    BOOST_TEST((
+        model.positions()
+        == xt::xtensor<double, 2>{{0., 0., 11.}, {0., 0., 12.}}));
+}
