@@ -5,8 +5,6 @@
 #include <xtensor/xview.hpp>
 #include "sycomore/isochromat/Model.h"
 
-#include <xtensor/xio.hpp>
-
 BOOST_AUTO_TEST_CASE(PulseUniform)
 {
     xt::xtensor<sycomore::Real, 2> positions{{0,0,0}};
@@ -181,4 +179,33 @@ BOOST_AUTO_TEST_CASE(Positions)
     BOOST_TEST((
         model.positions()
         == xt::xtensor<double, 2>{{0., 0., 11.}, {0., 0., 12.}}));
+}
+
+BOOST_AUTO_TEST_CASE(Apply)
+{
+    sycomore::isochromat::Operator operator_({
+        {
+            {1, 2, 3, 10},
+            {4, 5, 6, 20},
+            {7, 8, 9, 30},
+            {0, 0, 0, 1},
+        },
+        {
+            {10, 11, 12, 40},
+            {13, 14, 15, 50},
+            {16, 17, 18, 60},
+            {0, 0, 0, 1},
+        }
+    });
+    
+    sycomore::isochromat::Model model(
+        {1., 1.}, {1., 1.},
+        {{19., 20., 21., 1.}, {22., 23., 24., 1.}}, {{0., 0., 0.}, {0., 0., 1.}});
+    model.apply(operator_);
+    
+    decltype(model.magnetization()) magnetization{
+        {132, 322, 512, 1},
+        {801, 1018, 1235, 1}};
+    
+    BOOST_TEST(xt::allclose(model.magnetization(), magnetization));
 }

@@ -157,6 +157,28 @@ Model
     return op;
 }
 
+void
+Model
+::apply(Operator const & operator_)
+{
+    auto const & array = operator_.array();
+    for(std::size_t n=0; n<this->_magnetization.shape()[0]; ++n)
+    {
+        auto l = xt::view(array, n);
+        auto r = xt::view(this->_magnetization, n);
+        auto temp = xt::zeros_like(r);
+        for(std::size_t i=0; i<4; ++i)
+        {
+            temp.unchecked(i) += 
+                l.unchecked(i,0)*r.unchecked(0)
+                + l.unchecked(i,1)*r.unchecked(1)
+                + l.unchecked(i, 2)*r.unchecked(2)
+                + l.unchecked(i,3)*r.unchecked(3);
+        }
+        r = temp;
+    }
+}
+
 xt::xtensor<Real, 1> const &
 Model
 ::T1() const

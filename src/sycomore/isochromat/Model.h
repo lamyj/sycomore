@@ -40,6 +40,8 @@ public:
     Operator build_phase_accumulation(Real angle) const;
     Operator build_phase_accumulation(xt::xtensor<Real, 1> const & angle) const;
     
+    void apply(Operator const & operator_);
+    
     xt::xtensor<Real, 1> const & T1() const;
     xt::xtensor<Real, 1> const & T2() const;
     xt::xtensor<Real, 1> const & M0() const;
