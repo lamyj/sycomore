@@ -47,6 +47,7 @@ PYBIND11_MODULE(_sycomore, _sycomore)
     using namespace sycomore;
 
     _sycomore.attr("gamma") = sycomore::gamma;
+    _sycomore.attr("gamma_bar") = sycomore::gamma_bar;
 
     _sycomore.def(
         "linspace",

@@ -49,8 +49,11 @@ std::vector<T> linspace(T span, std::size_t size)
     return linspace(-span/2., span/2., size);
 }
 
-/// @brief Gyromagnetic ratio of 1H
+/// @brief Gyromagnetic ratio of 1H in rad/s/T
 SYCOMORE_API extern Quantity const gamma;
+
+/// @brief Gyromagnetic ratio of 1H in Hz/T
+SYCOMORE_API extern Quantity const gamma_bar;
 
 }
 
