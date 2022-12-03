@@ -98,6 +98,8 @@ void set_gradient_moment(
 void wrap_TimeInterval(pybind11::module & m)
 {
     using namespace pybind11;
+    using namespace pybind11::literals;
+    
     using namespace sycomore;
     
     using sycomore::units::T;
@@ -123,6 +125,20 @@ void wrap_TimeInterval(pybind11::module & m)
                 arg("gradient")=Array<Quantity>{0*T_per_m, 0*T_per_m, 0*T_per_m},
             "Constructor, gradient may be specified as amplitude (in T/m), "
             "area (in T/m*s) or dephasing (in rad/m).")
+        .def_static(
+            "shortest",
+            static_cast<TimeInterval(*)(Quantity const &, Quantity const &)>(
+                &TimeInterval::shortest),
+            "gradient_moment"_a, "G_max"_a)
+        .def_static(
+            "shortest",
+            [&](sequence s, Quantity const & G_max) {
+                auto sycomore_py = module::import("sycomore");
+                auto Array_py = sycomore_py.attr("Array")[sycomore_py.attr("Quantity")];
+                return TimeInterval::shortest(
+                    Array_py(s).cast<Array<Quantity>>(), G_max);
+            },
+            "gradient_moment"_a, "G_max"_a)
         .def_property(
             "duration",
             &TimeInterval::get_duration, &TimeInterval::set_duration, 

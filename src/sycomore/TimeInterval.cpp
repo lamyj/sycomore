@@ -7,6 +7,27 @@ namespace sycomore
 {
 
 TimeInterval
+TimeInterval
+::shortest(Quantity const & gradient_moment, Quantity const & G_max)
+{
+    return TimeInterval::shortest({gradient_moment}, G_max);
+}
+
+TimeInterval
+TimeInterval
+::shortest(Array<Quantity> const & gradient_moment, Quantity const & G_max)
+{
+    auto max = 0*gradient_moment[0];
+    for(auto && x: gradient_moment)
+    {
+        max = std::max<sycomore::Quantity>(max, std::abs(x));
+    }
+    
+    auto const min_time = max/(G_max*sycomore::gamma_bar);
+    return sycomore::TimeInterval(min_time, gradient_moment);
+}
+
+TimeInterval
 ::TimeInterval(
     Quantity const & duration, Quantity const & gradient)
 : TimeInterval(duration, {gradient, gradient, gradient})

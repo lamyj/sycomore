@@ -15,6 +15,12 @@ namespace sycomore
 struct SYCOMORE_API TimeInterval
 {
     // TODO: gradient shape
+    
+    static TimeInterval shortest(
+        Quantity const & gradient_moment, Quantity const & G_max);
+    
+    static TimeInterval shortest(
+        Array<Quantity> const & gradient_moment, Quantity const & G_max);
 
     /**
      * @brief Constructor, gradient may be specified as amplitude (in T/m), 
