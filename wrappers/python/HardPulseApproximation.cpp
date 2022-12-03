@@ -32,5 +32,8 @@ void wrap_HardPulseApproximation(pybind11::module & m)
             "gradient_moment", &HardPulseApproximation::get_gradient_moment)
         .def("set_phase", &HardPulseApproximation::set_phase, "phase"_a);
 
+    m.def("apodized_sinc_envelope", apodized_sinc_envelope);
+    m.def("hamming_sinc_envelope", hamming_sinc_envelope);
+    m.def("hanning_sinc_envelope", hanning_sinc_envelope);
     m.def("sinc_envelope", sinc_envelope);
 }

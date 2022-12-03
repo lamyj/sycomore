@@ -89,6 +89,31 @@ HardPulseApproximation
     }
 }
 
+HardPulseApproximation::Envelope
+apodized_sinc_envelope(Quantity const & t0_, unsigned int N, Real alpha)
+{
+    return [=](Quantity const t_) {
+        auto const t0 = t0_.magnitude;
+        auto const t = t_.magnitude;
+        return 
+            t0
+            *((1-alpha)+alpha*std::cos(M_PI*t/(N*t0)))
+            *std::sin(M_PI*t/t0)/(M_PI*t);
+    };
+}
+
+HardPulseApproximation::Envelope
+hanning_sinc_envelope(Quantity const & t0, unsigned int N)
+{
+    return apodized_sinc_envelope(t0, N, 0.5);
+}
+
+HardPulseApproximation::Envelope
+hamming_sinc_envelope(Quantity const & t0, unsigned int N)
+{
+    return apodized_sinc_envelope(t0, N, 0.46);
+}
+
 HardPulseApproximation::Envelope sinc_envelope(Quantity const & t0)
 {
     return [&](Quantity const x) {

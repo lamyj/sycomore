@@ -45,6 +45,12 @@ private:
     std::string _name;
 };
 
+SYCOMORE_API HardPulseApproximation::Envelope apodized_sinc_envelope(
+    Quantity const & t0, unsigned int N, Real alpha);
+SYCOMORE_API HardPulseApproximation::Envelope hanning_sinc_envelope(
+    Quantity const & t0, unsigned int N);
+SYCOMORE_API HardPulseApproximation::Envelope hamming_sinc_envelope(
+    Quantity const & t0, unsigned int N);
 SYCOMORE_API HardPulseApproximation::Envelope sinc_envelope(Quantity const & t0);
 
 }
