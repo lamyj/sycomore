@@ -20,7 +20,7 @@ public:
 
     HardPulseApproximation(
         Pulse const & model, std::vector<Quantity> const & support,
-        Envelope const & envelope, std::string const & name);
+        Envelope const & envelope, std::string const & name="");
 
     /**
      * @brief Create a hard pulse approximation with a slice-selection gradient
@@ -29,7 +29,7 @@ public:
     HardPulseApproximation(
         Pulse const & model, std::vector<Quantity> const & support,
         Envelope const & envelope, Quantity const & bandwidth,
-        Quantity const & slice_thickness, std::string const & name);
+        Quantity const & slice_thickness, std::string const & name="");
 
     std::vector<Pulse> const & get_pulses() const;
     TimeInterval const & get_time_interval() const;
