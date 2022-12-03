@@ -22,7 +22,7 @@ Base
 ::Base(
     Species const & species, Magnetization const & M0,
     unsigned int initial_size)
-: _model(species, M0, initial_size)
+: _model(species, M0, initial_size), _elapsed(0.)
 {
     // Nothing else.
 }
@@ -33,7 +33,8 @@ Base
     Magnetization const & M0_a, Magnetization const & M0_b,
     Quantity const & k_a, Quantity const & delta_b,
     unsigned int initial_size)
-: _model(species_a, species_b, M0_a, M0_b, k_a, delta_b, initial_size)
+: _model(species_a, species_b, M0_a, M0_b, k_a, delta_b, initial_size),
+    _elapsed(0.)
 {
     // Nothing else.
 }
@@ -44,7 +45,7 @@ Base
     Magnetization const & M0_a, Magnetization const & M0_b,
     Quantity const & k_a,
     unsigned int initial_size)
-: _model(species_a, R1_b_or_T1_b, M0_a, M0_b, k_a, initial_size)
+: _model(species_a, R1_b_or_T1_b, M0_a, M0_b, k_a, initial_size), _elapsed(0.)
 {
     // Nothing else.
 }
@@ -166,6 +167,13 @@ Base
     }
     
     return result;
+}
+
+Quantity
+Base
+::elapsed() const
+{
+    return this->_elapsed*sycomore::units::s;
 }
 
 Complex const &

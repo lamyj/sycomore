@@ -41,6 +41,7 @@ void wrap_epg_Base(pybind11::module & m)
             },
             "Return all states in the model, where each state is stored as "
             "F_k, F*_{-k}, Z_k, in order of increasing order.")
+        .def_property_readonly("elapsed", &Base::elapsed)
         .def_property_readonly(
             "echo", [](Base const & r){ return r.echo(); },
             "Echo signal, i.e. F_0")

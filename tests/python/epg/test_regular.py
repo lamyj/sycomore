@@ -186,6 +186,14 @@ class TestRegular(unittest.TestCase):
                 [0, 0, 0],
                 [0.2584947343504123-0.6089754314724013j, 0, 0]])
     
+    def test_elapsed(self):
+        species = sycomore.Species(1000*ms, 100*ms)
+        model = sycomore.epg.Regular(species, unit_gradient_area=10*mT/m*ms)
+        self.assertEqual(model.elapsed, 0*s)
+        
+        model.apply_time_interval(10*ms)
+        self.assertEqual(model.elapsed, 10*ms)
+    
     def _test_model(self, model, orders, states):
         self.assertEqual(len(orders), len(model))
         self.assertEqual(len(orders), len(model.orders))

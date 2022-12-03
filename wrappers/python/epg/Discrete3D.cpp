@@ -68,6 +68,7 @@ void wrap_epg_Discrete3D(pybind11::module & m)
                 return model.state(order_cpp);
             },
             arg("order"), "Access a given state of the model")
+        .def_property_readonly("elapsed", &Discrete3D::elapsed)
         .def(
             "apply_time_interval",
             [](

@@ -135,7 +135,9 @@ Regular
         }
     }
     this->off_resonance(duration);
-        
+    
+    this->_elapsed += duration.magnitude;
+    
     // Remove low-populated states with high order.
     auto const threshold_squared = std::pow(this->threshold, 2);
     

@@ -441,3 +441,15 @@ BOOST_AUTO_TEST_CASE(Refocalization, *boost::unit_test::tolerance(1e-9))
         model.echo(),
         sycomore::Complex(0.30684831950624042, 0.53147687960193668));
 }
+
+BOOST_AUTO_TEST_CASE(Elapsed)
+{
+    using namespace sycomore::units;
+    sycomore::Species const species(1000*ms, 100*ms);
+        
+    sycomore::epg::Discrete3D model(species);
+    BOOST_TEST(model.elapsed() == 0*s);
+    
+    model.apply_time_interval(10*ms);
+    BOOST_TEST(model.elapsed() == 10*ms);
+}

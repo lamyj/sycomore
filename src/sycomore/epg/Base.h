@@ -80,6 +80,9 @@ public:
      */
     States states() const;
     
+    /// @brief Return the elapsed time.
+    Quantity elapsed() const;
+    
     /// @brief Return the echo signal, i.e. F_0
     Complex const & echo(std::size_t pool=0) const;
     
@@ -106,6 +109,7 @@ public:
     
 protected:
     Model _model;
+    Real _elapsed;
 };
 
 }

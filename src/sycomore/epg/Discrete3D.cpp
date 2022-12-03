@@ -124,6 +124,8 @@ Discrete3D
     this->shift(duration, gradient);
     this->off_resonance(duration);
     
+    this->_elapsed += duration.magnitude;
+    
     if(this->threshold > 0)
     {
         auto const threshold_squared = std::pow(this->threshold, 2);

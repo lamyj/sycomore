@@ -334,3 +334,15 @@ BOOST_AUTO_TEST_CASE(BulkMotion, *boost::unit_test::tolerance(1e-9))
     test_model(
         model, orders, states);
 }
+
+BOOST_AUTO_TEST_CASE(Elapsed)
+{
+    using namespace sycomore::units;
+    sycomore::Species const species(1000*ms, 100*ms);
+        
+    sycomore::epg::Discrete model(species);
+    BOOST_TEST(model.elapsed() == 0*s);
+    
+    model.apply_time_interval(10*ms);
+    BOOST_TEST(model.elapsed() == 10*ms);
+}

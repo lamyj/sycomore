@@ -300,3 +300,15 @@ BOOST_AUTO_TEST_CASE(BulkMotion, *boost::unit_test::tolerance(1e-9))
             {0, 0, 0.6851625292479138},
             {{-0.33529082747796918, -0.57052723220581303}, 0, 0}});
 }
+
+BOOST_AUTO_TEST_CASE(Elapsed)
+{
+    using namespace sycomore::units;
+    sycomore::Species const species(1000*ms, 100*ms);
+        
+    sycomore::epg::Regular model(species, {0,0,1}, 100, 10*mT/m*ms);
+    BOOST_TEST(model.elapsed() == 0*s);
+    
+    model.apply_time_interval(10*ms);
+    BOOST_TEST(model.elapsed() == 10*ms);
+}

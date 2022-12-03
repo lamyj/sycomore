@@ -174,6 +174,14 @@ class TestDiscrete(unittest.TestCase):
                     -0.33555338970217136-0.19373183987203996j],
                 [0.10210725404661349-0.17685495183007738j, 0, 0]])
     
+    def test_elapsed(self):
+        species = sycomore.Species(1000*ms, 100*ms)
+        model = sycomore.epg.Discrete(species)
+        self.assertEqual(model.elapsed, 0*s)
+        
+        model.apply_time_interval(10*ms)
+        self.assertEqual(model.elapsed, 10*ms)
+    
     def _test_model(self, model, orders, states):
         self.assertEqual(len(orders), len(model))
         self.assertEqual(len(orders), len(model.orders))
