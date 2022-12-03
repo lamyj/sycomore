@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE TimeInterval
 #include <boost/test/unit_test.hpp>
 
+#include "sycomore/sycomore.h"
 #include "sycomore/TimeInterval.h"
 #include "sycomore/units.h"
 
@@ -19,6 +20,14 @@ void test_quantity_array(
     }
 }
 
+sycomore::Array<sycomore::Quantity> const amplitude {
+    20*sycomore::units::mT/sycomore::units::m, 
+    40*sycomore::units::mT/sycomore::units::m, 
+    80*sycomore::units::mT/sycomore::units::m};
+sycomore::Array<sycomore::Quantity> const area(1*sycomore::units::ms*amplitude);
+sycomore::Array<sycomore::Quantity> const dephasing(sycomore::gamma*area);
+auto const moment = dephasing;
+
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
     using namespace sycomore::units;
@@ -27,188 +36,137 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
     BOOST_TEST(interval.get_duration() == 0*s);
     
     test_quantity_array(
-        interval.get_gradient_moment(), {0*rad/m,0*rad/m,0*rad/m});
+        interval.get_gradient_moment(), {0*rad/m, 0*rad/m, 0*rad/m});
     test_quantity_array(
-        interval.get_gradient_amplitude(), {0*T/m,0*T/m,0*T/m});
+        interval.get_gradient_amplitude(), {0*T/m, 0*T/m, 0*T/m});
     test_quantity_array(
-        interval.get_gradient_area(), {0*T/m*s,0*T/m*s,0*T/m*s});
+        interval.get_gradient_area(), {0*T/m*s, 0*T/m*s, 0*T/m*s});
     test_quantity_array(
-        interval.get_gradient_dephasing(), {0*rad/m,0*rad/m,0*rad/m});
+        interval.get_gradient_dephasing(), {0*rad/m, 0*rad/m, 0*rad/m});
 }
 
 BOOST_AUTO_TEST_CASE(DurationConstructor)
 {
     using namespace sycomore::units;
-    sycomore::TimeInterval const interval(1._ms);
+    sycomore::TimeInterval const interval(1*ms);
     
-    BOOST_TEST(interval.get_duration() == 1.e-3*s);
+    BOOST_TEST(interval.get_duration() == 1*ms);
     
     test_quantity_array(
-        interval.get_gradient_moment(), {0*rad/m,0*rad/m,0*rad/m});
+        interval.get_gradient_moment(), {0*rad/m, 0*rad/m, 0*rad/m});
     test_quantity_array(
-        interval.get_gradient_amplitude(), {0*T/m,0*T/m,0*T/m});
+        interval.get_gradient_amplitude(), {0*T/m, 0*T/m, 0*T/m});
     test_quantity_array(
-        interval.get_gradient_area(), {0*T/m*s,0*T/m*s,0*T/m*s});
+        interval.get_gradient_area(), {0*T/m*s, 0*T/m*s, 0*T/m*s});
     test_quantity_array(
-        interval.get_gradient_dephasing(), {0*rad/m,0*rad/m,0*rad/m});
+        interval.get_gradient_dephasing(), {0*rad/m, 0*rad/m, 0*rad/m});
 }
 
 BOOST_AUTO_TEST_CASE(DephasingScalarConstructor, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
-    sycomore::TimeInterval const interval(1._ms, 2.*rad/dm);
+    sycomore::TimeInterval const interval(1*ms, dephasing[0]);
     
-    BOOST_TEST(interval.get_duration() == 1.e-3*s);
+    BOOST_TEST(interval.get_duration() == 1*ms);
     
     test_quantity_array(
-        interval.get_gradient_moment(), {20*rad/m,20*rad/m,20*rad/m});
+        interval.get_gradient_moment(),
+        {moment[0], moment[0], moment[0]});
     test_quantity_array(
-        interval.get_gradient_amplitude(), {
-            74.76015355016015*uT/m,
-            74.76015355016015*uT/m,
-            74.76015355016015*uT/m});
+        interval.get_gradient_amplitude(),
+        {amplitude[0], amplitude[0], amplitude[0]});
     test_quantity_array(
-        interval.get_gradient_area(), {
-            74.76015355016015*uT/m*ms,
-            74.76015355016015*uT/m*ms,
-            74.76015355016015*uT/m*ms});
+        interval.get_gradient_area(),
+        {area[0], area[0], area[0]});
     test_quantity_array(
-        interval.get_gradient_dephasing(), {20*rad/m,20*rad/m,20*rad/m});
+        interval.get_gradient_dephasing(),
+        {dephasing[0], dephasing[0], dephasing[0]});
 }
 
 BOOST_AUTO_TEST_CASE(DephasingVectorConstructor, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
-    sycomore::TimeInterval const interval(1._ms, {2*rad/dm,4*rad/m,8*rad/dam});
+    sycomore::TimeInterval const interval(1*ms, dephasing);
     
-    BOOST_TEST(interval.get_duration() == 1.e-3*s);
+    BOOST_TEST(interval.get_duration() == 1*ms);
     
-    test_quantity_array(
-        interval.get_gradient_moment(), {20*rad/m,4*rad/m,0.8*rad/m});
-    test_quantity_array(
-        interval.get_gradient_amplitude(), {
-            74.76015355016015*uT/m,
-            14.95203071003203*uT/m,
-            2.9904061420064063*uT/m});
-    test_quantity_array(
-        interval.get_gradient_area(), {
-            74.76015355016015*uT/m*ms,
-            14.95203071003203*uT/m*ms,
-            2.9904061420064063*uT/m*ms});
-    test_quantity_array(
-        interval.get_gradient_dephasing(), {20*rad/m,4*rad/m,0.8*rad/m});
+    test_quantity_array(interval.get_gradient_moment(), moment);
+    test_quantity_array(interval.get_gradient_amplitude(), amplitude);
+    test_quantity_array(interval.get_gradient_area(), area);
+    test_quantity_array(interval.get_gradient_dephasing(), dephasing);
 }
 
 BOOST_AUTO_TEST_CASE(AmplitudeScalarConstructor, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
-    sycomore::TimeInterval const interval(1._ms, 2.*mT/dm);
+    sycomore::TimeInterval const interval(1*ms, amplitude[0]);
     
-    BOOST_TEST(interval.get_duration() == 1.e-3*s);
+    BOOST_TEST(interval.get_duration() == 1*ms);
     
     test_quantity_array(
-        interval.get_gradient_moment(), {
-            5350.4437993378515*rad/m,
-            5350.4437993378515*rad/m,
-            5350.4437993378515*rad/m});
+        interval.get_gradient_moment(),
+        {moment[0], moment[0], moment[0]});
     test_quantity_array(
-        interval.get_gradient_amplitude(), {20*mT/m, 20*mT/m, 20*mT/m});
+        interval.get_gradient_amplitude(),
+        {amplitude[0], amplitude[0], amplitude[0]});
     test_quantity_array(
-        interval.get_gradient_area(), {20*mT/m*ms, 20*mT/m*ms, 20*mT/m*ms});
+        interval.get_gradient_area(),
+        {area[0], area[0], area[0]});
     test_quantity_array(
-        interval.get_gradient_dephasing(), {
-            5350.4437993378515*rad/m,
-            5350.4437993378515*rad/m,
-            5350.4437993378515*rad/m});
+        interval.get_gradient_dephasing(),
+        {dephasing[0], dephasing[0], dephasing[0]});
 }
 
 BOOST_AUTO_TEST_CASE(AmplitudeVectorConstructor, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
-    sycomore::TimeInterval const interval(1._ms, {2.*mT/dm, 4.*mT/m, 8.*mT/dam});
+    sycomore::TimeInterval const interval(1*ms, amplitude);
     
-    BOOST_TEST(interval.get_duration() == 1.e-3*s);
+    BOOST_TEST(interval.get_duration() == 1*ms);
     
-    test_quantity_array(
-        interval.get_gradient_moment(), {
-            5350.4437993378515*rad/m,
-            1070.0887598675702*rad/m,
-            214.01775197351404*rad/m});
-    test_quantity_array(
-        interval.get_gradient_amplitude(), {20*mT/m, 4*mT/m, 0.8*mT/m});
-    test_quantity_array(
-        interval.get_gradient_area(), {20*mT/m*ms, 4*mT/m*ms, 0.8*mT/m*ms});
-    test_quantity_array(
-        interval.get_gradient_dephasing(), {
-            5350.4437993378515*rad/m,
-            1070.0887598675702*rad/m,
-            214.01775197351404*rad/m});
+    test_quantity_array(interval.get_gradient_moment(), moment);
+    test_quantity_array(interval.get_gradient_amplitude(), amplitude);
+    test_quantity_array(interval.get_gradient_area(), area);
+    test_quantity_array(interval.get_gradient_dephasing(), dephasing);
 }
 
 BOOST_AUTO_TEST_CASE(AreaScalarConstructor, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
-    sycomore::TimeInterval const interval(1._ms, 2.*mT/dm*ms);
+    sycomore::TimeInterval const interval(1*ms, area[0]);
     
-    BOOST_TEST(interval.get_duration() == 1.e-3*s);
+    BOOST_TEST(interval.get_duration() == 1*ms);
     
     test_quantity_array(
-        interval.get_gradient_moment(), {
-            5350.4437993378515*rad/m,
-            5350.4437993378515*rad/m,
-            5350.4437993378515*rad/m});
+        interval.get_gradient_moment(),
+        {moment[0], moment[0], moment[0]});
     test_quantity_array(
-        interval.get_gradient_amplitude(), {20*mT/m, 20*mT/m, 20*mT/m});
+        interval.get_gradient_amplitude(),
+        {amplitude[0], amplitude[0], amplitude[0]});
     test_quantity_array(
-        interval.get_gradient_area(), {20*mT/m*ms, 20*mT/m*ms, 20*mT/m*ms});
+        interval.get_gradient_area(),
+        {area[0], area[0], area[0]});
     test_quantity_array(
-        interval.get_gradient_dephasing(), {
-            5350.4437993378515*rad/m,
-            5350.4437993378515*rad/m,
-            5350.4437993378515*rad/m});
+        interval.get_gradient_dephasing(),
+        {dephasing[0], dephasing[0], dephasing[0]});
 }
 
 BOOST_AUTO_TEST_CASE(AreaVectorConstructor, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
-    sycomore::TimeInterval const interval(
-        1._ms, {2.*mT/dm*ms, 4.*mT/m*ms, 8.*mT/dam*ms});
+    sycomore::TimeInterval const interval(1*ms, area);
     
-    BOOST_TEST(interval.get_duration() == 1.e-3*s);
+    BOOST_TEST(interval.get_duration() == 1*ms);
     
-    test_quantity_array(
-        interval.get_gradient_moment(), {
-            5350.4437993378515*rad/m,
-            1070.0887598675702*rad/m,
-            214.01775197351404*rad/m});
-    test_quantity_array(
-        interval.get_gradient_amplitude(), {20*mT/m, 4*mT/m, 0.8*mT/m});
-    test_quantity_array(
-        interval.get_gradient_area(), {20*mT/m*ms, 4*mT/m*ms, 0.8*mT/m*ms});
-    test_quantity_array(
-        interval.get_gradient_dephasing(), {
-            5350.4437993378515*rad/m,
-            1070.0887598675702*rad/m,
-            214.01775197351404*rad/m});
+    test_quantity_array(interval.get_gradient_moment(), moment);
+    test_quantity_array(interval.get_gradient_amplitude(), amplitude);
+    test_quantity_array(interval.get_gradient_area(), area);
+    test_quantity_array(interval.get_gradient_dephasing(), dephasing);
 }
 
 using Getter = sycomore::Quantity (sycomore::TimeInterval::*)(sycomore::Quantity const &);
 using ScalarSetter = void (sycomore::TimeInterval::*)(sycomore::Quantity const &);
 using VectorSetter = void (sycomore::TimeInterval::*)(sycomore::Array<sycomore::Quantity> const &);
-
-sycomore::Array<sycomore::Quantity> const amplitude {
-    20*sycomore::units::mT/sycomore::units::m, 
-    40*sycomore::units::mT/sycomore::units::m, 
-    80*sycomore::units::mT/sycomore::units::m};
-sycomore::Array<sycomore::Quantity> const area {
-    20*sycomore::units::mT/sycomore::units::m*sycomore::units::ms, 
-    40*sycomore::units::mT/sycomore::units::m*sycomore::units::ms, 
-    80*sycomore::units::mT/sycomore::units::m*sycomore::units::ms};
-sycomore::Array<sycomore::Quantity> const dephasing{
-    5350.4437993378515*sycomore::units::rad/sycomore::units::m,
-    10700.887598675701*sycomore::units::rad/sycomore::units::m,
-    21401.775197351402*sycomore::units::rad/sycomore::units::m};
-auto const moment = dephasing;
 
 template<typename TGetter>
 void test_gradient_accessor(

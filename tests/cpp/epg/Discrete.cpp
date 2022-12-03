@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(BulkMotion, *boost::unit_test::tolerance(1e-9))
         0*rad/m, 2675*rad/m};    
     std::vector<sycomore::epg::Discrete::State> const states = {
         {0, 0, 0.6851625292479138},
-        {{-0.33529079864474892, -0.57052724915068997}, 0, 0}};
+        {{-0.33529082747796918, -0.57052723220581303}, 0, 0}};
     
     test_model(
         model, orders, states);

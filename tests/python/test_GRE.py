@@ -56,12 +56,11 @@ class TestGRE(unittest.TestCase):
             sycomore.sinc_envelope(t0), 1/t0, self.slice_thickness, "rf")
 
         half_echo = sycomore.TimeInterval(
-            (self.TR-self.pulse_duration)/2.,
-            -sinc_pulse.get_gradient_moment()/2)
+            (self.TR-self.pulse_duration)/2., -sinc_pulse.gradient_moment/2)
 
         model = sycomore.como.Model(
             self.species, self.m0, [
-                ["rf", sinc_pulse.get_time_interval()],
+                ["rf", sinc_pulse.time_interval],
                 ["half_echo", half_echo]])
 
         magnetization = []

@@ -27,11 +27,11 @@ class TestOffResonance(unittest.TestCase):
             sycomore.sinc_envelope(t0), 1/t0, slice_thickness, "rf")
 
         refocalization = sycomore.TimeInterval(
-            (TR-pulse_duration)/2., -sinc_pulse.get_gradient_moment()/2)
+            (TR-pulse_duration)/2., -sinc_pulse.gradient_moment/2)
 
         model = sycomore.como.Model(
             species, m0, [
-                ["rf", sinc_pulse.get_time_interval()],
+                ["rf", sinc_pulse.time_interval],
                 ["refocalization", refocalization]])
 
         model.apply_pulse(sinc_pulse)
