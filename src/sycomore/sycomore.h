@@ -49,6 +49,12 @@ std::vector<T> linspace(T span, std::size_t size)
     return linspace(-span/2., span/2., size);
 }
 
+template<typename T>
+T round(T const & x, T const & r)
+{
+    return std::round(x/r)*r;
+}
+
 /// @brief Gyromagnetic ratio of 1H in rad/s/T
 SYCOMORE_API extern Quantity const gamma;
 
