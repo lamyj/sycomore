@@ -1,5 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#define FORCE_IMPORT_ARRAY
+#include <xtensor-python/pycontainer.hpp>
 
 #include "sycomore/sycomore.h"
 
@@ -21,9 +23,12 @@ void wrap_TimeInterval(pybind11::module &);
 
 void wrap_como(pybind11::module &);
 void wrap_epg(pybind11::module &);
+void wrap_isochromat(pybind11::module &);
 
 PYBIND11_MODULE(_sycomore, _sycomore)
 {
+    xt::import_numpy();
+    
     wrap_Dimensions(_sycomore);
     wrap_Quantity(_sycomore);
     wrap_units(_sycomore);
@@ -42,6 +47,7 @@ PYBIND11_MODULE(_sycomore, _sycomore)
 
     wrap_como(_sycomore);
     wrap_epg(_sycomore);
+    wrap_isochromat(_sycomore);
 
     using namespace pybind11;
     using namespace sycomore;
