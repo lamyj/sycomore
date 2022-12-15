@@ -87,9 +87,9 @@ Discrete3D
     }
     
     Bin bin{
-        static_cast<int64_t>(order[0]/this->_bin_width),
-        static_cast<int64_t>(order[1]/this->_bin_width),
-        static_cast<int64_t>(order[2]/this->_bin_width) };
+        static_cast<int64_t>(std::round(order[0]/this->_bin_width)),
+        static_cast<int64_t>(std::round(order[1]/this->_bin_width)),
+        static_cast<int64_t>(std::round(order[2]/this->_bin_width)) };
     auto it = this->_orders.begin();
     for(auto end = this->_orders.end(); it != end; it+=3)
     {
