@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 # NOTE: restrict xsimd version on macOS due to
 # https://github.com/xtensor-stack/xsimd/issues/810
