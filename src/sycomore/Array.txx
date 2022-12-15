@@ -404,13 +404,15 @@ operator op(T1 const & s, Array<T2> const & a) \
     Array<decltype(std::declval<T1>() op std::declval<T2>())> result(a.size()); \
     for(std::size_t i=0; i<result.size(); ++i) \
     { \
-        result[i] = a[i] op s; \
+        result[i] = s op a[i]; \
     } \
     return result; \
 }
 
 SYCOMORE_OPERATOR_SCALAR_LEFT(+);
+SYCOMORE_OPERATOR_SCALAR_LEFT(-);
 SYCOMORE_OPERATOR_SCALAR_LEFT(*);
+SYCOMORE_OPERATOR_SCALAR_LEFT(/);
 
 #undef SYCOMORE_OPERATOR_SCALAR_LEFT
 

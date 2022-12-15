@@ -53,8 +53,14 @@ wrap_Array(
         .def(-self)
         .def(self+self)
         .def(self-self)
+        .def(self+T())
+        .def(self-T())
         .def(self*T())
         .def(self/T())
+        .def(T()+self)
+        .def(T()-self)
+        .def(T()*self)
+        .def(T()/self)
         .def(hash(self))
         .def(
             "__iter__",

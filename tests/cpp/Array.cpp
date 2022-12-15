@@ -214,11 +214,18 @@ BOOST_AUTO_TEST_CASE(PlusScalarRight)
     BOOST_TEST(e[0] == 5); BOOST_TEST(e[1] == 6); BOOST_TEST(e[2] == 7);
 }
 
-BOOST_AUTO_TEST_CASE(MinusScalar)
+BOOST_AUTO_TEST_CASE(MinusScalarLeft)
 {
     sycomore::Array<int> a{1,2,3}; auto const e = a-4;
     BOOST_TEST(e.size() == 3);
     BOOST_TEST(e[0] == -3); BOOST_TEST(e[1] == -2); BOOST_TEST(e[2] == -1);
+}
+
+BOOST_AUTO_TEST_CASE(MinusScalarRight)
+{
+    sycomore::Array<int> a{1,2,3}; auto const e = 4-a;
+    BOOST_TEST(e.size() == 3);
+    BOOST_TEST(e[0] == 3); BOOST_TEST(e[1] == 2); BOOST_TEST(e[2] == 1);
 }
 
 BOOST_AUTO_TEST_CASE(MultipliesScalarLeft)
@@ -235,11 +242,18 @@ BOOST_AUTO_TEST_CASE(MultipliesScalarRight)
     BOOST_TEST(e[0] == 4); BOOST_TEST(e[1] == 8); BOOST_TEST(e[2] == 12);
 }
 
-BOOST_AUTO_TEST_CASE(DividesScalar)
+BOOST_AUTO_TEST_CASE(DividesScalarLeft)
 {
     sycomore::Array<float> a{1,2,3}; auto const e = a/4;
     BOOST_TEST(e.size() == 3);
     BOOST_TEST(e[0] == 0.25); BOOST_TEST(e[1] == 0.5); BOOST_TEST(e[2] == 0.75);
+}
+
+BOOST_AUTO_TEST_CASE(DividesScalarRight)
+{
+    sycomore::Array<float> a{1,2,4}; auto const e = 4/a;
+    BOOST_TEST(e.size() == 3);
+    BOOST_TEST(e[0] == 4.); BOOST_TEST(e[1] == 2.); BOOST_TEST(e[2] == 1.);
 }
 
 BOOST_AUTO_TEST_CASE(PlusArraySizeMatch)
