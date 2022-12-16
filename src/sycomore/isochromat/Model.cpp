@@ -3,7 +3,6 @@
 #include <array>
 #include <cmath>
 #include <stdexcept>
-#include <xtensor/xfixed.hpp>
 #include <xtensor/xmath.hpp>
 #include <xtensor/xmanipulation.hpp>
 #include <xtensor/xtensor.hpp>

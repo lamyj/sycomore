@@ -104,9 +104,4 @@ void wrap_Array(pybind11::module & m)
         .def(self * double())
         .def(double() * self)
         .def(self / double());
-
-    m.attr("Index") = m.attr("Array")[int_];
-    m.attr("Shape") = m.attr("Array")[uint_];
-    m.attr("Stride") = m.attr("Array")[uint_];
-    m.attr("Point") = m.attr("Array")[m.attr("Quantity")];
 }

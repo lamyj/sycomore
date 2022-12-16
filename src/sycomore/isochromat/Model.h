@@ -1,7 +1,6 @@
 #ifndef _8db2389d_b425_4fa0_8897_04a4ff117e15
 #define _8db2389d_b425_4fa0_8897_04a4ff117e15
 
-#include <xtensor/xfixed.hpp>
 #include <xtensor/xtensor.hpp>
 
 #include "sycomore/sycomore.h"

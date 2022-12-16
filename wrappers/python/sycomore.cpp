@@ -58,10 +58,10 @@ PYBIND11_MODULE(_sycomore, _sycomore)
 
     _sycomore.def(
         "linspace",
-        static_cast<std::vector<Point> (*) (Point, Point, std::size_t)>(
-            linspace<Point>));
+        overload_cast<Array<Quantity>, Array<Quantity>, std::size_t>(
+            linspace<Array<Quantity>>));
     _sycomore.def(
         "linspace",
-        static_cast<std::vector<Point> (*) (Point, std::size_t)>(
-            linspace<Point>));
+        overload_cast<Array<Quantity>, std::size_t>(
+            linspace<Array<Quantity>>));
 }

@@ -16,12 +16,6 @@ namespace sycomore
 using Real = double;
 using Complex = std::complex<Real>;
 
-using Index = Array<int32_t>;
-using Shape = Array<uint32_t>;
-using Stride = Array<uint32_t>;
-
-using Point = Array<Quantity>;
-
 SYCOMORE_API extern Dimensions const Diffusion;
 
 // NOTE: gradient moment is gamma * integral(g(t)*dt), with gamma in
