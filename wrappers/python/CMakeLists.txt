@@ -1,5 +1,11 @@
 find_package(pybind11 REQUIRED)
 find_package(xsimd REQUIRED)
+find_package(xtensor-python REQUIRED)
+
+execute_process(
+    COMMAND ${PYTHON_EXECUTABLE} -c "import numpy; print(numpy.get_include())"
+    OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 file(GLOB_RECURSE header_files "*.h")
 file(GLOB_RECURSE source_files "*.cpp")
@@ -55,7 +61,8 @@ target_compile_definitions(
 target_include_directories(
     pysycomore 
     PRIVATE 
-        ${CMAKE_SOURCE_DIR}/src ${PYTHON_INCLUDE_DIRS} ${xsimd_INCLUDE_DIRS})
+        ${CMAKE_SOURCE_DIR}/src ${PYTHON_INCLUDE_DIRS} ${xsimd_INCLUDE_DIRS}
+        ${NUMPY_INCLUDE_DIR})
 
 if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
     target_link_libraries(pysycomore PUBLIC libsycomore)
