@@ -10,34 +10,40 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: "ubuntu-latest", packaging: "apt", container: "debian:stretch", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "debian:buster", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "debian:bullseye", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:bionic", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:jammy", python: "python3" }
-          - { os: "macos-latest", packaging: "brew", python: "python3" }
+          - { os: "ubuntu-latest", packaging: "conda", python: "python" }
+          - { os: "macos-latest", packaging: "conda", python: "python" }
           - { os: "windows-latest", packaging: "conda", python: "python" }
     env:
       WORKSPACE: "${{ github.workspace }}"
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
-      - name: Provision (Debian, Ubuntu)
-        # Install Python and Git. macOS and Windows workers already have this,
-        # however for Linux we are running in minimal containers.
-        run: |
-          apt-get update
-          apt-get install -y git python3
-        if: ${{ contains(matrix.container, 'debian') || contains(matrix.container, 'ubuntu') }}
+      - name: Provision (Conda, Ubuntu)
+        # conda is initialized in .bashrc, but we are not using a login shell
+        run: echo 'export PATH="/usr/share/miniconda/bin:$PATH"' >> $HOME/.bash_profile
+        if: ${{ matrix.packaging == 'conda' && contains(matrix.os, 'ubuntu') }}
       
-      - name: Provision (Windows)
+      - name: Provision (Conda, Windows)
         # Initialize the Conda environment by default
         run: C:\Miniconda\condabin\conda.bat init powershell
-        if: ${{ contains(matrix.os, 'windows') }}
+        shell: pwsh
+        if: ${{ matrix.packaging == 'conda' && contains(matrix.os, 'windows') }}
+      
+      - name: Provision (Conda, non-Windows)
+        run: conda init --all
+        if: ${{ matrix.packaging == 'conda' && !contains(matrix.os, 'windows') }}
       
       - name: Checkout latest revision
         # Only the latest revision is required, as later steps do not depend on
         # tags.
-        run: git clone --depth=1 https://github.com/lamyj/sycomore.git .
+        run: |
+          git config --global init.defaultBranch master
+          git config --global --add safe.directory '*'
+          git init .
+          git remote add origin ${{ github.server_url }}/${{ github.repository }}
+          git fetch origin --depth=1 ${{ github.ref }}
+          git checkout ${{ github.ref_name }}
       
       - name: Set-up (${{ matrix.packaging }})
         run: ${{ matrix.python }} .ci/build/${{ matrix.packaging }}.py
