@@ -25,8 +25,7 @@ jobs:
         if: ${{ matrix.packaging == 'conda' && contains(matrix.os, 'ubuntu') }}
       
       - name: Provision (Conda, Windows)
-        # Initialize the Conda environment by default
-        run: C:\Miniconda\condabin\conda.bat init powershell
+        run: C:\Miniconda\condabin\conda.bat init --all
         shell: pwsh
         if: ${{ matrix.packaging == 'conda' && contains(matrix.os, 'windows') }}
       
