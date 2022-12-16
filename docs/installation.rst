@@ -54,7 +54,7 @@ As of Debian 10 (Buster) and Ubuntu 21.04 (Hirsute Hippo), xsimd is not availabl
   cmake -DCMAKE_INSTALL_PREFIX=~/local .
   cmake --build . --target install
 
-When compiling with GCC on Debian or Ubuntu, *-ffast-math* enables *-ffinite-math-only*, which breaks some parts of the Configuration Model implementation in Sycomore (the application of a time interval with gradients or the computation of isochromat with off-resonance effects). All `other optimizations turned on by -ffast-math`_ can however be used and the recommended call to CMake is:
+When compiling with GCC on Debian or Ubuntu, *-ffast-math* enables *-ffinite-math-only*, which breaks some parts of Sycomore. All `other optimizations turned on by -ffast-math`_ can however be used and the recommended call to CMake is:
 
 .. code-block:: shell
   
