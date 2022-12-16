@@ -65,7 +65,7 @@ private:
 };
 
 /// @brief Operator chaining, representing right followed by left.
-Operator operator*(Operator left, Operator const & right);
+SYCOMORE_API Operator operator*(Operator left, Operator const & right);
 
 }
 
