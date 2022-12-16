@@ -20,7 +20,7 @@ public:
 
     HardPulseApproximation(
         Pulse const & model, std::vector<Quantity> const & support,
-        Envelope const & envelope, std::string const & name="");
+        Envelope const & envelope);
 
     /**
      * @brief Create a hard pulse approximation with a slice-selection gradient
@@ -29,11 +29,10 @@ public:
     HardPulseApproximation(
         Pulse const & model, std::vector<Quantity> const & support,
         Envelope const & envelope, Quantity const & bandwidth,
-        Quantity const & slice_thickness, std::string const & name="");
+        Quantity const & slice_thickness);
 
     std::vector<Pulse> const & get_pulses() const;
     TimeInterval const & get_time_interval() const;
-    std::string const & get_name() const;
 
     Array<Quantity> get_gradient_moment() const;
 
@@ -42,7 +41,6 @@ public:
 private:
     std::vector<Pulse> _pulses;
     TimeInterval _time_interval;
-    std::string _name;
 };
 
 SYCOMORE_API HardPulseApproximation::Envelope apodized_sinc_envelope(

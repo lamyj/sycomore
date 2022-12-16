@@ -14,8 +14,7 @@ namespace sycomore
 HardPulseApproximation
 ::HardPulseApproximation(
     Pulse const & model, std::vector<Quantity> const & support,
-    Envelope const & envelope, std::string const & name)
-: _name(name)
+    Envelope const & envelope)
 {
     std::vector<Quantity> angles(support.size());
     std::transform(support.begin(), support.end(), angles.begin(), envelope);
@@ -37,8 +36,7 @@ HardPulseApproximation
 ::HardPulseApproximation(
     Pulse const & model, std::vector<Quantity> const & support,
     Envelope const & envelope, Quantity const & bandwidth,
-    Quantity const & slice_thickness, std::string const & name)
-: HardPulseApproximation(model, support, envelope, name)
+    Quantity const & slice_thickness)
 {
     // From Handbook, eq. 8.53, which gives gradient amplitude. Assuming a
     // constant gradient amplitude, we get the moment by multiplying by pulse
@@ -63,13 +61,6 @@ HardPulseApproximation
 ::get_time_interval() const
 {
     return this->_time_interval;
-}
-
-std::string const &
-HardPulseApproximation
-::get_name() const
-{
-    return this->_name;
 }
 
 Array<Quantity>
