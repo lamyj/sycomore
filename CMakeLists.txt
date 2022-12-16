@@ -10,14 +10,6 @@ project("sycomore" VERSION 1.3.2)
 option(BUILD_SHARED_LIBS "Build Sycomore with shared libraries." ON)
 option(BUILD_TESTING "Build unit tests." ON)
 option(BUILD_PYTHON_WRAPPERS "Build the Python Wrappers." ON)
-option(
-    BUILD_STANDALONE_PYTHON_WRAPPERS
-    "Build the Python Wrappers as a standalone library." OFF)
-
-if(NOT BUILD_PYTHON_WRAPPERS AND BUILD_STANDALONE_PYTHON_WRAPPERS)
-    message(WARNING "Standalone Python wrappers requested: setting BUILD_PYTHON_WRAPPERS to ON")
-    set(BUILD_PYTHON_WRAPPERS ON CACHE BOOL "Build the Python Wrappers." FORCE)
-endif()
 
 set(CMAKE_INSTALL_MESSAGE LAZY)
 
@@ -53,20 +45,19 @@ if(BUILD_TESTING)
 endif()
 
 # Export the build tree (don't install the generated file)
-if(NOT BUILD_STANDALONE_PYTHON_WRAPPERS)
-    export(
-        TARGETS libsycomore NAMESPACE sycomore:: 
-        FILE "${PROJECT_BINARY_DIR}/sycomoreTargets.cmake")
+export(
+    TARGETS libsycomore NAMESPACE sycomore:: 
+    FILE "${PROJECT_BINARY_DIR}/sycomoreTargets.cmake")
 
-    # Export the install tree
-    write_basic_package_version_file(
-        "sycomoreConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
-    set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib/CMake/sycomore")
-    install(EXPORT sycomoreTargets NAMESPACE sycomore:: DESTINATION "${INSTALL_CMAKE_DIR}")
-    configure_file(sycomoreConfig.cmake.in sycomoreConfig.cmake @ONLY)
-    install(
-        FILES 
-            ${CMAKE_CURRENT_BINARY_DIR}/sycomoreConfig.cmake
-            ${CMAKE_CURRENT_BINARY_DIR}/sycomoreConfigVersion.cmake
-        DESTINATION "${INSTALL_CMAKE_DIR}")
-endif()
+# Export the install tree
+write_basic_package_version_file(
+    "sycomoreConfigVersion.cmake" COMPATIBILITY SameMajorVersion)
+set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/lib/CMake/sycomore")
+install(EXPORT sycomoreTargets NAMESPACE sycomore:: DESTINATION "${INSTALL_CMAKE_DIR}")
+configure_file(sycomoreConfig.cmake.in sycomoreConfig.cmake @ONLY)
+install(
+    FILES 
+        ${CMAKE_CURRENT_BINARY_DIR}/sycomoreConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/sycomoreConfigVersion.cmake
+    DESTINATION "${INSTALL_CMAKE_DIR}")
+
