@@ -5,6 +5,8 @@
 #include <complex>
 #include <vector>
 
+#include <xtensor/xfixed.hpp>
+
 #include "sycomore/Array.h"
 #include "sycomore/Dimensions.h"
 #include "sycomore/Quantity.h"
@@ -15,6 +17,7 @@ namespace sycomore
 
 using Real = double;
 using Complex = std::complex<Real>;
+using Magnetization = xt::xtensor_fixed<Real, xt::xshape<3>>;
 
 SYCOMORE_API extern Dimensions const Diffusion;
 

@@ -13,7 +13,6 @@
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/epg/operators.h"
 #include "sycomore/epg/simd_api.h"
-#include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
 #include "sycomore/TimeInterval.h"

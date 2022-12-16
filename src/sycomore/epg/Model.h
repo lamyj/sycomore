@@ -4,7 +4,6 @@
 #include <vector>
 #include <xsimd/xsimd.hpp>
 
-#include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"

@@ -7,7 +7,6 @@
 #include "sycomore/epg/Model.h"
 #include "sycomore/epg/operators.h"
 #include "sycomore/epg/simd_api.h"
-#include "sycomore/magnetization.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/units.h"

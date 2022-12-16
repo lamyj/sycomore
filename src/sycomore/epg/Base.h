@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "sycomore/epg/Model.h"
-#include "sycomore/magnetization.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/units.h"

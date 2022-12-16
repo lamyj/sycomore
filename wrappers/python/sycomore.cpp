@@ -11,8 +11,6 @@ void wrap_units(pybind11::module &);
 
 void wrap_Array(pybind11::module &);
 
-void wrap_magnetization(pybind11::module &);
-
 void wrap_Pulse(pybind11::module &);
 void wrap_HardPulseApproximation(pybind11::module &);
 void wrap_Species(pybind11::module &);
@@ -30,8 +28,6 @@ PYBIND11_MODULE(_sycomore, _sycomore)
     wrap_units(_sycomore);
 
     wrap_Array(_sycomore);
-
-    wrap_magnetization(_sycomore);
 
     wrap_Pulse(_sycomore);
     wrap_HardPulseApproximation(_sycomore);

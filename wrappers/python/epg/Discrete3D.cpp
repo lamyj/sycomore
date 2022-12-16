@@ -2,8 +2,9 @@
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
+#include <xtensor-python/pytensor.hpp>
+
 #include "sycomore/epg/Discrete3D.h"
-#include "sycomore/magnetization.h"
 #include "sycomore/Species.h"
 
 void wrap_epg_Discrete3D(pybind11::module & m)

@@ -6,7 +6,6 @@
 
 #include <xsimd/xsimd.hpp>
 
-#include "sycomore/magnetization.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
@@ -114,11 +113,13 @@ Model
     
     for(std::size_t i=0; i<this->pools; ++i)
     {
-        auto const M0_c = as_complex_magnetization(M0[i]);
-        this->F[i][0] = std::sqrt(2)*M0_c.p;
-        this->F_star[i][0] = std::sqrt(2)*M0_c.m;
-        this->Z[i][0] = M0_c.z;
-        this->M0[i] = M0_c.z;
+        auto const M_plus = Complex(M0[i][0], M0[i][1]);
+        auto const M_minus = Complex(M0[i][0], -M0[i][1]);
+        
+        this->F[i][0] = M_plus;
+        this->F_star[i][0] = M_minus;
+        this->Z[i][0] = M0[i][2];
+        this->M0[i] = M0[i][2];
     }
 }
 
