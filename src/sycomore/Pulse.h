@@ -4,7 +4,6 @@
 #include <functional>
 #include <vector>
 
-#include "sycomore/Grid.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/sycomore_api.h"
@@ -16,8 +15,6 @@ namespace sycomore
 class SYCOMORE_API Pulse
 {
 public:
-    using RotationMatrix = Grid<Complex>;
-
     Pulse(Quantity const & angle, Quantity const & phase=0*units::rad);
 
     Quantity const & get_angle() const;
@@ -25,9 +22,6 @@ public:
 
     Quantity const & get_phase() const;
     void set_phase(Quantity const & q);
-
-    /// @brief Return the rotation matrix for complex magnetization.
-    RotationMatrix rotation_matrix() const;
 private:
     /// @brief Flip angle.
     Quantity _angle;
