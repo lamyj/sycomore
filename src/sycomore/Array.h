@@ -17,6 +17,10 @@ namespace sycomore
 template <typename T>
 using Vector3 = xt::xtensor_fixed<T, xt::xshape<3>>;
 
+template <typename T>
+using Matrix3x3 = xt::xtensor_fixed<T, xt::xshape<3, 3>>;
+
+
 /// @brief One-dimensional array with arithmetic operations.
 template<typename T>
 class Array

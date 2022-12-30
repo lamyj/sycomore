@@ -366,7 +366,7 @@ Discrete3D
                 simd_api::diffusion_3d_b(
                     cache.k[m].data(), cache.k[n].data(), 
                     delta_k[m], delta_k[n], delta_k_product_term,
-                    tau, species.get_D()[3*m+n].magnitude,
+                    tau, species.get_D().unchecked(m, n).magnitude,
                     cache.b_L_D.data(), 
                     cache.b_T_plus_D.data(), cache.b_T_minus_D.data(),
                     F.size());

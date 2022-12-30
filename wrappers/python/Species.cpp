@@ -15,31 +15,13 @@ namespace
 
 void set_D(sycomore::Species & species, pybind11::object const & value)
 {
-    if(pybind11::isinstance<pybind11::array>(value))
+    if(pybind11::isinstance<sycomore::Quantity>(value))
     {
-        auto numpy = pybind11::module::import("numpy");
-        auto raveled = numpy.attr("ravel")(
-                value.cast<pybind11::array>()
-            ).attr("tolist")();
-        sycomore::Array<sycomore::Quantity> array(pybind11::len(raveled));
-        std::transform(
-            raveled.begin(), raveled.end(), array.begin(),
-            [](pybind11::handle const & x) {
-                return x.cast<sycomore::Quantity>(); });
-        species.set_D(array);
-    }
-    else if(pybind11::isinstance<pybind11::sequence>(value))
-    {
-        sycomore::Array<sycomore::Quantity> array(pybind11::len(value));
-        std::transform(
-            value.begin(), value.end(), array.begin(),
-            [](pybind11::handle const & x) {
-                return x.cast<sycomore::Quantity>(); });
-        species.set_D(array);
+        species.set_D(value.cast<sycomore::Quantity>());
     }
     else
     {
-        species.set_D(value.cast<sycomore::Quantity>());
+        species.set_D(value.cast<sycomore::Matrix3x3<sycomore::Quantity>>());
     }
 }
 
@@ -97,7 +79,9 @@ void wrap_Species(pybind11::module & m)
                 auto const D = s.get_D();
                 return make_tuple(
                     s.get_R1(), s.get_R2(),
-                    D[0], D[1], D[2], D[3], D[4], D[5], D[6], D[7], D[8],
+                    D.unchecked(0,0), D.unchecked(0,1), D.unchecked(0, 2),
+                    D.unchecked(1,0), D.unchecked(1,1), D.unchecked(1,2),
+                    D.unchecked(2,0), D.unchecked(2,1), D.unchecked(2,2),
                     s.get_R2_prime(),
                     s.get_delta_omega(), s.w);
             },
@@ -109,9 +93,9 @@ void wrap_Species(pybind11::module & m)
                 return Species(
                     t[0].cast<Quantity>(), t[1].cast<Quantity>(),
                     {
-                        t[2].cast<Quantity>(), t[3].cast<Quantity>(), t[4].cast<Quantity>(),
-                        t[5].cast<Quantity>(), t[6].cast<Quantity>(), t[7].cast<Quantity>(),
-                        t[8].cast<Quantity>(), t[9].cast<Quantity>(), t[10].cast<Quantity>(),
+                        {t[2].cast<Quantity>(), t[3].cast<Quantity>(), t[4].cast<Quantity>()},
+                        {t[5].cast<Quantity>(), t[6].cast<Quantity>(), t[7].cast<Quantity>()},
+                        {t[8].cast<Quantity>(), t[9].cast<Quantity>(), t[10].cast<Quantity>()},
                     },
                     t[11].cast<Quantity>(),
                     t[12].cast<Quantity>(), t[13].cast<Real>());

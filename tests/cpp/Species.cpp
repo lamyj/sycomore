@@ -50,10 +50,10 @@ BOOST_AUTO_TEST_CASE(DScalar)
     using namespace sycomore::units;
     sycomore::Species species(1.*ms, 10.*s);
     species.set_D(1*um*um/ms);
-    sycomore::Array<sycomore::Quantity> const D{
-        1*um*um/ms, 0*um*um/ms, 0*um*um/ms,
-        0*um*um/ms, 1*um*um/ms, 0*um*um/ms,
-        0*um*um/ms, 0*um*um/ms, 1*um*um/ms};
+    sycomore::Matrix3x3<sycomore::Quantity> const D{
+        {1*um*um/ms, 0*um*um/ms, 0*um*um/ms},
+        {0*um*um/ms, 1*um*um/ms, 0*um*um/ms},
+        {0*um*um/ms, 0*um*um/ms, 1*um*um/ms}};
     BOOST_TEST(species.get_D() == D);
 }
 
@@ -61,10 +61,10 @@ BOOST_AUTO_TEST_CASE(DTensor)
 {
     using namespace sycomore::units;
     sycomore::Species species(1.*ms, 10.*s);
-    sycomore::Array<sycomore::Quantity> const D{
-        1*um*um/ms, 4*um*um/ms, 7*um*um/ms,
-        2*um*um/ms, 5*um*um/ms, 8*um*um/ms,
-        3*um*um/ms, 6*um*um/ms, 9*um*um/ms};
+    sycomore::Matrix3x3<sycomore::Quantity> const D{
+        {1*um*um/ms, 4*um*um/ms, 7*um*um/ms},
+        {2*um*um/ms, 5*um*um/ms, 8*um*um/ms},
+        {3*um*um/ms, 6*um*um/ms, 9*um*um/ms}};
     species.set_D(D);
     BOOST_TEST(species.get_D() == D);
 }

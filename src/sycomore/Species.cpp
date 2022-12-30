@@ -30,7 +30,7 @@ Species
 
 Species
 ::Species(
-    Quantity const & R1, Quantity const & R2, Array<Quantity> const & D,
+    Quantity const & R1, Quantity const & R2, Matrix3x3<Quantity> const & D,
     Quantity const & R2_prime, Quantity const & delta_omega, Real w)
 : w(w)
 {
@@ -120,7 +120,7 @@ Species
     return this->_R2_prime;
 }
 
-Array<Quantity> const &
+Matrix3x3<Quantity> const &
 Species
 ::get_D() const
 {
@@ -136,9 +136,9 @@ Species
     if(q.dimensions == Diffusion)
     {
         this->_D = {
-            q,       0*m*m/s, 0*m*m/s,
-            0*m*m/s, q,       0*m*m/s,
-            0*m*m/s, 0*m*m/s, q};
+            {q,       0*m*m/s, 0*m*m/s},
+            {0*m*m/s, q,       0*m*m/s},
+            {0*m*m/s, 0*m*m/s, q}};
     }
     else
     {
@@ -150,22 +150,11 @@ Species
 
 void
 Species
-::set_D(Array<Quantity> const & q)
+::set_D(Matrix3x3<Quantity> const & q)
 {
-    if(q.size() != 9)
-    {
-        std::ostringstream message;
-        message<< "Diffusion tensor must have 9 elements, not " << q.size();
-        throw std::runtime_error(message.str());
-    }
-    this->_D = Array<Quantity>(q.size());
     for(std::size_t i=0; i<q.size(); ++i)
     {
-        if(q[i].dimensions == Diffusion)
-        {
-            this->_D[i] = q[i];
-        }
-        else
+        if(q[i].dimensions != Diffusion)
         {
             std::ostringstream message;
             message
@@ -174,6 +163,7 @@ Species
             throw std::runtime_error(message.str());
         }
     }
+    this->_D = q;
 }
 
 void
