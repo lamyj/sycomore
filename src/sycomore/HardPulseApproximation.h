@@ -34,7 +34,7 @@ public:
     std::vector<Pulse> const & get_pulses() const;
     TimeInterval const & get_time_interval() const;
 
-    Array<Quantity> get_gradient_moment() const;
+    Vector3<Quantity> get_gradient_moment() const;
 
     void set_phase(Quantity const & phase);
 

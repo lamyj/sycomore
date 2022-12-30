@@ -7,6 +7,8 @@
 #include "sycomore/epg/Regular.h"
 #include "sycomore/Species.h"
 
+#include "../type_casters.h"
+
 void wrap_epg_Regular(pybind11::module & m)
 {
     using namespace pybind11;

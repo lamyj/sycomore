@@ -182,7 +182,12 @@ Discrete3D
 ::apply_time_interval(TimeInterval const & interval)
 {
     this->apply_time_interval(
-        interval.get_duration(), interval.get_gradient_amplitude());
+        interval.get_duration(),
+        {
+            interval.get_gradient_amplitude()[0],
+            interval.get_gradient_amplitude()[1],
+            interval.get_gradient_amplitude()[2]
+        });
 }
 
 void

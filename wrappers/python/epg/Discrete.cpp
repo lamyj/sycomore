@@ -7,6 +7,8 @@
 #include "sycomore/epg/Discrete.h"
 #include "sycomore/Species.h"
 
+#include "../type_casters.h"
+
 void wrap_epg_Discrete(pybind11::module & m)
 {
     using namespace pybind11;

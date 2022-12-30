@@ -5,93 +5,75 @@
 #include "sycomore/Quantity.h"
 #include "sycomore/TimeInterval.h"
 
+#include "type_casters.h"
+
 void set_gradient(
     sycomore::TimeInterval & time_interval, pybind11::object const & value)
 {
-    if(pybind11::isinstance<pybind11::sequence>(value))
+    if(pybind11::isinstance<sycomore::Quantity>(value))
     {
-        sycomore::Array<sycomore::Quantity> array(pybind11::len(value));
-        std::transform(
-            value.begin(), value.end(), array.begin(),
-            [](pybind11::handle const & x) {
-                return x.cast<sycomore::Quantity>(); });
-        time_interval.set_gradient(array);
+        time_interval.set_gradient(value.cast<sycomore::Quantity>());
     }
     else
     {
-        time_interval.set_gradient(value.cast<sycomore::Quantity>());
+        time_interval.set_gradient(
+            value.cast<sycomore::Vector3<sycomore::Quantity>>());
     }
 }
 
 void set_gradient_amplitude(
     sycomore::TimeInterval & time_interval, pybind11::object const & value)
 {
-    if(pybind11::isinstance<pybind11::sequence>(value))
+    if(pybind11::isinstance<sycomore::Quantity>(value))
     {
-        sycomore::Array<sycomore::Quantity> array(pybind11::len(value));
-        std::transform(
-            value.begin(), value.end(), array.begin(),
-            [](pybind11::handle const & x) {
-                return x.cast<sycomore::Quantity>(); });
-        time_interval.set_gradient_amplitude(array);
+        time_interval.set_gradient_amplitude(value.cast<sycomore::Quantity>());
     }
     else
     {
-        time_interval.set_gradient_amplitude(value.cast<sycomore::Quantity>());
+        time_interval.set_gradient_amplitude(
+            value.cast<sycomore::Vector3<sycomore::Quantity>>());
     }
 }
 
 void set_gradient_area(
     sycomore::TimeInterval & time_interval, pybind11::object const & value)
 {
-    if(pybind11::isinstance<pybind11::sequence>(value))
+    if(pybind11::isinstance<sycomore::Quantity>(value))
     {
-        sycomore::Array<sycomore::Quantity> array(pybind11::len(value));
-        std::transform(
-            value.begin(), value.end(), array.begin(),
-            [](pybind11::handle const & x) {
-                return x.cast<sycomore::Quantity>(); });
-        time_interval.set_gradient_area(array);
+        time_interval.set_gradient_area(value.cast<sycomore::Quantity>());
     }
     else
     {
-        time_interval.set_gradient_area(value.cast<sycomore::Quantity>());
+        time_interval.set_gradient_area(
+            value.cast<sycomore::Vector3<sycomore::Quantity>>());
     }
 }
 
 void set_gradient_dephasing(
     sycomore::TimeInterval & time_interval, pybind11::object const & value)
 {
-    if(pybind11::isinstance<pybind11::sequence>(value))
+    if(pybind11::isinstance<sycomore::Quantity>(value))
     {
-        sycomore::Array<sycomore::Quantity> array(pybind11::len(value));
-        std::transform(
-            value.begin(), value.end(), array.begin(),
-            [](pybind11::handle const & x) {
-                return x.cast<sycomore::Quantity>(); });
-        time_interval.set_gradient_dephasing(array);
+        time_interval.set_gradient_dephasing(value.cast<sycomore::Quantity>());
     }
     else
     {
-        time_interval.set_gradient_dephasing(value.cast<sycomore::Quantity>());
+        time_interval.set_gradient_dephasing(
+            value.cast<sycomore::Vector3<sycomore::Quantity>>());
     }
 }
 
 void set_gradient_moment(
     sycomore::TimeInterval & time_interval, pybind11::object const & value)
 {
-    if(pybind11::isinstance<pybind11::sequence>(value))
+    if(pybind11::isinstance<sycomore::Quantity>(value))
     {
-        sycomore::Array<sycomore::Quantity> array(pybind11::len(value));
-        std::transform(
-            value.begin(), value.end(), array.begin(),
-            [](pybind11::handle const & x) {
-                return x.cast<sycomore::Quantity>(); });
-        time_interval.set_gradient_moment(array);
+        time_interval.set_gradient_moment(value.cast<sycomore::Quantity>());
     }
     else
     {
-        time_interval.set_gradient_moment(value.cast<sycomore::Quantity>());
+        time_interval.set_gradient_moment(
+            value.cast<sycomore::Vector3<sycomore::Quantity>>());
     }
 }
 
@@ -115,14 +97,9 @@ void wrap_TimeInterval(pybind11::module & m)
             arg("duration"), arg("gradient")=0*T_per_m,
             "Constructor, gradient may be specified as amplitude (in T/m), "
             "area (in T/m*s) or dephasing (in rad/m).")
-        .def(init(
-            [&](Quantity duration, sequence s) {
-                auto sycomore_py = module::import("sycomore");
-                auto Array_py = sycomore_py.attr("Array")[sycomore_py.attr("Quantity")];
-                return TimeInterval(duration, Array_py(s).cast<Array<Quantity>>());
-            }),
-            arg("duration"), 
-                arg("gradient")=Array<Quantity>{0*T_per_m, 0*T_per_m, 0*T_per_m},
+        .def(
+            init<Quantity, Vector3<Quantity>>(),
+            arg("duration"), arg("gradient"),
             "Constructor, gradient may be specified as amplitude (in T/m), "
             "area (in T/m*s) or dephasing (in rad/m).")
         .def_static(
@@ -132,12 +109,8 @@ void wrap_TimeInterval(pybind11::module & m)
             "gradient_moment"_a, "G_max"_a)
         .def_static(
             "shortest",
-            [&](sequence s, Quantity const & G_max) {
-                auto sycomore_py = module::import("sycomore");
-                auto Array_py = sycomore_py.attr("Array")[sycomore_py.attr("Quantity")];
-                return TimeInterval::shortest(
-                    Array_py(s).cast<Array<Quantity>>(), G_max);
-            },
+            static_cast<TimeInterval(*)(Vector3<Quantity> const &, Quantity const &)>(
+                &TimeInterval::shortest),
             "gradient_moment"_a, "G_max"_a)
         .def_property(
             "duration",

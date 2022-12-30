@@ -8,7 +8,7 @@
 #include "sycomore/Dimensions.h"
 #include "sycomore/Quantity.h"
 
-#include <iostream>
+#include "type_casters.h"
 
 namespace
 {

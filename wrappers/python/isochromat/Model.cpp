@@ -4,6 +4,8 @@
 
 #include "sycomore/isochromat/Model.h"
 
+#include "../type_casters.h"
+
 void wrap_isochromat_Model(pybind11::module & m)
 {
     using namespace pybind11;

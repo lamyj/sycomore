@@ -8,6 +8,8 @@
 #include "sycomore/Species.h"
 #include "sycomore/units.h"
 
+#include "type_casters.h"
+
 namespace
 {
 

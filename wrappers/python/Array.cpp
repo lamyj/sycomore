@@ -7,6 +7,8 @@
 #include "sycomore/Array.h"
 #include "sycomore/sycomore.h"
 
+#include "type_casters.h"
+
 template<typename T>
 pybind11::class_<sycomore::Array<T>>
 wrap_Array(

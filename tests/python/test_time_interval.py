@@ -129,6 +129,24 @@ class TestTimeInterval(unittest.TestCase):
         self.assertFalse(interval_1 == interval_5)
         self.assertTrue(interval_1 != interval_5)
     
+    def test_shortest_scalar(self):
+        M = 1000*rad/m
+        G_max = 25*mT/m
+        time_interval = sycomore.TimeInterval.shortest(M, G_max)
+        duration = M/(G_max*sycomore.gamma_bar)
+        
+        self._test_quantity_array([time_interval.duration], [duration])
+        self._test_quantity_array(time_interval.gradient_moment, 3*[M])
+    
+    def test_shortest_vector(self):
+        M = [1000*rad/m, 2000*rad/m, 3000*rad/m]
+        G_max = 25*mT/m
+        time_interval = sycomore.TimeInterval.shortest(M, G_max)
+        duration = M[2]/(G_max*sycomore.gamma_bar)
+        
+        self._test_quantity_array([time_interval.duration], [duration])
+        self._test_quantity_array(time_interval.gradient_moment, M)
+        
     def _test_quantity_array(self, left, right):
         self.assertSequenceEqual(
             [x.dimensions for x in left], [x.dimensions for x in right])

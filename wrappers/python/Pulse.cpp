@@ -3,6 +3,8 @@
 #include "sycomore/Pulse.h"
 #include "sycomore/Quantity.h"
 
+#include "type_casters.h"
+
 void wrap_Pulse(pybind11::module & m)
 {
     using namespace pybind11;

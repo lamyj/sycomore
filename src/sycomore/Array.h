@@ -6,11 +6,16 @@
 #include <ostream>
 #include <utility>
 
+#include <xtensor/xfixed.hpp>
+
 #include <sycomore/hash.h>
 #include "sycomore/sycomore_api.h"
 
 namespace sycomore
 {
+
+template <typename T>
+using Vector3 = xt::xtensor_fixed<T, xt::xshape<3>>;
 
 /// @brief One-dimensional array with arithmetic operations.
 template<typename T>

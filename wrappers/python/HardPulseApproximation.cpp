@@ -4,6 +4,8 @@
 
 #include <sycomore/HardPulseApproximation.h>
 
+#include "type_casters.h"
+
 void wrap_HardPulseApproximation(pybind11::module & m)
 {
     using namespace pybind11;

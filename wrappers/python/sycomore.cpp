@@ -5,6 +5,8 @@
 
 #include "sycomore/sycomore.h"
 
+#include "type_casters.h"
+
 void wrap_Dimensions(pybind11::module &);
 void wrap_Quantity(pybind11::module &);
 void wrap_units(pybind11::module &);

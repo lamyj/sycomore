@@ -6,8 +6,8 @@
 #include "sycomore/units.h"
 
 void test_quantity_array(
-    sycomore::Array<sycomore::Quantity> const & left,
-    sycomore::Array<sycomore::Quantity> const & right)
+    sycomore::Vector3<sycomore::Quantity> const & left,
+    sycomore::Vector3<sycomore::Quantity> const & right)
 {
     BOOST_TEST(left.size() == right.size());
     for(unsigned int i=0; i<left.size(); ++i)
@@ -20,12 +20,12 @@ void test_quantity_array(
     }
 }
 
-sycomore::Array<sycomore::Quantity> const amplitude {
+sycomore::Vector3<sycomore::Quantity> const amplitude {
     20*sycomore::units::mT/sycomore::units::m, 
     40*sycomore::units::mT/sycomore::units::m, 
     80*sycomore::units::mT/sycomore::units::m};
-sycomore::Array<sycomore::Quantity> const area(1*sycomore::units::ms*amplitude);
-sycomore::Array<sycomore::Quantity> const dephasing(sycomore::gamma*area);
+sycomore::Vector3<sycomore::Quantity> const area(1*sycomore::units::ms*amplitude);
+sycomore::Vector3<sycomore::Quantity> const dephasing(sycomore::gamma*area);
 auto const moment = dephasing;
 
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
@@ -166,12 +166,12 @@ BOOST_AUTO_TEST_CASE(AreaVectorConstructor, *boost::unit_test::tolerance(1e-9))
 
 using Getter = sycomore::Quantity (sycomore::TimeInterval::*)(sycomore::Quantity const &);
 using ScalarSetter = void (sycomore::TimeInterval::*)(sycomore::Quantity const &);
-using VectorSetter = void (sycomore::TimeInterval::*)(sycomore::Array<sycomore::Quantity> const &);
+using VectorSetter = void (sycomore::TimeInterval::*)(sycomore::Vector3<sycomore::Quantity> const &);
 
 template<typename TGetter>
 void test_gradient_accessor(
     TGetter getter, ScalarSetter scalar_setter, VectorSetter vector_setter,
-    sycomore::Array<sycomore::Quantity> const & data)
+    sycomore::Vector3<sycomore::Quantity> const & data)
 {
     using namespace sycomore::units;
     sycomore::TimeInterval interval(1._ms);

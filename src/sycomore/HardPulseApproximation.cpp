@@ -63,7 +63,7 @@ HardPulseApproximation
     return this->_time_interval;
 }
 
-Array<Quantity>
+Vector3<Quantity>
 HardPulseApproximation
 ::get_gradient_moment() const
 {

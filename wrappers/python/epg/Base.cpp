@@ -5,6 +5,8 @@
 #include "sycomore/epg/Base.h"
 #include "sycomore/Species.h"
 
+#include "../type_casters.h"
+
 void wrap_epg_Base(pybind11::module & m)
 {
     using namespace pybind11;

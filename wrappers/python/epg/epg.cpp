@@ -1,5 +1,7 @@
 #include <pybind11/pybind11.h>
 
+#include "../type_casters.h"
+
 void wrap_epg_Base(pybind11::module &);
 void wrap_epg_Discrete(pybind11::module &);
 void wrap_epg_Discrete3D(pybind11::module &);

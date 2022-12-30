@@ -5,6 +5,8 @@
 
 #include "sycomore/Dimensions.h"
 
+#include "type_casters.h"
+
 void wrap_Dimensions(pybind11::module & m)
 {
     using namespace pybind11;
