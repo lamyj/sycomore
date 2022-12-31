@@ -11,8 +11,6 @@ void wrap_Dimensions(pybind11::module &);
 void wrap_Quantity(pybind11::module &);
 void wrap_units(pybind11::module &);
 
-void wrap_Array(pybind11::module &);
-
 void wrap_Pulse(pybind11::module &);
 void wrap_HardPulseApproximation(pybind11::module &);
 void wrap_Species(pybind11::module &);
@@ -29,8 +27,6 @@ PYBIND11_MODULE(_sycomore, _sycomore)
     wrap_Quantity(_sycomore);
     wrap_units(_sycomore);
 
-    wrap_Array(_sycomore);
-
     wrap_Pulse(_sycomore);
     wrap_HardPulseApproximation(_sycomore);
     wrap_Species(_sycomore);
@@ -46,20 +42,19 @@ PYBIND11_MODULE(_sycomore, _sycomore)
     _sycomore.attr("gamma_bar") = sycomore::gamma_bar;
 
     _sycomore.def(
-        "linspace",
-        static_cast<std::vector<Quantity> (*) (Quantity, Quantity, std::size_t)>(
-            linspace<Quantity>));
+        "linspace", 
+        overload_cast<Quantity, Quantity, std::size_t>(linspace<Quantity>));
     _sycomore.def(
         "linspace",
-        static_cast<std::vector<Quantity> (*) (Quantity, std::size_t)>(
-            linspace<Quantity>));
+        overload_cast<Quantity, std::size_t>(linspace<Quantity>));
 
     _sycomore.def(
         "linspace",
-        overload_cast<Array<Quantity>, Array<Quantity>, std::size_t>(
-            linspace<Array<Quantity>>));
+        overload_cast<xt::xarray<Quantity>, xt::xarray<Quantity>, std::size_t>(
+            sycomore::linspace<xt::xarray<Quantity>>));
     _sycomore.def(
-        "linspace",
-        overload_cast<Array<Quantity>, std::size_t>(
-            linspace<Array<Quantity>>));
+        "linspace", [](xt::xarray<Quantity> span, std::size_t size){
+            return sycomore::linspace(
+                xt::eval(-span/2.), xt::eval(+span/2.), size);
+        });
 }

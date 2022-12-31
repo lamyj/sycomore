@@ -80,9 +80,7 @@ class TestEPG_X(unittest.TestCase):
     def test_magnetization_transfer(self):
         for Class, apply_time_interval in zip(self.classes, self.apply_time_interval):
             species = sycomore.Species(self.T1_MT[0], self.T2_MT)
-            M0 = [
-                sycomore.Array[float](0, 0, z)
-                for z in [1-self.f_MT, self.f_MT]]
+            M0 = [[0., 0., z] for z in [1-self.f_MT, self.f_MT]]
             model = Class(species, self.T1_MT[1], *M0, self.k_MT)
             
             # RF duration
@@ -116,7 +114,7 @@ class TestEPG_X(unittest.TestCase):
         for Class, apply_time_interval in zip(self.classes, self.apply_time_interval):
             species = [
                 sycomore.Species(T1, T2) for T1, T2 in zip(self.T1x, self.T2x)]
-            M0 = [sycomore.Array[float](0, 0, z) for z in [1-self.fx, self.fx]]
+            M0 = [[0., 0., z] for z in [1-self.fx, self.fx]]
             model = Class(*species, *M0, self.kx, self.delta_b)
         
             states = self._run(model, apply_time_interval)
