@@ -40,87 +40,43 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             arg("species_a"), arg("R1_b_or_T1_b"), arg("M0_a"), arg("M0_b"),
             arg("k_a"), arg("bin_width")=1*units::rad/units::m)
         .def_property_readonly(
-            "orders", 
-            [](Discrete3D const & model){
-                auto const orders_cpp = model.orders();
-                list orders_py(model.size());
-                for(std::size_t i=0; i<model.size(); ++i)
-                {
-                    orders_py[i] = make_tuple(
-                        orders_cpp[3*i+0], orders_cpp[3*i+1], orders_cpp[3*i+2]);
-                }
-                return orders_py;
-            },
+            "orders", &Discrete3D::orders,
             "Orders of the model.")
         .def_property_readonly("bin_width", &Discrete3D::bin_width)
         .def(
-            "state",
-            static_cast<
-                    std::vector<Complex> (Discrete3D::*)(std::size_t) const
-                >(&Discrete3D::state),
+            "state", overload_cast<std::size_t>(&Discrete3D::state, const_),
             arg("bin"),
             "Magnetization at a given state, expressed by its *index*")
         .def(
-            "state", 
-            [](Discrete3D const & model, sequence order_py) {
-                Discrete3D::Order order_cpp(order_py.size());
-                for(std::size_t i=0; i<order_py.size(); ++i)
-                {
-                    order_cpp[i] = order_py[i].cast<Quantity>();
-                }
-                return model.state(order_cpp);
-            },
+            "state",
+            overload_cast<Discrete3D::Order const &>(
+                &Discrete3D::state, const_),
             arg("order"), "Access a given state of the model")
         .def_property_readonly("elapsed", &Discrete3D::elapsed)
         .def(
             "apply_time_interval",
-            [](
-                Discrete3D & model, Quantity const & duration,
-                sequence const & gradient)
-            {
-                Array<Quantity> array(gradient.size());
-                for(std::size_t i=0; i<array.size(); ++i)
-                {
-                    array[i] = gradient[i].cast<Quantity>();
-                }
-                model.apply_time_interval(duration, array);
-            },
-            arg("duration"), arg("gradient")=Array<Quantity>{
+            overload_cast<Quantity const &, Vector3<Quantity> const &>(
+                &Discrete3D::apply_time_interval),
+            arg("duration"), arg("gradient")=Vector3<Quantity>{
                 0*units::T/units::m, 0*units::T/units::m, 0*units::T/units::m},
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects. States with a population lower than "
             "*threshold* will be removed.")
         .def(
             "apply_time_interval", 
-            static_cast<void(Discrete3D::*)(TimeInterval const &)>(
+            overload_cast<TimeInterval const &>(
                 &Discrete3D::apply_time_interval),
             arg("interval"),
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects. States with a population lower than "
             "*threshold* will be removed.")
         .def(
-            "shift", 
-            [](Discrete3D & model, Quantity duration, sequence gradient_py) {
-                Discrete3D::Order gradient_cpp(gradient_py.size());
-                for(std::size_t i=0; i<gradient_py.size(); ++i)
-                {
-                    gradient_cpp[i] = gradient_py[i].cast<Quantity>();
-                }
-                return model.shift(duration, gradient_cpp);
-            },
+            "shift", &Discrete3D::shift,
             arg("duration"), arg("gradient"),
             "Apply a gradient; in discrete EPG, this shifts all orders by "
             "specified value.")
         .def(
-            "diffusion", 
-            [](Discrete3D & model, Quantity duration, sequence gradient_py) {
-                Discrete3D::Order gradient_cpp(gradient_py.size());
-                for(std::size_t i=0; i<gradient_py.size(); ++i)
-                {
-                    gradient_cpp[i] = gradient_py[i].cast<Quantity>();
-                }
-                return model.diffusion(duration, gradient_cpp);
-            },
+            "diffusion", &Discrete3D::diffusion,
             arg("duration"), arg("gradient"),
             "Simulate diffusion during given duration with given gradient "
             "amplitude.")

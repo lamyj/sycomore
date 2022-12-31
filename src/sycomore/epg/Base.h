@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <xtensor/xarray.hpp>
+
 #include "sycomore/epg/Model.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
@@ -18,8 +20,8 @@ namespace epg
 class SYCOMORE_API Base
 {
 public:
-    using State = std::vector<Complex>;
-    using States = std::vector<Complex>;
+    using State = xt::xarray<Complex>;
+    using States = xt::xarray<Complex>;
     
     Quantity delta_omega=0*units::Hz;
     

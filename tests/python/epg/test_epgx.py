@@ -47,7 +47,7 @@ class TestEPG_X(unittest.TestCase):
             lambda model, TR: model.apply_time_interval(TR, gradient),
             lambda model, TR: model.apply_time_interval(TR, gradient),
             lambda model, TR: model.apply_time_interval(
-                TR, sycomore.Array[sycomore.Quantity](gradient, 0*mT/m, 0*mT/m))
+                TR, [gradient, 0*mT/m, 0*mT/m])
         ]
     
     def _test_single_pool(self):

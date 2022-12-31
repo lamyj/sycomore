@@ -47,17 +47,11 @@ void wrap_epg_Discrete(pybind11::module & m)
             "order as the states member. This attribute is read-only.")
         .def_property_readonly("bin_width", &Discrete::bin_width)
         .def(
-            "state",
-            static_cast<
-                    std::vector<Complex> (Discrete::*)(std::size_t) const
-                >(&Discrete::state),
+            "state", overload_cast<std::size_t>(&Discrete::state, const_),
             arg("bin"),
             "Magnetization at a given state, expressed by its *index*")
         .def(
-            "state",
-            static_cast<
-                    std::vector<Complex> (Discrete::*)(Quantity const &) const
-                >(&Discrete::state),
+            "state", overload_cast<Quantity const &>(&Discrete::state, const_),
             arg("order"),
             "Magnetization at a given state, expressed by its *order*.")
         .def(

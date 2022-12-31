@@ -8,6 +8,8 @@
 #include <utility>
 #include <vector>
 
+#include <xtensor/xio.hpp>
+
 #include "sycomore/Array.h"
 #include "sycomore/epg/Base.h"
 #include "sycomore/epg/robin_hood.h"
@@ -63,18 +65,19 @@ Discrete3D
     return this->_orders.size()/3;
 }
 
-std::vector<Discrete3D::Order::value_type>
+xt::xarray<Quantity>
 Discrete3D
 ::orders() const
 {
-    std::vector<Order::value_type> orders(this->_orders.size());
+    xt::xarray<Quantity> orders(
+        xt::xarray<Quantity>::shape_type{this->size(), 3});
     std::transform(
         this->_orders.begin(), this->_orders.end(), orders.begin(),
         [&](Orders::value_type const & k){ return k*this->_bin_width; });
     return orders;
 }
 
-std::vector<Complex>
+Discrete3D::State
 Discrete3D
 ::state(Order const & order) const
 {
@@ -111,7 +114,7 @@ Discrete3D
 void
 Discrete3D
 ::apply_time_interval(
-    Quantity const & duration, Array<Quantity> const & gradient)
+    Quantity const & duration, Vector3<Quantity> const & gradient)
 {
     if(duration.magnitude == 0)
     {
@@ -192,7 +195,7 @@ Discrete3D
 
 void
 Discrete3D
-::shift(Quantity const & duration, Array<Quantity> const & gradient)
+::shift(Quantity const & duration, Vector3<Quantity> const & gradient)
 {
     // Compute dephasing and return early if it is null.
     Bin const delta_k {
@@ -316,7 +319,7 @@ Discrete3D
 
 void
 Discrete3D
-::diffusion(Quantity const & duration, Array<Quantity> const & gradient)
+::diffusion(Quantity const & duration, Vector3<Quantity> const & gradient)
 {
     if(
         std::all_of(

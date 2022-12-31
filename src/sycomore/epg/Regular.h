@@ -71,7 +71,7 @@ public:
     using Base::state;
     
     /// @brief Return a given state of the model.
-    std::vector<Complex> state(Order const & order) const;
+    State state(Order const & order) const;
     
     /** 
      * @brief Apply a time interval, i.e. relaxation, diffusion, gradient, and

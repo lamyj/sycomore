@@ -277,10 +277,8 @@ class TestDiscrete3D(unittest.TestCase):
         self.assertEqual(model.elapsed, 10*ms)
     
     def _test_model(self, model, orders, states):
-        self.assertEqual(len(orders), len(model))
-        self.assertEqual(len(orders), len(model.orders))
-        for o1, o2 in zip(orders, model.orders):
-            self.assertSequenceEqual(o1, o2)
+        self._test_quantity_array(orders, model.orders)
+        numpy.testing.assert_allclose(states, model.states)
         
         self.assertEqual(model.states.shape, (len(orders), 3))
         numpy.testing.assert_array_almost_equal(states, model.states)
@@ -293,6 +291,15 @@ class TestDiscrete3D(unittest.TestCase):
                 model.state(3*[0*rad/m])[0], model.echo)
         except Exception:
             self.assertEqual(model.echo, 0)
+    
+    def _test_quantity_array(self, left, right):
+        self.assertEqual(numpy.shape(left), numpy.shape(right))
+        self.assertSequenceEqual(
+            [x.dimensions for x in numpy.ravel(left)],
+            [x.dimensions for x in numpy.ravel(right)])
+        self.assertSequenceEqual(
+            [x.magnitude for x in numpy.ravel(left)],
+            [x.magnitude for x in numpy.ravel(right)])
     
 if __name__ == "__main__":
     unittest.main()

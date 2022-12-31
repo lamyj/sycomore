@@ -24,23 +24,7 @@ void wrap_epg_Base(pybind11::module & m)
         .def_property_readonly("kind", &Base::kind)
         .def_property_readonly("pools", &Base::pools)
         .def_property_readonly(
-            "states", [](Base const & model){
-                std::vector<std::size_t> shape;
-                if(model.kind() == Model::SinglePool)
-                {
-                    shape = {model.size(), 3};
-                }
-                else 
-                {
-                    shape = {model.size(), model.pools(), 3};
-                }
-                
-                auto const states_cpp = model.states();
-                auto const * data = states_cpp.data();
-                
-                array_t<Complex> states_py(shape, data);
-                return states_py;
-            },
+            "states", &Base::states,
             "Return all states in the model, where each state is stored as "
             "F_k, F*_{-k}, Z_k, in order of increasing order.")
         .def_property_readonly("elapsed", &Base::elapsed)

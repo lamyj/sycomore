@@ -31,7 +31,6 @@ class SYCOMORE_API Discrete: public Base
 {
 public:
     using Order = Quantity;
-    using State = std::vector<Complex>;
     
     Quantity velocity=0*units::m/units::s;
     
@@ -67,7 +66,7 @@ public:
     using Base::state;
     
     /// @brief Return a given state of the model.
-    std::vector<Complex> state(Order const & order) const;
+    State state(Order const & order) const;
 
     /** 
      * @brief Apply a time interval, i.e. relaxation, diffusion, gradient, and

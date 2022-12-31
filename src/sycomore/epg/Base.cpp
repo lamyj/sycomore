@@ -137,14 +137,14 @@ Base::State
 Base
 ::state(std::size_t order) const
 {
-    Base::State result(3*this->_model.pools);
+    State result(State::shape_type{this->_model.pools, 3});
     for(std::size_t pool=0; pool < this->_model.pools; ++pool)
     {
-        result[3*pool+0] = this->_model.F[pool][order];
-        result[3*pool+1] = this->_model.F_star[pool][order];
-        result[3*pool+2] = this->_model.Z[pool][order];
+        result.unchecked(pool, 0) = this->_model.F[pool][order];
+        result.unchecked(pool, 1) = this->_model.F_star[pool][order];
+        result.unchecked(pool, 2) = this->_model.Z[pool][order];
     }
-    return result;
+    return xt::squeeze(result);
 }
 
 Base::States
@@ -153,19 +153,19 @@ Base
 {
     // We are keeping one set of orders for all pools: it is more logical to
     // order the dimensions as order > pool > (F, F*, Z)
-    Base::States result(3*this->size()*this->_model.pools);
+    States result(States::shape_type{this->size(), this->_model.pools, 3});
     auto it = result.begin();
     for(std::size_t order=0; order<this->size(); ++order)
     {
         for(std::size_t pool=0; pool < this->_model.pools; ++pool)
         {
-            *(it++) = this->_model.F[pool][order];
-            *(it++) = this->_model.F_star[pool][order];
-            *(it++) = this->_model.Z[pool][order];
+            result.unchecked(order, pool, 0) = this->_model.F[pool][order];
+            result.unchecked(order, pool, 1) = this->_model.F_star[pool][order];
+            result.unchecked(order, pool, 2) = this->_model.Z[pool][order];
         }
     }
     
-    return result;
+    return xt::atleast_2d(xt::squeeze(result));
 }
 
 Quantity

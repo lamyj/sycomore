@@ -73,7 +73,7 @@ Discrete
     return orders;
 }
 
-std::vector<Complex>
+Discrete::State
 Discrete
 ::state(Order const & order) const
 {

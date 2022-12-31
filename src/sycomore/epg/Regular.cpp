@@ -82,7 +82,7 @@ Regular
     return result;
 }
 
-std::vector<Complex>
+Regular::State
 Regular
 ::state(Order const & order) const
 {

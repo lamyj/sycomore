@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <xsimd/xsimd.hpp>
+#include <xtensor/xarray.hpp>
 
 #include "sycomore/Array.h"
 #include "sycomore/epg/Base.h"
@@ -49,7 +50,7 @@ namespace epg
 class SYCOMORE_API Discrete3D: public Base
 {
 public:
-    using Order = Array<Quantity>;
+    using Order = Vector3<Quantity>;
     
     Discrete3D(
         Species const & species,
@@ -78,17 +79,17 @@ public:
     virtual std::size_t size() const;
 
     /// @brief Return the orders of the model.
-    std::vector<Order::value_type> orders() const;
+    xt::xarray<Quantity> orders() const;
     
     using Base::state;
     
     /// @brief Return a given state of the model.
-    std::vector<Complex> state(Order const & order) const;
+    State state(Order const & order) const;
 
     /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
     void apply_time_interval(
         Quantity const & duration,
-        Array<Quantity> const & gradient={
+        Vector3<Quantity> const & gradient={
             0*units::T/units::m,0*units::T/units::m,0*units::T/units::m});
     
     /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
@@ -98,13 +99,13 @@ public:
      * @brief Apply a gradient; in discrete EPG, this shifts all orders by
      * specified value.
      */
-    void shift(Quantity const & duration, Array<Quantity> const & gradient);
+    void shift(Quantity const & duration, Vector3<Quantity> const & gradient);
 
     /**
      * @brief Simulate diffusion during given duration with given gradient
      * amplitude.
      */
-    void diffusion(Quantity const & duration, Array<Quantity> const & gradient);
+    void diffusion(Quantity const & duration, Vector3<Quantity> const & gradient);
     
     /// @brief Return the bin width.
     Quantity const & bin_width() const;
