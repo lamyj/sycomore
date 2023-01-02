@@ -3,5 +3,5 @@ import sys
 
 subprocess.check_call([
     "conda", "install", "--yes", "-c", "conda-forge",
-    "boost", "cmake", "ninja", "numpy", "pybind11", "scipy", "xsimd>9.0.1",
-    "xtensor>=0.24.0", "xtensor-python"])
+    "boost", "cmake", "ninja", "numpy", "pybind11", "scipy", "xsimd",
+    "xtensor", "xtensor-python"])
