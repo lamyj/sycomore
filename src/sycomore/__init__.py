@@ -8,5 +8,3 @@ for extension in extensions:
 
     module.__name__ = name
     sys.modules[name] = module
-
-from . import bloch
