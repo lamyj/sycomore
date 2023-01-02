@@ -1,5 +1,8 @@
+set(XTENSOR_USE_XSIMD 1)
+
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 find_package(xsimd REQUIRED)
+find_package(xtensor REQUIRED)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/src ${Boost_INCLUDE_DIRS} ${xsimd_INCLUDE_DIRS})
@@ -29,7 +32,7 @@ foreach(test_file ${cpp_tests})
         test_${test} PRIVATE ${CMAKE_SOURCE_DIR}/src ${Boost_LIBRARY_DIRS})
     
     target_link_libraries(
-        test_${test} PRIVATE ${Boost_LIBRARIES} libsycomore)
+        test_${test} PRIVATE ${Boost_LIBRARIES} libsycomore xtensor)
     
     set_target_properties(test_${test} PROPERTIES OUTPUT_NAME ${test})
 
@@ -48,8 +51,7 @@ foreach(test_file ${cpp_tests})
 endforeach()
 
 file(GLOB_RECURSE data data/*)
-add_custom_target(
-    data ${CMAKE_COMMAND} -E echo "Data" SOURCES ${data})
+add_custom_target(data ${CMAKE_COMMAND} -E echo "Data" SOURCES ${data})
 set_target_properties(data PROPERTIES FOLDER "Test data")
 
 file(GLOB_RECURSE python_tests python/*.py)

@@ -1,5 +1,8 @@
+set(XTENSOR_USE_XSIMD 1)
+
 find_package(pybind11 REQUIRED)
 find_package(xsimd REQUIRED)
+find_package(xtensor REQUIRED)
 find_package(xtensor-python REQUIRED)
 
 execute_process(
@@ -22,7 +25,7 @@ target_include_directories(
         ${CMAKE_SOURCE_DIR}/src ${PYTHON_INCLUDE_DIRS} ${xsimd_INCLUDE_DIRS}
         ${NUMPY_INCLUDE_DIR})
 
-target_link_libraries(pysycomore PUBLIC libsycomore)
+target_link_libraries(pysycomore PUBLIC libsycomore xtensor xtensor-python)
 
 set_target_properties(
     pysycomore PROPERTIES 

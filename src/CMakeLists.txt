@@ -1,3 +1,5 @@
+set(XTENSOR_USE_XSIMD 1)
+
 find_package(PythonInterp REQUIRED)
 find_package(xsimd REQUIRED)
 find_package(xtensor REQUIRED)
@@ -51,7 +53,7 @@ target_include_directories(
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/> $<INSTALL_INTERFACE:>
         ${xsimd_INCLUDE_DIRS})
 
-target_link_libraries(libsycomore PUBLIC xtensor xtensor::use_xsimd)
+target_link_libraries(libsycomore PUBLIC xtensor)
 
 set_target_properties(
     libsycomore PROPERTIES 
