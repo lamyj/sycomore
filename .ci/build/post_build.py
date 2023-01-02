@@ -1,8 +1,7 @@
 import os
 import subprocess
 import sys
-
-import distutils.sysconfig
+import sysconfig
 
 workspace = os.environ["WORKSPACE"]
 build_dir = os.environ.get("BUILD_DIR", os.path.join(workspace, "build"))
@@ -11,7 +10,8 @@ install_dir = os.environ.get("BUILD_DIR", os.path.join(workspace, "install"))
 bin_dir = os.path.join(install_dir, "bin")
 lib_dir = os.path.join(install_dir, "lib")
 python_lib_dir = os.path.join(
-    install_dir, distutils.sysconfig.get_python_lib(True, prefix=""))
+    install_dir,
+    sysconfig.get_path("platlib", os.name+"_user", {"userbase": "."}))
 python_tests_dir = os.path.join(workspace, "tests", "python")
 
 # Set-up environment: C++ library, Python module and test data location.
