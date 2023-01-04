@@ -1,4 +1,6 @@
-set(XTENSOR_USE_XSIMD 1)
+if(NOT MSVC)
+    set(XTENSOR_USE_XSIMD 1)
+endif()
 
 find_package(PythonInterp REQUIRED)
 find_package(xsimd REQUIRED)
