@@ -61,7 +61,7 @@ void wrap_epg_Regular(pybind11::module & m)
             "The sequence of orders currently stored by the model, in the same "
             "order as the states member. This attribute is read-only.")
         .def(
-            "state", overload_cast<std::size_t>(&Regular::state, const_),
+            "state", overload_cast<std::size_t>(&Base::state, const_),
             arg("bin"),
             "Magnetization at a given state, expressed by its *index*.")
         .def(
