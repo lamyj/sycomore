@@ -63,11 +63,11 @@ Discrete
     return this->_orders.size();
 }
 
-std::vector<Discrete::Order>
+TensorQ<1>
 Discrete
 ::orders() const
 {
-    std::vector<Order> orders(this->size());
+    TensorQ<1> orders(TensorQ<1>::shape_type{this->size()});
     std::transform(
         this->_orders.begin(), this->_orders.end(), orders.begin(),
         [&](Orders::value_type const & k){ return k*this->_bin_width; });

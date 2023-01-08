@@ -1,6 +1,8 @@
 #define BOOST_TEST_MODULE epg_Regular
 #include <boost/test/unit_test.hpp>
 
+#include <xtensor/xview.hpp>
+
 #include "sycomore/epg/Regular.h"
 #include "sycomore/Species.h"
 #include "sycomore/units.h"
@@ -18,52 +20,35 @@
         BOOST_TEST(o1.dimensions == o2.dimensions); \
     }
 
+
 void test_model(
     sycomore::epg::Regular const & model,
-    std::vector<sycomore::epg::Regular::Order> const & expected_orders,
-    std::vector<sycomore::epg::Regular::State> const & expected_states)
+    sycomore::TensorQ<1> const & expected_orders,
+    sycomore::ArrayC const & expected_states)
 {
     auto && orders = model.orders();
-    BOOST_TEST(orders.size() == expected_orders.size());
+    BOOST_TEST(orders.shape() == expected_orders.shape());
     
-    auto const & states = model.states();
-    BOOST_TEST(model.size() == expected_states.size());
-    BOOST_TEST(states.size() == 3*expected_states.size());
+    auto && states = model.states();
+    BOOST_TEST(model.size() == expected_states.shape()[0]);
+    BOOST_TEST(states.shape() == expected_states.shape());
     
     for(std::size_t i=0; i<model.size(); ++i)
     {
-        auto && expected_order = expected_orders[i];
-        auto && order = orders[i];
+        auto && order = orders(i);
+        auto && expected_order = expected_orders(i);
+        
         TEST_ORDER(order, expected_order);
         
-        auto && expected_state = expected_states[i];
+        auto && expected_state = xt::view(expected_states, i);
+        
+        for(std::size_t j=0; j<expected_state.size(); ++j)
         {
-            auto && state = model.state(i);
-            BOOST_TEST(state.size() == expected_state.size());
-            for(std::size_t j=0; j<state.size(); ++j)
-            {
-                TEST_COMPLEX_EQUAL(state[j], expected_state[j]);
-            }
-        }
-        {
-            auto && state = model.state(order);
-            BOOST_TEST(state.size() == expected_state.size());
-            for(std::size_t j=0; j<state.size(); ++j)
-            {
-                TEST_COMPLEX_EQUAL(state[j], expected_state[j]);
-            }
-        }
-        {
-            sycomore::epg::Regular::State const state{
-                states[3*i+0], states[3*i+1], states[3*i+2]};
-            BOOST_TEST(state.size() == expected_state.size());
-            for(std::size_t j=0; j<state.size(); ++j)
-            {
-                TEST_COMPLEX_EQUAL(state[j], expected_state[j]);
-            }
+            TEST_COMPLEX_EQUAL(model.state(i)(j), expected_state(j));
+            TEST_COMPLEX_EQUAL(model.state(order)(j), expected_state(j));
         }
     }
-    BOOST_TEST(model.echo() == expected_states[0][0]);
+    BOOST_TEST(model.echo() == expected_states.at(0, 0));
 }
 
 BOOST_AUTO_TEST_CASE(Empty)

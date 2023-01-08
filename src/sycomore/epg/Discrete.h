@@ -62,7 +62,7 @@ public:
     virtual std::size_t size() const;
     
     /// @brief Return the orders of the model.
-    std::vector<Order> orders() const;
+    TensorQ<1> orders() const;
     
     using Base::state;
     

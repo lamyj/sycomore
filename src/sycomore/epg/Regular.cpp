@@ -68,11 +68,11 @@ Regular
     return this->_states_count;
 }
 
-std::vector<Regular::Order>
+TensorQ<1>
 Regular
 ::orders() const
 {
-    std::vector<Order> result(this->size());
+    TensorQ<1> result(TensorQ<1>::shape_type{this->size()});
     auto const factor = 
         (this->_unit_gradient_area.magnitude != 0)
         ? this->_unit_gradient_area : Quantity(1.);

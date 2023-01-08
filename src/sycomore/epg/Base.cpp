@@ -2,7 +2,8 @@
 
 #include <cmath>
 #include <stdexcept>
-#include <vector>
+
+#include <xtensor/xview.hpp>
 
 #include "sycomore/epg/Model.h"
 #include "sycomore/epg/operators.h"
@@ -144,7 +145,8 @@ Base
         result.unchecked(pool, 1) = this->_model.F_star[pool][order];
         result.unchecked(pool, 2) = this->_model.Z[pool][order];
     }
-    return xt::squeeze(result);
+    
+    return this->_model.pools > 1 ? result : xt::view(result, 0);
 }
 
 ArrayC
@@ -165,7 +167,7 @@ Base
         }
     }
     
-    return xt::atleast_2d(xt::squeeze(result));
+    return this->_model.pools > 1 ? result : xt::view(result, xt::all(), 0);
 }
 
 Quantity

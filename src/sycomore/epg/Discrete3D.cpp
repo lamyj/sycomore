@@ -65,11 +65,11 @@ Discrete3D
     return this->_orders.size()/3;
 }
 
-ArrayQ
+TensorQ<2>
 Discrete3D
 ::orders() const
 {
-    ArrayQ orders(ArrayQ::shape_type{this->size(), 3});
+    TensorQ<2> orders(TensorQ<2>::shape_type{this->size(), 3});
     std::transform(
         this->_orders.begin(), this->_orders.end(), orders.begin(),
         [&](Orders::value_type const & k){ return k*this->_bin_width; });

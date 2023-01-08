@@ -1,7 +1,9 @@
 #ifndef _dc7a30fd_6048_4dfc_a551_efae434269f0
 #define _dc7a30fd_6048_4dfc_a551_efae434269f0
 
+#include <xtensor/xarray.hpp>
 #include <xtensor/xfixed.hpp>
+#include <xtensor/xtensor.hpp>
 
 namespace sycomore
 {

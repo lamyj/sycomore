@@ -1,10 +1,6 @@
 #ifndef _d635f223_7e0b_4f80_ab43_c03b499864f2
 #define _d635f223_7e0b_4f80_ab43_c03b499864f2
 
-#include <vector>
-
-#include <xtensor/xarray.hpp>
-
 #include "sycomore/Array.h"
 #include "sycomore/epg/Model.h"
 #include "sycomore/Species.h"

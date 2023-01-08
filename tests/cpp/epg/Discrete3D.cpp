@@ -16,13 +16,14 @@
 
 void test_model(
     sycomore::epg::Discrete3D const & model,
-    sycomore::ArrayQ const & expected_orders,
-    sycomore::ArrayQ const & expected_states)
+    sycomore::TensorQ<2> const & expected_orders,
+    sycomore::ArrayC const & expected_states)
 {
     auto && orders = model.orders();
     BOOST_TEST(orders.shape() == expected_orders.shape());
     
     auto && states = model.states();
+    BOOST_TEST(model.size() == expected_states.shape()[0]);
     BOOST_TEST(states.shape() == expected_states.shape());
     
     for(std::size_t i=0; i<model.size(); ++i)
@@ -42,7 +43,6 @@ void test_model(
             TEST_COMPLEX_EQUAL(model.state(i)(j), expected_state(j));
             TEST_COMPLEX_EQUAL(model.state(order)(j), expected_state(j));
         }
-        
     }
 }
 
