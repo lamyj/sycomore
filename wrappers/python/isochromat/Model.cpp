@@ -16,45 +16,45 @@ void wrap_isochromat_Model(pybind11::module & m)
     class_<Model>(m, "Model")
         .def(
             init<
-                Real, Real,
-                xt::xtensor<Real, 1> const &, xt::xtensor<Real, 2> const &>(),
+                Quantity const &, Quantity const &, TensorR<1> const &,
+                TensorQ<2> const &>(),
             "T1"_a, "T2"_a, "M0"_a, "positions"_a)
         .def(
             init<
-                xt::xtensor<Real, 1>, xt::xtensor<Real, 1>,
-                xt::xtensor<Real, 2> const &, xt::xtensor<Real, 2> const &>(),
+                TensorQ<1> const &, TensorQ<1> const &, TensorR<2> const &,
+                TensorQ<2> const &>(),
             "T1"_a, "T2"_a, "M0"_a, "positions"_a)
         .def(
             "build_pulse",
-            overload_cast<Real, Real>(&Model::build_pulse, const_),
+            overload_cast<Quantity const &, Quantity const &>(
+                &Model::build_pulse, const_),
             "angle"_a, "phase"_a)
         .def(
             "build_pulse",
-            overload_cast<
-                    xt::xtensor<Real, 1> const &,
-                    xt::xtensor<Real, 1> const &>(
+            overload_cast<TensorQ<1> const &, TensorQ<1> const &>(
                 &Model::build_pulse, const_),
             "angle"_a, "phase"_a)
         .def(
             "build_time_interval",
-            overload_cast<Real, Real, xt::xtensor<Real, 1> const &>(
+            overload_cast<
+                    Quantity const &, Quantity const &, TensorQ<1> const &>(
                 &Model::build_time_interval, const_),
             "duration"_a, "delta_omega"_a, "gradient"_a)
         .def(
             "build_time_interval",
             overload_cast<
-                    Real, xt::xtensor<Real, 1> const &, 
-                    xt::xtensor<Real, 2> const &>(
+                    Quantity const &, TensorQ<1> const &, TensorQ<2> const &>(
                 &Model::build_time_interval, const_),
             "duration"_a, "delta_omega"_a, "gradient"_a)
         .def("build_relaxation", &Model::build_relaxation, "duration"_a)
         .def(
             "build_phase_accumulation",
-            overload_cast<Real>(&Model::build_phase_accumulation, const_),
+            overload_cast<Quantity const &>(
+                &Model::build_phase_accumulation, const_),
             "angle"_a)
         .def(
             "build_phase_accumulation",
-            overload_cast<xt::xtensor<Real, 1> const &>(
+            overload_cast<TensorQ<1> const &>(
                 &Model::build_phase_accumulation, const_),
             "angle"_a)
         .def("apply", &Model::apply, "operator"_a)

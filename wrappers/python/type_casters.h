@@ -25,8 +25,8 @@ struct type_caster<xt::xarray<sycomore::Quantity, L>>:
 };
 
 template<std::size_t N, xt::layout_type L>
-struct type_caster<xt::xtensor<sycomore::Quantity, N, L>>:
-    public object_type_caster<xt::xtensor<sycomore::Quantity, N, L>>
+struct type_caster<sycomore::TensorQ<N, L>>:
+    public object_type_caster<sycomore::TensorQ<N, L>>
 {
 };
 

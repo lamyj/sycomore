@@ -15,7 +15,6 @@
 namespace sycomore
 {
 
-using Real = double;
 using Complex = std::complex<Real>;
 using Magnetization = xt::xtensor_fixed<Real, xt::xshape<3>>;
 

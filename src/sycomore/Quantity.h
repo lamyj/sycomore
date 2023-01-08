@@ -2,6 +2,9 @@
 #define _bd3de17b_e4fa_4e7f_8d72_8ac9df01606f
 
 #include <ostream>
+#include <xtensor/xtensor.hpp>
+
+#include "sycomore/Array.h"
 #include "sycomore/Dimensions.h"
 #include "sycomore/sycomore_api.h"
 
@@ -110,6 +113,26 @@ template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>:
 Quantity operator%(Quantity q, T s) { q %= double(s); return q; }
 
 SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Quantity const & q);
+
+template<std::size_t N, xt::layout_type L=XTENSOR_DEFAULT_LAYOUT>
+using TensorQ = xt::xtensor<Quantity, N, L>;
+
+template<typename SourceIt, typename DestinationIt>
+DestinationIt convert_to(
+    SourceIt const & begin, SourceIt const & end, DestinationIt destination,
+    Quantity const & t)
+{
+    return std::transform(
+        begin, end, destination, [&](auto && x) { return x.convert_to(t); });
+}
+
+template<std::size_t N, xt::layout_type L=XTENSOR_DEFAULT_LAYOUT>
+TensorR<N, L> convert_to(TensorQ<N, L> const & q, Quantity const & t)
+{
+    TensorR<N, L> r(q.shape());
+    convert_to(q.begin(), q.end(), r.begin(), t);
+    return r;
+}
 
 }
 

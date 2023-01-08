@@ -4,13 +4,16 @@
 #include <xtensor/xmath.hpp>
 #include <xtensor/xview.hpp>
 #include "sycomore/isochromat/Model.h"
+#include "sycomore/units.h"
 
 BOOST_AUTO_TEST_CASE(PulseUniform)
 {
-    xt::xtensor<sycomore::Real, 2> positions{{0,0,0}};
-    sycomore::isochromat::Model model(1, 0.1, {0,0,1}, positions);
+    using namespace sycomore::units;
     
-    auto const op = model.build_pulse(M_PI/2, M_PI/3);
+    xt::xtensor<sycomore::Quantity, 2> positions{{0*m,0*m,0*m}};
+    sycomore::isochromat::Model model(1*s, 0.1*s, {0,0,1}, positions);
+    
+    auto const op = model.build_pulse(M_PI/2*rad, M_PI/3*rad);
     sycomore::isochromat::Operator::Array pulse{
         {{           0.25, std::sqrt(3)/4,  std::sqrt(3)/2, 0},
          { std::sqrt(3)/4,           0.75,            -0.5, 0},
@@ -22,9 +25,12 @@ BOOST_AUTO_TEST_CASE(PulseUniform)
 
 BOOST_AUTO_TEST_CASE(PulseVariable)
 {
-    xt::xtensor<sycomore::Real, 2> positions{{-1,0,0}, {1,0,0}};
-    sycomore::isochromat::Model model(1, 0.1, {0,0,1}, positions);
-    auto const op = model.build_pulse({M_PI/2., M_PI/3}, {M_PI/3., M_PI/2.});
+    using namespace sycomore::units;
+    
+    xt::xtensor<sycomore::Quantity, 2> positions{{-1*m,0*m,0*m}, {1*m,0*m,0*m}};
+    sycomore::isochromat::Model model(1*s, 0.1*s, {0,0,1}, positions);
+    auto const op = model.build_pulse(
+        {M_PI/2.*rad, M_PI/3*rad}, {M_PI/3.*rad, M_PI/2.*rad});
     sycomore::isochromat::Operator::Array pulse{
         {{           0.25, std::sqrt(3)/4, std::sqrt(3)/2, 0},
          { std::sqrt(3)/4,           0.75,           -0.5, 0},
@@ -41,11 +47,13 @@ BOOST_AUTO_TEST_CASE(PulseVariable)
 
 BOOST_AUTO_TEST_CASE(Relaxation)
 {
-    xt::xtensor<sycomore::Real, 2> positions{{{0,0,0}, {1,0,0}}};
-    sycomore::isochromat::Model model(
-        {1., 2.}, {0.1, 0.2}, {{0,0,2}, {0,0,1}}, positions);
+    using namespace sycomore::units;
     
-    auto op = model.build_relaxation(1e-3);
+    xt::xtensor<sycomore::Quantity, 2> positions{{{0*m,0*m,0*m}, {1*m,0*m,0*m}}};
+    sycomore::isochromat::Model model(
+        {1*s, 2*s}, {0.1*s, 0.2*s}, {{0,0,2}, {0,0,1}}, positions);
+    
+    auto op = model.build_relaxation(1*ms);
     
     std::vector<sycomore::Real> E1{std::exp(-1e-3/1.), std::exp(-1e-3/2.)};
     std::vector<sycomore::Real> E2{std::exp(-1e-3/0.1), std::exp(-1e-3/0.2)};
@@ -64,10 +72,12 @@ BOOST_AUTO_TEST_CASE(Relaxation)
 
 BOOST_AUTO_TEST_CASE(PhaseAccumulation)
 {
-    xt::xtensor<sycomore::Real, 2> positions{{{0,0,0}, {1,0,0}}};
-    sycomore::isochromat::Model model(1., 0.1, {0,0,1}, positions);
+    using namespace sycomore::units;
     
-    auto op = model.build_phase_accumulation({M_PI/6., M_PI/3.});
+    xt::xtensor<sycomore::Quantity, 2> positions{{{0*m,0*m,0*m}, {1*m,0*m,0*m}}};
+    sycomore::isochromat::Model model(1*s, 0.1*s, {0,0,1}, positions);
+    
+    auto op = model.build_phase_accumulation({M_PI/6.*rad, M_PI/3.*rad});
     
     sycomore::isochromat::Operator::Array phase_accumulation{
         {{ std::sqrt(3.)/2.,             -0.5, 0, 0},
@@ -84,105 +94,127 @@ BOOST_AUTO_TEST_CASE(PhaseAccumulation)
 
 BOOST_AUTO_TEST_CASE(TimeIntervalUniform)
 {
-    xt::xtensor<sycomore::Real, 2> positions{
-        {0, 0, 0}, {1e-3, 2e-3, 3e-3}};
-    sycomore::isochromat::Model model(1., 0.1, {0, 0, 1}, positions);
+    using namespace sycomore::units;
     
-    auto op = model.build_time_interval(10e-3, 400, {20e-3, 0, 10e-3});
+    xt::xtensor<sycomore::Quantity, 2> positions{
+        {0*m, 0*m, 0*m}, {1*mm, 2*mm, 3*mm}};
+    sycomore::isochromat::Model model(1*s, 0.1*s, {0, 0, 1}, positions);
+    
+    auto op = model.build_time_interval(
+        10_ms, 400*Hz, {20*mT/m, 0*mT/m, 10*mT/m});
     
     auto combined = model.build_phase_accumulation(2*M_PI*400*10e-3);
-    combined.preMultiply(model.build_relaxation(10e-3));
+    combined.preMultiply(model.build_relaxation(10*ms));
     BOOST_TEST(xt::allclose(xt::view(op.array(), 0), combined.array()));
     
     combined = model.build_phase_accumulation(
         2*M_PI*400*10e-3 + sycomore::gamma.magnitude*50e-6*10e-3);
-    combined.preMultiply(model.build_relaxation(10e-3));
+    combined.preMultiply(model.build_relaxation(10*ms));
     BOOST_TEST(xt::allclose(xt::view(op.array(), 1), combined.array()));
 }
 
 BOOST_AUTO_TEST_CASE(TimeIntervalVariable)
 {
-    xt::xtensor<sycomore::Real, 2> positions{
-        {-1e-3, 2e-3, 3e-3}, {1e-3, 0, 3e-3}};
-    sycomore::isochromat::Model model(1., 0.1, {0, 0, 1}, positions);
+    using namespace sycomore::units;
+    
+    xt::xtensor<sycomore::Quantity, 2> positions{
+        {-1*mm, 2*mm, 3*mm}, {1*mm, 0*mm, 3*mm}};
+    sycomore::isochromat::Model model(1*s, 0.1*s, {0, 0, 1}, positions);
     
     auto op = model.build_time_interval(
-        10e-3, {400, 600}, {{20e-3, 0, 10e-3}, {15e-3, 17e-3, 0}});
+        10*ms, {400*Hz, 600*Hz},
+        {{20*mT/m, 0*mT/m, 10*mT/m}, {15*mT/m, 17e-3*mT/m, 0*mT/m}});
     
     auto combined = model.build_phase_accumulation(
         2*M_PI*400*10e-3 + sycomore::gamma.magnitude*10e-6*10e-3);
-    combined.preMultiply(model.build_relaxation(10e-3));
+    combined.preMultiply(model.build_relaxation(10*ms));
     BOOST_TEST(xt::allclose(xt::view(op.array(), 0), combined.array()));
     
     combined = model.build_phase_accumulation(
         2*M_PI*600*10e-3 + sycomore::gamma.magnitude*15e-6*10e-3);
-    combined.preMultiply(model.build_relaxation(10e-3));
+    combined.preMultiply(model.build_relaxation(10*ms));
     BOOST_TEST(xt::allclose(xt::view(op.array(), 1), combined.array()));
 }
 
 BOOST_AUTO_TEST_CASE(T1)
 {
+    using namespace sycomore::units;
+    
     sycomore::isochromat::Model const model_1(
-        1., 2., {3., 4., 5.}, {{0., 0., 11.}, {0., 0., 12.}});
-    BOOST_TEST((model_1.T1() == xt::xtensor<double, 1>{{1.}}));
+        1*ms, 2*ms, {3., 4., 5.}, {{0*m, 0*m, 11*m}, {0*m, 0*m, 12*m}});
+    BOOST_TEST((
+        model_1.T1() == xt::xtensor<sycomore::Quantity, 1>{{1*ms, 1*ms}}));
     
     sycomore::isochromat::Model const model_2(
-        {1., 2.}, {3., 4.},
-        {{5., 6., 7., 1.}, {8., 9., 10., 1.}}, {{0., 0., 11.}, {0., 0., 12.}});
-    BOOST_TEST((model_2.T1() == xt::xtensor<double, 1>{{1., 2.}}));
+        {1*ms, 2*ms}, {3*ms, 4*ms},
+        {{5., 6., 7.}, {8., 9., 10.}}, {{0*m, 0*m, 11*m}, {0*m, 0*m, 12*m}});
+    BOOST_TEST((
+        model_2.T1() == xt::xtensor<sycomore::Quantity, 1>{{1*ms, 2*ms}}));
 }
 
 BOOST_AUTO_TEST_CASE(T2)
 {
+    using namespace sycomore::units;
+    
     sycomore::isochromat::Model const model_1(
-        1., 2., {3., 4., 5.}, {{0., 0., 11.}, {0., 0., 12.}});
-    BOOST_TEST((model_1.T2() == xt::xtensor<double, 1>{{2.}}));
+        1*ms, 2*ms, {3., 4., 5.}, {{0*m, 0*m, 11*m}, {0*m, 0*m, 12*m}});
+    BOOST_TEST((
+        model_1.T2() == xt::xtensor<sycomore::Quantity, 1>{{2*ms, 2*ms}}));
     
     sycomore::isochromat::Model const model_2(
-        {1., 2.}, {3., 4.},
-        {{5., 6., 7., 1.}, {8., 9., 10., 1.}}, {{0., 0., 11.}, {0., 0., 12.}});
-    BOOST_TEST((model_2.T2() == xt::xtensor<double, 1>{{3., 4.}}));
+        {1*ms, 2*ms}, {3*ms, 4*ms},
+        {{5., 6., 7.}, {8., 9., 10.}}, {{0*m, 0*m, 11*m}, {0*m, 0*m, 12*m}});
+    BOOST_TEST((
+        model_2.T2() == xt::xtensor<sycomore::Quantity, 1>{{3*ms, 4*ms}}));
 }
 
 BOOST_AUTO_TEST_CASE(M0)
 {
+    using namespace sycomore::units;
+    
     sycomore::isochromat::Model const model_1(
-        1., 2., {3., 4., 5.}, {{0., 0., 11.}, {0., 0., 12.}});
-    BOOST_TEST((model_1.M0() == xt::xtensor<double, 1>{{5.}}));
+        1*ms, 2*ms, {3., 4., 5.}, {{0*m, 0*m, 11*m}, {0*m, 0*m, 12*m}});
+    BOOST_TEST((model_1.M0() == xt::xtensor<double, 1>{{5., 5.}}));
     
     sycomore::isochromat::Model const model_2(
-        {1., 2.}, {3., 4.},
-        {{5., 6., 7., 1.}, {8., 9., 10., 1.}}, {{0., 0., 11.}, {0., 0., 12.}});
+        {1*ms, 2*ms}, {3*ms, 4*ms},
+        {{5., 6., 7.}, {8., 9., 10.}}, {{0*m, 0*m, 11*m}, {0*m, 0*m, 12*m}});
     BOOST_TEST((model_2.M0() == xt::xtensor<double, 1>{{7., 10.}}));
 }
 
 BOOST_AUTO_TEST_CASE(Magnetization)
 {
+    using namespace sycomore::units;
+    
     sycomore::isochromat::Model const model_1(
-        1., 2., {3., 4., 5.}, {{0., 0., 11.}, {0., 0., 12.}});
+        1*s, 2*s, {3., 4., 5.}, {{0*m, 0*m, 11*m}, {0*m, 0*m, 12*m}});
     BOOST_TEST((
         model_1.magnetization()
-        == xt::xtensor<double, 2>{{3., 4., 5., 1.}, {3., 4., 5., 1.}}));
+        == xt::xtensor<double, 2>{{3., 4., 5.}, {3., 4., 5.}}));
     
     sycomore::isochromat::Model const model_2(
-        {1., 2.}, {3., 4.},
-        {{5., 6., 7., 1.}, {8., 9., 10., 1.}}, {{0., 0., 11.}, {0., 0., 12.}});
+        {1*s, 2*s}, {3*s, 4*s},
+        {{5., 6., 7.}, {8., 9., 10.}}, {{0*m, 0*m, 11*m}, {0*m, 0*m, 12*m}});
     BOOST_TEST((
         model_2.magnetization()
-        == xt::xtensor<double, 2>{{5., 6., 7., 1.}, {8., 9., 10., 1.}}));
+        == xt::xtensor<double, 2>{{5., 6., 7.}, {8., 9., 10.}}));
 }
 
 BOOST_AUTO_TEST_CASE(Positions)
 {
+    using namespace sycomore::units;
+    
     sycomore::isochromat::Model const model(
-        1., 2., {3., 4., 5.}, {{0., 0., 11.}, {0., 0., 12.}});
+        1*ms, 2*ms, {3., 4., 5.}, {{0*m, 0*m, 11*m}, {0*m, 0*m, 12*m}});
     BOOST_TEST((
-        model.positions()
-        == xt::xtensor<double, 2>{{0., 0., 11.}, {0., 0., 12.}}));
+        model.positions() == xt::xtensor<sycomore::Quantity, 2>{
+            {0*m, 0*m, 11*m}, {0*m, 0*m, 12*m}}));
 }
 
 BOOST_AUTO_TEST_CASE(Apply)
 {
+    using namespace sycomore::units;
+    
     sycomore::isochromat::Operator operator_({
         {
             {1, 2, 3, 10},
@@ -199,13 +231,12 @@ BOOST_AUTO_TEST_CASE(Apply)
     });
     
     sycomore::isochromat::Model model(
-        {1., 1.}, {1., 1.},
-        {{19., 20., 21., 1.}, {22., 23., 24., 1.}}, {{0., 0., 0.}, {0., 0., 1.}});
+        {1*s, 1*s}, {1*s, 1*s},
+        {{19., 20., 21.}, {22., 23., 24.}}, {{0*m, 0*m, 0*m}, {0*m, 0*m, 1*m}});
     model.apply(operator_);
     
     decltype(model.magnetization()) magnetization{
-        {132, 322, 512, 1},
-        {801, 1018, 1235, 1}};
+        {132, 322, 512}, {801, 1018, 1235}};
     
     BOOST_TEST(xt::allclose(model.magnetization(), magnetization));
 }

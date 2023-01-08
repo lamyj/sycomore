@@ -3,6 +3,7 @@
 
 #include <xtensor/xtensor.hpp>
 
+#include "sycomore/Quantity.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/isochromat/Operator.h"
 
@@ -16,43 +17,42 @@ class SYCOMORE_API Model
 {
 public:
     Model(
-        Real T1, Real T2,
-        xt::xtensor<Real, 1> const & M0, xt::xtensor<Real, 2> const & positions);
+        Quantity const & T1, Quantity const & T2, TensorR<1> const & M0, 
+        TensorQ<2> const & positions);
     Model(
-        xt::xtensor<Real, 1> const & T1, xt::xtensor<Real, 1> const & T2,
-        xt::xtensor<Real, 2> const & M0, xt::xtensor<Real, 2> const & positions);
+        TensorQ<1> const & T1, TensorQ<1> const & T2, TensorR<2> const & M0,
+        TensorQ<2> const & positions);
     
-    Operator build_pulse(Real angle, Real phase) const;
+    Operator build_pulse(Quantity const & angle, Quantity const & phase) const;
     Operator build_pulse(
-        xt::xtensor<Real, 1> const & angle,
-        xt::xtensor<Real, 1> const & phase) const;
+        TensorQ<1> const & angle, TensorQ<1> const & phase) const;
     
     Operator build_time_interval(
-        Real duration, Real delta_omega,
-        xt::xtensor<Real, 1> const & gradient) const;
+        Quantity const & duration, Quantity const & delta_omega,
+        TensorQ<1> const & gradient) const;
     Operator build_time_interval(
-        Real duration, xt::xtensor<Real, 1> const & delta_omega,
-        xt::xtensor<Real, 2> const & gradient) const;
+        Quantity const & duration, TensorQ<1> const & delta_omega,
+        TensorQ<2> const & gradient) const;
     
-    Operator build_relaxation(Real duration) const;
+    Operator build_relaxation(Quantity const & duration) const;
     
-    Operator build_phase_accumulation(Real angle) const;
-    Operator build_phase_accumulation(xt::xtensor<Real, 1> const & angle) const;
+    Operator build_phase_accumulation(Quantity const & angle) const;
+    Operator build_phase_accumulation(TensorQ<1> const & angle) const;
     
     void apply(Operator const & operator_);
     
-    xt::xtensor<Real, 1> const & T1() const;
-    xt::xtensor<Real, 1> const & T2() const;
-    xt::xtensor<Real, 1> const & M0() const;
-    xt::xtensor<Real, 2> const & magnetization() const;
-    xt::xtensor<Real, 2> const & positions() const;
+    TensorQ<1> T1() const;
+    TensorQ<1> T2() const;
+    TensorR<1> const & M0() const;
+    TensorR<2> magnetization() const;
+    TensorQ<2> positions() const;
     
 private:
-    xt::xtensor<Real, 1> _T1;
-    xt::xtensor<Real, 1> _T2;
-    xt::xtensor<Real, 1> _M0;
-    xt::xtensor<Real, 2> _magnetization;
-    xt::xtensor<Real, 2> _positions;
+    TensorR<1> _T1;
+    TensorR<1> _T2;
+    TensorR<1> _M0;
+    TensorR<2> _magnetization;
+    TensorR<2> _positions;
 };
 
 }

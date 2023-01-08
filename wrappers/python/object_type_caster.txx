@@ -11,19 +11,46 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
+#include <xtensor/xarray.hpp>
 #include <xtensor/xfixed.hpp>
+#include <xtensor/xtensor.hpp>
 
-template<typename Container>
-void assign_empty(std::vector<std::size_t> const & s, Container & c)
+// NOTE: the initialization of the shape type differs across containers. We need
+// to have specialization for each container type.
+
+template<typename ET, xt::layout_type L>
+bool assign_empty(std::vector<std::size_t> const & s, xt::xarray<ET, L> & c)
 {
-    c = Container(typename Container::shape_type{s.begin(), s.end()});
+    typename xt::xarray<ET, L>::shape_type const shape(s.begin(), s.end());
+    c = xt::xarray<ET, L>(shape);
+    return true;
 }
 
+template<typename ET, std::size_t N, xt::layout_type L>
+bool assign_empty(std::vector<std::size_t> const & s, xt::xtensor<ET, N, L> & c)
+{
+    if(s.size() != N)
+    {
+        return false;
+    }
+    
+    typename xt::xtensor<ET, N, L>::shape_type shape;
+    std::copy(s.begin(), s.end(), shape.begin());
+    c = xt::xtensor<ET, N, L>(shape);
+    return true;
+}
+
+
 template<typename ET, typename FSH, xt::layout_type L>
-void assign_empty(
+bool assign_empty(
     std::vector<std::size_t> const & s, xt::xtensor_fixed<ET, FSH, L> & c)
 {
+    if(!xt::same_shape(s, FSH()))
+    {
+        return false;
+    }
     c = xt::xtensor_fixed<ET, FSH, L>();
+    return true;
 }
 
 template<typename Container>
@@ -39,23 +66,47 @@ object_type_caster<Container>
         auto const info = source.cast<pybind11::buffer>().request();
         if(info.format != "O")
         {
-            throw std::runtime_error("Must be an object buffer");
+            return false;
         }
         
-        assign_empty(Self::_shape(info), value);
+        std::vector<std::size_t> shape;
+        try
+        {
+            shape = Self::_shape(info);
+        }
+        catch(std::runtime_error const &)
+        {
+            return false;
+        }
+        if(!assign_empty(shape, value))
+        {
+            return false;
+        }
         this->_copy(info);
     }
     else if(pybind11::isinstance<pybind11::sequence>(source))
     {
         auto sequence = source.cast<pybind11::sequence>();
-        assign_empty(Self::_shape(sequence), value);
+        
+        std::vector<std::size_t> shape;
+        try
+        {
+            shape = Self::_shape(sequence);
+        }
+        catch(std::runtime_error const &)
+        {
+            return false;
+        }
+        
+        if(!assign_empty(shape, value))
+        {
+            return false;
+        }
         this->_copy(sequence);
     }
     else
     {
-        throw std::runtime_error(
-            "Cannot create array from "
-            +pybind11::str(source).cast<std::string>());
+        return false;
     }
     
     return (PyErr_Occurred() == NULL);
@@ -77,15 +128,7 @@ object_type_caster<Container>
         strides.begin(), strides.end(),
         [](auto & x){ x *= sizeof(PyObject*); });
     pybind11::array destination(pybind11::dtype("O"), source.shape(), strides);
-    // for(std::size_t i=0; i<destination.ndim(); ++i)
-    // {
-    //     std::cout << strides[i] << " ";
-    // }
-    // for(std::size_t i=0; i<destination.ndim(); ++i)
-    // {
-    //     std::cout << destination.strides(i) << " ";
-    // }
-    // std::cout << std::endl;
+    
     auto destination_ptr = reinterpret_cast<PyObject**>(
         destination.mutable_data());
     
