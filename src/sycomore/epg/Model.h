@@ -4,6 +4,7 @@
 #include <vector>
 #include <xsimd/xsimd.hpp>
 
+#include "sycomore/Array.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
@@ -41,19 +42,21 @@ public:
     std::vector<Population> F, F_star, Z;
     
     /// @brief Create a single-pool model.
-    Model(Species const & species, Magnetization M0, std::size_t initial_size);
+    Model(
+        Species const & species, Vector3<Real> const & M0,
+        std::size_t initial_size);
     
     /// @brief Create an exchange model.
     Model(
         Species const & species_a, Species const & species_b,
-        Magnetization const & M0_a, Magnetization const & M0_b,
+        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
         Quantity const & k_a, Quantity const & delta_b,
         std::size_t initial_size);
     
     /// @brief Create a magnetization transfer model.
     Model(
         Species const & species_a, Quantity const & R1_b_or_T1_b,
-        Magnetization const & M0_a, Magnetization const & M0_b,
+        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
         Quantity const & k_a,
         std::size_t initial_size);
     
@@ -64,7 +67,7 @@ public:
     
 private:
     void _initialize(
-        std::vector<Magnetization> const & M0, std::size_t initial_size);
+        std::vector<Vector3<Real>> const & M0, std::size_t initial_size);
 };
     
 }

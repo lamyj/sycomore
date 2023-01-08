@@ -15,9 +15,6 @@
 namespace sycomore
 {
 
-using Complex = std::complex<Real>;
-using Magnetization = xt::xtensor_fixed<Real, xt::xshape<3>>;
-
 SYCOMORE_API extern Dimensions const Diffusion;
 
 // NOTE: gradient moment is gamma * integral(g(t)*dt), with gamma in

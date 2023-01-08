@@ -4,6 +4,7 @@
 
 #include <xsimd/xsimd.hpp>
 
+#include "sycomore/Array.h"
 #include "sycomore/epg/Base.h"
 #include "sycomore/epg/operators.h"
 #include "sycomore/epg/simd_api.h"
@@ -22,7 +23,7 @@ namespace epg
 
 Regular
 ::Regular(
-    Species const & species, Magnetization const & initial_magnetization, 
+    Species const & species, Vector3<Real> const & initial_magnetization, 
     unsigned int initial_size, 
     Quantity const & unit_gradient_area, double gradient_tolerance)
 : Base(species, initial_magnetization, initial_size),
@@ -35,7 +36,7 @@ Regular
 Regular
 ::Regular(
     Species const & species_a, Species const & species_b,
-    Magnetization const & M0_a, Magnetization const & M0_b,
+    Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
     Quantity const & k_a, Quantity const & delta_b,
     unsigned int initial_size, Quantity const & unit_gradient_area,
     double gradient_tolerance)
@@ -49,7 +50,7 @@ Regular
 Regular
 ::Regular(
     Species const & species_a, Quantity const & R1_b_or_T1_b,
-    Magnetization const & M0_a, Magnetization const & M0_b,
+    Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
     Quantity const & k_a,
     unsigned int initial_size, Quantity const & unit_gradient_area,
     double gradient_tolerance)
@@ -82,7 +83,7 @@ Regular
     return result;
 }
 
-Regular::State
+ArrayC
 Regular
 ::state(Order const & order) const
 {

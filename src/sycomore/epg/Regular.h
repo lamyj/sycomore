@@ -5,6 +5,7 @@
 
 #include <xsimd/xsimd.hpp>
 
+#include "sycomore/Array.h"
 #include "sycomore/epg/Base.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -35,14 +36,14 @@ public:
     
     Regular(
         Species const & species, 
-        Magnetization const & initial_magnetization={0,0,1}, 
+        Vector3<Real> const & initial_magnetization={0,0,1}, 
         unsigned int initial_size=100, 
         Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
         double gradient_tolerance=1e-5);
     
     Regular(
         Species const & species_a, Species const & species_b,
-        Magnetization const & M0_a, Magnetization const & M0_b,
+        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
         Quantity const & k_a, Quantity const & delta_b=0*units::Hz,
         unsigned int initial_size=100, 
         Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
@@ -50,7 +51,7 @@ public:
     
     Regular(
         Species const & species_a, Quantity const & R1_b_or_T1_b,
-        Magnetization const & M0_a, Magnetization const & M0_b,
+        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
         Quantity const & k_a,
         unsigned int initial_size=100, 
         Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
@@ -71,7 +72,7 @@ public:
     using Base::state;
     
     /// @brief Return a given state of the model.
-    State state(Order const & order) const;
+    ArrayC state(Order const & order) const;
     
     /** 
      * @brief Apply a time interval, i.e. relaxation, diffusion, gradient, and

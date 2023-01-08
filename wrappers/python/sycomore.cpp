@@ -50,10 +50,9 @@ PYBIND11_MODULE(_sycomore, _sycomore)
 
     _sycomore.def(
         "linspace",
-        overload_cast<xt::xarray<Quantity>, xt::xarray<Quantity>, std::size_t>(
-            sycomore::linspace<xt::xarray<Quantity>>));
+        overload_cast<ArrayQ, ArrayQ, std::size_t>(sycomore::linspace<ArrayQ>));
     _sycomore.def(
-        "linspace", [](xt::xarray<Quantity> span, std::size_t size){
+        "linspace", [](ArrayQ span, std::size_t size){
             return sycomore::linspace(
                 xt::eval(-span/2.), xt::eval(+span/2.), size);
         });

@@ -16,8 +16,8 @@
 
 void test_model(
     sycomore::epg::Discrete3D const & model,
-    xt::xarray<sycomore::Quantity> const & expected_orders,
-    xt::xarray<sycomore::Complex> const & expected_states)
+    sycomore::ArrayQ const & expected_orders,
+    sycomore::ArrayQ const & expected_states)
 {
     auto && orders = model.orders();
     BOOST_TEST(orders.shape() == expected_orders.shape());
@@ -56,8 +56,8 @@ BOOST_AUTO_TEST_CASE(Empty, *boost::unit_test::tolerance(1e-9))
 
     sycomore::epg::Discrete3D model(species);
 
-    xt::xarray<sycomore::Quantity> const orders{{0*rad/m, 0*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{{0, 0, 1}};
+    sycomore::ArrayQ const orders{{0*rad/m, 0*rad/m, 0*rad/m}};
+    sycomore::ArrayC const states{{0, 0, 1}};
     test_model(model, orders, states);
     TEST_COMPLEX_EQUAL(model.echo(), 0);
 }
@@ -69,8 +69,8 @@ BOOST_AUTO_TEST_CASE(Pulse, *boost::unit_test::tolerance(1e-9))
     sycomore::epg::Discrete3D model(species);
     model.apply_pulse(47*deg, 23*deg);
 
-    xt::xarray<sycomore::Quantity> const orders{{0*rad/m, 0*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayQ const orders{{0*rad/m, 0*rad/m, 0*rad/m}};
+    sycomore::ArrayC const states{
         {
             {0.2857626571584661, -0.6732146319308543},
             {0.2857626571584661, +0.6732146319308543},
@@ -89,9 +89,9 @@ BOOST_AUTO_TEST_CASE(PositiveGradientX, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.shift(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
 
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {5350*rad/m, 0*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6819983600624985},
         {{0.2857626571584661, -0.6732146319308543}, 0, 0}};
 
@@ -107,9 +107,9 @@ BOOST_AUTO_TEST_CASE(PositiveGradientY, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.shift(10*ms, {0*mT/m, 2*mT/m, 0*mT/m});
     
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 5350*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6819983600624985},
         {{0.2857626571584661, -0.6732146319308543}, 0, 0}};
 
@@ -125,9 +125,9 @@ BOOST_AUTO_TEST_CASE(PositiveGradientZ, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.shift(10*ms, {0*mT/m, 0*mT/m, 2*mT/m});
 
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 5350*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6819983600624985},
         {{0.2857626571584661, -0.6732146319308543}, 0, 0}};
 
@@ -143,9 +143,9 @@ BOOST_AUTO_TEST_CASE(NegativeGradientX, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.shift(10*ms, {-2*mT/m, 0*mT/m, 0*mT/m});
 
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {5350*rad/m, 0*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6819983600624985},
         {0, {0.2857626571584661, 0.6732146319308543}, 0}};
 
@@ -161,9 +161,9 @@ BOOST_AUTO_TEST_CASE(NegativeGradientY, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.shift(10*ms, {0*mT/m, -2*mT/m, 0*mT/m});
 
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 5350*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6819983600624985},
         {0, {0.2857626571584661, 0.6732146319308543}, 0}};
 
@@ -179,9 +179,9 @@ BOOST_AUTO_TEST_CASE(NegativeGradientZ, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.shift(10*ms, {0*mT/m, 0*mT/m, -2*mT/m});
 
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 5350*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6819983600624985},
         {0, {0.2857626571584661, 0.6732146319308543}, 0}};
 
@@ -199,13 +199,13 @@ BOOST_AUTO_TEST_CASE(MultipleGradient, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.shift(10*ms, {1*mT/m, -3*mT/m, 3*mT/m});
     
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m},
         {2675*rad/m, -8026*rad/m, 8026*rad/m},
         {5350*rad/m, -5350*rad/m, 5350*rad/m},
         {8025*rad/m, -13376*rad/m, 13376*rad/m},
         {2675*rad/m, 2676*rad/m, -2676*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.4651217631279373},
         {{0.19488966354917586, -0.45913127494692113}, 0, 0},
         {0, 0, -0.26743911843603135},
@@ -225,9 +225,9 @@ BOOST_AUTO_TEST_CASE(Relaxation, *boost::unit_test::tolerance(1e-9))
     model.shift(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
     model.relaxation(10*ms);
 
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {5350*rad/m, 0*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138}, 
         {{0.2585687448743616, -0.6091497893403431}, 0, 0}};
 
@@ -245,9 +245,9 @@ BOOST_AUTO_TEST_CASE(DiffusionX, *boost::unit_test::tolerance(1e-9))
     model.relaxation(10*ms);
     model.diffusion(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
 
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {5350*rad/m, 0*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
         {{0.25805117100742553, -0.6079304617214332}, 0, 0}};
 
@@ -265,9 +265,9 @@ BOOST_AUTO_TEST_CASE(DiffusionZ, *boost::unit_test::tolerance(1e-9))
     model.relaxation(10*ms);
     model.diffusion(10*ms, {0*mT/m, 0*mT/m, 2*mT/m});
 
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 5350*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
         {{0.25805117100742553, -0.6079304617214332}, 0, 0}};
 
@@ -285,9 +285,9 @@ BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-9))
     model.shift(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
 
     model.off_resonance(10*ms);
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {5350*rad/m, 0*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6819983600624985},
         {{0.6268924782754024, -0.37667500256027975}, 0, 0}};
     test_model(model, orders, states);
@@ -302,9 +302,9 @@ BOOST_AUTO_TEST_CASE(TimeIntervalX, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.apply_time_interval(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
 
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {5350*rad/m, 0*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
         {{0.2584947343504123, -0.6089754314724013}, 0, 0}};
 
@@ -320,9 +320,9 @@ BOOST_AUTO_TEST_CASE(TimeIntervalZ, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.apply_time_interval(10*ms, {0*mT/m, 0*mT/m, 2*mT/m});
 
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {0*rad/m, 0*rad/m, 5350*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
         {{0.2584947343504123, -0.6089754314724013}, 0, 0}};
 
@@ -339,9 +339,9 @@ BOOST_AUTO_TEST_CASE(TimeIntervalFieldOffResonance, *boost::unit_test::tolerance
     model.apply_pulse(47*deg, 23*deg);
 
     model.apply_time_interval(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {5350*rad/m, 0*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
         {{0.56707341067384409, -0.34073208057155585}, 0, 0}};
     test_model(model, orders, states);
@@ -357,9 +357,9 @@ BOOST_AUTO_TEST_CASE(TimeIntervalSpeciesOffResonance, *boost::unit_test::toleran
     model.apply_pulse(47*deg, 23*deg);
     model.apply_time_interval(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
 
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {5350*rad/m, 0*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
         {{0.56707341067384409, -0.34073208057155585}, 0, 0}};
     test_model(model, orders, states);
@@ -376,9 +376,9 @@ BOOST_AUTO_TEST_CASE(TimeIntervalBothOffResonance, *boost::unit_test::tolerance(
     model.apply_pulse(47*deg, 23*deg);
 
     model.apply_time_interval(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m}, {5350*rad/m, 0*rad/m, 0*rad/m}};
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
         {{0.2584947343504123, -0.6089754314724013}, 0, 0}};
     test_model(model, orders, states);
@@ -395,12 +395,12 @@ BOOST_AUTO_TEST_CASE(Refocalization, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(120*deg, 0*deg);
     model.apply_time_interval(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
     
-    xt::xarray<sycomore::Quantity> const orders{
+    sycomore::ArrayQ const orders{
         {0*rad/m, 0*rad/m, 0*rad/m},
         {5350*rad/m, 0*rad/m, 0*rad/m},
         {10700*rad/m, 0*rad/m, 0*rad/m}
         };
-    xt::xarray<sycomore::Complex> const states{
+    sycomore::ArrayC const states{
         {
             {0.30684831950624042, 0.53147687960193668},
             {0.30684831950624042, -0.53147687960193668},

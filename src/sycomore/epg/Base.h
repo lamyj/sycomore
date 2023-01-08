@@ -5,6 +5,7 @@
 
 #include <xtensor/xarray.hpp>
 
+#include "sycomore/Array.h"
 #include "sycomore/epg/Model.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
@@ -20,26 +21,23 @@ namespace epg
 class SYCOMORE_API Base
 {
 public:
-    using State = xt::xarray<Complex>;
-    using States = xt::xarray<Complex>;
-    
     Quantity delta_omega=0*units::Hz;
     
     Real threshold=0;
     
     Base(
-        Species const & species, Magnetization const & initial_magnetization,
+        Species const & species, Vector3<Real> const & initial_magnetization,
         unsigned int initial_size);
     
     Base(
         Species const & species_a, Species const & species_b,
-        Magnetization const & M0_a, Magnetization const & M0_b,
+        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
         Quantity const & k_a, Quantity const & delta_b,
         unsigned int initial_size);
     
     Base(
         Species const & species_a, Quantity const & R1_b_or_T1_b,
-        Magnetization const & M0_a, Magnetization const & M0_b,
+        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
         Quantity const & k_a,
         unsigned int initial_size);
     
@@ -73,13 +71,13 @@ public:
      * @brief Return a given state of the model, as a concatenation of
      * (F, F*, Z) for each pool.
      */
-    State state(std::size_t order) const;
+    ArrayC state(std::size_t order) const;
     
     /**
      * @brief Return all states in the model, as a concatenation of
      * (F, F*, Z) for each order and each pool.
      */
-    States states() const;
+    ArrayC states() const;
     
     /// @brief Return the elapsed time.
     Quantity elapsed() const;

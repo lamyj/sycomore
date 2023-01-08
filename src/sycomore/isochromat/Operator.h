@@ -15,7 +15,7 @@ namespace isochromat
 class SYCOMORE_API Operator
 {
 public:
-    using Array = xt::xtensor<Real, 3>;
+    using Array = TensorR<3>;
     using value_type = Array::value_type;
     using shape_type = Array::shape_type;
     
@@ -23,7 +23,7 @@ public:
     Operator();
     
     /// @brief Build an operator from given array.
-    Operator(xt::xtensor<Real, 3> const & data);
+    Operator(Array const & data);
     
     /// @brief Default copy constructor.
     Operator(Operator const &) = default;

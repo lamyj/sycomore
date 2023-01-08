@@ -117,6 +117,8 @@ SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Quantity const & q
 template<std::size_t N, xt::layout_type L=XTENSOR_DEFAULT_LAYOUT>
 using TensorQ = xt::xtensor<Quantity, N, L>;
 
+using ArrayQ = xt::xarray<Quantity>;
+
 template<typename SourceIt, typename DestinationIt>
 DestinationIt convert_to(
     SourceIt const & begin, SourceIt const & end, DestinationIt destination,

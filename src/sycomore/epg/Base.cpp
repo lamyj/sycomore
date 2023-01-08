@@ -19,7 +19,7 @@ namespace epg
 
 Base
 ::Base(
-    Species const & species, Magnetization const & M0,
+    Species const & species, Vector3<Real> const & M0,
     unsigned int initial_size)
 : _model(species, M0, initial_size), _elapsed(0.)
 {
@@ -29,7 +29,7 @@ Base
 Base
 ::Base(
     Species const & species_a, Species const & species_b,
-    Magnetization const & M0_a, Magnetization const & M0_b,
+    Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
     Quantity const & k_a, Quantity const & delta_b,
     unsigned int initial_size)
 : _model(species_a, species_b, M0_a, M0_b, k_a, delta_b, initial_size),
@@ -41,7 +41,7 @@ Base
 Base
 ::Base(
     Species const & species_a, Quantity const & R1_b_or_T1_b,
-    Magnetization const & M0_a, Magnetization const & M0_b,
+    Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
     Quantity const & k_a,
     unsigned int initial_size)
 : _model(species_a, R1_b_or_T1_b, M0_a, M0_b, k_a, initial_size), _elapsed(0.)
@@ -133,11 +133,11 @@ Base
     this->_model.delta_b = delta_b;
 }
 
-Base::State
+ArrayC
 Base
 ::state(std::size_t order) const
 {
-    State result(State::shape_type{this->_model.pools, 3});
+    ArrayC result(ArrayC::shape_type{this->_model.pools, 3});
     for(std::size_t pool=0; pool < this->_model.pools; ++pool)
     {
         result.unchecked(pool, 0) = this->_model.F[pool][order];
@@ -147,13 +147,13 @@ Base
     return xt::squeeze(result);
 }
 
-Base::States
+ArrayC
 Base
 ::states() const
 {
     // We are keeping one set of orders for all pools: it is more logical to
     // order the dimensions as order > pool > (F, F*, Z)
-    States result(States::shape_type{this->size(), this->_model.pools, 3});
+    ArrayC result(ArrayC::shape_type{this->size(), this->_model.pools, 3});
     auto it = result.begin();
     for(std::size_t order=0; order<this->size(); ++order)
     {

@@ -24,16 +24,16 @@ void wrap_epg_Regular(pybind11::module & m)
             "integers starting at 0.")
         .def(
             init<
-                Species const &, Magnetization const &, unsigned int,
+                Species const &, Vector3<Real> const &, unsigned int,
                 Quantity const &, double>(),
-            arg("species"), arg("initial_magnetization")=Magnetization{0,0,1},
+            arg("species"), arg("initial_magnetization")=Vector3<Real>{0,0,1},
             arg("initial_size")=100, 
             arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
             arg("gradient_tolerance")=1e-5)
         .def(
             init<
                 Species const &, Species const &,
-                Magnetization const &, Magnetization const &,
+                Vector3<Real> const &, Vector3<Real> const &,
                 Quantity const &, Quantity const &,
                 unsigned int, Quantity const &, double>(),
             arg("species_a"), arg("species_b"), arg("M0_a"), arg("M0_b"),
@@ -44,7 +44,7 @@ void wrap_epg_Regular(pybind11::module & m)
         .def(
             init<
                 Species const &, Quantity const &,
-                Magnetization const &, Magnetization const &,
+                Vector3<Real> const &, Vector3<Real> const &,
                 Quantity const &, 
                 unsigned int, Quantity const &, double>(),
             arg("species_a"), arg("R1_b_or_T1_b"), arg("M0_a"), arg("M0_b"),

@@ -6,6 +6,7 @@
 #include <xtensor/xfixed.hpp>
 #include <xtensor/xview.hpp>
 
+#include "sycomore/Array.h"
 #include "sycomore/sycomore.h"
 
 namespace sycomore
@@ -22,7 +23,7 @@ Operator
 }
 
 Operator
-::Operator(xt::xtensor<Real, 3> const & data)
+::Operator(Array const & data)
 : _array(data)
 {
     if(this->_array.shape()[1] != 4 || this->_array.shape()[2] != 4)
@@ -48,7 +49,7 @@ Operator &
 Operator
 ::operator*=(Operator const & right)
 {
-    static thread_local xt::xtensor_fixed<Real, xt::xshape<4, 4>> matrix;
+    static thread_local Matrix4x4<Real> matrix;
     
     if(this->_array.shape()[0] == 1 && right._array.shape()[0] != 1)
     {
@@ -94,7 +95,7 @@ Operator &
 Operator
 ::preMultiply(Operator const & left)
 {
-    static thread_local xt::xtensor_fixed<Real, xt::xshape<4, 4>> matrix;
+    static thread_local Matrix4x4<Real> matrix;
     
     if(left._array.shape()[0] == 1 && this->_array.shape()[0] != 1)
     {

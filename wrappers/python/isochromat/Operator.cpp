@@ -17,7 +17,7 @@ void wrap_isochromat_Operator(pybind11::module & m)
             m, "Operator", 
             "Isochromat simulation operator, i.e. an array of 4×4 matrices")
         .def(init<>())
-        .def(init<xt::xtensor<Real, 3> const &>(), "data"_a)
+        .def(init<TensorR<3> const &>(), "data"_a)
         .def(self *= self)
         .def("preMultiply", &Operator::preMultiply)
         .def_property_readonly(
