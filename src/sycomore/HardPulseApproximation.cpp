@@ -32,23 +32,6 @@ HardPulseApproximation
     this->_time_interval.set_duration(pulse_duration/(support.size()-1));
 }
 
-HardPulseApproximation
-::HardPulseApproximation(
-    Pulse const & model, std::vector<Quantity> const & support,
-    Envelope const & envelope, Quantity const & bandwidth,
-    Quantity const & slice_thickness)
-{
-    // From Handbook, eq. 8.53, which gives gradient amplitude. Assuming a
-    // constant gradient amplitude, we get the moment by multiplying by pulse
-    // duration
-    using namespace units;
-    auto const pulse_duration = support.back()-support.front();
-    auto const total_moment =
-        2*M_PI*rad * bandwidth / slice_thickness * pulse_duration;
-    this->_time_interval.set_gradient_moment(
-        {0.*rad/m, 0.*rad/m, total_moment/(support.size()-1)});
-}
-
 std::vector<Pulse> const &
 HardPulseApproximation
 ::get_pulses() const

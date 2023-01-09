@@ -297,7 +297,7 @@ template<typename ValueType>
 void relaxation_magnetization_transfer_w(
     Real const & Xi_T, std::array<Real, 4> const & Xi_L,
     Complex * F_a, Complex * F_star_a, Complex * Z_a,
-    Complex * F_b, Complex * F_star_b, Complex * Z_b,
+    Complex * /*F_b*/, Complex * /*F_star_b*/, Complex * Z_b,
     std::size_t start, std::size_t end, std::size_t step)
 {
     for(std::size_t i=start; i<end; i+=step)
@@ -407,7 +407,7 @@ void diffusion_3d_w(
     Complex * F, Complex * F_star, Complex * Z,
     std::size_t begin, std::size_t end, std::size_t step)
 {
-    for(int i=begin; i<end; i+=step)
+    for(std::size_t i=begin; i<end; i+=step)
     {
         ComplexType F_i; RealType b_T_plus_D_i;
         sycomore::simd::load_aligned(F+i, F_i);
@@ -452,7 +452,7 @@ void diffusion_3d_b_w(
     Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
     std::size_t begin, std::size_t end, std::size_t step)
 {
-    for(int i=begin; i<end; i+=step)
+    for(std::size_t i=begin; i<end; i+=step)
     {
         ValueType k_m_i, k_n_i;
         sycomore::simd::load_aligned(k_m+i, k_m_i);
@@ -510,7 +510,7 @@ void off_resonance_w(
     Complex * F, Complex * F_star,
     std::size_t begin, std::size_t end, std::size_t step)
 {
-    for(int i=begin; i<end; i+=step)
+    for(std::size_t i=begin; i<end; i+=step)
     {
         ValueType F_i, F_star_i;
         sycomore::simd::load_aligned(F+i, F_i);

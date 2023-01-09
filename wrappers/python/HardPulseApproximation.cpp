@@ -18,12 +18,6 @@ void wrap_HardPulseApproximation(pybind11::module & m)
                 Pulse, std::vector<Quantity>,
                 HardPulseApproximation::Envelope>(),
             "model"_a, "support"_a, "envelope"_a)
-        .def(
-            init<
-                Pulse, std::vector<Quantity>, HardPulseApproximation::Envelope,
-                Quantity, Quantity>(),
-            "model"_a, "support"_a, "envelope"_a, "bandwidth"_a,
-            "slice_thickness"_a)
         .def_property_readonly(
             "pulses", &HardPulseApproximation::get_pulses)
         .def_property_readonly(

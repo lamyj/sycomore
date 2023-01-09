@@ -168,9 +168,8 @@ using Getter = sycomore::Quantity (sycomore::TimeInterval::*)(sycomore::Quantity
 using ScalarSetter = void (sycomore::TimeInterval::*)(sycomore::Quantity const &);
 using VectorSetter = void (sycomore::TimeInterval::*)(sycomore::Vector3<sycomore::Quantity> const &);
 
-template<typename TGetter>
 void test_gradient_accessor(
-    TGetter getter, ScalarSetter scalar_setter, VectorSetter vector_setter,
+    ScalarSetter scalar_setter, VectorSetter vector_setter,
     sycomore::Vector3<sycomore::Quantity> const & data)
 {
     using namespace sycomore::units;
@@ -220,22 +219,18 @@ void test_gradient_accessor(
 BOOST_AUTO_TEST_CASE(GradientAccessors, *boost::unit_test::tolerance(1e-9))
 {
     test_gradient_accessor(
-        &sycomore::TimeInterval::get_gradient_amplitude,
         &sycomore::TimeInterval::set_gradient_amplitude,
         &sycomore::TimeInterval::set_gradient_amplitude,
         amplitude);
     test_gradient_accessor(
-        &sycomore::TimeInterval::get_gradient_area,
         &sycomore::TimeInterval::set_gradient_area,
         &sycomore::TimeInterval::set_gradient_area,
         area);
     test_gradient_accessor(
-        &sycomore::TimeInterval::get_gradient_dephasing,
         &sycomore::TimeInterval::set_gradient_dephasing,
         &sycomore::TimeInterval::set_gradient_dephasing,
         dephasing);
     test_gradient_accessor(
-        &sycomore::TimeInterval::get_gradient_moment,
         &sycomore::TimeInterval::set_gradient_moment,
         &sycomore::TimeInterval::set_gradient_moment,
         moment);

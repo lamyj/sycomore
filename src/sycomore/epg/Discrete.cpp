@@ -371,21 +371,25 @@ Discrete::Cache
         static_assert(
             std::is_trivially_copyable<Complex>::value, 
             "Complex cannot be used with memset");
-        std::memset(F.data(), 0, F.size()*sizeof(Complex));
+        std::memset(
+            reinterpret_cast<void*>(F.data()), 0, F.size()*sizeof(Complex));
     }
     
     // Same for F* states.
     for(auto & F_star: this->F_star)
     {
         F_star.resize(3*size);
-        std::memset(F_star.data(), 0, F_star.size()*sizeof(Complex));
+        std::memset(
+            reinterpret_cast<void*>(F_star.data()), 0,
+            F_star.size()*sizeof(Complex));
     }
     
     // Same for Z states.
     for(auto & Z: this->Z)
     {
         Z.resize(3*size);
-        std::memset(Z.data(), 0, Z.size()*sizeof(Complex));
+        std::memset(
+            reinterpret_cast<void*>(Z.data()), 0, Z.size()*sizeof(Complex));
     }
 }
 

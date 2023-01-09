@@ -31,7 +31,7 @@ Discrete3D
     Species const & species, Vector3<Real> const & initial_magnetization,
     Quantity bin_width)
 : Base(species, initial_magnetization, 1),
-    _bin_width(bin_width), _orders{{0,0,0}}, _cache(this->_model.pools)
+    _orders{{0,0,0}}, _bin_width(bin_width), _cache(this->_model.pools)
 {
     // Nothing else.
 }
@@ -42,7 +42,7 @@ Discrete3D
     Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
     Quantity const & k_a, Quantity const & delta_b, Quantity bin_width)
 : Base(species_a, species_b, M0_a, M0_b, k_a, delta_b, 1),
-    _bin_width(bin_width), _orders{{0,0,0}}, _cache(this->_model.pools)
+    _orders{{0,0,0}}, _bin_width(bin_width), _cache(this->_model.pools)
 {
     // Nothing else
 }
@@ -53,7 +53,7 @@ Discrete3D
     Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
     Quantity const & k_a, Quantity bin_width)
 : Base(species_a, R1_b_or_T1_b, M0_a, M0_b, k_a, 1),
-    _bin_width(bin_width), _orders{{0,0,0}}, _cache(this->_model.pools)
+    _orders{{0,0,0}}, _bin_width(bin_width), _cache(this->_model.pools)
 {
     // Nothing else
 }
@@ -355,7 +355,6 @@ Discrete3D
         auto & F_star = this->_model.F_star[pool];
         auto & Z = this->_model.Z[pool];
         
-        auto & orders = this->_orders;
         auto & cache = this->_cache;
         
         for(std::size_t m=0; m<3; ++m)
@@ -419,21 +418,25 @@ Discrete3D::Cache
         static_assert(
             std::is_trivially_copyable<Complex>::value, 
             "Complex cannot be used with memset");
-        std::memset(F.data(), 0, F.size()*sizeof(Complex));
+        std::memset(
+            reinterpret_cast<void*>(F.data()), 0, F.size()*sizeof(Complex));
     }
     
     // Same for F* states.
     for(auto & F_star: this->F_star)
     {
         F_star.resize(3*size);
-        std::memset(F_star.data(), 0, F_star.size()*sizeof(Complex));
+        std::memset(
+            reinterpret_cast<void*>(F_star.data()), 0,
+            F_star.size()*sizeof(Complex));
     }
     
     // Same for Z states.
     for(auto & Z: this->Z)
     {
         Z.resize(3*size);
-        std::memset(Z.data(), 0, Z.size()*sizeof(Complex));
+        std::memset(
+            reinterpret_cast<void*>(Z.data()), 0, Z.size()*sizeof(Complex));
     }
 }
 

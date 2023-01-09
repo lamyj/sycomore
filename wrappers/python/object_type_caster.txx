@@ -58,9 +58,6 @@ bool
 object_type_caster<Container>
 ::load(pybind11::handle source, bool)
 {
-    using value_type = typename Container::value_type;
-    using shape_type = typename Container::shape_type;
-    
     if(pybind11::isinstance<pybind11::buffer>(source))
     {
         auto const info = source.cast<pybind11::buffer>().request();
@@ -203,10 +200,9 @@ object_type_caster<Container>
 {
     auto source_pointer = reinterpret_cast<PyObject**>(info.ptr);
     auto destination_pointer = this->value.data();
-    for(std::size_t i=0; i<info.size; ++i)
+    for(std::ptrdiff_t i=0; i<info.size; ++i)
     {
         pybind11::handle handle(*source_pointer);
-        PyObject * pointer = handle.ptr();
         *destination_pointer = handle.cast<typename Container::value_type>();
         ++source_pointer;
         ++destination_pointer;

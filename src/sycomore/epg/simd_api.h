@@ -202,7 +202,7 @@ extern decltype(&diffusion_3d_d<unsupported>) diffusion_3d;
 extern decltype(&off_resonance_d<unsupported>) off_resonance;
 extern decltype(&bulk_motion_d<unsupported>) bulk_motion;
 
-void set_api(int instruction_set);
+void set_api(unsigned instruction_set);
 
 bool set_default_api();
 

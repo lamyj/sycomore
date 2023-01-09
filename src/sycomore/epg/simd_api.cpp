@@ -192,7 +192,7 @@ decltype(&diffusion_3d_d<unsupported>) diffusion_3d = nullptr;
 decltype(&off_resonance_d<unsupported>) off_resonance = nullptr;
 decltype(&bulk_motion_d<unsupported>) bulk_motion = nullptr;
 
-void set_api(int instruction_set)
+void set_api(unsigned instruction_set)
 {
     SYCOMORE_SET_API_FUNCTION(apply_pulse_single_pool)
     SYCOMORE_SET_API_FUNCTION(apply_pulse_exchange)

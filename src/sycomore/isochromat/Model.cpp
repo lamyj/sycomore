@@ -71,7 +71,7 @@ Model
 {
     if(
         angle.size() != phase.size()
-        || angle.size() != 1 && angle.size() != this->_positions.shape()[0])
+        || (angle.size() != 1 && angle.size() != this->_positions.shape()[0]))
     {
         throw std::runtime_error("Size mismatch");
     }

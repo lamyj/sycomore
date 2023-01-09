@@ -153,9 +153,6 @@ relaxation_and_exchange_T(
         auto const e3 = std::exp(l3);
         auto const e4 = std::exp(l4);
         
-        auto const dl_12 = (l1-l2);
-        auto const dl_34 = (l3-l4);
-        
         return {
             ((-d+l1)*e1+(d-l2)*e2)/(l1-l2), ((d-l1)*(d-l2)*(-e1+e2))/(c*(l1-l2)),
             ((-e+l3)*e3+(e-l4)*e4)/(l3-l4), ((e-l3)*(e-l4)*(-e3+e4))/(c*(l3-l4)),

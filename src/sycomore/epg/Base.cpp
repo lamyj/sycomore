@@ -156,7 +156,6 @@ Base
     // We are keeping one set of orders for all pools: it is more logical to
     // order the dimensions as order > pool > (F, F*, Z)
     ArrayC result(ArrayC::shape_type{this->size(), this->_model.pools, 3});
-    auto it = result.begin();
     for(std::size_t order=0; order<this->size(); ++order)
     {
         for(std::size_t pool=0; pool < this->_model.pools; ++pool)

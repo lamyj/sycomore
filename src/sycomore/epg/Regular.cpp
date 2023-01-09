@@ -27,8 +27,8 @@ Regular
     unsigned int initial_size, 
     Quantity const & unit_gradient_area, double gradient_tolerance)
 : Base(species, initial_magnetization, initial_size),
-    _unit_gradient_area(unit_gradient_area), 
-    _gradient_tolerance(gradient_tolerance), _states_count(1)
+    _states_count(1), _unit_gradient_area(unit_gradient_area), 
+    _gradient_tolerance(gradient_tolerance)
 {
     // Nothing else.
 }
@@ -41,8 +41,8 @@ Regular
     unsigned int initial_size, Quantity const & unit_gradient_area,
     double gradient_tolerance)
 : Base(species_a, species_b, M0_a, M0_b, k_a, delta_b, initial_size),
-    _unit_gradient_area(unit_gradient_area), 
-    _gradient_tolerance(gradient_tolerance), _states_count(1)
+    _states_count(1), _unit_gradient_area(unit_gradient_area), 
+    _gradient_tolerance(gradient_tolerance)
 {
     // Nothing else.
 }
@@ -55,8 +55,8 @@ Regular
     unsigned int initial_size, Quantity const & unit_gradient_area,
     double gradient_tolerance)
 : Base(species_a, R1_b_or_T1_b, M0_a, M0_b, k_a, initial_size),
-    _unit_gradient_area(unit_gradient_area), 
-    _gradient_tolerance(gradient_tolerance), _states_count(1)
+    _states_count(1), _unit_gradient_area(unit_gradient_area), 
+    _gradient_tolerance(gradient_tolerance)
 {
     // Nothing else.
 }
