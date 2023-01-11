@@ -19,7 +19,7 @@ namespace epg
 
 Model
 ::Model(
-    Species const & species, Vector3<Real> const & M0, std::size_t initial_size)
+    Species const & species, Vector3R const & M0, std::size_t initial_size)
 : kind(SinglePool), pools(1),
     species({species}), M0(pools), k(0), delta_b(0*units::Hz),
     F(pools), F_star(pools), Z(pools)
@@ -30,7 +30,7 @@ Model
 Model
 ::Model(
     Species const & species_a, Species const & species_b,
-    Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+    Vector3R const & M0_a, Vector3R const & M0_b,
     Quantity const & k_a, Quantity const & delta_b,
     std::size_t initial_size)
 : kind(Exchange), pools(2),
@@ -44,7 +44,7 @@ Model
 Model
 ::Model(
     Species const & species_a, Quantity const & R1_b_or_T1_b,
-    Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+    Vector3R const & M0_a, Vector3R const & M0_b,
     Quantity const & k_a,
     std::size_t initial_size)
 : kind(MagnetizationTransfer), pools(2),
@@ -98,7 +98,7 @@ Model
 
 void
 Model
-::_initialize(std::vector<Vector3<Real>> const & M0, std::size_t initial_size)
+::_initialize(std::vector<Vector3R> const & M0, std::size_t initial_size)
 {
     for(auto & item: this->F)
     {

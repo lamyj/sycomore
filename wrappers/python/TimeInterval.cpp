@@ -16,8 +16,7 @@ void set_gradient(
     }
     else
     {
-        time_interval.set_gradient(
-            value.cast<sycomore::Vector3<sycomore::Quantity>>());
+        time_interval.set_gradient(value.cast<sycomore::Vector3Q>());
     }
 }
 
@@ -30,8 +29,7 @@ void set_gradient_amplitude(
     }
     else
     {
-        time_interval.set_gradient_amplitude(
-            value.cast<sycomore::Vector3<sycomore::Quantity>>());
+        time_interval.set_gradient_amplitude(value.cast<sycomore::Vector3Q>());
     }
 }
 
@@ -44,8 +42,7 @@ void set_gradient_area(
     }
     else
     {
-        time_interval.set_gradient_area(
-            value.cast<sycomore::Vector3<sycomore::Quantity>>());
+        time_interval.set_gradient_area(value.cast<sycomore::Vector3Q>());
     }
 }
 
@@ -58,8 +55,7 @@ void set_gradient_dephasing(
     }
     else
     {
-        time_interval.set_gradient_dephasing(
-            value.cast<sycomore::Vector3<sycomore::Quantity>>());
+        time_interval.set_gradient_dephasing(value.cast<sycomore::Vector3Q>());
     }
 }
 
@@ -72,8 +68,7 @@ void set_gradient_moment(
     }
     else
     {
-        time_interval.set_gradient_moment(
-            value.cast<sycomore::Vector3<sycomore::Quantity>>());
+        time_interval.set_gradient_moment(value.cast<sycomore::Vector3Q>());
     }
 }
 
@@ -98,7 +93,7 @@ void wrap_TimeInterval(pybind11::module & m)
             "Constructor, gradient may be specified as amplitude (in T/m), "
             "area (in T/m*s) or dephasing (in rad/m).")
         .def(
-            init<Quantity, Vector3<Quantity>>(),
+            init<Quantity, Vector3Q>(),
             arg("duration"), arg("gradient"),
             "Constructor, gradient may be specified as amplitude (in T/m), "
             "area (in T/m*s) or dephasing (in rad/m).")
@@ -109,7 +104,7 @@ void wrap_TimeInterval(pybind11::module & m)
             "gradient_moment"_a, "G_max"_a)
         .def_static(
             "shortest",
-            static_cast<TimeInterval(*)(Vector3<Quantity> const &, Quantity const &)>(
+            static_cast<TimeInterval(*)(Vector3Q const &, Quantity const &)>(
                 &TimeInterval::shortest),
             "gradient_moment"_a, "G_max"_a)
         .def_property(

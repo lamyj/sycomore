@@ -30,7 +30,7 @@ Species
 
 Species
 ::Species(
-    Quantity const & R1, Quantity const & R2, Matrix3x3<Quantity> const & D,
+    Quantity const & R1, Quantity const & R2, Matrix3x3Q const & D,
     Quantity const & R2_prime, Quantity const & delta_omega, Real w)
 : w(w)
 {
@@ -120,7 +120,7 @@ Species
     return this->_R2_prime;
 }
 
-Matrix3x3<Quantity> const &
+Matrix3x3Q const &
 Species
 ::get_D() const
 {
@@ -150,7 +150,7 @@ Species
 
 void
 Species
-::set_D(Matrix3x3<Quantity> const & q)
+::set_D(Matrix3x3Q const & q)
 {
     for(std::size_t i=0; i<q.size(); ++i)
     {

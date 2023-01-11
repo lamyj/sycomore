@@ -20,7 +20,7 @@ namespace epg
 
 Base
 ::Base(
-    Species const & species, Vector3<Real> const & M0,
+    Species const & species, Vector3R const & M0,
     unsigned int initial_size)
 : _model(species, M0, initial_size), _elapsed(0.)
 {
@@ -30,7 +30,7 @@ Base
 Base
 ::Base(
     Species const & species_a, Species const & species_b,
-    Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+    Vector3R const & M0_a, Vector3R const & M0_b,
     Quantity const & k_a, Quantity const & delta_b,
     unsigned int initial_size)
 : _model(species_a, species_b, M0_a, M0_b, k_a, delta_b, initial_size),
@@ -42,7 +42,7 @@ Base
 Base
 ::Base(
     Species const & species_a, Quantity const & R1_b_or_T1_b,
-    Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+    Vector3R const & M0_a, Vector3R const & M0_b,
     Quantity const & k_a,
     unsigned int initial_size)
 : _model(species_a, R1_b_or_T1_b, M0_a, M0_b, k_a, initial_size), _elapsed(0.)

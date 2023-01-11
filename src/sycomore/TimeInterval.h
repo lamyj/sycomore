@@ -20,7 +20,7 @@ struct SYCOMORE_API TimeInterval
         Quantity const & gradient_moment, Quantity const & G_max);
     
     static TimeInterval shortest(
-        Vector3<Quantity> const & gradient_moment, Quantity const & G_max);
+        Vector3Q const & gradient_moment, Quantity const & G_max);
 
     /**
      * @brief Constructor, gradient may be specified as amplitude (in T/m), 
@@ -34,8 +34,7 @@ struct SYCOMORE_API TimeInterval
      * @brief Constructor, gradient may be specified as amplitude (in T/m), 
      * area (in T/m*s) or dephasing (in rad/m).
      */
-    TimeInterval(
-        Quantity const & duration, Vector3<Quantity> const & gradient);
+    TimeInterval(Quantity const & duration, Vector3Q const & gradient);
 
     /// @brief Return the duration.
     Quantity const & get_duration() const;
@@ -53,43 +52,43 @@ struct SYCOMORE_API TimeInterval
      * @brief Set gradient amplitude (in T/m), area (in T/m*s) or dephasing 
      * (in rad/m).
      */
-    void set_gradient(Vector3<Quantity> const & a);
+    void set_gradient(Vector3Q const & a);
 
     /// @brief Return the gradient dephasing.
-    Vector3<Quantity> get_gradient_moment() const;
+    Vector3Q get_gradient_moment() const;
     
     /// @brief Set the gradient dephasing.
     void set_gradient_moment(Quantity const & q);
     
     /// @brief Set the gradient dephasing.
-    void set_gradient_moment(Vector3<Quantity> const & a);
+    void set_gradient_moment(Vector3Q const & a);
     
     /// @brief Return the gradient amplitude
-    Vector3<Quantity> const & get_gradient_amplitude() const;
+    Vector3Q const & get_gradient_amplitude() const;
     
     /// @brief Set the gradient amplitude
     void set_gradient_amplitude(Quantity const & q);
     
     /// @brief Set the gradient amplitude
-    void set_gradient_amplitude(Vector3<Quantity> const & a);
+    void set_gradient_amplitude(Vector3Q const & a);
     
     /// @brief Return the gradient area
-    Vector3<Quantity> get_gradient_area() const;
+    Vector3Q get_gradient_area() const;
     
     /// @brief Set the gradient area
     void set_gradient_area(Quantity const & q);
     
     /// @brief Set the gradient area
-    void set_gradient_area(Vector3<Quantity> const & a);
+    void set_gradient_area(Vector3Q const & a);
     
     /// @brief Return the gradient dephasing.
-    Vector3<Quantity> get_gradient_dephasing() const;
+    Vector3Q get_gradient_dephasing() const;
     
     /// @brief Set the gradient dephasing
     void set_gradient_dephasing(Quantity const & q);
     
     /// @brief Set the gradient dephasing
-    void set_gradient_dephasing(Vector3<Quantity> const & a);
+    void set_gradient_dephasing(Vector3Q const & a);
     
     /// @brief Equality of duration and gradient
     bool operator==(TimeInterval const & other) const;
@@ -102,7 +101,7 @@ private:
     Quantity _duration;
 
     /// @brief Gradient amplitude in T/m on x,y,z axes.
-    Vector3<Quantity> _gradient_amplitude;
+    Vector3Q _gradient_amplitude;
 };
 
 }

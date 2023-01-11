@@ -43,20 +43,20 @@ public:
     
     /// @brief Create a single-pool model.
     Model(
-        Species const & species, Vector3<Real> const & M0,
+        Species const & species, Vector3R const & M0,
         std::size_t initial_size);
     
     /// @brief Create an exchange model.
     Model(
         Species const & species_a, Species const & species_b,
-        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+        Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a, Quantity const & delta_b,
         std::size_t initial_size);
     
     /// @brief Create a magnetization transfer model.
     Model(
         Species const & species_a, Quantity const & R1_b_or_T1_b,
-        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+        Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a,
         std::size_t initial_size);
     
@@ -67,7 +67,7 @@ public:
     
 private:
     void _initialize(
-        std::vector<Vector3<Real>> const & M0, std::size_t initial_size);
+        std::vector<Vector3R> const & M0, std::size_t initial_size);
 };
     
 }

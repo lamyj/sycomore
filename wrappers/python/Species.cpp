@@ -21,7 +21,7 @@ void set_D(sycomore::Species & species, pybind11::object const & value)
     }
     else
     {
-        species.set_D(value.cast<sycomore::Matrix3x3<sycomore::Quantity>>());
+        species.set_D(value.cast<sycomore::Matrix3x3Q>());
     }
 }
 

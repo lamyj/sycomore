@@ -22,18 +22,18 @@ public:
     Real threshold=0;
     
     Base(
-        Species const & species, Vector3<Real> const & initial_magnetization,
+        Species const & species, Vector3R const & initial_magnetization,
         unsigned int initial_size);
     
     Base(
         Species const & species_a, Species const & species_b,
-        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+        Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a, Quantity const & delta_b,
         unsigned int initial_size);
     
     Base(
         Species const & species_a, Quantity const & R1_b_or_T1_b,
-        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+        Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a,
         unsigned int initial_size);
     

@@ -114,10 +114,18 @@ Quantity operator%(Quantity q, T s) { q %= double(s); return q; }
 
 SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Quantity const & q);
 
+/// @brief Static-dimension array of Quantity objects
 template<std::size_t N, xt::layout_type L=XTENSOR_DEFAULT_LAYOUT>
 using TensorQ = xt::xtensor<Quantity, N, L>;
 
+/// @brief Dynamic-dimension array of Quantity objects
 using ArrayQ = xt::xarray<Quantity>;
+
+/// @brief 3D vector of Quantity
+using Vector3Q = Vector3<Quantity>;
+
+/// @brief 3x3 matrix of Quantity
+using Matrix3x3Q = Matrix3x3<Quantity>;
 
 template<typename SourceIt, typename DestinationIt>
 DestinationIt convert_to(

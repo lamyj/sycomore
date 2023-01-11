@@ -19,14 +19,12 @@ public:
     Species(Quantity const & R1, Quantity const & R2);
 
     Species(
-        Quantity const & R1, Quantity const & R2,
-        Quantity const & D,
+        Quantity const & R1, Quantity const & R2, Quantity const & D,
         Quantity const & R2_prime=0*units::Hz,
         Quantity const & delta_omega=0*units::Hz, Real w=1);
 
     Species(
-        Quantity const & R1, Quantity const & R2,
-        Matrix3x3<Quantity> const & D,
+        Quantity const & R1, Quantity const & R2, Matrix3x3Q const & D,
         Quantity const & R2_prime=0*units::Hz,
         Quantity const & delta_omega=0*units::Hz, Real w=1);
 
@@ -45,11 +43,11 @@ public:
     Quantity const & get_T2() const;
 
     /// @brief Return the diffusion tensor.
-    Matrix3x3<Quantity> const & get_D() const;
+    Matrix3x3Q const & get_D() const;
     /// @brief Set the diffusion coefficient (i.e. diagonal diffusion tensor).
     void set_D(Quantity const & q);
     /// @brief Set the diffusion tensor.
-    void set_D(Matrix3x3<Quantity> const & q);
+    void set_D(Matrix3x3Q const & q);
 
     /**
      * @brief Return the part of the apparent transversal relaxation rate R2* 
@@ -86,7 +84,7 @@ private:
     Quantity _T2;
 
     /// @brief Diffusivity.
-    Matrix3x3<Quantity> _D;
+    Matrix3x3Q _D;
 
     /// @brief R2' relaxation rate.
     Quantity _R2_prime;

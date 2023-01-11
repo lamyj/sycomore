@@ -50,22 +50,22 @@ namespace epg
 class SYCOMORE_API Discrete3D: public Base
 {
 public:
-    using Order = Vector3<Quantity>;
+    using Order = Vector3Q;
     
     Discrete3D(
         Species const & species,
-        Vector3<Real> const & initial_magnetization={0,0,1},
+        Vector3R const & initial_magnetization={0,0,1},
         Quantity bin_width=1*units::rad/units::m);
     
     Discrete3D(
         Species const & species_a, Species const & species_b,
-        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+        Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a, Quantity const & delta_b=0*units::Hz,
         Quantity bin_width=1*units::rad/units::m);
     
     Discrete3D(
         Species const & species_a, Quantity const & R1_b_or_T1_b,
-        Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+        Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a,
         Quantity bin_width=1*units::rad/units::m);
 
@@ -89,7 +89,7 @@ public:
     /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
     void apply_time_interval(
         Quantity const & duration,
-        Vector3<Quantity> const & gradient={
+        Vector3Q const & gradient={
             0*units::T/units::m,0*units::T/units::m,0*units::T/units::m});
     
     /// @brief Apply a time interval, i.e. relaxation, diffusion, and gradient.
@@ -99,13 +99,13 @@ public:
      * @brief Apply a gradient; in discrete EPG, this shifts all orders by
      * specified value.
      */
-    void shift(Quantity const & duration, Vector3<Quantity> const & gradient);
+    void shift(Quantity const & duration, Vector3Q const & gradient);
 
     /**
      * @brief Simulate diffusion during given duration with given gradient
      * amplitude.
      */
-    void diffusion(Quantity const & duration, Vector3<Quantity> const & gradient);
+    void diffusion(Quantity const & duration, Vector3Q const & gradient);
     
     /// @brief Return the bin width.
     Quantity const & bin_width() const;

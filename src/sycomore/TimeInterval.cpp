@@ -16,7 +16,7 @@ TimeInterval
 
 TimeInterval
 TimeInterval
-::shortest(Vector3<Quantity> const & gradient_moment, Quantity const & G_max)
+::shortest(Vector3Q const & gradient_moment, Quantity const & G_max)
 {
     auto max = 0*gradient_moment[0];
     for(auto && x: gradient_moment)
@@ -37,7 +37,7 @@ TimeInterval
 }
 
 TimeInterval
-::TimeInterval(Quantity const & duration, Vector3<Quantity> const & gradient)
+::TimeInterval(Quantity const & duration, Vector3Q const & gradient)
 {
     this->set_duration(duration);
     this->set_gradient(gradient);
@@ -75,7 +75,7 @@ TimeInterval
 
 void
 TimeInterval
-::set_gradient(Vector3<Quantity> const & a)
+::set_gradient(Vector3Q const & a)
 {
     auto const & q = a[0];
     
@@ -99,7 +99,7 @@ TimeInterval
     }
 }
 
-Vector3<Quantity>
+Vector3Q
 TimeInterval
 ::get_gradient_moment() const
 {
@@ -115,7 +115,7 @@ TimeInterval
 
 void
 TimeInterval
-::set_gradient_moment(Vector3<Quantity> const & a)
+::set_gradient_moment(Vector3Q const & a)
 {
     for(auto && q:a)
     {
@@ -137,7 +137,7 @@ TimeInterval
     }
 }
 
-Vector3<Quantity> const &
+Vector3Q const &
 TimeInterval
 ::get_gradient_amplitude() const
 {
@@ -153,7 +153,7 @@ TimeInterval
 
 void
 TimeInterval
-::set_gradient_amplitude(Vector3<Quantity> const & a)
+::set_gradient_amplitude(Vector3Q const & a)
 {
     for(auto && q:a)
     {
@@ -168,7 +168,7 @@ TimeInterval
     this->_gradient_amplitude = a;
 }
 
-Vector3<Quantity>
+Vector3Q
 TimeInterval
 ::get_gradient_area() const
 {
@@ -184,7 +184,7 @@ TimeInterval
 
 void
 TimeInterval
-::set_gradient_area(Vector3<Quantity> const & a)
+::set_gradient_area(Vector3Q const & a)
 {
     for(auto && q:a)
     {
@@ -206,7 +206,7 @@ TimeInterval
     }
 }
 
-Vector3<Quantity>
+Vector3Q
 TimeInterval
 ::get_gradient_dephasing() const
 {
@@ -222,7 +222,7 @@ TimeInterval
 
 void
 TimeInterval
-::set_gradient_dephasing(Vector3<Quantity> const & a)
+::set_gradient_dephasing(Vector3Q const & a)
 {
     this->set_gradient_moment(a);
 }

@@ -28,7 +28,7 @@ namespace epg
 
 Discrete3D
 ::Discrete3D(
-    Species const & species, Vector3<Real> const & initial_magnetization,
+    Species const & species, Vector3R const & initial_magnetization,
     Quantity bin_width)
 : Base(species, initial_magnetization, 1),
     _orders{{0,0,0}}, _bin_width(bin_width), _cache(this->_model.pools)
@@ -39,7 +39,7 @@ Discrete3D
 Discrete3D
 ::Discrete3D(
     Species const & species_a, Species const & species_b,
-    Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+    Vector3R const & M0_a, Vector3R const & M0_b,
     Quantity const & k_a, Quantity const & delta_b, Quantity bin_width)
 : Base(species_a, species_b, M0_a, M0_b, k_a, delta_b, 1),
     _orders{{0,0,0}}, _bin_width(bin_width), _cache(this->_model.pools)
@@ -50,7 +50,7 @@ Discrete3D
 Discrete3D
 ::Discrete3D(
     Species const & species_a, Quantity const & R1_b_or_T1_b,
-    Vector3<Real> const & M0_a, Vector3<Real> const & M0_b,
+    Vector3R const & M0_a, Vector3R const & M0_b,
     Quantity const & k_a, Quantity bin_width)
 : Base(species_a, R1_b_or_T1_b, M0_a, M0_b, k_a, 1),
     _orders{{0,0,0}}, _bin_width(bin_width), _cache(this->_model.pools)
@@ -113,7 +113,7 @@ Discrete3D
 void
 Discrete3D
 ::apply_time_interval(
-    Quantity const & duration, Vector3<Quantity> const & gradient)
+    Quantity const & duration, Vector3Q const & gradient)
 {
     if(duration.magnitude == 0)
     {
@@ -194,7 +194,7 @@ Discrete3D
 
 void
 Discrete3D
-::shift(Quantity const & duration, Vector3<Quantity> const & gradient)
+::shift(Quantity const & duration, Vector3Q const & gradient)
 {
     // Compute dephasing and return early if it is null.
     Bin const delta_k {
@@ -318,7 +318,7 @@ Discrete3D
 
 void
 Discrete3D
-::diffusion(Quantity const & duration, Vector3<Quantity> const & gradient)
+::diffusion(Quantity const & duration, Vector3Q const & gradient)
 {
     if(
         std::all_of(
