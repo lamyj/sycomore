@@ -9,16 +9,23 @@
 namespace sycomore
 {
 
-/** 
- * @brief Time interval, with or without magnetic field gradient.
- */
-struct SYCOMORE_API TimeInterval
+/// @brief Time interval, with or without magnetic field gradient.
+class SYCOMORE_API TimeInterval
 {
+public:
     // TODO: gradient shape
     
+    /**
+     * @brief Shortest possible time interval given 1D gradient moment and
+     * maximum gradient amplitude
+     */
     static TimeInterval shortest(
         Quantity const & gradient_moment, Quantity const & G_max);
     
+    /**
+     * @brief Shortest possible time interval given 3D gradient moment and
+     * maximum gradient amplitude
+     */
     static TimeInterval shortest(
         Vector3Q const & gradient_moment, Quantity const & G_max);
 

@@ -20,13 +20,14 @@
 namespace std
 {
 
+/// @brief Hash functor
 template<>
 struct hash<array<int64_t, 3>>
 {
+    /// @brief Hash function
     typename std::enable_if<sizeof(std::size_t)==sizeof(int64_t), std::size_t>::type
     operator()(array<int64_t, 3> const & a) const
     {
-        // Calling sycomore::hash_range(a.begin(), a.end()) is slightly slower.
         std::size_t value = 0;
         value ^= reinterpret_cast<std::size_t const &>(a[0]) + 0x9e3779b9 + (value<<6) + (value>>2);
         value ^= reinterpret_cast<std::size_t const &>(a[1]) + 0x9e3779b9 + (value<<6) + (value>>2);
@@ -50,29 +51,38 @@ namespace epg
 class SYCOMORE_API Discrete3D: public Base
 {
 public:
+    /// @brief Order of the model, as gradient area
     using Order = Vector3Q;
     
+    /// @brief Create a single-pool model
     Discrete3D(
         Species const & species,
         Vector3R const & initial_magnetization={0,0,1},
         Quantity bin_width=1*units::rad/units::m);
     
+    /// @brief Create an exchange model
     Discrete3D(
         Species const & species_a, Species const & species_b,
         Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a, Quantity const & delta_b=0*units::Hz,
         Quantity bin_width=1*units::rad/units::m);
     
+    /// @brief Create an MT model
     Discrete3D(
         Species const & species_a, Quantity const & R1_b_or_T1_b,
         Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a,
         Quantity bin_width=1*units::rad/units::m);
 
+    /// @brief Default copy constructor
     Discrete3D(Discrete3D const &) = default;
+    /// @brief Default move constructor
     Discrete3D(Discrete3D &&) = default;
+    /// @brief Default copy assignment
     Discrete3D & operator=(Discrete3D const &) = default;
+    /// @brief Default move assignment
     Discrete3D & operator=(Discrete3D &&) = default;
+    /// @brief Default destructor
     virtual ~Discrete3D() = default;
 
     /// @brief Return the number of states of the model.

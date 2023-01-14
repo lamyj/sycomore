@@ -12,6 +12,7 @@
 namespace sycomore
 {
 
+/// @brief EPG simulators
 namespace epg
 {
 
@@ -19,14 +20,20 @@ namespace epg
 class Model
 {
 public:
+    /// @brief Populations of the states
     using Population = std::vector<
         Complex, xsimd::aligned_allocator<Complex, 64>>;
+    
+    /// @brief Kind of the model, determines the number of pools
     enum Kind { SinglePool, Exchange, MagnetizationTransfer };
     
+    /// @brief Kind of the model, determines the number of pools
     Kind const kind;
+    
+    /// @brief Number of pools
     std::size_t const pools;
     
-    /// @brief
+    /// @brief Species
     std::vector<Species> species;
     
     /// @brief Equilibrium magnetization on the z axis
@@ -38,8 +45,12 @@ public:
     /// @brief Frequency offset of pool b w.r.t. to pool al.
     Quantity delta_b;
     
-    /// @brief EPG states for each pool
-    std::vector<Population> F, F_star, Z;
+    /// @brief EPG F states for each pool
+    std::vector<Population> F;
+    /// @brief EPG F* states for each pool
+    std::vector<Population> F_star;
+    /// @brief EPG Z states for each pool
+    std::vector<Population> Z;
     
     /// @brief Create a single-pool model.
     Model(
@@ -60,9 +71,13 @@ public:
         Quantity const & k_a,
         std::size_t initial_size);
     
+    /// @brief Default copy constructor
     Model(Model const &) = default;
+    /// @brief Default move constructor
     Model(Model &&) = default;
+    /// @brief Default copy assignment
     Model & operator=(Model const & other);
+    /// @brief Default move assignment
     Model & operator=(Model && other);
     
 private:

@@ -15,9 +15,8 @@ namespace isochromat
 class SYCOMORE_API Operator
 {
 public:
+    /// @brief Array representation of the operator
     using Array = TensorR<3>;
-    using value_type = Array::value_type;
-    using shape_type = Array::shape_type;
     
     /// @brief Build an identity operator.
     Operator();

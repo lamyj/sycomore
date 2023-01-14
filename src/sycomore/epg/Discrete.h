@@ -31,31 +31,41 @@ namespace epg
 class SYCOMORE_API Discrete: public Base
 {
 public:
+    /// @brief Order of the model, as gradient area
     using Order = Quantity;
     
+    /// @brief Bulk velociy
     Quantity velocity=0*units::m/units::s;
     
+    /// @brief Create a single-pool model
     Discrete(
         Species const & species, 
         Vector3R const & initial_magnetization={0,0,1}, 
         Quantity bin_width=1*units::rad/units::m);
     
+    /// @brief Create an exchange model
     Discrete(
         Species const & species_a, Species const & species_b,
         Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a, Quantity const & delta_b=0*units::Hz,
         Quantity bin_width=1*units::rad/units::m);
     
+    /// @brief Create an MT model
     Discrete(
         Species const & species_a, Quantity const & R1_b_or_T1_b,
         Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a,
         Quantity bin_width=1*units::rad/units::m);
     
+    /// @brief Default copy constructor
     Discrete(Discrete const &) = default;
+    /// @brief Default move constructor
     Discrete(Discrete &&) = default;
+    /// @brief Default copy assignment
     Discrete & operator=(Discrete const &) = default;
+    /// @brief Default move assignment
     Discrete & operator=(Discrete &&) = default;
+    /// @brief Default destructor
     virtual ~Discrete() = default;
 
     /// @brief Return the number of states of the model.
@@ -98,6 +108,10 @@ public:
     /// @brief Return the bin width.
     Quantity const & bin_width() const;
     
+    /**
+     * @brief Simulate bulk motion during given duration with given gradient
+     * amplitude.
+     */
     void bulk_motion(Quantity const & duration, Quantity const & gradient);
     
 private:

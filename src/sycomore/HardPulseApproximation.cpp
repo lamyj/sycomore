@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "sycomore/Pulse.h"
-#include "sycomore/TimeInterval.h"
+#include "sycomore/Quantity.h"
 #include "sycomore/units.h"
 
 namespace sycomore
@@ -29,7 +29,7 @@ HardPulseApproximation
     }
 
     auto const pulse_duration = support.back()-support.front();
-    this->_time_interval.set_duration(pulse_duration/(support.size()-1));
+    this->_duration = pulse_duration/(support.size()-1);
 }
 
 std::vector<Pulse> const &
@@ -39,18 +39,11 @@ HardPulseApproximation
     return this->_pulses;
 }
 
-TimeInterval const &
+Quantity const &
 HardPulseApproximation
-::get_time_interval() const
+::get_duration() const
 {
-    return this->_time_interval;
-}
-
-Vector3Q
-HardPulseApproximation
-::get_gradient_moment() const
-{
-    return this->_time_interval.get_gradient_moment() * (this->_pulses.size()-1);
+    return this->_duration;
 }
 
 void

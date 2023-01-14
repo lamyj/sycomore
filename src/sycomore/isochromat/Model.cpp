@@ -79,8 +79,8 @@ Model
     TensorR<1> const cos_angle = xt::cos(angle), cos_phase = xt::cos(phase);
     TensorR<1> const sin_angle = xt::sin(angle), sin_phase = xt::sin(phase);
     
-    Operator::Array op = xt::zeros<Operator::value_type>(
-        Operator::shape_type{angle.size(), 4, 4});
+    Operator::Array op = xt::zeros<Operator::Array::value_type>(
+        Operator::Array::shape_type{angle.size(), 4, 4});
     for(std::size_t i=0; i<angle.size(); ++i)
     {
         auto const ca=cos_angle.unchecked(i), cp=cos_phase.unchecked(i);
@@ -139,8 +139,8 @@ Operator
 Model
 ::build_relaxation(Quantity const & duration) const
 {
-    Operator::Array op = xt::zeros<Operator::value_type>(
-        Operator::shape_type{this->_positions.shape()[0], 4, 4});
+    Operator::Array op = xt::zeros<Operator::Array::value_type>(
+        Operator::Array::shape_type{this->_positions.shape()[0], 4, 4});
     auto const duration_s = duration.convert_to(units::s);
     auto const E1 = xt::exp(-duration_s/this->_T1);
     auto const E2 = xt::exp(-duration_s/this->_T2);
@@ -167,7 +167,7 @@ Model
     TensorR<1> const cos_angle = xt::cos(angle);
     TensorR<1> const sin_angle = xt::sin(angle);
     
-    Operator::Array op = xt::zeros<Operator::value_type>(
+    Operator::Array op = xt::zeros<Operator::Array::value_type>(
         Operator::Array::shape_type{angle.size(), 4, 4});
     for(std::size_t i=0; i<angle.size(); ++i)
     {

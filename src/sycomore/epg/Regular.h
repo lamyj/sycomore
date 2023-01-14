@@ -30,10 +30,13 @@ namespace epg
 class SYCOMORE_API Regular: public Base
 {
 public:
+    /// @brief Order of the model, as gradient area
     using Order = Quantity;
     
+    /// @brief Bulk velociy
     Quantity velocity=0*units::m/units::s;
     
+    /// @brief Create a single-pool model
     Regular(
         Species const & species, 
         Vector3R const & initial_magnetization={0,0,1}, 
@@ -41,6 +44,7 @@ public:
         Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
         double gradient_tolerance=1e-5);
     
+    /// @brief Create an exchange model
     Regular(
         Species const & species_a, Species const & species_b,
         Vector3R const & M0_a, Vector3R const & M0_b,
@@ -49,6 +53,7 @@ public:
         Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
         double gradient_tolerance=1e-5);
     
+    /// @brief Create an MT model
     Regular(
         Species const & species_a, Quantity const & R1_b_or_T1_b,
         Vector3R const & M0_a, Vector3R const & M0_b,
@@ -57,10 +62,15 @@ public:
         Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
         double gradient_tolerance=1e-5);
     
+    /// @brief Default copy constructor
     Regular(Regular const &) = default;
+    /// @brief Default move constructor
     Regular(Regular &&) = default;
+    /// @brief Default copy assignment
     Regular & operator=(Regular const &) = default;
+    /// @brief Default move assignment
     Regular & operator=(Regular &&) = default;
+    /// @brief Default destructor
     virtual ~Regular() = default;
     
     /// @brief Return the number of states of the model.
@@ -91,7 +101,7 @@ public:
     /// @brief Apply a unit gradient; in regular EPG, this shifts all orders by 1.
     void shift();
     
-    /* 
+    /** 
      * @brief Apply an arbitrary gradient; in regular EPG, this shifts all 
      * orders by an integer number corresponding to a multiple of the unit 
      * gradient.
@@ -104,9 +114,16 @@ public:
      */
     void diffusion(Quantity const & duration, Quantity const & gradient);
     
+    /**
+     * @brief Simulate bulk motion during given duration with given gradient
+     * amplitude.
+     */
     void bulk_motion(Quantity const & duration, Quantity const & gradient);
     
+    /// @brief Return the unit gradient area
     Quantity const & unit_gradient_area() const;
+    
+    /// @brief Return the gradient tolerance
     double gradient_tolerance() const;
     
 private:

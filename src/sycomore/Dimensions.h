@@ -8,6 +8,7 @@
 namespace sycomore
 {
 
+/// @brief Physical dimensions of a quantity
 class SYCOMORE_API Dimensions
 {
 public:

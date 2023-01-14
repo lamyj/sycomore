@@ -12,17 +12,17 @@
 #include "sycomore/Quantity.h"
 #include "sycomore/sycomore_api.h"
 
+/// @brief sycomore
 namespace sycomore
 {
 
+/// @brief Diffusion coefficient
 SYCOMORE_API extern Dimensions const Diffusion;
 
-// NOTE: gradient moment is gamma * integral(g(t)*dt), with gamma in
-// [rad * T^-1 * s^-1] and g(t) in [T * m^-1] (thus integral(g(t)*dt)
-// in [T * m^-1 * s]). Gradient moment is then in [rad * m^-1], i.e. accumulated
-// phase per length.
+/// @brief Gradient moment, as \f$\int \gamma G(t) dt\f$
 SYCOMORE_API extern Dimensions const GradientMoment;
 
+/// @brief Generate evenly-spaced samples
 template<typename T>
 std::vector<T> linspace(T min, T max, std::size_t size)
 {
@@ -36,12 +36,14 @@ std::vector<T> linspace(T min, T max, std::size_t size)
     return result;
 }
 
+/// @brief Generate evenly-spaced samples
 template<typename T>
 std::vector<T> linspace(T span, std::size_t size)
 {
     return linspace(-span/2., span/2., size);
 }
 
+/// @brief Round to x nearest multiple of r
 template<typename T>
 T round(T const & x, T const & r)
 {

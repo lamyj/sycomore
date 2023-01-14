@@ -21,9 +21,7 @@ void wrap_HardPulseApproximation(pybind11::module & m)
         .def_property_readonly(
             "pulses", &HardPulseApproximation::get_pulses)
         .def_property_readonly(
-            "time_interval", &HardPulseApproximation::get_time_interval)
-        .def_property_readonly(
-            "gradient_moment", &HardPulseApproximation::get_gradient_moment)
+            "duration", &HardPulseApproximation::get_duration)
         .def("set_phase", &HardPulseApproximation::set_phase, "phase"_a);
 
     m.def("apodized_sinc_envelope", apodized_sinc_envelope);

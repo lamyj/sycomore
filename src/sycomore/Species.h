@@ -10,19 +10,29 @@
 namespace sycomore
 {
 
+/// @brief Species described by its NMR parameters
 class SYCOMORE_API Species
 {
 public:
     /// @brief Relative weight
     Real w;
-
+    
+    /// @brief Create a species given relaxation rates or times
     Species(Quantity const & R1, Quantity const & R2);
-
+    
+    /**
+     * @brief Create a species given relaxation rates or times, isotropic
+     * diffusion coefficient, off-resonance and weight.
+     */
     Species(
         Quantity const & R1, Quantity const & R2, Quantity const & D,
         Quantity const & R2_prime=0*units::Hz,
         Quantity const & delta_omega=0*units::Hz, Real w=1);
 
+    /**
+     * @brief Create a species given relaxation rates or times, diffusion
+     * tensor, off-resonance and weight.
+     */
     Species(
         Quantity const & R1, Quantity const & R2, Matrix3x3Q const & D,
         Quantity const & R2_prime=0*units::Hz,
