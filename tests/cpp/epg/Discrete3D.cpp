@@ -353,7 +353,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalSpeciesOffResonance, *boost::unit_test::toleran
     using namespace sycomore::units;
 
     sycomore::epg::Discrete3D model({
-        species.get_R1(), species.get_R2(), species.get_D(), 0*Hz, 10*Hz});
+        species.get_R1(), species.get_R2(), species.get_D(), 10*Hz});
     model.apply_pulse(47*deg, 23*deg);
     model.apply_time_interval(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
 
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalBothOffResonance, *boost::unit_test::tolerance(
     using namespace sycomore::units;
 
     sycomore::epg::Discrete3D model({
-        species.get_R1(), species.get_R2(), species.get_D(), 0*Hz, 10*Hz});
+        species.get_R1(), species.get_R2(), species.get_D(), 10*Hz});
     model.delta_omega = -10*Hz;
     model.apply_pulse(47*deg, 23*deg);
 

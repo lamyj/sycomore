@@ -18,24 +18,22 @@ Species
 Species
 ::Species(
     Quantity const & R1, Quantity const & R2, Quantity const & D,
-    Quantity const & R2_prime, Quantity const & delta_omega)
+    Quantity const & delta_omega)
 {
     this->set_R1(R1);
     this->set_R2(R2);
     this->set_D(D);
-    this->set_R2_prime(R2_prime);
     this->set_delta_omega(delta_omega);
 }
 
 Species
 ::Species(
     Quantity const & R1, Quantity const & R2, Matrix3x3Q const & D,
-    Quantity const & R2_prime, Quantity const & delta_omega)
+    Quantity const & delta_omega)
 {
     this->set_R1(R1);
     this->set_R2(R2);
     this->set_D(D);
-    this->set_R2_prime(R2_prime);
     this->set_delta_omega(delta_omega);
 }
 
@@ -111,13 +109,6 @@ Species
     return this->_T2;
 }
 
-Quantity const &
-Species
-::get_R2_prime() const
-{
-    return this->_R2_prime;
-}
-
 Matrix3x3Q const &
 Species
 ::get_D() const
@@ -162,36 +153,6 @@ Species
         }
     }
     this->_D = q;
-}
-
-void
-Species
-::set_R2_prime(Quantity const & q)
-{
-    if(q.dimensions == Frequency)
-    {
-        this->_R2_prime = q;
-        this->_T2_prime = 1/q;
-    }
-    else if(q.dimensions == Time)
-    {
-        this->_R2_prime = 1/q;
-        this->_T2_prime = q;
-    }
-    else
-    {
-        std::ostringstream message;
-        message
-            << "R2_prime must be duration or frequency, not " << q.dimensions;
-        throw std::runtime_error(message.str());
-    }
-}
-
-Quantity const &
-Species
-::get_T2_prime() const
-{
-    return this->_T2_prime;
 }
 
 Quantity const &

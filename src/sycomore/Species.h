@@ -23,7 +23,6 @@ public:
      */
     Species(
         Quantity const & R1, Quantity const & R2, Quantity const & D,
-        Quantity const & R2_prime=0*units::Hz,
         Quantity const & delta_omega=0*units::Hz);
 
     /**
@@ -32,7 +31,6 @@ public:
      */
     Species(
         Quantity const & R1, Quantity const & R2, Matrix3x3Q const & D,
-        Quantity const & R2_prime=0*units::Hz,
         Quantity const & delta_omega=0*units::Hz);
 
     /// @brief Return the longitudinal relaxation rate.
@@ -56,22 +54,6 @@ public:
     /// @brief Set the diffusion tensor.
     void set_D(Matrix3x3Q const & q);
 
-    /**
-     * @brief Return the part of the apparent transversal relaxation rate R2* 
-     * attributed to the magnetic field inhomogeneity.
-     */
-    Quantity const & get_R2_prime() const;
-    /**
-     * @brief Set the part of the apparent transversal relaxation rate or time  
-     * attributed to the magnetic field inhomogeneity.
-     */
-    void set_R2_prime(Quantity const & q);
-    /**
-     * @brief Return the part of the apparent transversal relaxation time T2* 
-     * attributed to the magnetic field inhomogeneity.
-     */
-    Quantity const & get_T2_prime() const;
-
     /// @brief Return the frequency offset.
     Quantity const & get_delta_omega() const;
     /// @brief Set the frequency offset.
@@ -92,12 +74,6 @@ private:
 
     /// @brief Diffusivity.
     Matrix3x3Q _D;
-
-    /// @brief R2' relaxation rate.
-    Quantity _R2_prime;
-
-    /// @brief R2' relaxation time.
-    Quantity _T2_prime;
 
     /// @brief Relative frequency.
     Quantity _delta_omega;

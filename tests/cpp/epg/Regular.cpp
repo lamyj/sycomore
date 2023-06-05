@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalFieldOffResonance, *boost::unit_test::tolerance
 BOOST_AUTO_TEST_CASE(TimeIntervalSpeciesOffResonance, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
-    sycomore::Species const species(1000*ms, 100*ms, 3*um*um/ms, 0*Hz, 10*Hz);
+    sycomore::Species const species(1000*ms, 100*ms, 3*um*um/ms, 10*Hz);
 
     sycomore::epg::Regular model(species, {0,0,1}, 100, 20*mT/m*ms);
     model.apply_pulse(47*deg, 23*deg);
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalSpeciesOffResonance, *boost::unit_test::toleran
 BOOST_AUTO_TEST_CASE(TimeIntervalBothOffResonance, *boost::unit_test::tolerance(1e-9))
 {
     using namespace sycomore::units;
-    sycomore::Species const species(1000*ms, 100*ms, 3*um*um/ms, 0*Hz, 10*Hz);
+    sycomore::Species const species(1000*ms, 100*ms, 3*um*um/ms, 10*Hz);
 
     sycomore::epg::Regular model(species, {0,0,1}, 100, 20*mT/m*ms);
     model.delta_omega = -model.get_species().get_delta_omega();

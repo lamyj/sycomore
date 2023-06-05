@@ -27,11 +27,9 @@ void set_D(sycomore::Species & species, pybind11::object const & value)
 
 sycomore::Species constructor(
     sycomore::Quantity const & R1, sycomore::Quantity const & R2,
-    pybind11::object D, sycomore::Quantity const & R2_prime,
-    sycomore::Quantity const & delta_omega)
+    pybind11::object D, sycomore::Quantity const & delta_omega)
 {
-    sycomore::Species species(
-        R1, R2, {0, sycomore::Diffusion}, R2_prime, delta_omega);
+    sycomore::Species species(R1, R2, {0, sycomore::Diffusion}, delta_omega);
     set_D(species, D);
     return species;
 }
@@ -48,8 +46,7 @@ void wrap_Species(pybind11::module & m)
         .def(
             init(&constructor),
             arg("R1"), arg("R2"),
-            arg("D")=0*units::m*units::m/s, arg("R2_prime")=0_Hz,
-            arg("delta_omega")=0*rad/s)
+            arg("D")=0*units::m*units::m/s, arg("delta_omega")=0*rad/s)
         .def_property(
             "R1", &Species::get_R1, &Species::set_R1,
             "Longitudinal relaxation rate.")
@@ -63,14 +60,6 @@ void wrap_Species(pybind11::module & m)
         .def_property(
             "D", &Species::get_D, set_D, "Diffusion tensor.")
         .def_property(
-            "R2_prime", &Species::get_R2_prime, &Species::set_R2_prime,
-            "The part of the apparent transversal relaxation rate R2* "
-            "attributed to the magnetic field inhomogeneity")
-        .def_property_readonly(
-            "T2_prime", &Species::get_T2_prime,
-            "The part of the apparent transversal relaxation time T2* "
-            "attributed to the magnetic field inhomogeneity")
-        .def_property(
             "delta_omega", &Species::get_delta_omega, &Species::set_delta_omega,
             "Frequency offset.")
         .def(pickle(
@@ -81,11 +70,10 @@ void wrap_Species(pybind11::module & m)
                     D.unchecked(0,0), D.unchecked(0,1), D.unchecked(0, 2),
                     D.unchecked(1,0), D.unchecked(1,1), D.unchecked(1,2),
                     D.unchecked(2,0), D.unchecked(2,1), D.unchecked(2,2),
-                    s.get_R2_prime(),
                     s.get_delta_omega());
             },
             [](tuple t) {
-                if(t.size() != 13)
+                if(t.size() != 12)
                 {
                     throw std::runtime_error("Invalid state!");
                 }
@@ -96,8 +84,7 @@ void wrap_Species(pybind11::module & m)
                         {t[5].cast<Quantity>(), t[6].cast<Quantity>(), t[7].cast<Quantity>()},
                         {t[8].cast<Quantity>(), t[9].cast<Quantity>(), t[10].cast<Quantity>()},
                     },
-                    t[11].cast<Quantity>(),
-                    t[12].cast<Quantity>());
+                    t[11].cast<Quantity>());
             }
         ));
 }
