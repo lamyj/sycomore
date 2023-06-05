@@ -28,10 +28,10 @@ void set_D(sycomore::Species & species, pybind11::object const & value)
 sycomore::Species constructor(
     sycomore::Quantity const & R1, sycomore::Quantity const & R2,
     pybind11::object D, sycomore::Quantity const & R2_prime,
-    sycomore::Quantity const & delta_omega, sycomore::Real w)
+    sycomore::Quantity const & delta_omega)
 {
     sycomore::Species species(
-        R1, R2, {0, sycomore::Diffusion}, R2_prime, delta_omega, w);
+        R1, R2, {0, sycomore::Diffusion}, R2_prime, delta_omega);
     set_D(species, D);
     return species;
 }
@@ -49,7 +49,7 @@ void wrap_Species(pybind11::module & m)
             init(&constructor),
             arg("R1"), arg("R2"),
             arg("D")=0*units::m*units::m/s, arg("R2_prime")=0_Hz,
-            arg("delta_omega")=0*rad/s, arg("w")=1)
+            arg("delta_omega")=0*rad/s)
         .def_property(
             "R1", &Species::get_R1, &Species::set_R1,
             "Longitudinal relaxation rate.")
@@ -73,7 +73,6 @@ void wrap_Species(pybind11::module & m)
         .def_property(
             "delta_omega", &Species::get_delta_omega, &Species::set_delta_omega,
             "Frequency offset.")
-        .def_readwrite("w", &Species::w, "Relative weight.")
         .def(pickle(
             [](Species const & s) {
                 auto const D = s.get_D();
@@ -83,10 +82,10 @@ void wrap_Species(pybind11::module & m)
                     D.unchecked(1,0), D.unchecked(1,1), D.unchecked(1,2),
                     D.unchecked(2,0), D.unchecked(2,1), D.unchecked(2,2),
                     s.get_R2_prime(),
-                    s.get_delta_omega(), s.w);
+                    s.get_delta_omega());
             },
             [](tuple t) {
-                if(t.size() != 14)
+                if(t.size() != 13)
                 {
                     throw std::runtime_error("Invalid state!");
                 }
@@ -98,7 +97,7 @@ void wrap_Species(pybind11::module & m)
                         {t[8].cast<Quantity>(), t[9].cast<Quantity>(), t[10].cast<Quantity>()},
                     },
                     t[11].cast<Quantity>(),
-                    t[12].cast<Quantity>(), t[13].cast<Real>());
+                    t[12].cast<Quantity>());
             }
         ));
 }

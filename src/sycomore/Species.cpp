@@ -18,8 +18,7 @@ Species
 Species
 ::Species(
     Quantity const & R1, Quantity const & R2, Quantity const & D,
-    Quantity const & R2_prime, Quantity const & delta_omega, Real w)
-: w(w)
+    Quantity const & R2_prime, Quantity const & delta_omega)
 {
     this->set_R1(R1);
     this->set_R2(R2);
@@ -31,8 +30,7 @@ Species
 Species
 ::Species(
     Quantity const & R1, Quantity const & R2, Matrix3x3Q const & D,
-    Quantity const & R2_prime, Quantity const & delta_omega, Real w)
-: w(w)
+    Quantity const & R2_prime, Quantity const & delta_omega)
 {
     this->set_R1(R1);
     this->set_R2(R2);

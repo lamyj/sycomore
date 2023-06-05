@@ -10,7 +10,7 @@ from sycomore.units import *
 class TestSpecies(unittest.TestCase):
     def test_quantity_constructor_full(self):
         species = sycomore.Species(
-            1*ms, 0.01*kHz, 3*um*um/ms, 1./(15*ds), 0.9*rad/s, 1.1)
+            1*ms, 0.01*kHz, 3*um*um/ms, 1./(15*ds), 0.9*rad/s)
         self.assertEqual(species.R1, 1.*kHz)
         self.assertEqual(species.T1, 1.*ms)
         self.assertEqual(species.R2, 10.*Hz)
@@ -19,8 +19,7 @@ class TestSpecies(unittest.TestCase):
         self.assertEqual(species.R2_prime, (1/1.5)*Hz)
         self.assertEqual(species.T2_prime, 1.5*s)
         self.assertEqual(species.delta_omega, 0.9*rad/s)
-        self.assertEqual(species.w, 1.1)
-
+    
     def test_quantity_constructor_partial(self):
         species = sycomore.Species(
             1*ms, 0.01*kHz, R2_prime=1./(15*ds))
@@ -32,8 +31,7 @@ class TestSpecies(unittest.TestCase):
         self.assertEqual(species.R2_prime, (1/1.5)*Hz)
         self.assertEqual(species.T2_prime, 1.5*s)
         self.assertEqual(species.delta_omega, 0*rad/s)
-        self.assertEqual(species.w, 1)
-
+    
     def test_D_scalar(self):
         D_scalar = 1*um*um/ms
         D_tensor = [
@@ -74,7 +72,7 @@ class TestSpecies(unittest.TestCase):
             [2*um*um/ms, 5*um*um/ms, 8*um*um/ms],
             [3*um*um/ms, 6*um*um/ms, 9*um*um/ms]]
 
-        species = sycomore.Species(1*ms, 100*ms, D, 1./(15*ds), 0.9*rad/s, 1.1)
+        species = sycomore.Species(1*ms, 100*ms, D, 1./(15*ds), 0.9*rad/s)
         
         other_species = pickle.loads(pickle.dumps(species))
         self.assertEqual(species.T1, other_species.T1)
@@ -82,7 +80,6 @@ class TestSpecies(unittest.TestCase):
         self._test_quantity_array(species.D, other_species.D)
         self.assertEqual(species.R2_prime, other_species.R2_prime)
         self.assertEqual(species.delta_omega, other_species.delta_omega)
-        self.assertEqual(species.w, other_species.w)
     
     def _test_quantity_array(self, left, right):
         self.assertEqual(numpy.shape(left), numpy.shape(right))

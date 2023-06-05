@@ -14,9 +14,6 @@ namespace sycomore
 class SYCOMORE_API Species
 {
 public:
-    /// @brief Relative weight
-    Real w;
-    
     /// @brief Create a species given relaxation rates or times
     Species(Quantity const & R1, Quantity const & R2);
     
@@ -27,7 +24,7 @@ public:
     Species(
         Quantity const & R1, Quantity const & R2, Quantity const & D,
         Quantity const & R2_prime=0*units::Hz,
-        Quantity const & delta_omega=0*units::Hz, Real w=1);
+        Quantity const & delta_omega=0*units::Hz);
 
     /**
      * @brief Create a species given relaxation rates or times, diffusion
@@ -36,7 +33,7 @@ public:
     Species(
         Quantity const & R1, Quantity const & R2, Matrix3x3Q const & D,
         Quantity const & R2_prime=0*units::Hz,
-        Quantity const & delta_omega=0*units::Hz, Real w=1);
+        Quantity const & delta_omega=0*units::Hz);
 
     /// @brief Return the longitudinal relaxation rate.
     Quantity const & get_R1() const;
