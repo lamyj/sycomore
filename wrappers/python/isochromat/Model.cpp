@@ -17,13 +17,13 @@ void wrap_isochromat_Model(pybind11::module & m)
         .def(
             init<
                 Quantity const &, Quantity const &, TensorR<1> const &,
-                TensorQ<2> const &>(),
-            "T1"_a, "T2"_a, "M0"_a, "positions"_a)
+                TensorQ<2> const &, Quantity const &>(),
+            "T1"_a, "T2"_a, "M0"_a, "positions"_a, "delta_omega"_a=0*units::Hz)
         .def(
             init<
                 TensorQ<1> const &, TensorQ<1> const &, TensorR<2> const &,
-                TensorQ<2> const &>(),
-            "T1"_a, "T2"_a, "M0"_a, "positions"_a)
+                TensorQ<2> const &, TensorQ<1> const &>(),
+            "T1"_a, "T2"_a, "M0"_a, "positions"_a, "delta_omega"_a=TensorQ<1>{})
         .def(
             "build_pulse",
             overload_cast<Quantity const &, Quantity const &>(
@@ -61,6 +61,7 @@ void wrap_isochromat_Model(pybind11::module & m)
         .def_property_readonly("T1", &Model::T1)
         .def_property_readonly("T2", &Model::T2)
         .def_property_readonly("M0", &Model::M0)
+        .def_property_readonly("delta_omega", &Model::delta_omega)
         .def_property_readonly("magnetization", &Model::magnetization)
         .def_property_readonly("positions", &Model::positions);
 }

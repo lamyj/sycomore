@@ -5,6 +5,7 @@
 
 #include "sycomore/Quantity.h"
 #include "sycomore/sycomore.h"
+#include "sycomore/units.h"
 #include "sycomore/isochromat/Operator.h"
 
 namespace sycomore
@@ -20,12 +21,14 @@ public:
     /// @brief Create a spatially constant model
     Model(
         Quantity const & T1, Quantity const & T2, TensorR<1> const & M0, 
-        TensorQ<2> const & positions);
+        TensorQ<2> const & positions,
+        Quantity const & delta_omega=0*sycomore::units::Hz);
     
     /// @brief Create a spatially-varying model
     Model(
         TensorQ<1> const & T1, TensorQ<1> const & T2, TensorR<2> const & M0,
-        TensorQ<2> const & positions);
+        TensorQ<2> const & positions,
+        TensorQ<1> const & delta_omega={});
     
     /// @brief Create a spatially constant RF pulse operator
     Operator build_pulse(Quantity const & angle, Quantity const & phase) const;
@@ -65,6 +68,9 @@ public:
     /// @brief Return the M0 field
     TensorR<1> const & M0() const;
     
+    /// @brief Return the off-resonance field.
+    TensorR<1> const & delta_omega() const;
+    
     /// @brief Return the magnetization field
     TensorR<2> magnetization() const;
     
@@ -75,6 +81,8 @@ private:
     TensorR<1> _T1;
     TensorR<1> _T2;
     TensorR<1> _M0;
+    TensorR<1> _delta_omega;
+    
     TensorR<2> _magnetization;
     TensorR<2> _positions;
 };

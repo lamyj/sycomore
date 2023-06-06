@@ -24,12 +24,12 @@ namespace isochromat
 Model
 ::Model(
     Quantity const & T1, Quantity const & T2, TensorR<1> const & M0,
-    TensorQ<2> const & positions)
+    TensorQ<2> const & positions, Quantity const & delta_omega)
 : Model(
     xt::repeat(TensorQ<1>{T1}, positions.shape()[0], 0),
     xt::repeat(TensorQ<1>{T2}, positions.shape()[0], 0),
     xt::eval(xt::repeat(xt::atleast_2d(M0), positions.shape()[0], 0)),
-    positions)
+    positions, xt::repeat(TensorQ<1>{delta_omega}, positions.shape()[0], 0))
 {
     // Nothing else
 }
@@ -37,14 +37,16 @@ Model
 Model
 ::Model(
     TensorQ<1> const & T1, TensorQ<1> const & T2, TensorR<2> const & M0,
-    TensorQ<2> const & positions)
+    TensorQ<2> const & positions, TensorQ<1> const & delta_omega)
 : _T1(T1.shape()), _T2(T2.shape()), _M0(xt::view(M0, xt::all(), 2)),
+    _delta_omega(delta_omega.size() == 0 ? T1.shape() : delta_omega.shape()),
     _magnetization(TensorR<2>::shape_type{M0.shape()[0], 4}),
     _positions(positions.shape())
 {
     if(
         T1.size() != T2.size() || T1.size() != M0.shape()[0]
-        || T1.size() != positions.shape()[0])
+        || T1.size() != positions.shape()[0]
+        || (delta_omega.size() != 0 && T1.size() != delta_omega.size()))
     {
         throw std::runtime_error("Size mismatch");
     }
@@ -53,6 +55,11 @@ Model
     
     xt::view(this->_magnetization, xt::all(), xt::range(0, 3)) = M0;
     xt::view(this->_magnetization, xt::all(), 3) = 1;
+    
+    this->_delta_omega = 
+        delta_omega.size() == 0
+        ? xt::repeat(TensorR<1>{0.}, T1.size(), 0)
+        : convert_to(delta_omega, units::Hz);
     
     this->_positions = convert_to(positions, units::m);
 }
@@ -120,17 +127,17 @@ Model
         2*M_PI * (
             // Field-related dephasing
             delta_omega_Hz
-            // FIXME: delta_omega of species 
-            // // Species-related dephasing, e.g. chemical shift or susceptibility
-            // + species.delta_omega
+            // Species-related dephasing, e.g. chemical shift or susceptibility
+            + this->_delta_omega
         )
         // Gradient-related dephasing
         + gamma.magnitude*xt::sum(gradient_T_per_m * this->_positions, {1});
     
-    auto op = this->build_phase_accumulation(
-        units::rad * duration_s * angular_frequency);
+    auto op = this->build_relaxation(duration);
     
-    op.preMultiply(this->build_relaxation(duration));
+    op.preMultiply(
+        this->build_phase_accumulation(
+            units::rad * duration_s * angular_frequency));
     
     return op;
 }
@@ -191,10 +198,10 @@ Model
     {
         auto l = xt::view(array, n);
         auto r = xt::view(this->_magnetization, n);
-        auto temp = xt::zeros_like(r);
+        auto temp = xt::empty_like(r);
         for(std::size_t i=0; i<4; ++i)
         {
-            temp.unchecked(i) += 
+            temp.unchecked(i) = 
                 l.unchecked(i,0)*r.unchecked(0)
                 + l.unchecked(i,1)*r.unchecked(1)
                 + l.unchecked(i, 2)*r.unchecked(2)
@@ -223,6 +230,13 @@ Model
 ::M0() const
 {
     return this->_M0;
+}
+
+TensorR<1> const &
+Model
+::delta_omega() const
+{
+    return this->_delta_omega;
 }
 
 TensorR<2>
