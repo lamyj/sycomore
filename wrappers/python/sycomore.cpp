@@ -56,4 +56,6 @@ PYBIND11_MODULE(_sycomore, _sycomore)
             return sycomore::linspace(
                 xt::eval(-span/2.), xt::eval(+span/2.), size);
         });
+    
+    _sycomore.def("round", round<Quantity>);
 }
