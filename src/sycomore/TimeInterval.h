@@ -16,18 +16,16 @@ public:
     // TODO: gradient shape
     
     /**
-     * @brief Shortest possible time interval given 1D gradient moment and
-     * maximum gradient amplitude
+     * @brief Shortest possible time interval given 1D gradient area (T/m*s)
+     * or dephasing (rad/m) and maximum gradient amplitude
      */
-    static TimeInterval shortest(
-        Quantity const & gradient_moment, Quantity const & G_max);
+    static TimeInterval shortest(Quantity const & k, Quantity const & G_max);
     
     /**
-     * @brief Shortest possible time interval given 3D gradient moment and
-     * maximum gradient amplitude
+     * @brief Shortest possible time interval given 3D gradient area (T/m*s)
+     * or dephasing (rad/m) and maximum gradient amplitude
      */
-    static TimeInterval shortest(
-        Vector3Q const & gradient_moment, Quantity const & G_max);
+    static TimeInterval shortest(Vector3Q const & k, Quantity const & G_max);
 
     /**
      * @brief Constructor, gradient may be specified as amplitude (in T/m), 
@@ -61,15 +59,6 @@ public:
      */
     void set_gradient(Vector3Q const & a);
 
-    /// @brief Return the gradient dephasing.
-    Vector3Q get_gradient_moment() const;
-    
-    /// @brief Set the gradient dephasing.
-    void set_gradient_moment(Quantity const & q);
-    
-    /// @brief Set the gradient dephasing.
-    void set_gradient_moment(Vector3Q const & a);
-    
     /// @brief Return the gradient amplitude
     Vector3Q const & get_gradient_amplitude() const;
     

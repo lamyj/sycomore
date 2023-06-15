@@ -22,7 +22,7 @@ namespace epg
 {
 
 /**
- * @brief Discrete EPG model, where the gradient moments may vary across time
+ * @brief Discrete EPG model, where the gradient dephasing may vary across time
  * intervals.
  *
  * In this model, the orders of the model are stored in bins of user-specified

@@ -17,7 +17,7 @@ void wrap_epg_Regular(pybind11::module & m)
 
     class_<Regular, Base>(
             m, "Regular",
-            "Regular EPG model, where the gradient moment is assumed to be "
+            "Regular EPG model, where the gradient dephasing is assumed to be "
             "identical during each time interval."
             "\n"
             "In this model, the orders of the model are consecutive positive "
@@ -28,7 +28,7 @@ void wrap_epg_Regular(pybind11::module & m)
                 Quantity const &, double>(),
             arg("species"), arg("initial_magnetization")=Vector3R{0,0,1},
             arg("initial_size")=100, 
-            arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
+            arg("unit_dephasing")=0*units::rad/units::m,
             arg("gradient_tolerance")=1e-5)
         .def(
             init<
@@ -39,7 +39,7 @@ void wrap_epg_Regular(pybind11::module & m)
             arg("species_a"), arg("species_b"), arg("M0_a"), arg("M0_b"),
             arg("k_a"), arg("delta_b")=0*units::Hz,
             arg("initial_size")=100, 
-            arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
+            arg("unit_dephasing")=0*units::rad/units::m,
             arg("gradient_tolerance")=1e-5)
         .def(
             init<
@@ -50,12 +50,12 @@ void wrap_epg_Regular(pybind11::module & m)
             arg("species_a"), arg("R1_b_or_T1_b"), arg("M0_a"), arg("M0_b"),
             arg("k_a"), 
             arg("initial_size")=100, 
-            arg("unit_gradient_area")=0*units::mT/units::m*units::ms, 
+            arg("unit_dephasing")=0*units::rad/units::m,
             arg("gradient_tolerance")=1e-5)
         .def_readwrite("velocity", &Regular::velocity)
         .def_property_readonly(
-            "unit_gradient_area", &Regular::unit_gradient_area,
-            "Unit gradient area of the model.")
+            "unit_dephasing", &Regular::unit_dephasing,
+            "Unit gradient dephasing of the model.")
         .def_property_readonly(
             "orders", &Regular::orders, 
             "The sequence of orders currently stored by the model, in the same "

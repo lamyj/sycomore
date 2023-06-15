@@ -25,12 +25,15 @@ Regular
 ::Regular(
     Species const & species, Vector3R const & initial_magnetization, 
     unsigned int initial_size, 
-    Quantity const & unit_gradient_area, double gradient_tolerance)
+    Quantity const & unit_dephasing, double gradient_tolerance)
 : Base(species, initial_magnetization, initial_size),
-    _states_count(1), _unit_gradient_area(unit_gradient_area), 
+    _states_count(1), _unit_dephasing(unit_dephasing), 
     _gradient_tolerance(gradient_tolerance)
 {
-    // Nothing else.
+    if(this->_unit_dephasing.dimensions != GradientDephasing)
+    {
+        this->_unit_dephasing *= sycomore::gamma;
+    }
 }
 
 Regular
@@ -38,13 +41,16 @@ Regular
     Species const & species_a, Species const & species_b,
     Vector3R const & M0_a, Vector3R const & M0_b,
     Quantity const & k_a, Quantity const & delta_b,
-    unsigned int initial_size, Quantity const & unit_gradient_area,
+    unsigned int initial_size, Quantity const & unit_dephasing,
     double gradient_tolerance)
 : Base(species_a, species_b, M0_a, M0_b, k_a, delta_b, initial_size),
-    _states_count(1), _unit_gradient_area(unit_gradient_area), 
+    _states_count(1), _unit_dephasing(unit_dephasing), 
     _gradient_tolerance(gradient_tolerance)
 {
-    // Nothing else.
+    if(this->_unit_dephasing.dimensions != GradientDephasing)
+    {
+        this->_unit_dephasing *= sycomore::gamma;
+    }
 }
 
 Regular
@@ -52,13 +58,16 @@ Regular
     Species const & species_a, Quantity const & R1_b_or_T1_b,
     Vector3R const & M0_a, Vector3R const & M0_b,
     Quantity const & k_a,
-    unsigned int initial_size, Quantity const & unit_gradient_area,
+    unsigned int initial_size, Quantity const & unit_dephasing,
     double gradient_tolerance)
 : Base(species_a, R1_b_or_T1_b, M0_a, M0_b, k_a, initial_size),
-    _states_count(1), _unit_gradient_area(unit_gradient_area), 
+    _states_count(1), _unit_dephasing(unit_dephasing), 
     _gradient_tolerance(gradient_tolerance)
 {
-    // Nothing else.
+    if(this->_unit_dephasing.dimensions != GradientDephasing)
+    {
+        this->_unit_dephasing *= sycomore::gamma;
+    }
 }
 
 std::size_t 
@@ -74,8 +83,8 @@ Regular
 {
     TensorQ<1> result(TensorQ<1>::shape_type{this->size()});
     auto const factor = 
-        (this->_unit_gradient_area.magnitude != 0)
-        ? this->_unit_gradient_area : Quantity(1.);
+        (this->_unit_dephasing.magnitude != 0)
+        ? this->_unit_dephasing : Quantity(1.);
     for(std::size_t i=0; i<result.size(); ++i)
     {
         result[i] = i * factor;
@@ -95,15 +104,15 @@ Regular
     else
     {
         auto const epsilon = 
-            this->_gradient_tolerance*this->_unit_gradient_area.magnitude;
+            this->_gradient_tolerance*this->_unit_dephasing.magnitude;
         auto const remainder = std::remainder(
-            order.magnitude, this->_unit_gradient_area.magnitude);
+            order.magnitude, this->_unit_dephasing.magnitude);
         if(std::abs(remainder) >= epsilon)
         {
             throw std::runtime_error(
-                "Gradient is not a interger multiple of unit gradient");
+                "Dephasing is not a integer multiple of unit dephasing");
         }
-        position = std::round(order/this->_unit_gradient_area);
+        position = std::round(order/this->_unit_dephasing);
     }
     
     return this->state(position);
@@ -125,7 +134,7 @@ Regular
     this->bulk_motion(duration, gradient);
     if(duration.magnitude != 0 && gradient.magnitude != 0)
     {
-        if(this->_unit_gradient_area.magnitude != 0)
+        if(this->_unit_dephasing.magnitude != 0)
         {
             this->shift(duration, gradient);
         }
@@ -186,19 +195,19 @@ void
 Regular
 ::shift(Quantity const & duration, Quantity const & gradient)
 {
-    auto const area = duration*gradient;
+    auto const dephasing = sycomore::gamma*duration*gradient;
     auto const epsilon = 
-        this->_gradient_tolerance*this->_unit_gradient_area.magnitude;
+        this->_gradient_tolerance*this->_unit_dephasing.magnitude;
     auto const remainder = std::remainder(
-        area.magnitude, this->_unit_gradient_area.magnitude);
+        dephasing.magnitude, this->_unit_dephasing.magnitude);
     
     if(std::abs(remainder) >= epsilon)
     {
         throw std::runtime_error(
-            "Gradient is not a interger multiple of unit gradient");
+            "Dephasing is not a integer multiple of unit dephasing");
     }
     
-    int n = std::round(area/this->_unit_gradient_area);
+    int n = std::round(dephasing/this->_unit_dephasing);
     
     this->_shift(n);
 }
@@ -215,29 +224,30 @@ Regular
         return;
     }
     
-    auto const area = duration.magnitude*gradient.magnitude;
-    if(area == 0)
+    auto const dephasing =
+        sycomore::gamma.magnitude * duration.magnitude * gradient.magnitude;
+    if(dephasing == 0)
     {
         return;
     }
     
-    auto const unit_gradient_area = this->_unit_gradient_area.magnitude;
-    if(unit_gradient_area == 0)
+    auto const unit_dephasing = this->_unit_dephasing.magnitude;
+    if(unit_dephasing == 0)
     {
         throw std::runtime_error(
-            "Cannot compute diffusion without unit gradient area");
+            "Cannot compute diffusion without unit dephasing");
     }
     
-    auto const remainder = std::remainder(area, unit_gradient_area);
-    if(std::abs(remainder) >= this->_gradient_tolerance*unit_gradient_area)
+    auto const remainder = std::remainder(dephasing, unit_dephasing);
+    if(std::abs(remainder) >= this->_gradient_tolerance*unit_dephasing)
     {
         throw std::runtime_error(
             "Gradient is not a interger multiple of unit gradient");
     }
     
-    auto const delta_k = sycomore::gamma.magnitude*area;
+    auto const delta_k = dephasing;
     
-    this->_cache.update_diffusion(this->size(), unit_gradient_area);
+    this->_cache.update_diffusion(this->size(), unit_dephasing);
     
     auto const & tau = duration.magnitude;
     
@@ -285,9 +295,9 @@ Regular
 
 Quantity const &
 Regular
-::unit_gradient_area() const
+::unit_dephasing() const
 {
-    return this->_unit_gradient_area;
+    return this->_unit_dephasing;
 }
 
 double
@@ -361,12 +371,12 @@ Regular
 
 void
 Regular::Cache
-::update_diffusion(std::size_t size, Real unit_gradient_area)
+::update_diffusion(std::size_t size, Real unit_dephasing)
 {
     this->k.resize(size);
     for(std::size_t order=0; order != size; ++order)
     {
-        this->k[order] = order*sycomore::gamma.magnitude*unit_gradient_area;
+        this->k[order] = order*unit_dephasing;
     }
 }
 

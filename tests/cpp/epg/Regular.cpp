@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(Diffusion, *boost::unit_test::tolerance(1e-9))
     
     test_model(
         model, 
-        {0*mT/m*ms, 20*mT/m*ms},
+        {sycomore::gamma*0*mT/m*ms, sycomore::gamma*20*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.25805111586158685, -0.60793033180597855}, 0, 0}});
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     
     test_model(
         model, 
-        {0*mT/m*ms, 20*mT/m*ms},
+        {sycomore::gamma*0*mT/m*ms, sycomore::gamma*20*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.2584947343504123, -0.6089754314724013}, 0, 0}});
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalFieldOffResonance, *boost::unit_test::tolerance
     model.apply_time_interval(10*ms, 2*mT/m);
     test_model(
         model, 
-        {0*mT/m*ms, 20*mT/m*ms},
+        {sycomore::gamma*0*mT/m*ms, sycomore::gamma*20*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.56707341067384409, -0.34073208057155585}, 0, 0}});
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalSpeciesOffResonance, *boost::unit_test::toleran
 
     test_model(
         model, 
-        {0*mT/m*ms, 20*mT/m*ms},
+        {sycomore::gamma*0*mT/m*ms, sycomore::gamma*20*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.56707341067384409, -0.34073208057155585}, 0, 0}});
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalBothOffResonance, *boost::unit_test::tolerance(
     
     test_model(
         model, 
-        {0*mT/m*ms, 20*mT/m*ms},
+        {sycomore::gamma*0*mT/m*ms, sycomore::gamma*20*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.2584947343504123, -0.6089754314724013}, 0, 0}});
@@ -230,32 +230,34 @@ BOOST_AUTO_TEST_CASE(UnitGradient, *boost::unit_test::tolerance(1e-9))
     sycomore::epg::Regular model(species, {0,0,1}, 100, 10*mT/m*ms);
     model.apply_pulse(47*deg, 23*deg);
     
-    /* First time interval: 1*unit gradient area */
+    /* First time interval: 1*unit dephasing */
     model.apply_time_interval(10*ms, 1*mT/m);
     
     test_model(
         model, 
-        {0*mT/m*ms, 10*mT/m*ms},
+        {sycomore::gamma*0*mT/m*ms, sycomore::gamma*10*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{0.2585687448743616, -0.609149789340343}, 0, 0}});
     
-    /* Second time interval: 2*unit gradient area */
+    /* Second time interval: 2*unit dephasing */
     model.apply_time_interval(10*ms, 2*mT/m);
     test_model(
         model, 
-        {0*mT/m*ms, 10*mT/m*ms, 20*mT/m*ms, 30*mT/m*ms},
+        {
+            sycomore::gamma*0*mT/m*ms, sycomore::gamma*10*mT/m*ms,
+            sycomore::gamma*20*mT/m*ms, sycomore::gamma*30*mT/m*ms},
         {
             {0, 0, 0.6882952144238884},
             {0, 0, 0},
             {0, 0, 0},
             {{0.2339626754969161, -0.5511815225838647}, 0, 0}});
     
-    /* Third time interval: -3*unit gradient area. Higher states are all 0. */
+    /* Third time interval: -3*unit dephasing. Higher states are all 0. */
     model.apply_time_interval(10*ms, -3*mT/m);
     test_model(
         model, 
-        {0*mT/m*ms},
+        {sycomore::gamma*0*mT/m*ms},
         {
             {
                 {0.2116981832134146, -0.49872966576391303}, 
@@ -280,7 +282,7 @@ BOOST_AUTO_TEST_CASE(BulkMotion, *boost::unit_test::tolerance(1e-9))
     
     test_model(
         model, 
-        {0*mT/m*ms, 10*mT/m*ms},
+        {sycomore::gamma*0*mT/m*ms, sycomore::gamma*10*mT/m*ms},
         {
             {0, 0, 0.6851625292479138},
             {{-0.33529082747796918, -0.57052723220581303}, 0, 0}});

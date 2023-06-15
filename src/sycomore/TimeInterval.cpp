@@ -8,24 +8,32 @@ namespace sycomore
 
 TimeInterval
 TimeInterval
-::shortest(Quantity const & gradient_moment, Quantity const & G_max)
+::shortest(Quantity const & k, Quantity const & G_max)
 {
-    return TimeInterval::shortest(
-        {gradient_moment, gradient_moment, gradient_moment}, G_max);
+    return TimeInterval::shortest({k, k, k}, G_max);
 }
 
 TimeInterval
 TimeInterval
-::shortest(Vector3Q const & gradient_moment, Quantity const & G_max)
+::shortest(Vector3Q const & k, Quantity const & G_max)
 {
-    auto max = 0*gradient_moment[0];
-    for(auto && x: gradient_moment)
+    auto max = 0*k[0];
+    for(auto && x: k)
     {
         max = std::max<sycomore::Quantity>(max, std::abs(x));
     }
     
-    auto const min_time = max/(G_max*sycomore::gamma_bar);
-    return sycomore::TimeInterval(min_time, gradient_moment);
+    if(max.dimensions == (units::rad/units::m).dimensions)
+    {
+        max /= gamma;
+    }
+    if(max.dimensions != (units::T/units::m*units::s).dimensions)
+    {
+        throw std::runtime_error("Invalid dimensions");
+    }
+    
+    auto const min_time = max/G_max;
+    return sycomore::TimeInterval(min_time, k);
 }
 
 TimeInterval
@@ -96,44 +104,6 @@ TimeInterval
         std::ostringstream message;
         message << "Invalid gradient specification: " << q.dimensions;
         throw std::runtime_error(message.str());
-    }
-}
-
-Vector3Q
-TimeInterval
-::get_gradient_moment() const
-{
-    return sycomore::gamma*this->_duration*this->_gradient_amplitude;
-}
-
-void
-TimeInterval
-::set_gradient_moment(Quantity const & q)
-{
-    this->set_gradient_moment({q,q,q});
-}
-
-void
-TimeInterval
-::set_gradient_moment(Vector3Q const & a)
-{
-    for(auto && q:a)
-    {
-        if(q.dimensions != GradientMoment)
-        {
-            std::ostringstream message;
-            message << "Invalid gradient moment dimensions: " << q.dimensions;
-            throw std::runtime_error(message.str());
-        }
-    }
-    
-    if(this->_duration == 0*units::s)
-    {
-        this->set_gradient_amplitude(0*units::T/units::m);
-    }
-    else
-    {
-        this->set_gradient_amplitude(a/(this->_duration*sycomore::gamma));
     }
 }
 
@@ -210,7 +180,7 @@ Vector3Q
 TimeInterval
 ::get_gradient_dephasing() const
 {
-    return this->get_gradient_moment();
+    return sycomore::gamma*this->_duration*this->_gradient_amplitude;
 }
 
 void
@@ -224,7 +194,24 @@ void
 TimeInterval
 ::set_gradient_dephasing(Vector3Q const & a)
 {
-    this->set_gradient_moment(a);
+    for(auto && q:a)
+    {
+        if(q.dimensions != GradientDephasing)
+        {
+            std::ostringstream message;
+            message << "Invalid gradient dephasing dimensions: " << q.dimensions;
+            throw std::runtime_error(message.str());
+        }
+    }
+    
+    if(this->_duration == 0*units::s)
+    {
+        this->set_gradient_amplitude(0*units::T/units::m);
+    }
+    else
+    {
+        this->set_gradient_amplitude(a/(this->_duration*sycomore::gamma));
+    }
 }
 
 bool

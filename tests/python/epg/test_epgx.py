@@ -39,7 +39,7 @@ class TestEPG_X(unittest.TestCase):
         gradient = 10*mT/m
         self.classes = [
             lambda *args: sycomore.epg.Regular(
-                *args, unit_gradient_area=self.TR*gradient),
+                *args, unit_dephasing=self.TR*gradient),
             sycomore.epg.Discrete,
             sycomore.epg.Discrete3D
         ]

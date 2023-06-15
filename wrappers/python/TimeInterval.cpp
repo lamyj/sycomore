@@ -59,19 +59,6 @@ void set_gradient_dephasing(
     }
 }
 
-void set_gradient_moment(
-    sycomore::TimeInterval & time_interval, pybind11::object const & value)
-{
-    if(pybind11::isinstance<sycomore::Quantity>(value))
-    {
-        time_interval.set_gradient_moment(value.cast<sycomore::Quantity>());
-    }
-    else
-    {
-        time_interval.set_gradient_moment(value.cast<sycomore::Vector3Q>());
-    }
-}
-
 void wrap_TimeInterval(pybind11::module & m)
 {
     using namespace pybind11;
@@ -101,12 +88,16 @@ void wrap_TimeInterval(pybind11::module & m)
             "shortest",
             static_cast<TimeInterval(*)(Quantity const &, Quantity const &)>(
                 &TimeInterval::shortest),
-            "gradient_moment"_a, "G_max"_a)
+            "k"_a, "G_max"_a,
+            "Shortest possible time interval given 3D gradient area (T/m*s) "
+            "or dephasing (rad/m) and maximum gradient amplitude")
         .def_static(
             "shortest",
             static_cast<TimeInterval(*)(Vector3Q const &, Quantity const &)>(
                 &TimeInterval::shortest),
-            "gradient_moment"_a, "G_max"_a)
+            "k"_a, "G_max"_a,
+            "Shortest possible time interval given 3D gradient area (T/m*s) "
+            "or dephasing (rad/m) and maximum gradient amplitude")
         .def_property(
             "duration",
             &TimeInterval::get_duration, &TimeInterval::set_duration, 
@@ -127,10 +118,6 @@ void wrap_TimeInterval(pybind11::module & m)
             "gradient_dephasing",
             &TimeInterval::get_gradient_dephasing, &set_gradient_dephasing,
             "Gradient dephasing")
-        .def_property(
-            "gradient_moment",
-            &TimeInterval::get_gradient_moment, &set_gradient_moment,
-            "Gradient moment, i.e. dephasing")
         .def(self == self)
         .def(self != self);
 }

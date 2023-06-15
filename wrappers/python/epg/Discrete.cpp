@@ -16,7 +16,7 @@ void wrap_epg_Discrete(pybind11::module & m)
     using namespace sycomore::epg;
     
     class_<Discrete, Base>(m, "Discrete", 
-        "Discrete EPG model, where the gradient moments may vary across time "
+        "Discrete EPG model, where the gradient dephasing may vary across time "
         "intervals."
         "\n"
         "In this model, the orders of the model are stored in bins of "

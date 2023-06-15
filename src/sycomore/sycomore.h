@@ -19,8 +19,8 @@ namespace sycomore
 /// @brief Diffusion coefficient
 SYCOMORE_API extern Dimensions const Diffusion;
 
-/// @brief Gradient moment, as \f$\int \gamma G(t) dt\f$
-SYCOMORE_API extern Dimensions const GradientMoment;
+/// @brief Gradient dephasing, as \f$\int \gamma G(t) dt\f$
+SYCOMORE_API extern Dimensions const GradientDephasing;
 
 /// @brief Generate evenly-spaced samples
 template<typename T>

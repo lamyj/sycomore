@@ -15,8 +15,8 @@ namespace sycomore
 // [ L^2 * T^-1 ]
 Dimensions const Diffusion{2, 0, -1, 0, 0, 0, 0};
 
-// Gradient moment is in rad/m, i.e. accumulated phase per length, i.e. [ L^-1 ]
-Dimensions const GradientMoment{-1, 0, 0, 0, 0, 0, 0};
+// Gradient dephasing is in rad/m, i.e. [ L^-1 ]
+Dimensions const GradientDephasing{-1, 0, 0, 0, 0, 0, 0};
 
 // From CODATA 2018: https://www.physics.nist.gov/cgi-bin/cuu/Value?gammap
 // rad*MHz/T simplifies to [ M^-1 * T * I] since T is [ M T^-2 I^-1 ]

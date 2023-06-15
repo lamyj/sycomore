@@ -21,8 +21,8 @@ namespace epg
 {
 
 /**
- * @brief Regular EPG model, where the gradient moment is assumed to be
- * a multiple of a user-specified unitary moment during each time interval.
+ * @brief Regular EPG model, where the gradient dephasing is assumed to be
+ * a multiple of a user-specified unitary dephasing during each time interval.
  *
  * In this model, the orders of the model are consecutive positive integers
  * starting at 0.
@@ -40,9 +40,9 @@ public:
     Regular(
         Species const & species, 
         Vector3R const & initial_magnetization={0,0,1}, 
-        unsigned int initial_size=100, 
-        Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
-        double gradient_tolerance=1e-5);
+        unsigned int initial_size=100,
+        Quantity const & unit_dephasing=0*units::rad/units::m,
+        double dephasing_tolerance=1e-5);
     
     /// @brief Create an exchange model
     Regular(
@@ -50,7 +50,7 @@ public:
         Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a, Quantity const & delta_b=0*units::Hz,
         unsigned int initial_size=100, 
-        Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
+        Quantity const & unit_dephasing=0*units::rad/units::m,
         double gradient_tolerance=1e-5);
     
     /// @brief Create an MT model
@@ -59,7 +59,7 @@ public:
         Vector3R const & M0_a, Vector3R const & M0_b,
         Quantity const & k_a,
         unsigned int initial_size=100, 
-        Quantity const & unit_gradient_area=0*units::mT/units::m*units::ms,
+        Quantity const & unit_dephasing=0*units::rad/units::m,
         double gradient_tolerance=1e-5);
     
     /// @brief Default copy constructor
@@ -120,8 +120,8 @@ public:
      */
     void bulk_motion(Quantity const & duration, Quantity const & gradient);
     
-    /// @brief Return the unit gradient area
-    Quantity const & unit_gradient_area() const;
+    /// @brief Return the unit dephasing
+    Quantity const & unit_dephasing() const;
     
     /// @brief Return the gradient tolerance
     double gradient_tolerance() const;
@@ -129,12 +129,12 @@ public:
 private:
     std::size_t _states_count;
     
-    /// @brief Area of the unit gradient, in T/m*s.
-    Quantity _unit_gradient_area;
+    /// @brief Unit dephasing, in rad/m.
+    Quantity _unit_dephasing;
     
     /** 
-     * @brief Tolerance used when checking that a prescribed gradient moment is
-     * close enough to a multiple of the unit gradient.
+     * @brief Tolerance used when checking that a prescribed gradient dephasing
+     * is close enough to a multiple of the unit gradient.
      */
     double _gradient_tolerance;
     
@@ -148,7 +148,7 @@ private:
         // Diffusion-related data.
         std::vector<Real, xsimd::aligned_allocator<Real, 64>> k;
         
-        void update_diffusion(std::size_t size, Real unit_gradient_area);
+        void update_diffusion(std::size_t size, Real unit_dephasing);
     };
     
     Cache _cache;
