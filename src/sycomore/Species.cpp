@@ -39,7 +39,7 @@ Species
 
 Quantity const &
 Species
-::get_R1() const
+::R1() const
 {
     return this->_R1;
 }
@@ -68,14 +68,14 @@ Species
 
 Quantity const &
 Species
-::get_T1() const
+::T1() const
 {
     return this->_T1;
 }
 
 Quantity const &
 Species
-::get_R2() const
+::R2() const
 {
     return this->_R2;
 }
@@ -104,14 +104,14 @@ Species
 
 Quantity const &
 Species
-::get_T2() const
+::T2() const
 {
     return this->_T2;
 }
 
 Matrix3x3Q const &
 Species
-::get_D() const
+::D() const
 {
     return this->_D;
 }
@@ -157,7 +157,7 @@ Species
 
 Quantity const &
 Species
-::get_delta_omega() const
+::delta_omega() const
 {
     return this->_delta_omega;
 }

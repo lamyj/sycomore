@@ -85,11 +85,11 @@ using Batch = xsimd::batch<T, simd::width<InstructionSet, T>()>;
 #endif
 
 /// @brief Return the CPU information given by CPUID (x86/x64 only).
-SYCOMORE_API std::vector<unsigned int> get_cpu_info(
+SYCOMORE_API std::vector<unsigned int> cpu_info(
     unsigned int leaf, unsigned int subleaf=0);
 
 /// @brief Return the instruction set (x86/x64 only).
-int get_instruction_set();
+int instruction_set();
 
 template<typename T1, typename T2>
 typename std::enable_if<is_batch<T2>::value, void>::type

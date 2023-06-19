@@ -19,10 +19,13 @@ void wrap_HardPulseApproximation(pybind11::module & m)
                 HardPulseApproximation::Envelope>(),
             "model"_a, "support"_a, "envelope"_a)
         .def_property_readonly(
-            "pulses", &HardPulseApproximation::get_pulses)
+            "pulses", &HardPulseApproximation::pulses)
         .def_property_readonly(
-            "duration", &HardPulseApproximation::get_duration)
-        .def("set_phase", &HardPulseApproximation::set_phase, "phase"_a);
+            "duration", &HardPulseApproximation::duration)
+        .def_property(
+            "phase",
+            &HardPulseApproximation::set_phase,
+            &HardPulseApproximation::set_phase);
 
     m.def("apodized_sinc_envelope", apodized_sinc_envelope);
     m.def("hamming_sinc_envelope", hamming_sinc_envelope);

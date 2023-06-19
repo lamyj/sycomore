@@ -209,7 +209,7 @@ void set_api(unsigned instruction_set)
 
 bool set_default_api()
 {
-    set_api(simd::get_instruction_set());
+    set_api(simd::instruction_set());
     return true;
 }
 

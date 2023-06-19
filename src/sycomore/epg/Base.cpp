@@ -66,7 +66,7 @@ Base
 
 Species const &
 Base
-::get_species(std::size_t pool) const
+::species(std::size_t pool) const
 {
     return this->_model.species[pool];
 }
@@ -87,7 +87,7 @@ Base
 
 Real const &
 Base
-::get_M0(std::size_t pool) const
+::M0(std::size_t pool) const
 {
     return this->_model.M0[pool];
 }
@@ -108,7 +108,7 @@ Base
 
 Quantity const &
 Base
-::get_k(std::size_t pool) const
+::k(std::size_t pool) const
 {
     return this->_model.k[pool];
 }
@@ -122,7 +122,7 @@ Base
 
 Quantity const &
 Base
-::get_delta_b() const
+::delta_b() const
 {
     return this->_model.delta_b;
 }
@@ -245,23 +245,22 @@ Base
     if(this->_model.kind == Model::SinglePool)
     {
         auto const & species = this->_model.species[0];
-        if(species.get_R1().magnitude == 0 && species.get_R2().magnitude == 0)
+        if(species.R1().magnitude == 0 && species.R2().magnitude == 0)
         {
             return;
         }
         auto const E = operators::relaxation_single_pool(
-            species.get_R1().magnitude, species.get_R2().magnitude, 
-            duration.magnitude);
+            species.R1().magnitude, species.R2().magnitude, duration.magnitude);
         simd_api::relaxation_single_pool(E, this->_model, this->size());
         this->_model.Z[0][0] += this->_model.M0[0]*(1.-E.first);
     }
     else if(this->_model.kind == Model::Exchange)
     {
         auto const E = operators::relaxation_exchange(
-            this->_model.species[0].get_R1().magnitude,
-            this->_model.species[0].get_R2().magnitude,
-            this->_model.species[1].get_R1().magnitude,
-            this->_model.species[1].get_R2().magnitude,
+            this->_model.species[0].R1().magnitude,
+            this->_model.species[0].R2().magnitude,
+            this->_model.species[1].R1().magnitude,
+            this->_model.species[1].R2().magnitude,
             this->_model.k[0].magnitude, this->_model.k[1].magnitude,
             this->_model.delta_b.magnitude,
             this->_model.M0[0], this->_model.M0[1],
@@ -276,9 +275,9 @@ Base
     else if(this->_model.kind == Model::MagnetizationTransfer)
     {
         auto const E = operators::relaxation_magnetization_transfer(
-            this->_model.species[0].get_R1().magnitude,
-            this->_model.species[0].get_R2().magnitude,
-            this->_model.species[1].get_R1().magnitude,
+            this->_model.species[0].R1().magnitude,
+            this->_model.species[0].R2().magnitude,
+            this->_model.species[1].R1().magnitude,
             this->_model.k[0].magnitude, this->_model.k[1].magnitude,
             this->_model.M0[0], this->_model.M0[1],
             duration.magnitude);
@@ -305,7 +304,7 @@ Base
             duration.magnitude * 2*M_PI*units::rad 
             * (
                 this->delta_omega.magnitude
-                + this->_model.species[pool].get_delta_omega().magnitude);
+                + this->_model.species[pool].delta_omega().magnitude);
         if(angle != 0)
         {
             auto const Omega = operators::phase_accumulation(angle);

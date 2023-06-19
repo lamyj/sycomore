@@ -60,7 +60,7 @@ public:
     std::size_t pools() const;
     
     /// @brief Return the species of one of the pools
-    Species const & get_species(std::size_t pool=0) const;
+    Species const & species(std::size_t pool=0) const;
     
     /// @brief Set the species of one of the pools
     void set_species(std::size_t pool, Species const & species);
@@ -69,7 +69,7 @@ public:
     void set_species(Species const & species);
     
     /// @brief Return the equilibrium magnetization of one of the pools
-    Real const & get_M0(std::size_t pool=0) const;
+    Real const & M0(std::size_t pool=0) const;
     
     /// @brief Set the equilibrium magnetization of one of the pools
     void set_M0(std::size_t pool, Real const & M0);
@@ -78,13 +78,13 @@ public:
     void set_M0(Real const & M0);
     
     /// @brief Return the exchange constant of one of the pools
-    Quantity const & get_k(std::size_t pool) const;
+    Quantity const & k(std::size_t pool) const;
     
     /// @brief Set the exchange constant of one of the pools
     void set_k(std::size_t pool, Quantity const & k);
     
     /// @brief Return the frequency offset
-    Quantity const & get_delta_b() const;
+    Quantity const & delta_b() const;
     
     /// @brief Set the frequency offset
     void set_delta_b(Quantity const & delta_b);

@@ -184,12 +184,7 @@ Discrete3D
 ::apply_time_interval(TimeInterval const & interval)
 {
     this->apply_time_interval(
-        interval.get_duration(),
-        {
-            interval.get_gradient_amplitude()[0],
-            interval.get_gradient_amplitude()[1],
-            interval.get_gradient_amplitude()[2]
-        });
+        interval.duration(), interval.gradient_amplitude()[0]);
 }
 
 void
@@ -225,7 +220,7 @@ Discrete3D
             
             if(state != 0.)
             {
-                this->_cache.Z[pool][this->_cache.get_location(k)] = state;
+                this->_cache.Z[pool][this->_cache.location(k)] = state;
             }
             
             state = this->_model.F[pool][i];
@@ -252,7 +247,7 @@ Discrete3D
                     destination = &this->_cache.F_star[pool];
                     value = std::conj(value);
                 }
-                (*destination)[this->_cache.get_location(k_F)] = value;
+                (*destination)[this->_cache.location(k_F)] = value;
             }
             
             // WARNING: F* state at echo is a duplicate of F state.
@@ -278,7 +273,7 @@ Discrete3D
                     destination = &this->_cache.F[pool];
                     value = std::conj(value);
                 }
-                (*destination)[this->_cache.get_location(k_F_star)] = value;
+                (*destination)[this->_cache.location(k_F_star)] = value;
             }
         }
     }
@@ -325,7 +320,7 @@ Discrete3D
             this->_model.species.begin(), this->_model.species.end(),
             [](Species const & s) {
                 return std::all_of(
-                    s.get_D().begin(), s.get_D().end(),
+                    s.D().begin(), s.D().end(),
                     [](Quantity const & x) { return x.magnitude == 0;});
             }
         ))
@@ -367,7 +362,7 @@ Discrete3D
                 simd_api::diffusion_3d_b(
                     cache.k[m].data(), cache.k[n].data(), 
                     delta_k[m], delta_k[n], delta_k_product_term,
-                    tau, species.get_D().unchecked(m, n).magnitude,
+                    tau, species.D().unchecked(m, n).magnitude,
                     cache.b_L_D.data(), 
                     cache.b_T_plus_D.data(), cache.b_T_minus_D.data(),
                     F.size());
@@ -466,7 +461,7 @@ Discrete3D::Cache
 
 std::size_t
 Discrete3D::Cache
-::get_location(Bin const & order) 
+::location(Bin const & order) 
 {
     auto const location = this->locations.size();
     auto const insert_result = this->locations.try_emplace(order, location);

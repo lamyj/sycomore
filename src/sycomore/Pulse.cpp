@@ -20,7 +20,7 @@ Pulse
 
 Quantity const &
 Pulse
-::get_angle() const
+::angle() const
 {
     return this->_angle;
 }
@@ -43,7 +43,7 @@ Pulse
 
 Quantity const &
 Pulse
-::get_phase() const
+::phase() const
 {
     return this->_phase;
 }

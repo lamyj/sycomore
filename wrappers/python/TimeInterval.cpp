@@ -20,45 +20,6 @@ void set_gradient(
     }
 }
 
-void set_gradient_amplitude(
-    sycomore::TimeInterval & time_interval, pybind11::object const & value)
-{
-    if(pybind11::isinstance<sycomore::Quantity>(value))
-    {
-        time_interval.set_gradient_amplitude(value.cast<sycomore::Quantity>());
-    }
-    else
-    {
-        time_interval.set_gradient_amplitude(value.cast<sycomore::Vector3Q>());
-    }
-}
-
-void set_gradient_area(
-    sycomore::TimeInterval & time_interval, pybind11::object const & value)
-{
-    if(pybind11::isinstance<sycomore::Quantity>(value))
-    {
-        time_interval.set_gradient_area(value.cast<sycomore::Quantity>());
-    }
-    else
-    {
-        time_interval.set_gradient_area(value.cast<sycomore::Vector3Q>());
-    }
-}
-
-void set_gradient_dephasing(
-    sycomore::TimeInterval & time_interval, pybind11::object const & value)
-{
-    if(pybind11::isinstance<sycomore::Quantity>(value))
-    {
-        time_interval.set_gradient_dephasing(value.cast<sycomore::Quantity>());
-    }
-    else
-    {
-        time_interval.set_gradient_dephasing(value.cast<sycomore::Vector3Q>());
-    }
-}
-
 void wrap_TimeInterval(pybind11::module & m)
 {
     using namespace pybind11;
@@ -99,8 +60,7 @@ void wrap_TimeInterval(pybind11::module & m)
             "Shortest possible time interval given 3D gradient area (T/m*s) "
             "or dephasing (rad/m) and maximum gradient amplitude")
         .def_property(
-            "duration",
-            &TimeInterval::get_duration, &TimeInterval::set_duration, 
+            "duration", &TimeInterval::duration, &TimeInterval::set_duration, 
             "Duration")
         .def(
             "set_gradient", &set_gradient, 
@@ -108,15 +68,14 @@ void wrap_TimeInterval(pybind11::module & m)
             "(in rad/m).")
         .def_property(
             "gradient_amplitude",
-            &TimeInterval::get_gradient_amplitude, &set_gradient_amplitude,
+            &TimeInterval::gradient_amplitude, &set_gradient,
             "Gradient amplitude.")
         .def_property(
-            "gradient_area",
-            &TimeInterval::get_gradient_area, &set_gradient_area,
+            "gradient_area", &TimeInterval::gradient_area, &set_gradient,
             "Gradient area.")
         .def_property(
             "gradient_dephasing",
-            &TimeInterval::get_gradient_dephasing, &set_gradient_dephasing,
+            &TimeInterval::gradient_dephasing, &set_gradient,
             "Gradient dephasing")
         .def(self == self)
         .def(self != self);

@@ -21,11 +21,11 @@ HardPulseApproximation
     auto const sum = std::accumulate(angles.begin(), angles.end(), 0.*units::rad);
     std::transform(
         angles.begin(), angles.end(), angles.begin(),
-        [&](Quantity x) { return x*model.get_angle() / sum; });
+        [&](Quantity x) { return x*model.angle() / sum; });
 
     for(auto && angle: angles)
     {
-        this->_pulses.emplace_back(angle, model.get_phase());
+        this->_pulses.emplace_back(angle, model.phase());
     }
 
     auto const pulse_duration = support.back()-support.front();
@@ -34,16 +34,23 @@ HardPulseApproximation
 
 std::vector<Pulse> const &
 HardPulseApproximation
-::get_pulses() const
+::pulses() const
 {
     return this->_pulses;
 }
 
 Quantity const &
 HardPulseApproximation
-::get_duration() const
+::duration() const
 {
     return this->_duration;
+}
+
+Quantity const &
+HardPulseApproximation
+::phase() const
+{
+    return this->_pulses.front().phase();
 }
 
 void

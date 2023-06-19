@@ -17,7 +17,7 @@ void wrap_epg_Base(pybind11::module & m)
         // Pure virtual "size" function -> no constructor
         .def_property(
             "species",
-            [](Base const & r){ return r.get_species();},
+            [](Base const & r){ return r.species();},
             [](Base & r, Species const & s){ return r.set_species(s);})
         .def_readwrite("threshold", &Base::threshold)
         .def_readwrite("delta_omega", &Base::delta_omega)

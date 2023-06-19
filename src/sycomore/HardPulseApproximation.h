@@ -29,10 +29,13 @@ public:
         Envelope const & envelope);
     
     /// @brief Return the hard pulses approximating the shaped pulse
-    std::vector<Pulse> const & get_pulses() const;
+    std::vector<Pulse> const & pulses() const;
     
     /// @brief Return the duration of a hard pulse
-    Quantity const & get_duration() const;
+    Quantity const & duration() const;
+    
+    /// @brief Return the phase of the shaped pulse
+    Quantity const & phase() const;
     
     /// @brief Set the phase of the shaped pulse
     void set_phase(Quantity const & phase);

@@ -181,7 +181,7 @@ Regular
 ::apply_time_interval(TimeInterval const & interval)
 {
     this->apply_time_interval(
-        interval.get_duration(), interval.get_gradient_amplitude()[0]);
+        interval.duration(), interval.gradient_amplitude()[0]);
 }
 
 void
@@ -219,7 +219,7 @@ Regular
     if(
         std::all_of(
             this->_model.species.begin(), this->_model.species.end(),
-            [](Species const & s) { return s.get_D().unchecked(0, 0).magnitude == 0; }))
+            [](Species const & s) { return s.D().unchecked(0, 0).magnitude == 0; }))
     {
         return;
     }
@@ -253,7 +253,7 @@ Regular
     
     for(std::size_t pool=0; pool<this->_model.pools; ++pool)
     {
-        auto const & D = this->_model.species[pool].get_D().unchecked(0, 0).magnitude;
+        auto const & D = this->_model.species[pool].D().unchecked(0, 0).magnitude;
         if(D == 0.)
         {
             continue;

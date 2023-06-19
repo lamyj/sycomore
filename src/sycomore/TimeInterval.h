@@ -42,7 +42,7 @@ public:
     TimeInterval(Quantity const & duration, Vector3Q const & gradient);
 
     /// @brief Return the duration.
-    Quantity const & get_duration() const;
+    Quantity const & duration() const;
     
     /// @brief Set the duration.
     void set_duration(Quantity const & q);
@@ -60,31 +60,13 @@ public:
     void set_gradient(Vector3Q const & a);
 
     /// @brief Return the gradient amplitude
-    Vector3Q const & get_gradient_amplitude() const;
-    
-    /// @brief Set the gradient amplitude
-    void set_gradient_amplitude(Quantity const & q);
-    
-    /// @brief Set the gradient amplitude
-    void set_gradient_amplitude(Vector3Q const & a);
+    Vector3Q const & gradient_amplitude() const;
     
     /// @brief Return the gradient area
-    Vector3Q get_gradient_area() const;
-    
-    /// @brief Set the gradient area
-    void set_gradient_area(Quantity const & q);
-    
-    /// @brief Set the gradient area
-    void set_gradient_area(Vector3Q const & a);
+    Vector3Q gradient_area() const;
     
     /// @brief Return the gradient dephasing.
-    Vector3Q get_gradient_dephasing() const;
-    
-    /// @brief Set the gradient dephasing
-    void set_gradient_dephasing(Quantity const & q);
-    
-    /// @brief Set the gradient dephasing
-    void set_gradient_dephasing(Vector3Q const & a);
+    Vector3Q gradient_dephasing() const;
     
     /// @brief Equality of duration and gradient
     bool operator==(TimeInterval const & other) const;

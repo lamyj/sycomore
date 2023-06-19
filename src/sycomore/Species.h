@@ -34,28 +34,28 @@ public:
         Quantity const & delta_omega=0*units::Hz);
 
     /// @brief Return the longitudinal relaxation rate.
-    Quantity const & get_R1() const;
+    Quantity const & R1() const;
     /// @brief Set the longitudinal relaxation rate or time.
     void set_R1(Quantity const & q);
     /// @brief Return the longitudinal relaxation time.
-    Quantity const & get_T1() const;
+    Quantity const & T1() const;
 
     /// @brief Return the transversal relaxation rate.
-    Quantity const & get_R2() const;
+    Quantity const & R2() const;
     /// @brief Set the transversal relaxation rate or time.
     void set_R2(Quantity const & q);
     /// @brief Return the transversal relaxation time.
-    Quantity const & get_T2() const;
+    Quantity const & T2() const;
 
     /// @brief Return the diffusion tensor.
-    Matrix3x3Q const & get_D() const;
+    Matrix3x3Q const & D() const;
     /// @brief Set the diffusion coefficient (i.e. diagonal diffusion tensor).
     void set_D(Quantity const & q);
     /// @brief Set the diffusion tensor.
     void set_D(Matrix3x3Q const & q);
 
     /// @brief Return the frequency offset.
-    Quantity const & get_delta_omega() const;
+    Quantity const & delta_omega() const;
     /// @brief Set the frequency offset.
     void set_delta_omega(Quantity const & q);
 

@@ -167,7 +167,7 @@ Discrete
 ::apply_time_interval(TimeInterval const & interval)
 {
     this->apply_time_interval(
-        interval.get_duration(), interval.get_gradient_amplitude()[0]);
+        interval.duration(), interval.gradient_amplitude()[0]);
 }
 
 void
@@ -196,7 +196,7 @@ Discrete
             auto state = this->_model.Z[pool][i];
             if(state != 0.)
             {
-                this->_cache.Z[pool][this->_cache.get_location(k)] = state;
+                this->_cache.Z[pool][this->_cache.location(k)] = state;
             }
             
             state = this->_model.F[pool][i];
@@ -213,7 +213,7 @@ Discrete
                     destination = &this->_cache.F_star[pool];
                     state = std::conj(state);
                 }
-                (*destination)[this->_cache.get_location(k_F)] = state;
+                (*destination)[this->_cache.location(k_F)] = state;
             }
             
             // WARNING: F* state at echo is a duplicate of F state.
@@ -232,7 +232,7 @@ Discrete
                     destination = &this->_cache.F[pool];
                     state = std::conj(state);
                 }
-                (*destination)[this->_cache.get_location(k_F_star)] = state;
+                (*destination)[this->_cache.location(k_F_star)] = state;
             }
         }
     }
@@ -277,7 +277,7 @@ Discrete
     if(
         std::all_of(
             this->_model.species.begin(), this->_model.species.end(),
-            [](Species const & s) { return s.get_D().unchecked(0, 0).magnitude == 0; }))
+            [](Species const & s) { return s.D().unchecked(0, 0).magnitude == 0; }))
     {
         return;
     }
@@ -296,7 +296,7 @@ Discrete
     
     for(std::size_t pool=0; pool<this->_model.pools; ++pool)
     {
-        auto const & D = this->_model.species[pool].get_D().unchecked(0, 0).magnitude;
+        auto const & D = this->_model.species[pool].D().unchecked(0, 0).magnitude;
         if(D == 0.)
         {
             continue;
@@ -406,7 +406,7 @@ Discrete::Cache
 
 std::size_t
 Discrete::Cache
-::get_location(long long order) 
+::location(long long order) 
 {
     auto const location = this->locations.size();
     auto const insert_result = this->locations.try_emplace(order, location);

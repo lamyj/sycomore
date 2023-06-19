@@ -16,7 +16,7 @@ namespace sycomore
 namespace simd
 {
 
-std::vector<unsigned int> get_cpu_info(unsigned int leaf, unsigned int subleaf)
+std::vector<unsigned int> cpu_info(unsigned int leaf, unsigned int subleaf)
 {
     std::vector<unsigned int> info(4, 0);
 #ifdef _WIN32
@@ -35,16 +35,16 @@ std::vector<unsigned int> get_cpu_info(unsigned int leaf, unsigned int subleaf)
     return info;
 }
 
-int get_instruction_set()
+int instruction_set()
 {
 #if XSIMD_VERSION_MAJOR >= 8
     return xsimd::available_architectures().best;
 #else
-    auto info = get_cpu_info(1);
+    auto info = cpu_info(1);
     auto const ecx = info[2];
     auto const edx = info[3];
     
-    info = get_cpu_info(7, 0);
+    info = cpu_info(7, 0);
     auto const ebx = info[1];
     
     int instruction_set = 0;

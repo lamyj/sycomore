@@ -48,29 +48,28 @@ void wrap_Species(pybind11::module & m)
             arg("R1"), arg("R2"),
             arg("D")=0*units::m*units::m/s, arg("delta_omega")=0*rad/s)
         .def_property(
-            "R1", &Species::get_R1, &Species::set_R1,
+            "R1", &Species::R1, &Species::set_R1,
             "Longitudinal relaxation rate.")
         .def_property_readonly(
-            "T1", &Species::get_T1, "Longitudinal relaxation time.")
+            "T1", &Species::T1, "Longitudinal relaxation time.")
         .def_property(
-            "R2", &Species::get_R2, &Species::set_R2, 
+            "R2", &Species::R2, &Species::set_R2, 
             "Transversal relaxation rate.")
         .def_property_readonly(
-            "T2", &Species::get_T2, "Transversal relaxation time.")
+            "T2", &Species::T2, "Transversal relaxation time.")
+        .def_property("D", &Species::D, set_D, "Diffusion tensor.")
         .def_property(
-            "D", &Species::get_D, set_D, "Diffusion tensor.")
-        .def_property(
-            "delta_omega", &Species::get_delta_omega, &Species::set_delta_omega,
+            "delta_omega", &Species::delta_omega, &Species::set_delta_omega,
             "Frequency offset.")
         .def(pickle(
             [](Species const & s) {
-                auto const D = s.get_D();
+                auto const & D = s.D();
                 return make_tuple(
-                    s.get_R1(), s.get_R2(),
+                    s.R1(), s.R2(),
                     D.unchecked(0,0), D.unchecked(0,1), D.unchecked(0, 2),
                     D.unchecked(1,0), D.unchecked(1,1), D.unchecked(1,2),
                     D.unchecked(2,0), D.unchecked(2,1), D.unchecked(2,2),
-                    s.get_delta_omega());
+                    s.delta_omega());
             },
             [](tuple t) {
                 if(t.size() != 12)

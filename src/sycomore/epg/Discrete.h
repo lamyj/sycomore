@@ -138,7 +138,7 @@ private:
         void update_shift(std::size_t size);
         void update_diffusion(
             std::size_t size, Orders const & orders, Real bin_width);
-        std::size_t get_location(long long order);
+        std::size_t location(long long order);
     };
     
     Cache _cache;

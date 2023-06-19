@@ -20,12 +20,12 @@ public:
     Pulse(Quantity const & angle, Quantity const & phase=0*units::rad);
     
     /// @brief Return the flip angle of the pulse
-    Quantity const & get_angle() const;
+    Quantity const & angle() const;
     /// @brief Set the flip angle of the pulse
     void set_angle(Quantity const & q);
     
     /// @brief Return the phase of the pulse
-    Quantity const & get_phase() const;
+    Quantity const & phase() const;
     /// @brief Set the phase of the pulse
     void set_phase(Quantity const & q);
 private:
