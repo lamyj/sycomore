@@ -50,13 +50,15 @@ void wrap_Species(pybind11::module & m)
         .def_property(
             "R1", &Species::R1, &Species::set_R1,
             "Longitudinal relaxation rate.")
-        .def_property_readonly(
-            "T1", &Species::T1, "Longitudinal relaxation time.")
+        .def_property(
+            "T1", &Species::T1, &Species::set_T1,
+            "Longitudinal relaxation time.")
         .def_property(
             "R2", &Species::R2, &Species::set_R2, 
             "Transversal relaxation rate.")
-        .def_property_readonly(
-            "T2", &Species::T2, "Transversal relaxation time.")
+        .def_property(
+            "T2", &Species::T2, &Species::set_T2,
+            "Transversal relaxation time.")
         .def_property("D", &Species::D, set_D, "Diffusion tensor.")
         .def_property(
             "delta_omega", &Species::delta_omega, &Species::set_delta_omega,

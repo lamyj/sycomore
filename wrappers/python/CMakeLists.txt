@@ -13,6 +13,7 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 file(GLOB_RECURSE header_files "*.h")
+file(GLOB_RECURSE template_files "*.txx")
 file(GLOB_RECURSE source_files "*.cpp")
 file(GLOB_RECURSE python_files "*.py")
 list(SORT header_files)
@@ -50,3 +51,11 @@ execute_process(
 install(DIRECTORY DESTINATION "${PYTHON_SITE_PACKAGES}")
 install(TARGETS pysycomore DESTINATION "${PYTHON_SITE_PACKAGES}/sycomore")
 install(FILES ${python_files} DESTINATION "${PYTHON_SITE_PACKAGES}/sycomore")
+
+foreach(include_file ${header_files} ${template_files})
+    file(
+        RELATIVE_PATH 
+        include_path ${CMAKE_SOURCE_DIR} ${include_file})
+    get_filename_component(include_path ${include_path} PATH)
+    install(FILES ${include_file} DESTINATION "include/sycomore/${include_path}")
+endforeach()
