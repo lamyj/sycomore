@@ -73,6 +73,13 @@ Species
     return this->_T1;
 }
 
+void
+Species
+::set_T1(Quantity const & q)
+{
+    return this->set_R1(q);
+}
+
 Quantity const &
 Species
 ::R2() const
@@ -107,6 +114,13 @@ Species
 ::T2() const
 {
     return this->_T2;
+}
+
+void
+Species
+::set_T2(Quantity const & q)
+{
+    return this->set_R2(q);
 }
 
 Matrix3x3Q const &

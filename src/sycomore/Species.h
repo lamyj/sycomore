@@ -39,13 +39,17 @@ public:
     void set_R1(Quantity const & q);
     /// @brief Return the longitudinal relaxation time.
     Quantity const & T1() const;
-
+    /// @brief Set the longitudinal relaxation rate or time.
+    void set_T1(Quantity const & q);
+    
     /// @brief Return the transversal relaxation rate.
     Quantity const & R2() const;
     /// @brief Set the transversal relaxation rate or time.
     void set_R2(Quantity const & q);
     /// @brief Return the transversal relaxation time.
     Quantity const & T2() const;
+    /// @brief Set the transversal relaxation rate or time.
+    void set_T2(Quantity const & q);
 
     /// @brief Return the diffusion tensor.
     Matrix3x3Q const & D() const;
