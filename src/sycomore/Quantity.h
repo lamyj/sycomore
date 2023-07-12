@@ -203,11 +203,23 @@ using TensorQ = xt::xtensor<Quantity, N, L>;
 /// @brief Dynamic-dimension array of Quantity objects
 using ArrayQ = xt::xarray<Quantity>;
 
+/// @brief 2D vector of Quantity
+using Vector2Q = Vector2<Quantity>;
+
 /// @brief 3D vector of Quantity
 using Vector3Q = Vector3<Quantity>;
 
+/// @brief 4D vector of Quantity
+using Vector4Q = Vector4<Quantity>;
+
+/// @brief 2x2 matrix of Quantity
+using Matrix2x2Q = Matrix2x2<Quantity>;
+
 /// @brief 3x3 matrix of Quantity
 using Matrix3x3Q = Matrix3x3<Quantity>;
+
+/// @brief 3x3 matrix of Quantity
+using Matrix4x4Q = Matrix4x4<Quantity>;
 
 /// @brief Convert a sequence of Quantity to given unit
 template<typename SourceIt, typename DestinationIt>
