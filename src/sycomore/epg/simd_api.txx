@@ -41,12 +41,12 @@ void apply_pulse_single_pool_w(
             T[3*0+0] * F_i + T[3*0+1] * F_star_i + T[3*0+2] * Z_i;
         auto const F_i_star_new = 
             T[3*1+0] * F_i + T[3*1+1] * F_star_i + T[3*1+2] * Z_i;
-        auto const Z_i_new =
-            T[3*2+0] * F_i + T[3*2+1] * F_star_i + T[3*2+2] * Z_i;
+        // NOTE: no need to store Z_i_new, Z_i is not reused later
         
         sycomore::simd::store_aligned(F_i_new, F+i);
         sycomore::simd::store_aligned(F_i_star_new, F_star+i);
-        sycomore::simd::store_aligned(Z_i_new, Z+i);
+        sycomore::simd::store_aligned(
+            T[3*2+0] * F_i + T[3*2+1] * F_star_i + T[3*2+2] * Z_i, Z+i);
     }
 }
 

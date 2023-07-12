@@ -96,7 +96,7 @@ typename std::enable_if<is_batch<T2>::value, void>::type
 load_aligned(T1 const * source, T2 & destination)
 {
 #if XSIMD_VERSION_MAJOR >= 8
-    destination = destination.load_aligned(source);
+    destination = T2::load_aligned(source);
 #else
     destination.load_aligned(source);
 #endif
