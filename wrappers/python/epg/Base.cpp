@@ -10,6 +10,7 @@
 void wrap_epg_Base(pybind11::module & m)
 {
     using namespace pybind11;
+    using namespace pybind11::literals;
     using namespace sycomore;
     using namespace sycomore::epg;
 
@@ -17,8 +18,19 @@ void wrap_epg_Base(pybind11::module & m)
         // Pure virtual "size" function -> no constructor
         .def_property(
             "species",
-            [](Base const & r){ return r.species();},
-            [](Base & r, Species const & s){ return r.set_species(s);})
+            [](Base const & b){ return b.species();},
+            [](Base & b, Species const & s){ return b.set_species(s);})
+        .def("M0", &Base::M0, "pool"_a=0)
+        .def(
+            "set_M0", overload_cast<std::size_t, Real const &>(&Base::set_M0),
+            "pool"_a, "M0"_a)
+        .def("set_M0", overload_cast<Real const &>(&Base::set_M0), "M0"_a)
+        .def("k", &Base::k, "pool"_a)
+        .def("set_k", &Base::set_k, "pool"_a, "M0"_a)
+        .def_property(
+            "delta_b",
+            [](Base const & b){ return b.delta_b();},
+            [](Base & b, Quantity const & q){ return b.set_delta_b(q);})
         .def_readwrite("threshold", &Base::threshold)
         .def_readwrite("delta_omega", &Base::delta_omega)
         .def_property_readonly("kind", &Base::kind)
