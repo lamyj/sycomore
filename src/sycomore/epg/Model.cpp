@@ -38,7 +38,8 @@ Model
     F(pools), F_star(pools), Z(pools)
 {
     this->_initialize({M0_a, M0_b}, initial_size);
-    this->k = {k_a, k_a*this->M0[0]/this->M0[1]};
+    this->k = {
+        k_a, this->M0[1]!=0. ? k_a*this->M0[0]/this->M0[1] : 0.*units::Hz};
 }
 
 Model
@@ -53,7 +54,8 @@ Model
     F(pools), F_star(pools), Z(pools)
 {
     this->_initialize({M0_a, M0_b}, initial_size);
-    this->k = {k_a, k_a*this->M0[0]/this->M0[1]};
+    this->k = {
+        k_a, this->M0[1]!=0. ? k_a*this->M0[0]/this->M0[1] : 0.*units::Hz};
 }
 
 Model &
