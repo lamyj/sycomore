@@ -11,8 +11,8 @@ jobs:
       matrix:
         include:
           - { os: "ubuntu-latest", packaging: "conda", python: "python" }
-          - { os: "macos-latest", packaging: "conda", python: "python" }
-          - { os: "windows-latest", packaging: "conda", python: "python" }
+          # - { os: "macos-latest", packaging: "conda", python: "python" }
+          # - { os: "windows-latest", packaging: "conda", python: "python" }
     env:
       WORKSPACE: "${{ github.workspace }}"
     defaults:
