@@ -1,56 +1,39 @@
 import io
 import os
-import re
 import subprocess
 import sys
 import tempfile
 import zipfile
 
-data = subprocess.check_output(["apt-cache", "show", "pybind11-dev"])
-match = re.search(r"^Version: ([\d.]+)", data.decode(), flags=re.M)
-pybind11_version = tuple(int(x) for x in match.group(1).split("."))
-if pybind11_version >= (2,2):
-    pybind11 = ["pybind11-dev"]
-else:
-    pybind11 = []
-
 os.environ["DEBIAN_FRONTEND"] = "noninteractive"
 subprocess.check_call([
-    "apt-get", "-y", "--no-install-recommends", "install",
-    "cmake", "g++", "libboost-dev", "make", "ninja-build",
-    *pybind11, "python3-dev", 
-    "python3-requests", "libboost-test-dev", "python3-numpy", "python3-scipy"])
+    "apt", "-y", "--no-install-recommends", "install",
+    "cmake", "g++", "libboost-test-dev", "make", "pybind11-dev",
+    "python3-dev", "python3-numpy", "python3-requests", "python3-scipy"])
 
 import requests
 
-if not pybind11:
+xt = "https://github.com/xtensor-stack"
+cmake_projects = {
+    "xsimd": ("10.0.0", f"{xt}/xsimd/archive/refs/tags/{{}}.zip"),
+    "xtl": ("0.7.5", f"{xt}/xtl/archive/refs/tags/{{}}.zip"),
+    "xtensor": ("0.24.4", f"{xt}/xtensor/archive/refs/tags/{{}}.zip"),
+    "xtensor-python": ("0.26.1", f"{xt}/xtensor-python/archive/refs/tags/{{}}.zip"),
+}
+
+local = os.path.expanduser("~/local")
+cmake = ["cmake", f"-DCMAKE_INSTALL_PREFIX={local}", "."]
+install = ["cmake", "--build", ".", "--config", "Release", "--target", "install"]
+
+for name, (version, url) in cmake_projects.items():
     with tempfile.TemporaryDirectory() as directory:
-        response = requests.get("https://github.com/pybind/pybind11/archive/refs/tags/v2.6.2.zip")
+        wd = os.path.join(directory, f"{name}-{version}")
+        
+        response = requests.get(url.format(version))
         response.raise_for_status()
+        
         with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
             archive.extractall(directory)
-        subprocess.check_call(
-            [
-                "cmake", 
-                "-DPYBIND11_TEST=OFF", "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-                "-DCMAKE_INSTALL_PREFIX={}".format(os.path.expanduser("~/local")),
-                "."], 
-            cwd=os.path.join(directory, "pybind11-2.6.2"))
-        subprocess.check_call(
-            ["cmake", "--build", ".", "--config", "Release", "--target", "install"],
-            cwd=os.path.join(directory, "pybind11-2.6.2"))
-
-with tempfile.TemporaryDirectory() as directory:
-    response = requests.get("https://github.com/xtensor-stack/xsimd/archive/refs/tags/8.0.3.zip")
-    response.raise_for_status()
-    with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
-        archive.extractall(directory)
-    subprocess.check_call(
-        [
-            "cmake", 
-            "-DCMAKE_INSTALL_PREFIX={}".format(os.path.expanduser("~/local")),
-            "."], 
-        cwd=os.path.join(directory, "xsimd-8.0.3"))
-    subprocess.check_call(
-        ["cmake", "--build", ".", "--config", "Release", "--target", "install"],
-        cwd=os.path.join(directory, "xsimd-8.0.3"))
+        
+        subprocess.check_call(cmake, cwd=wd)
+        subprocess.check_call(install, cwd=wd)

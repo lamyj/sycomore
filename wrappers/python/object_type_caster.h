@@ -2,9 +2,19 @@
 #define _50132908_42b6_425f_8bbe_21054c5c49f9
 
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include <pybind11/pybind11.h>
+
+#if PYBIND11_VERSION_HEX <= 0x02090100
+namespace
+{
+using std::enable_if_t;
+using std::remove_cv_t;
+using namespace pybind11;
+}
+#endif
 
 template<typename Container>
 struct object_type_caster

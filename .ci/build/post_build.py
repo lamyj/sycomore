@@ -5,7 +5,7 @@ import sysconfig
 
 workspace = os.environ["WORKSPACE"]
 build_dir = os.environ.get("BUILD_DIR", os.path.join(workspace, "build"))
-install_dir = os.environ.get("BUILD_DIR", os.path.join(workspace, "install"))
+install_dir = os.environ.get("INSTALL_DIR", os.path.join(workspace, "install"))
 
 bin_dir = os.path.join(install_dir, "bin")
 lib_dir = os.path.join(install_dir, "lib")
