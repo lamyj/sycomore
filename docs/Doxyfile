@@ -16,15 +16,16 @@ SORT_MEMBER_DOCS = NO
 
 INPUT = ../src
 EXCLUDE = ../src/sycomore/epg/robin_hood.h
-FILE_PATTERNS = *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl \
-    *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.txx *.cs *.d *.php *.php4 \
-    *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 \
-    *.f03 *.f08 *.f18 *.f *.for *.vhd *.vhdl *.ucf *.qsf *.ice
+FILE_PATTERNS = *.h
 
+EXTRACT_ALL = YES
 RECURSIVE = YES
-
+INCLUDE_GRAPH = NO
+INCLUDED_BY_GRAPH = NO
 SOURCE_BROWSER = YES
 
 GENERATE_HTML = YES
+USE_MATHJAX = YES
+
 GENERATE_LATEX = NO
 GENERATE_XML = NO

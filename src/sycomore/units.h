@@ -14,11 +14,6 @@ namespace sycomore
 namespace units
 {
 
-/**
- * @addtogroup BasicUnits
- * @{
- */
-
 #define SYCOMORE_DECLARE_UNIT(dimensions, name, factor) \
     SYCOMORE_API extern Quantity const name; \
     SYCOMORE_API Quantity operator "" _##name(unsigned long long v); \
@@ -80,13 +75,6 @@ SYCOMORE_DECLARE_UNITS(ThermodynamicTemperature, K)
 SYCOMORE_DECLARE_UNITS(AmountOfSubstance, mol)
 SYCOMORE_DECLARE_UNITS(LuminousIntensity, cd)
 
-/// @}
-
-/**
- * @addtogroup DerivedUnits
- * @{
- */
-
 SYCOMORE_DECLARE_UNITS(Angle, rad);
 SYCOMORE_DECLARE_UNIT(Angle, deg, M_PI/180.);
 
@@ -124,8 +112,6 @@ SYCOMORE_DECLARE_UNITS(Radioactivity, Bq);
 SYCOMORE_DECLARE_UNITS(AbsorbedDose, Gy);
 SYCOMORE_DECLARE_UNITS(EquivalentDose, Sv);
 SYCOMORE_DECLARE_UNITS(CatalyticActivity, kat);
-
-/// @}
 
 }
 

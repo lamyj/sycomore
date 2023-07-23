@@ -49,10 +49,6 @@ SYCOMORE_API sycomore::Dimensions pow(sycomore::Dimensions const & d, double s);
 namespace sycomore
 {
 
-/**
- * @addtogroup BasicDimensions.
- * @{
- */
 SYCOMORE_API extern Dimensions const Length;
 SYCOMORE_API extern Dimensions const Mass;
 SYCOMORE_API extern Dimensions const Time;
@@ -60,12 +56,7 @@ SYCOMORE_API extern Dimensions const ElectricCurrent;
 SYCOMORE_API extern Dimensions const ThermodynamicTemperature;
 SYCOMORE_API extern Dimensions const AmountOfSubstance;
 SYCOMORE_API extern Dimensions const LuminousIntensity;
-/// @}
 
-/**
- * @addtogroup DerivedDimensions
- * @{
- */
 SYCOMORE_API extern Dimensions const Surface;
 SYCOMORE_API extern Dimensions const Volume;
 
@@ -96,8 +87,6 @@ SYCOMORE_API extern Dimensions const EquivalentDose;
 SYCOMORE_API extern Dimensions const CatalyticActivity;
 
 SYCOMORE_API extern Dimensions const AngularFrequency;
-
-/// @}
 
 }
 

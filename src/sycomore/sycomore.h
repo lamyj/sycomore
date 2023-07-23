@@ -12,7 +12,7 @@
 #include "sycomore/Quantity.h"
 #include "sycomore/sycomore_api.h"
 
-/// @brief sycomore
+/// @namespace sycomore @brief MRI Simulation Toolkit
 namespace sycomore
 {
 
