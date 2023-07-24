@@ -8,6 +8,9 @@
 namespace sycomore
 {
 
+/// @addtogroup Arrays
+/// @{
+
 /// @brief Real numbers
 using Real = double;
 
@@ -87,6 +90,8 @@ using Matrix3x3C = Matrix3x3<Complex>;
 
 /// @brief 3x3 matrix of complex numbers
 using Matrix4x4C = Matrix4x4<Complex>;
+
+/// @}
 
 }
 

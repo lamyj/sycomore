@@ -32,12 +32,19 @@ public:
     Dimensions & operator/=(Dimensions const & other);
 };
 
+/// @addtogroup DimensionsOperators
+/// @{
+
 SYCOMORE_API extern Dimensions operator*(Dimensions l, Dimensions const & r);
 SYCOMORE_API extern Dimensions operator/(Dimensions l, Dimensions const & r);
 
 SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Dimensions const & d);
+/// @}
 
 }
+
+/// @addtogroup DimensionsOperators
+/// @{
 
 namespace std
 {
@@ -46,8 +53,13 @@ SYCOMORE_API sycomore::Dimensions pow(sycomore::Dimensions const & d, double s);
 
 }
 
+/// @}
+
 namespace sycomore
 {
+
+/// @addtogroup KnownDimensions
+/// @{
 
 SYCOMORE_API extern Dimensions const Length;
 SYCOMORE_API extern Dimensions const Mass;
@@ -87,6 +99,8 @@ SYCOMORE_API extern Dimensions const EquivalentDose;
 SYCOMORE_API extern Dimensions const CatalyticActivity;
 
 SYCOMORE_API extern Dimensions const AngularFrequency;
+
+/// @}
 
 }
 

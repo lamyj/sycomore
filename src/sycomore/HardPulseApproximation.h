@@ -45,6 +45,9 @@ private:
     Quantity _duration;
 };
 
+/// @addtogroup HardPulseApproximationEnvelopes
+/// @{
+
 /// @brief Create an apodized sinc envelope
 SYCOMORE_API HardPulseApproximation::Envelope apodized_sinc_envelope(
     Quantity const & t0, unsigned int N, Real alpha);
@@ -56,6 +59,8 @@ SYCOMORE_API HardPulseApproximation::Envelope hamming_sinc_envelope(
     Quantity const & t0, unsigned int N);
 /// @brief Create a sinc envelope
 SYCOMORE_API HardPulseApproximation::Envelope sinc_envelope(Quantity const & t0);
+
+/// @}
 
 }
 

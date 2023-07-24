@@ -16,6 +16,9 @@
 namespace sycomore
 {
 
+/// @addtogroup Misc
+/// @{
+
 /// @brief Diffusion coefficient
 SYCOMORE_API extern Dimensions const Diffusion;
 
@@ -55,6 +58,8 @@ SYCOMORE_API extern Quantity const gamma;
 
 /// @brief Gyromagnetic ratio of 1H in Hz/T
 SYCOMORE_API extern Quantity const gamma_bar;
+
+/// @}
 
 }
 

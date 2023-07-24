@@ -76,6 +76,9 @@ public:
     operator double() const;
 };
 
+/// @addtogroup QuantityOperators
+/// @{
+
 /// @brief Test whether magnitudes and dimensions are equal.
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
 bool operator==(Quantity const & q, T s) { return q == Quantity(s); }
@@ -196,6 +199,11 @@ Quantity operator%(Quantity q, T s) { q %= double(s); return q; }
 /// @brief String representation of a quantity
 SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Quantity const & q);
 
+/// @}
+
+/// @addtogroup QuantityArrays
+/// @{
+
 /// @brief Static-dimension array of Quantity objects
 template<std::size_t N, xt::layout_type L=XTENSOR_DEFAULT_LAYOUT>
 using TensorQ = xt::xtensor<Quantity, N, L>;
@@ -221,6 +229,11 @@ using Matrix3x3Q = Matrix3x3<Quantity>;
 /// @brief 3x3 matrix of Quantity
 using Matrix4x4Q = Matrix4x4<Quantity>;
 
+/// @}
+
+/// @addtogroup QuantityOperators
+/// @{
+
 /// @brief Convert a sequence of Quantity to given unit
 template<typename SourceIt, typename DestinationIt>
 DestinationIt convert_to(
@@ -240,7 +253,12 @@ TensorR<N, L> convert_to(TensorQ<N, L> const & q, Quantity const & t)
     return r;
 }
 
+/// @}
+
 }
+
+/// @addtogroup QuantityOperators
+/// @{
 
 namespace std
 {
@@ -272,5 +290,7 @@ struct SYCOMORE_API hash<sycomore::Quantity>
 };
 
 }
+
+/// @}
 
 #endif // _bd3de17b_e4fa_4e7f_8d72_8ac9df01606f
