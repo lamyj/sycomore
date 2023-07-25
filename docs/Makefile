@@ -1,21 +1,19 @@
-SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
-SOURCEDIR     = .
-BUILDDIR      = _build
+.PHONY: clean doxygen html
 
-RSTW = $(shell find . -name "*rstw")
-RST = $(RSTW:.rstw=.rst)
+FIGURES = epg/regular.png epg/discrete.png epg/discrete_3d.png
 
-help:
-	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+all: html
 
-.PHONY: help Makefile
+clean:
+	rm -rf _build $(FIGURES)
 
-# Avoid catching these files in Sphinx rules
-%.rstw:
+doxygen:
+	mkdir -p _build
+	doxygen
 
-%.rst: %.rstw
-	pweave -F $(shell dirname $<) $< -o $@
+html: doxygen $(FIGURES)
+	mkdir -p _build
+	python3 -m sphinx -T -E -b html -d _build/doctrees . _build/html
 
-%: Makefile $(RST)
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+%.png: %.py
+	python3 $< $@
