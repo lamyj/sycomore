@@ -40,8 +40,7 @@ public:
     Operator & operator=(Operator &&) = default;
     
     /**
-     * @brief In-place chaining of operators: *this will represent right follow
-     * by *this.
+     * @brief In-place chaining of operators, with right applied first.
      *
      * If *this and/or right has shape 1×4×4, it is broadcast to match the other
      * operand. Otherwise, both operand must have shape n×4×4.
@@ -49,10 +48,9 @@ public:
     Operator & operator*=(Operator const & right);
     
     /**
-     * @brief In-place chaining of operators: *this will represent *this follow
-     * by right.
+     * @brief In-place chaining of operators, with self applied first.
      *
-     * If *this and/or right has shape 1×4×4, it is broadcast to match the other
+     * If *this and/or left has shape 1×4×4, it is broadcast to match the other
      * operand. Otherwise, both operand must have shape n×4×4.
      */
     Operator & preMultiply(Operator const & left);

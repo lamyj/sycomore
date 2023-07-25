@@ -1,3 +1,4 @@
+/// @file
 #ifndef _e25f009a_96c8_4c52_97b5_de94a0752e6c
 #define _e25f009a_96c8_4c52_97b5_de94a0752e6c
 
@@ -14,12 +15,22 @@ namespace sycomore
 namespace units
 {
 
+/**
+ * @brief Declare a unit and its literal operators to convert from a real or
+ * from an integer.
+ */
 #define SYCOMORE_DECLARE_UNIT(dimensions, name, factor) \
     SYCOMORE_API extern Quantity const name; \
     SYCOMORE_API Quantity operator "" _##name(unsigned long long v); \
     SYCOMORE_API Quantity operator "" _##name(long double v);
 
+/**
+ * @brief Declare a unit and all its SI multiples (Q, R, Y, Z, E, P, T, E, P,
+ * T, G, M, k, h, da, d, c, m, u (for µ), n, p, f, a, z, y, r, q)
+ */
 #define SYCOMORE_DECLARE_UNITS(Type, name) \
+    SYCOMORE_DECLARE_UNIT(Type, Q##name, 1e30) \
+    SYCOMORE_DECLARE_UNIT(Type, R##name, 1e27) \
     SYCOMORE_DECLARE_UNIT(Type, Y##name, 1e24) \
     SYCOMORE_DECLARE_UNIT(Type, Z##name, 1e21) \
     SYCOMORE_DECLARE_UNIT(Type, E##name, 1e18) \
@@ -40,10 +51,14 @@ namespace units
     SYCOMORE_DECLARE_UNIT(Type, f##name, 1e-15) \
     SYCOMORE_DECLARE_UNIT(Type, a##name, 1e-18) \
     SYCOMORE_DECLARE_UNIT(Type, z##name, 1e-21) \
-    SYCOMORE_DECLARE_UNIT(Type, y##name, 1e-24)
+    SYCOMORE_DECLARE_UNIT(Type, y##name, 1e-24) \
+    SYCOMORE_DECLARE_UNIT(Type, r##name, 1e-27) \
+    SYCOMORE_DECLARE_UNIT(Type, q##name, 1e-30)
 
 SYCOMORE_DECLARE_UNITS(Length, m)
 
+SYCOMORE_DECLARE_UNIT(Mass, Qg, 1e27)
+SYCOMORE_DECLARE_UNIT(Mass, Rg, 1e24)
 SYCOMORE_DECLARE_UNIT(Mass, Yg, 1e21)
 SYCOMORE_DECLARE_UNIT(Mass, Zg, 1e18)
 SYCOMORE_DECLARE_UNIT(Mass, Eg, 1e15)
@@ -65,6 +80,8 @@ SYCOMORE_DECLARE_UNIT(Mass, fg, 1e-18)
 SYCOMORE_DECLARE_UNIT(Mass, ag, 1e-21)
 SYCOMORE_DECLARE_UNIT(Mass, zg, 1e-24)
 SYCOMORE_DECLARE_UNIT(Mass, yg, 1e-27)
+SYCOMORE_DECLARE_UNIT(Mass, rg, 1e-30)
+SYCOMORE_DECLARE_UNIT(Mass, qg, 1e-33)
 
 SYCOMORE_DECLARE_UNITS(Time, s)
 //SYCOMORE_DECLARE_UNIT(Time, min, 60)

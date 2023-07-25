@@ -29,7 +29,9 @@ void wrap_epg_operators(pybind11::module & m)
             return as_xtensor_fixed(
                 pulse_single_pool(angle, phase), xt::xshape<3, 3>{});
         },
-        "angle"_a, "phase"_a);
+        "angle"_a, "phase"_a,
+        "Return the row-wise matrix corresponding to the single-pool EPG pulse "
+            "operator");
     
     operators.def(
         "pulse_exchange",
@@ -38,7 +40,9 @@ void wrap_epg_operators(pybind11::module & m)
                 pulse_exchange(angle_a, phase_a, angle_b, phase_b),
                 xt::xshape<2, 3, 3>());
         },
-        "angle_a"_a, "phase_a"_a, "angle_b"_a, "phase_b"_a);
+        "angle_a"_a, "phase_a"_a, "angle_b"_a, "phase_b"_a,
+        "Return the row-wise matrix corresponding to the two-pools exchange "
+            "EPG pulse operator");
     
     operators.def(
         "pulse_magnetization_transfer",
@@ -48,11 +52,15 @@ void wrap_epg_operators(pybind11::module & m)
             return std::make_pair(
                 as_xtensor_fixed(value, xt::xshape<3, 3>()), value.back());
         },
-        "angle_a"_a, "phase_a"_a, "saturation"_a);
+        "angle_a"_a, "phase_a"_a, "saturation"_a,
+        "Return the row-wise matrix corresponding to the two-pools "
+            "magnetization transfer EPG pulse operator");
     
     operators.def(
         "relaxation_single_pool", &relaxation_single_pool,
-        "R1"_a, "R2"_a, "duration"_a);
+        "R1"_a, "R2"_a, "duration"_a,
+        "Return the scalars associated respectively with relaxation of the "
+            R"(:math:`tilde{F}` states and :math:`\tilde{Z}` states.)");
     
     operators.def(
         "relaxation_exchange",
@@ -80,7 +88,10 @@ void wrap_epg_operators(pybind11::module & m)
                 std::get<2>(result));
         },
         "R1_a"_a, "R2_a"_a, "R1_b"_a, "R2_b"_a, "k_a"_a, "k_b"_a, "delta_b"_a,
-        "M0_a"_a, "M0_b"_a, "duration"_a);
+        "M0_a"_a, "M0_b"_a, "duration"_a,
+        "Return the exchange-relaxation matrices: non-zero terms of "
+            R"(:math:`\Xi_T` (row-major), row-major :math:`\Xi_L`, and )"
+            R"(:math:`(\Xi_L - I) \Lambda_L^{-1} C`)");
     
     operators.def(
         "relaxation_magnetization_transfer",
@@ -96,5 +107,14 @@ void wrap_epg_operators(pybind11::module & m)
                 std::get<2>(result));
         },
         "R1_a"_a, "R2_a"_a, "R1_b"_a, "k_a"_a, "k_b"_a, "M0_a"_a, "M0_b"_a,
-        "duration"_a);
+        "duration"_a,
+        "Return the magnetization transfer relaxation matrices: "
+            R"(:math:`\Xi_T = e^{-R_{2a} \tau}`, row-major :math:`\Xi_L` )"
+            R"(and :math:`(\Xi_L - I) \Lambda_L^{-1} C`)");
+    
+    operators.def(
+        "phase_accumulation", phase_accumulation, "angle"_a,
+        "Return the rotation expressed as a complex exponential associated "
+            "with phase accumulation of respectively the "
+            R"(:math:`\tilde{F}(k)` and :math:`\tilde{F}^*(-k)` states.)");
 }

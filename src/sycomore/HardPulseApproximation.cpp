@@ -77,7 +77,7 @@ apodized_sinc_envelope(Quantity const & t0_, unsigned int N, Real alpha)
 }
 
 HardPulseApproximation::Envelope
-hanning_sinc_envelope(Quantity const & t0, unsigned int N)
+hann_sinc_envelope(Quantity const & t0, unsigned int N)
 {
     return apodized_sinc_envelope(t0, N, 0.5);
 }

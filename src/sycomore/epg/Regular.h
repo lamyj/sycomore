@@ -33,7 +33,7 @@ public:
     /// @brief Order of the model, as gradient area
     using Order = Quantity;
     
-    /// @brief Bulk velociy
+    /// @brief Bulk velocity
     Quantity velocity=0*units::m/units::s;
     
     /// @brief Create a single-pool model

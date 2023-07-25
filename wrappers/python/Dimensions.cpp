@@ -12,7 +12,7 @@ void wrap_Dimensions(pybind11::module & m)
     using namespace pybind11;
     using namespace sycomore;
 
-    class_<Dimensions>(m, "Dimensions")
+    class_<Dimensions>(m, "Dimensions", "Physical dimensions of a quantity")
         .def(
             init<double,double,double,double,double,double,double>(),
             arg("length")=0, arg("mass")=0, arg("time")=0, 

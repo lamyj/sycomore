@@ -83,10 +83,10 @@ public:
     /// @brief Set the exchange constant of one of the pools
     void set_k(std::size_t pool, Quantity const & k);
     
-    /// @brief Return the frequency offset
+    /// @brief Return the frequency offset of the second pool
     Quantity const & delta_b() const;
     
-    /// @brief Set the frequency offset
+    /// @brief Set the frequency offset of the second pool
     void set_delta_b(Quantity const & delta_b);
     
     /// @brief Return the number of states of a pool.
@@ -99,15 +99,15 @@ public:
     ArrayC state(std::size_t order) const;
     
     /**
-     * @brief Return all states in the model, as a concatenation of
-     * (F, F*, Z) for each order and each pool.
+     * @brief Return all states in the model, as \f$\tilde{F}\f$,
+     * \f$\tilde{F}^*\f$, and \f$\tilde{Z}\f$ for each order and each pool.
      */
     ArrayC states() const;
     
     /// @brief Return the elapsed time.
     Quantity elapsed() const;
     
-    /// @brief Return the echo signal, i.e. F_0
+    /// @brief Return the echo signal, i.e. \f$F_0\f$
     Complex const & echo(std::size_t pool=0) const;
     
     /// @brief Apply an RF hard pulse to a single-pool model.

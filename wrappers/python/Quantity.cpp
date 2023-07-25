@@ -73,77 +73,112 @@ void wrap_Quantity(pybind11::module & m)
     using namespace pybind11;
     using namespace sycomore;
 
-    auto QuantityClass = class_<Quantity>(m, "Quantity")
+    auto QuantityClass = class_<Quantity>(
+            m, "Quantity", "Quantity in the SI system.")
         .def(init<double, Dimensions>())
         .def_readwrite(
             "magnitude", &Quantity::magnitude, 
             "The magnitude of the quantity, in SI units.")
-        .def_readwrite("dimensions", &Quantity::dimensions)
+        .def_readwrite(
+            "dimensions", &Quantity::dimensions, "Dimensions of the quantity")
         .def(
             "convert_to", &Quantity::convert_to, 
             "Return the scalar value of the quantity converted to the given "
             "unit.")
-        .def(self == self)
-        .def(self == double())
-        .def(double() == self)
-        .def(self != self)
-        .def(self != double())
-        .def(double() != self)
-        .def(self += self)
-        .def(self += double())
-        .def(self -= self)
-        .def(self -= double())
-        .def(self *= self)
-        .def(self *= double())
-        .def(self /= self)
-        .def(self /= double())
-        .def(self %= double())
-        .def(self %= self)
-        .def(+self)
-        .def(-self)
-        .def(self + self)
-        .def(self + double())
-        .def(double() + self)
-        .def(self - self)
-        .def(self - double())
-        .def(double() - self)
-        .def(self * self)
-        .def(self * double())
-        .def(double() * self)
-        .def(self / self)
-        .def(self / double())
-        .def(double() / self)
+        .def(self == self, "Test whether magnitudes and dimensions are equal")
+        .def(
+            self == double(), "Test whether magnitudes and dimensions are equal")
+        .def(
+            double() == self, "Test whether magnitudes and dimensions are equal")
+        .def(self != self, "Test whether magnitudes or dimensions differ")
+        .def(self != double(), "Test whether magnitudes or dimensions differ")
+        .def(double() != self, "Test whether magnitudes or dimensions differ")
+        .def(self += self, "In-place addition of a compatible quantity")
+        .def(self += double(), "In-place addition of a compatible quantity")
+        .def(self -= self, "In-place subtraction of a compatible quantity")
+        .def(self -= double(), "In-place subtraction of a compatible quantity")
+        .def(self *= self, "In-place multiplication")
+        .def(self *= double(), "In-place multiplication")
+        .def(self /= self, "In-place division")
+        .def(self /= double(), "In-place division")
+        .def(self %= double(), "In-place floating-point modulo")
+        .def(self %= self, "In-place floating-point modulo")
+        .def(+self, "Identity operator")
+        .def(-self, "Return a quantity with the opposite magnitude")
+        .def(self + self, "Addition of compatible quantities")
+        .def(self + double(), "Addition of compatible quantities")
+        .def(double() + self, "Addition of compatible quantities")
+        .def(self - self, "Subtraction of compatible quantities")
+        .def(self - double(), "Subtraction of compatible quantities")
+        .def(double() - self, "Subtraction of compatible quantities")
+        .def(self * self, "Multiplication")
+        .def(self * double(), "Multiplication")
+        .def(double() * self, "Multiplication")
+        .def(self / self, "Division")
+        .def(self / double(), "Division")
+        .def(double() / self, "Division")
         .def("__floordiv__", static_cast<Quantity(*)(Quantity, Quantity const &)>(floordiv))
         .def("__floordiv__", static_cast<Quantity(*)(Quantity, double)>(floordiv))
         .def("__rfloordiv__", static_cast<Quantity(*)(Quantity const &, double)>(rfloordiv))
-        .def(self % self)
-        .def(self % double())
+        .def(self % self, "Floating-point modulo")
+        .def(self % double(), "Floating-point modulo")
         .def("__divmod__", divmod)
-        .def("__abs__", static_cast<Quantity(*)(Quantity)>(std::abs))
-        .def("__pow__", static_cast<Quantity(*)(Quantity, double)>(std::pow))
-        .def("__round__", static_cast<Quantity(*)(Quantity)>(std::round))
-        .def("__trunc__", static_cast<Quantity(*)(Quantity)>(std::trunc))
-        .def("__floor__", static_cast<Quantity(*)(Quantity)>(std::floor))
-        .def("__ceil__", static_cast<Quantity(*)(Quantity)>(std::ceil))
-        .def(self > self)
-        .def(self > double())
-        .def(double() > self)
-        .def(self >= self)
-        .def(self >= double())
-        .def(double() >= self)
-        .def(self < self)
-        .def(self < double())
-        .def(double() < self)
-        .def(self <= self)
-        .def(self <= double())
-        .def(double() <= self)
+        .def(
+            "__abs__", static_cast<Quantity(*)(Quantity)>(std::abs),
+            "Return a quantity with the absolute value of the magnitude")
+        .def(
+            "__pow__", static_cast<Quantity(*)(Quantity, double)>(std::pow),
+            "Raise a quantity to a power")
+        .def(
+            "__round__", static_cast<Quantity(*)(Quantity)>(std::round),
+            "Round the magnitude of a quantity")
+        .def(
+            "__trunc__", static_cast<Quantity(*)(Quantity)>(std::trunc),
+            "Truncate the magnitude of a quantity")
+        .def(
+            "__floor__", static_cast<Quantity(*)(Quantity)>(std::floor),
+            "Quantity with the largest integer magnitude not greater than the "
+                "magnitude")
+        .def(
+            "__ceil__", static_cast<Quantity(*)(Quantity)>(std::ceil),
+            "Quantity with the smallest integer magnitude not less than the "
+                "magnitude")
+        .def(self > self, "Compare the magnitude of two compatible quantities")
+        .def(
+            self > double(),
+            "Compare the magnitude of two compatible quantities")
+        .def(
+            double() > self,
+            "Compare the magnitude of two compatible quantities")
+        .def(self >= self, "Compare the magnitude of two compatible quantities")
+        .def(
+            self >= double(),
+            "Compare the magnitude of two compatible quantities")
+        .def(
+            double() >= self,
+            "Compare the magnitude of two compatible quantities")
+        .def(self < self, "Compare the magnitude of two compatible quantities")
+        .def(
+            self < double(),
+            "Compare the magnitude of two compatible quantities")
+        .def(
+            double() < self,
+            "Compare the magnitude of two compatible quantities")
+        .def(self <= self, "Compare the magnitude of two compatible quantities")
+        .def(
+            self <= double(),
+            "Compare the magnitude of two compatible quantities")
+        .def(
+            double() <= self,
+            "Compare the magnitude of two compatible quantities")
         .def(
             "__repr__",
             [](Quantity const & d) {
                 std::ostringstream s;
                 s << d;
                 return s.str();
-            })
+            },
+            "String representation of a quantity")
         .def(hash(self))
         .def(pickle(
             [](Quantity const & q) {
@@ -169,12 +204,22 @@ void wrap_Quantity(pybind11::module & m)
             }
         ))
         .def("__int__", [](Quantity const & q) { return int(double(q)); })
-        .def("__float__", [](Quantity const & q) { return double(q); })
+        .def(
+            "__float__", [](Quantity const & q) { return double(q); },
+            "Convert to a scalar")
         // ufuncs of numpy
-        .def("fmod", [](Quantity const & l, Quantity const & r) { return l%r; })
-        .def("fmod", [](Quantity const & l, double r) { return l%r; })
-        .def("fabs", static_cast<Quantity(*)(Quantity)>(std::abs))
-        .def("rint", static_cast<Quantity(*)(Quantity)>(std::round))
+        .def(
+            "fmod", [](Quantity const & l, Quantity const & r) { return l%r; },
+            "Floating-point modulo")
+        .def(
+            "fmod", [](Quantity const & l, double r) { return l%r; },
+            "Floating-point modulo")
+        .def(
+            "fabs", static_cast<Quantity(*)(Quantity)>(std::abs),
+            "Return a quantity with the absolute value of the magnitude")
+        .def(
+            "rint", static_cast<Quantity(*)(Quantity)>(std::round),
+            "Round the magnitude of a quantity")
         .def("exp", scalar_unary_function<std::exp>)
         .def("exp2", scalar_unary_function<std::exp2>)
         .def("log", scalar_unary_function<std::log>)
@@ -198,8 +243,16 @@ void wrap_Quantity(pybind11::module & m)
         .def("arcsinh", scalar_unary_function<std::asinh>)
         .def("arccosh", scalar_unary_function<std::acosh>)
         .def("arctanh", scalar_unary_function<std::atanh>)
-        .def("ceil", static_cast<Quantity(*)(Quantity)>(std::ceil))
-        .def("floor", static_cast<Quantity(*)(Quantity)>(std::floor))
-        .def("trunc", static_cast<Quantity(*)(Quantity)>(std::trunc))
+        .def(
+            "ceil", static_cast<Quantity(*)(Quantity)>(std::ceil),
+            "Quantity with the smallest integer magnitude not less than the "
+                "magnitude")
+        .def(
+            "floor", static_cast<Quantity(*)(Quantity)>(std::floor),
+            "Quantity with the largest integer magnitude not greater than the "
+                "magnitude")
+        .def(
+            "trunc", static_cast<Quantity(*)(Quantity)>(std::trunc),
+            "Truncate the magnitude of a quantity")
     ;
 }

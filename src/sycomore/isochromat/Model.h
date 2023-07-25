@@ -74,7 +74,7 @@ public:
     /// @brief Return the magnetization field
     TensorR<2> magnetization() const;
     
-    /// @brief Return the positions
+    /// @brief Return the positions of the isochromats
     TensorQ<2> positions() const;
     
 private:

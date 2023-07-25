@@ -24,23 +24,22 @@ void wrap_epg_Discrete(pybind11::module & m)
         "rad/m.")
         .def(
             init<Species const &, Vector3R const &, Quantity const &>(),
-            arg("species"), arg("initial_magnetization")=Vector3R{0,0,1},
-            arg("bin_width")=1*units::rad/units::m)
+            "species"_a, "initial_magnetization"_a=Vector3R{0,0,1},
+            "bin_width"_a=1*units::rad/units::m)
         .def(
             init<
                 Species const &, Species const &,
                 Vector3R const &, Vector3R const &,
                 Quantity const &, Quantity const &, Quantity const &>(),
-            arg("species_a"), arg("species_b"), arg("M0_a"), arg("M0_b"),
-            arg("k_a"), arg("delta_b")=0*units::Hz,
-            arg("bin_width")=1*units::rad/units::m)
+            "species_a"_a, "species_b"_a, "M0_a"_a, "M0_b"_a, "k_a"_a,
+            "delta_b"_a=0*units::Hz, "bin_width"_a=1*units::rad/units::m)
         .def(
             init<
                 Species const &, Quantity const &,
                 Vector3R const &, Vector3R const &,
                 Quantity const &, Quantity const &>(),
-            arg("species_a"), arg("R1_b_or_T1_b"), arg("M0_a"), arg("M0_b"),
-            arg("k_a"), arg("bin_width")=1*units::rad/units::m)
+            "species_a"_a, "R1_b_or_T1_b"_a, "M0_a"_a, "M0_b"_a, "k_a"_a,
+            "bin_width"_a=1*units::rad/units::m)
         .def_property_readonly(
             "orders", &Discrete::orders, 
             "The sequence of orders currently stored by the model, in the same "
@@ -48,17 +47,17 @@ void wrap_epg_Discrete(pybind11::module & m)
         .def_property_readonly("bin_width", &Discrete::bin_width)
         .def(
             "state", overload_cast<std::size_t>(&Base::state, const_),
-            arg("bin"),
+            "bin"_a,
             "Magnetization at a given state, expressed by its *index*")
         .def(
             "state", overload_cast<Quantity const &>(&Discrete::state, const_),
-            arg("order"),
+            "order"_a,
             "Magnetization at a given state, expressed by its *order*.")
         .def(
             "apply_time_interval", 
             static_cast<void(Discrete::*)(Quantity const &, Quantity const &)>(
                 &Discrete::apply_time_interval),
-            arg("duration"), arg("gradient")=0*units::T/units::m,
+            "duration"_a, "gradient"_a=0*units::T/units::m,
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects. States with a population lower than "
             "*threshold* will be removed.")
@@ -66,16 +65,16 @@ void wrap_epg_Discrete(pybind11::module & m)
             "apply_time_interval", 
             static_cast<void(Discrete::*)(TimeInterval const &)>(
                 &Discrete::apply_time_interval),
-            arg("interval"),
+            "interval"_a,
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects. States with a population lower than "
             "*threshold* will be removed.")
         .def(
-            "shift", &Discrete::shift, arg("duration"), arg("gradient"),
+            "shift", &Discrete::shift, "duration"_a, "gradient"_a,
             "Apply a gradient; in discrete EPG, this shifts all orders by" 
             "specified value.")
         .def(
-            "diffusion", &Discrete::diffusion, arg("duration"), arg("gradient"),
+            "diffusion", &Discrete::diffusion, "duration"_a, "gradient"_a,
             "Simulate diffusion during given duration with given gradient ",
             "amplitude.")
     ;

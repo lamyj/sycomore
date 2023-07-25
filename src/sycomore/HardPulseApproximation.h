@@ -51,8 +51,8 @@ private:
 /// @brief Create an apodized sinc envelope
 SYCOMORE_API HardPulseApproximation::Envelope apodized_sinc_envelope(
     Quantity const & t0, unsigned int N, Real alpha);
-/// @brief Create an Hanning-apodized sinc envelope
-SYCOMORE_API HardPulseApproximation::Envelope hanning_sinc_envelope(
+/// @brief Create an Hann-apodized sinc envelope
+SYCOMORE_API HardPulseApproximation::Envelope hann_sinc_envelope(
     Quantity const & t0, unsigned int N);
 /// @brief Create an Hamming-apodized sinc envelope
 SYCOMORE_API HardPulseApproximation::Envelope hamming_sinc_envelope(

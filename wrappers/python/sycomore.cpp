@@ -43,19 +43,23 @@ PYBIND11_MODULE(_sycomore, _sycomore)
 
     _sycomore.def(
         "linspace", 
-        overload_cast<Quantity, Quantity, std::size_t>(linspace<Quantity>));
+        overload_cast<Quantity, Quantity, std::size_t>(linspace<Quantity>),
+        "Generate evenly-spaced samples");
     _sycomore.def(
         "linspace",
-        overload_cast<Quantity, std::size_t>(linspace<Quantity>));
+        overload_cast<Quantity, std::size_t>(linspace<Quantity>),
+        "Generate evenly-spaced samples");
 
     _sycomore.def(
         "linspace",
-        overload_cast<ArrayQ, ArrayQ, std::size_t>(sycomore::linspace<ArrayQ>));
+        overload_cast<ArrayQ, ArrayQ, std::size_t>(sycomore::linspace<ArrayQ>),
+        "Generate evenly-spaced samples");
     _sycomore.def(
         "linspace", [](ArrayQ span, std::size_t size){
             return sycomore::linspace(
                 xt::eval(-span/2.), xt::eval(+span/2.), size);
-        });
+        },
+        "Generate evenly-spaced samples");
     
-    _sycomore.def("round", round<Quantity>);
+    _sycomore.def("round", round<Quantity>, "Round to x nearest multiple of r");
 }

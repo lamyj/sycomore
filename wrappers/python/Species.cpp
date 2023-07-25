@@ -42,7 +42,8 @@ void wrap_Species(pybind11::module & m)
     using namespace sycomore;
     using namespace sycomore::units;
 
-    class_<Species>(m, "Species")
+    class_<Species>(
+            m, "Species", "Species described by its NMR parameters")
         .def(
             init(&constructor),
             arg("R1"), arg("R2"),
