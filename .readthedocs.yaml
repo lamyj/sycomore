@@ -15,9 +15,8 @@ build:
     
   jobs:
     pre_build:
-      - pwd
-      - whoami
-      - sudo whoami
+      - python ./.ci/readthedocs/setup.py
+      - python ./.ci/readthedocs/build.py
 
 python:
   install:
