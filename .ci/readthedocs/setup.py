@@ -8,6 +8,7 @@ import requests
 
 xt = "https://github.com/xtensor-stack"
 cmake_projects = {
+    "pybind11": ("v2.11.1", "https://github.com/pybind/pybind11/archive/refs/tags/{{}}.zip")
     "xsimd": ("10.0.0", f"{xt}/xsimd/archive/refs/tags/{{}}.zip"),
     "xtl": ("0.7.5", f"{xt}/xtl/archive/refs/tags/{{}}.zip"),
     "xtensor": ("0.24.4", f"{xt}/xtensor/archive/refs/tags/{{}}.zip"),
