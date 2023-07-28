@@ -1,0 +1,18 @@
+name: readthedocs
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - breathe
+  - cmake
+  - compilers
+  - doxygen
+  - furo
+  - make
+  - numpy
+  - pybind11
+  - python=3.11
+  - xsimd
+  - xtl
+  - xtensor
+  - xtensor-python
