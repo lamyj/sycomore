@@ -79,7 +79,7 @@ The following code simulates a single repetition of a simple `RARE sequence`_ wi
    common_features.rst
    bloch.rst
    epg/index.rst
-   como.rst
+   api/index.rst
 
 Indices and tables
 ==================

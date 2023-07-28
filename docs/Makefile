@@ -1,4 +1,4 @@
-.PHONY: clean doxygen html
+.PHONY: all clean doxygen figures html
 
 FIGURES = epg/regular.png epg/discrete.png epg/discrete_3d.png
 
@@ -10,6 +10,8 @@ clean:
 doxygen:
 	mkdir -p _build
 	doxygen
+
+figures: $(FIGURES)
 
 html: doxygen $(FIGURES)
 	mkdir -p _build
