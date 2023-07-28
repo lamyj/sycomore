@@ -10,7 +10,7 @@ MRI simulations deal with various quantities: times, frequencies and angular fre
 
 Sycomore provides a unit system so that users do not have to convert their quantities to a specific unit. Units may be declared by multiplying or dividing by the unit name (e.g. ``500*ms``). Those two syntaxes can be mixed in order to use more complex units (e.g. ``267.522*MHz/T``). Unit objects follow the usual arithmetic rules, and all SI `base units`_, `derived units`_ and `prefixes`_ are defined. 
 
-:class:`sycomore.Quantity` objects contain their value in the base SI unit and may be converted to a compatible unit. Common arithmetic operations (addition, subtraction, multiplication, division, power) are implemented, as well as most of `numpy numeric functions`_. The following code sample summarizes these features.
+Quantity (:cpp:class:`C++ <sycomore::Quantity>`, :attr:`Python <sycomore.Quantity>`) objects contain their value in the base SI unit and may be converted to a compatible unit. Common arithmetic operations (addition, subtraction, multiplication, division, power) are implemented, as well as most of `numpy numeric functions`_. The following code sample summarizes these features.
 
 .. note:: The *micro* prefix is *u*, not *μ*, in order to keep ASCII names
 
@@ -31,16 +31,12 @@ Sycomore provides a unit system so that users do not have to convert their quant
     duration = 1*h
     duration_in_seconds = duration.convert_to(s) # Equals to 3600
 
-
-
-
 .. note:: Take caution when importing all units name (``from sycomore.units import *``), as some names may clash with your code. In a long module with many variables, it is better to import only the required units (e.g. ``from sycomore.units import mT, m, ms``)
 
 Species
 -------
 
-A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its diffusivity *D* and its relative resonance frequency Δω. It is described by the :class:`sycomore.Species` class. |R1| and |R2| are mandatory parameters, all others are optional and are equal to 0 if unspecified. Using the :ref:`unit system<units>`, relaxation rates and relaxation times may be used interchangeably.
-
+A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its diffusivity *D* and its relative resonance frequency Δω. It is described by the Species (:cpp:class:`C++ <sycomore::Species>`, :attr:`Python <sycomore.Species>`) class. |R1| and |R2| are mandatory parameters, all others are optional and are equal to 0 if unspecified. Using the :ref:`unit system<units>`, relaxation rates and relaxation times may be used interchangeably.
 
 .. code:: python
 
@@ -52,11 +48,7 @@ A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its d
     species = sycomore.Species(1*Hz, 10*Hz)
     species = sycomore.Species(1000*ms, 10*Hz)
 
-
-
-
 The diffusivity can be assigned either as a scalar (for isotropic diffusion) or as a tensor (for anisotropic diffusion), but will always be returned as a tensor:
-
 
 .. code:: python
 
@@ -76,22 +68,17 @@ The diffusivity can be assigned either as a scalar (for isotropic diffusion) or 
         0*um**2/s, 0*um**2/s, 1*um**2/s]
     print(species.D)
 
-
 .. code::
 
     3e-12 [ L^2 T^-1 ]
     (3e-12 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 2e-12
     [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 1e-12 [ L^2
     T^-1 ])
-    
-
-
 
 Time intervals
 --------------
 
-A time interval is specified by its duration and an optional magnetic field gradient. The gradient can be either as a scalar or as a 3D array, and can describe the amplitude (in *T/m*), the area (in *T/m\*s*) or the dephasing (in *rad/m*). A :func:`sycomore.TimeInterval.set_gradient` function is available for generic modification of the gradient.
-
+A time interval (:cpp:class:`C++ <sycomore::TimeInterval>`, :attr:`Python <sycomore.TimeInterval>`) is specified by its duration and an optional magnetic field gradient. The gradient can be either as a scalar or as a 3D array, and can describe the amplitude (in *T/m*), the area (in *T/m\*s*) or the dephasing (in *rad/m*). A :func:`sycomore.TimeInterval.set_gradient` function is available for generic modification of the gradient.
 
 .. code:: python
 
@@ -106,7 +93,6 @@ A time interval is specified by its duration and an optional magnetic field grad
         interval.gradient_area/interval.duration, "\n",
         interval.gradient_dephasing/(sycomore.gamma*interval.duration))
 
-
 .. code::
 
     0.001 [ T ]
@@ -116,84 +102,6 @@ A time interval is specified by its duration and an optional magnetic field grad
     T^-2 I^-1 ])
      (0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M
     T^-2 I^-1 ])
-    
-
-
-
-Reference
----------
-
-.. class:: sycomore.Quantity()
-  
-  .. attribute:: magnitude
-    
-    The magnitude of the quantity, in SI units.
-  
-  .. method:: convert_to(unit)
-    
-    Return the scalar value of the quantity converted to the given unit.
-
-.. class:: sycomore.Species(R1, R2, D=0*m**2/s, R2_prime=0*Hz, delta_omega=0*rad/s)
-  
-  .. attribute:: R1
-      
-      Longitudinal relaxation rate
-  
-  .. attribute:: T1
-      
-      Longitudinal relaxation time
-  
-  .. attribute:: R2
-      
-      Transversal relaxation rate
-  
-  .. attribute:: T2
-      
-      Transversal relaxation time
-  
-  .. attribute:: D
-    
-    Diffusion tensor
-  
-  .. attribute:: R2_prime
-    
-    The part of the apparent transversal relaxation rate R\ :sub:`2`:sup:`*` attributed to the magnetic field inhomogeneity
-  
-  .. attribute:: T2_prime
-    
-    The part of the apparent transversal relaxation time T\ :sub:`2`:sup:`*` attributed to the magnetic field inhomogeneity
-  
-  .. attribute:: delta_omega
-    
-    Frequency offset
-
-.. class:: sycomore.TimeInterval(duration, gradient=0*T/m)
-  
-  Gradient may be specified as amplitude (in ``T/m``), area (in ``T/m*s``) or dephasing (in ``rad/m``).
-  
-  .. attribute:: duration
-      
-      Duration of the time interval
-  
-  .. attribute:: gradient_amplitude
-      
-      Amplitude of the gradient
-  
-  .. attribute:: gradient_area
-      
-      Area of the gradient (duration×amplitude)
-  
-  .. attribute:: gradient_dephasing
-      
-      Dephasing caused by the gradient (γ×duration×amplitude)
-  
-  .. attribute:: gradient_moment
-      
-      Alias for dephasing
-  
-  .. function:: set_gradient
-      
-      Set the gradient of the time interval, either as amplitude, area or dephasing
 
 .. |R1| replace:: R\ :sub:`1`
 .. |R2| replace:: R\ :sub:`2`
