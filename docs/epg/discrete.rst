@@ -5,7 +5,7 @@ In the *discrete* EPG model (:cpp:class:`C++ <sycomore::epg::Discrete>`, :class:
 
 The following code sample show the full simulation of the DW-DESS_ sequence, with its two read-out modules and its diffusion module. Since the read-out gradient moment is largely smaller than the diffusion gradient moment, its simulation using regular EPG would require to subdivide every time interval to a common duration: with the parameters of the following simulation, even if we neglect the pre-phasing, each repetition would generate over 20 new states with regular EPG, while at most 12 will be generated with discrete EPG.
 
-The discrete EPG model, as well as other models, includes a ``threshold`` member (:cpp:class:`C++ <sycomore::epg::Base::threshold>`, :class:`Python <sycomore.epg.Base.threshold>`) which controls how states with a low population are discarded. This yields better peformance, at the expanse of a slight loss in precision. As an example, using a threshold of :math:`10^{-6}` in the DESS simulation reduces the computation time from 23 ms to 15 ms (i.e. by a factor 1.5) while conserving a good precision, as shown in the figure below.
+The discrete EPG model, as well as other models, includes a ``threshold`` member (:cpp:member:`C++ <sycomore::epg::Base::threshold>`, :attr:`Python <sycomore.epg.Base.threshold>`) which controls how states with a low population are discarded. This yields better peformance, at the expanse of a slight loss in precision. As an example, using a threshold of :math:`10^{-6}` in the DESS simulation reduces the computation time from 23 ms to 15 ms (i.e. by a factor 1.5) while conserving a good precision, as shown in the figure below.
 
 .. literalinclude:: discrete.py
   :lines: 2-6, 9-68
