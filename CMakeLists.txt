@@ -1,9 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
-if(${CMAKE_VERSION} VERSION_LESS 3.12)
-    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-else()
-    cmake_policy(SET CMP0074 NEW)
-endif()
+cmake_minimum_required(VERSION 3.12)
 
 project("sycomore" VERSION 1.3.2)
 

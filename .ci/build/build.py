@@ -31,12 +31,8 @@ cmake_version = dict(cmake_version)
 cmake_version = tuple(
     [int(cmake_version[x]) for x in ["MAJOR", "MINOR", "PATCH"]])
 
-if cmake_version >= (3, 12, 0):
-    parallel = ["--parallel", str(multiprocessing.cpu_count())]
-else:
-    parallel = []
 subprocess.check_call(
     [
         "cmake", "--build", ".", "--target", "install", "--config", "Release",
-        *parallel],
+        "--parallel"],
     cwd=build_dir)
