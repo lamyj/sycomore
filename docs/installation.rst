@@ -6,29 +6,28 @@ Packaged
 
 Packaged versions of Sycomore are available on `pypi`_ and `Anaconda`_ for Linux, macOS and Windows.
 
-To install from `Anaconda`_, type ``conda install -c conda-forge sycomore``. To install from `pypi`_, type ``pip3 install sycomore`` (or ``pip install sycomore``). If you are installing from `pypi`_ and no pre-compiled version is available for your platform, pip will try to install from the source archive; in that case you will need a C++11 compiler, `CMake`_ (≥ 3.5), `xsimd`_ and `pybind11`_ (≥ 2.2.0) to successfully build Sycomore.
-
-As of May 2021, compatibility with Python 2 is still possible: however due to the `end of life of Python 2`_, ensuring this compatibility is not a goal of Sycomore, and no such package is distributed.
+To install from `Anaconda`_, type ``conda install -c conda-forge sycomore``. To install from `pypi`_, type ``pip3 install sycomore`` (or ``pip install sycomore``). If you are installing from `pypi`_ and no pre-compiled version is available for your platform, pip will try to install from the source archive, as described below.
 
 From source
 -----------
 
-Installing Sycomore from source requires a C++17 compiler, `xsimd`_, Python (≥ 3.5) and `pybind11`_. If you want to validate your build of Sycomore, you should run the unit tests, which require `Boost.Test`_. Sycomore uses `CMake`_, so the simplest way to build it would be to create a *build* directory inside the source directory, run *cmake*, then run *make*:
+Installing Sycomore from source requires a a C++14 compiler, `CMake`_ (≥ 3.12), `xsimd`_ (≥ 10.0.0), `xtensor`_ (≥ 0.24.4), `xtensor-python`_ (≥ 0.26.1) and `pybind11`_ (≥ 2.10.3). If you want to validate your build of Sycomore, you should run the unit tests, which require `Boost.Test`_. Sycomore uses `CMake`_, so the simplest way to build it would be to create a *build* directory inside the source directory, run *cmake*, then run *make*:
 
 .. code-block:: shell
   
   mkdir build
   cd build
   cmake ..
-  make
+  cmake --build . --target install --config Release 
 
 In addition to the common CMake options (e.g. *CMAKE_BUILD_TYPE* or *CMAKE_INSTALL_PREFIX*), Sycomore may be built with the following options:
 
 - *BUILD_SHARED_LIBS* controls the generation of static libraries or share libraries; defaults to *ON*, i.e. building shared libraries
 - *BUILD_TESTING* controls the build of the C++ unit test executables; defaults to *ON*, i.e. the unit tests are compiled
 - *BUILD_PYTHON_WRAPPERS* controls the build of the Python wrappers; defaults to *ON*, i.e. the Python wrappers are built
+- *BUILD_EXAMPLES* controls the build of the C++ examples; defaults to *ON*, i.e. the C++ examples are built
 
-The compilation can take advantage of a multi-core CPU either by using `make`_ with the *-jN* flag (where *N* is the number of concurrent tasks, i.e. the number of cores) or by using `Ninja`_. Once the compilation succeeds, the units tests can be run from the build directory:
+The compilation can take advantage of a multi-core CPU either by using the `--parallel` flag of CMake, the *-jN* flag (where *N* is the number of concurrent tasks, i.e. the number of cores) of `make`_ or `Ninja`_. Once the compilation succeeds, the units tests can be run from the build directory:
 
 .. code-block:: shell
   
@@ -87,7 +86,6 @@ The documentation of the `-ffast-math option in Clang`_ is rather terse, but the
 .. _Anaconda: https://www.anaconda.com/distribution/
 .. _Boost.Test: https://www.boost.org/doc/libs/release/libs/test/
 .. _CMake: https://cmake.org/
-.. _end of life of Python 2: https://www.python.org/dev/peps/pep-0373/
 .. _-ffast-math option in Clang: https://clang.llvm.org/docs/UsersManual.html#cmdoption-ffast-math
 .. _latest release: https://github.com/xtensor-stack/xsimd/releases
 .. _make: https://www.gnu.org/software/make/
@@ -99,3 +97,5 @@ The documentation of the `-ffast-math option in Clang`_ is rather terse, but the
 .. _source code: https://github.com/llvm-mirror/clang/blob/release_80/lib/Driver/ToolChains/Clang.cpp#L2278-L2288
 .. _wheel: https://pythonwheels.com/
 .. _xsimd: https://xsimd.readthedocs.io/
+.. _xtensor: https://xtensor.readthedocs.io/
+.. _xtensor-python: https://xtensor-python.readthedocs.io/

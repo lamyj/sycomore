@@ -7,15 +7,13 @@ Sycomore is an MRI simulation toolkit providing Bloch simulation, Extended Phase
 
 Sycomore is free software, released under the [MIT license][], and its source code is available on [GitHub][].
 
-A sample web application, using Sycomore paired with [Bokeh][] is available on [Heroku][]: it presents classical MRI experiments (RARE, RF-spoiling, slice profile with a selective sinc pulse), using the different simulation models of Sycomore.
-
 ## Installation
 
 Packaged versions of Sycomore are available on [pypi][] and [Anaconda][] for Linux, macOS and Windows.
 
 To install from [Anaconda][], type `conda install -c conda-forge sycomore`. To install from [pypi][], type `pip3 install sycomore` (or `pip install sycomore`). If you are installing from [pypi][] and no pre-compiled version is available for your platform, pip will try to install from the source archive.
 
-If you need to install Sycomore from source, you will need a C++11 compiler, [CMake][], [xsimd][] and [pybind11][] to successfully build Sycomore. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test][].
+If you need to install Sycomore from source, you will need a C++14 compiler, [CMake][], [xsimd][], [xtensor][], [xtensor-python][] and [pybind11][] to successfully build Sycomore. If you want to validate your build of Sycomore, you should run the unit tests, which require [Boost.Test][].
 
 Additional details are provided in the [documentation][].
 
@@ -63,9 +61,8 @@ matplotlib.pyplot.show()
 The features and data structures are described in the documentation:
 
 - [Common features](https://sycomore.readthedocs.io/en/latest/common_features.html)
-- [Bloch simulation](https://sycomore.readthedocs.io/en/latest/bloch.html)
+- [Isochromat Simulation](https://sycomore.readthedocs.io/en/latest/isochromat.html)
 - [Extended Phase Graph](https://sycomore.readthedocs.io/en/latest/epg/index.html)
-- [Configuration Model](https://sycomore.readthedocs.io/en/latest/como.html)
 
 [Anaconda]: https://anaconda.org/conda-forge/dicomifier
 [Bokeh]: https://bokeh.org
@@ -80,3 +77,5 @@ The features and data structures are described in the documentation:
 [RARE sequence]: https://doi.org/10.1002/mrm.1910030602
 [regular EPG]: https://sycomore.readthedocs.io/en/latest/epg/regular.html
 [xsimd]: https://xsimd.readthedocs.io/
+[xtensor]: https://xtensor.readthedocs.io/
+[xtensor-python]: https://xtensor-python.readthedocs.io/
