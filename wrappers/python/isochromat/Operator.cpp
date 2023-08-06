@@ -24,7 +24,7 @@ void wrap_isochromat_Operator(pybind11::module & m)
             "If self and/or right has shape 1×4×4, it is broadcast to match "
             "the other operand. Otherwise, both operand must have shape n×4×4.")
         .def(
-            "preMultiply", &Operator::preMultiply, "left"_a,
+            "pre_multiply", &Operator::pre_multiply, "left"_a,
             "In-place chaining of operators, with self applied first.\n"
             "If self and/or left has shape 1×4×4, it is broadcast to match "
             "the other operand. Otherwise, both operand must have shape n×4×4.")

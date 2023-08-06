@@ -102,12 +102,12 @@ BOOST_AUTO_TEST_CASE(TimeIntervalUniform)
         10_ms, 400*Hz, {20*mT/m, 0*mT/m, 10*mT/m});
     
     auto combined = model.build_phase_accumulation(2*M_PI*400*10e-3);
-    combined.preMultiply(model.build_relaxation(10*ms));
+    combined.pre_multiply(model.build_relaxation(10*ms));
     BOOST_TEST(xt::allclose(xt::view(op.array(), 0), combined.array()));
     
     combined = model.build_phase_accumulation(
         2*M_PI*400*10e-3 + sycomore::gamma.magnitude*50e-6*10e-3);
-    combined.preMultiply(model.build_relaxation(10*ms));
+    combined.pre_multiply(model.build_relaxation(10*ms));
     BOOST_TEST(xt::allclose(xt::view(op.array(), 1), combined.array()));
 }
 
@@ -124,12 +124,12 @@ BOOST_AUTO_TEST_CASE(TimeIntervalVariable)
     
     auto combined = model.build_phase_accumulation(
         2*M_PI*400*10e-3 + sycomore::gamma.magnitude*10e-6*10e-3);
-    combined.preMultiply(model.build_relaxation(10*ms));
+    combined.pre_multiply(model.build_relaxation(10*ms));
     BOOST_TEST(xt::allclose(xt::view(op.array(), 0), combined.array()));
     
     combined = model.build_phase_accumulation(
         2*M_PI*600*10e-3 + sycomore::gamma.magnitude*15e-6*10e-3);
-    combined.preMultiply(model.build_relaxation(10*ms));
+    combined.pre_multiply(model.build_relaxation(10*ms));
     BOOST_TEST(xt::allclose(xt::view(op.array(), 1), combined.array()));
 }
 

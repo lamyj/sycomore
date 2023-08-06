@@ -44,7 +44,7 @@ class TestOperator(unittest.TestCase):
         left = sycomore.isochromat.Operator(self.left)
         right = sycomore.isochromat.Operator(self.right)
         
-        right.preMultiply(left)
+        right.pre_multiply(left)
     
         numpy.testing.assert_almost_equal(right.array, self.left @ self.right)
     

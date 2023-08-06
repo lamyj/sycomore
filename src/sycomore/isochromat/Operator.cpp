@@ -93,7 +93,7 @@ Operator
 
 Operator &
 Operator
-::preMultiply(Operator const & left)
+::pre_multiply(Operator const & left)
 {
     static thread_local Matrix4x4<Real> matrix;
     

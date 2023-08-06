@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(PostMultiply)
         }
     });
     
-    right.preMultiply(left);
+    right.pre_multiply(left);
     
     sycomore::isochromat::Operator::Array expected{
         {{80, 70, 60, 50},
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(PostMultiply)
     BOOST_TEST(xt::allclose(right.array(), expected));
 }
 
-BOOST_AUTO_TEST_CASE(PreMultiply)
+BOOST_AUTO_TEST_CASE(pre_multiply)
 {
     sycomore::isochromat::Operator left({
         {

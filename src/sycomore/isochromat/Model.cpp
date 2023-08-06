@@ -135,7 +135,7 @@ Model
     
     auto op = this->build_relaxation(duration);
     
-    op.preMultiply(
+    op.pre_multiply(
         this->build_phase_accumulation(
             units::rad * duration_s * angular_frequency));
     

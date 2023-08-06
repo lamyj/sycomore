@@ -53,7 +53,7 @@ public:
      * If *this and/or left has shape 1×4×4, it is broadcast to match the other
      * operand. Otherwise, both operand must have shape n×4×4.
      */
-    Operator & preMultiply(Operator const & left);
+    Operator & pre_multiply(Operator const & left);
     
     /// @brief Numeric representation of the operator.
     Array const & array() const;

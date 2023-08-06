@@ -84,12 +84,12 @@ class TestModel(unittest.TestCase):
         op = model.build_time_interval(10*ms, 400*Hz, [20*mT/m, 0*mT/m, 10*mT/m])
         
         combined = model.build_phase_accumulation(2*numpy.pi*rad*400*10e-3)
-        combined.preMultiply(model.build_relaxation(10*ms))
+        combined.pre_multiply(model.build_relaxation(10*ms))
         numpy.testing.assert_almost_equal(op.array[0], combined.array[0])
         
         combined = model.build_phase_accumulation(
             2*numpy.pi*rad*400*10e-3 + sycomore.gamma.magnitude*50e-6*10e-3)
-        combined.preMultiply(model.build_relaxation(10*ms))
+        combined.pre_multiply(model.build_relaxation(10*ms))
         numpy.testing.assert_almost_equal(op.array[1], combined.array[1])
     
     def test_time_interval_variable(self):
@@ -102,12 +102,12 @@ class TestModel(unittest.TestCase):
         
         combined = model.build_phase_accumulation(
             2*numpy.pi*rad*400*10e-3 + sycomore.gamma.magnitude*10e-6*10e-3)
-        combined.preMultiply(model.build_relaxation(10*ms))
+        combined.pre_multiply(model.build_relaxation(10*ms))
         numpy.testing.assert_almost_equal(op.array[0], combined.array[0])
         
         combined = model.build_phase_accumulation(
             2*numpy.pi*rad*600*10e-3 + sycomore.gamma.magnitude*15e-6*10e-3)
-        combined.preMultiply(model.build_relaxation(10*ms))
+        combined.pre_multiply(model.build_relaxation(10*ms))
         numpy.testing.assert_almost_equal(op.array[1], combined.array[1])
     
     def test_T1(self):
