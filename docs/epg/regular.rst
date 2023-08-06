@@ -7,12 +7,19 @@ For simulations involving multiple dephasing values (all multiple of a given dep
 
 The following code sample simulates the evolution of the signal in an `RF-spoiled GRE`_ experiment with different phase increments -- one model is used per phase increment.
 
-.. literalinclude:: regular.py
-  :lines: 3-5, 8-46
+.. tab:: Python
+  
+  .. literalinclude:: ../../examples/epg/regular.py
+    :lines: 3-5, 8-46
+
+.. tab:: C++
+  
+  .. literalinclude:: ../../examples/epg/regular.cpp
+    :language: cpp
 
 Once the echo signal has been gathered for all repetitions, its magnitude and phase can be plotted using respectively `numpy.abs`_ and `numpy.angle`_.
 
-.. literalinclude:: regular.py
+.. literalinclude:: ../../examples/epg/regular.py
   :lines: 48-62
 
 .. figure:: regular.png

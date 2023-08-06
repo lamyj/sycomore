@@ -5,12 +5,19 @@ In the 3D discrete EPG model (:cpp:class:`C++ <sycomore::epg::Discrete3D>`, :cla
 
 The following code sample simulates a idealized PGSE diffusion sequence in an anisotropic medium and shows the dependency of the signal attenuation to the relative orientation of diffusion tensor and of the diffusion gradient.
 
-.. literalinclude:: discrete_3d.py
-    :lines: 3-7, 10-56
+.. tab:: Python
+    
+    .. literalinclude:: ../../examples/epg/discrete_3d.py
+        :lines: 3-7, 10-56
+
+.. tab:: C++
+    
+    .. literalinclude:: ../../examples/epg/discrete_3d.cpp
+        :language: cpp
 
 By using VTK for the sphere source, we can easily generate a screenshot of the attenuation profile in 3D
 
-.. literalinclude:: discrete_3d.py
+.. literalinclude:: ../../examples/epg/discrete_3d.py
     :lines: 1-2, 9-10, 57-
 
 .. figure:: discrete_3d.png

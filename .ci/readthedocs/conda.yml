@@ -12,6 +12,7 @@ dependencies:
   - numpy
   - pybind11
   - python=3.11
+  - sphinx-inline-tabs
   - xsimd
   - xtl
   - xtensor

@@ -10,6 +10,7 @@ project("sycomore" VERSION 1.3.2)
 option(BUILD_SHARED_LIBS "Build Sycomore with shared libraries." ON)
 option(BUILD_TESTING "Build unit tests." ON)
 option(BUILD_PYTHON_WRAPPERS "Build the Python Wrappers." ON)
+option(BUILD_EXAMPLES "Build the examples." ON)
 
 set(CMAKE_INSTALL_MESSAGE LAZY)
 
@@ -42,6 +43,10 @@ endif()
 
 if(BUILD_TESTING)
     add_subdirectory("tests")
+endif()
+
+if(BUILD_EXAMPLES)
+    add_subdirectory("examples")
 endif()
 
 # Export the build tree (don't install the generated file)

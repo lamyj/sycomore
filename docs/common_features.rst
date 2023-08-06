@@ -14,22 +14,14 @@ Quantity (:cpp:class:`C++ <sycomore::Quantity>`, :attr:`Python <sycomore.Quantit
 
 .. note:: The *micro* prefix is *u*, not *μ*, in order to keep ASCII names
 
+.. tab:: Python
+    
+    .. literalinclude:: ../examples/common_features/units.py
 
-.. code:: python
-
-    import sycomore
-    from sycomore.units import *
+.. tab:: C++
     
-    # Combination of base units
-    diffusion_coefficient = 0.89*um**2/ms
-    
-    # Magnitude of the quantity, in SI unit
-    length = 180*cm
-    length_in_meters = length.magnitude # Equals to 1.8
-    
-    # Conversion: magnitude of the quantity, in specified unit
-    duration = 1*h
-    duration_in_seconds = duration.convert_to(s) # Equals to 3600
+    .. literalinclude:: ../examples/common_features/units.cpp
+        :language: cpp
 
 .. note:: Take caution when importing all units name (``from sycomore.units import *``), as some names may clash with your code. In a long module with many variables, it is better to import only the required units (e.g. ``from sycomore.units import mT, m, ms``)
 
@@ -38,70 +30,72 @@ Species
 
 A species is characterized by its relaxation rates (|R1|, |R2| and |R2'|), its diffusivity *D* and its relative resonance frequency Δω. It is described by the Species (:cpp:class:`C++ <sycomore::Species>`, :attr:`Python <sycomore.Species>`) class. |R1| and |R2| are mandatory parameters, all others are optional and are equal to 0 if unspecified. Using the :ref:`unit system<units>`, relaxation rates and relaxation times may be used interchangeably.
 
-.. code:: python
-
-    import sycomore
-    from sycomore.units import *
+.. tab:: Python
     
-    # Create a Species from either relaxation times, relaxation rates or both
-    species = sycomore.Species(1000*ms, 100*ms)
-    species = sycomore.Species(1*Hz, 10*Hz)
-    species = sycomore.Species(1000*ms, 10*Hz)
+    .. literalinclude:: ../examples/common_features/species_1.py
+
+.. tab:: C++
+    
+    .. literalinclude:: ../examples/common_features/species_1.cpp
+        :language: cpp
 
 The diffusivity can be assigned either as a scalar (for isotropic diffusion) or as a tensor (for anisotropic diffusion), but will always be returned as a tensor:
 
-.. code:: python
-
-    import sycomore
-    from sycomore.units import *
+.. tab:: Python
     
-    species = sycomore.Species(1000*ms, 100*ms)
-    # Assign the diffusion coefficient as a scalar
-    species.D = 3*um**2/s
-    # The diffusion coefficient is stored on the diagonal of the tensor
-    print(species.D[0])
+    .. literalinclude:: ../examples/common_features/species_2.py
+
+    .. code::
+
+        3e-12 [ L^2 T^-1 ]
+        [[3e-12 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ]]
+         [0 [ L^2 T^-1 ] 2e-12 [ L^2 T^-1 ] 0 [ L^2 T^-1 ]]
+         [0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 1e-12 [ L^2 T^-1 ]]]
+
+.. tab:: C++
     
-    # Assign the diffusion coefficient as a tensor
-    species.D = [
-        3*um**2/s, 0*um**2/s, 0*um**2/s,
-        0*um**2/s, 2*um**2/s, 0*um**2/s,
-        0*um**2/s, 0*um**2/s, 1*um**2/s]
-    print(species.D)
+    .. literalinclude:: ../examples/common_features/species_2.cpp
+        :language: cpp
 
-.. code::
+    .. code::
 
-    3e-12 [ L^2 T^-1 ]
-    (3e-12 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 2e-12
-    [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 0 [ L^2 T^-1 ] 1e-12 [ L^2
-    T^-1 ])
+        3e-12 [ L^2 T^-1 ]
+        {{3e-12 [ L^2 T^-1 ],     0 [ L^2 T^-1 ],     0 [ L^2 T^-1 ]},
+         {    0 [ L^2 T^-1 ], 2e-12 [ L^2 T^-1 ],     0 [ L^2 T^-1 ]},
+         {    0 [ L^2 T^-1 ],     0 [ L^2 T^-1 ], 1e-12 [ L^2 T^-1 ]}}
+
 
 Time intervals
 --------------
 
 A time interval (:cpp:class:`C++ <sycomore::TimeInterval>`, :attr:`Python <sycomore.TimeInterval>`) is specified by its duration and an optional magnetic field gradient. The gradient can be either as a scalar or as a 3D array, and can describe the amplitude (in *T/m*), the area (in *T/m\*s*) or the dephasing (in *rad/m*). A :func:`sycomore.TimeInterval.set_gradient` function is available for generic modification of the gradient.
 
-.. code:: python
-
-    import sycomore
-    from sycomore.units import *
+.. tab:: Python
     
-    # Scalar gradient, defined by its amplitude
-    interval = sycomore.TimeInterval(1*ms, 20*mT/m)
-    print(
-        interval.duration, "\n",
-        interval.gradient_amplitude, "\n",
-        interval.gradient_area/interval.duration, "\n",
-        interval.gradient_dephasing/(sycomore.gamma*interval.duration))
+    .. literalinclude:: ../examples/common_features/time_interval.py
 
-.. code::
+    .. code::
 
-    0.001 [ T ]
-     (0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M
-    T^-2 I^-1 ])
-     (0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M
-    T^-2 I^-1 ])
-     (0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M
-    T^-2 I^-1 ])
+        0.001 [ T ]
+        [0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M T^-2 I^-1 ]
+        0.02 [ L^-1 M T^-2 I^-1 ]]
+        [0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M T^-2 I^-1 ]
+        0.02 [ L^-1 M T^-2 I^-1 ]]
+        [0.02 [ L^-1 M T^-2 I^-1 ] 0.02 [ L^-1 M T^-2 I^-1 ]
+        0.02 [ L^-1 M T^-2 I^-1 ]]
+
+.. tab:: C++
+    
+    .. literalinclude:: ../examples/common_features/time_interval.cpp
+        :language: cpp
+
+    .. code::
+
+        0.001 [ T ]
+        {0.02 [ L^-1 M T^-2 I^-1 ], 0.02 [ L^-1 M T^-2 I^-1 ], 0.02 [ L^-1 M T^-2 I^-1 ]}
+        {0.02 [ L^-1 M T^-2 I^-1 ], 0.02 [ L^-1 M T^-2 I^-1 ], 0.02 [ L^-1 M T^-2 I^-1 ]}
+        {0.02 [ L^-1 M T^-2 I^-1 ], 0.02 [ L^-1 M T^-2 I^-1 ], 0.02 [ L^-1 M T^-2 I^-1 ]}
+
 
 .. |R1| replace:: R\ :sub:`1`
 .. |R2| replace:: R\ :sub:`2`

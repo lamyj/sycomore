@@ -13,7 +13,8 @@ html_css_files = ["css/style.css"]
 html_title = project
 
 extensions = [
-    "breathe", "sphinx.ext.autodoc", "sphinx.ext.doctest", "sphinx.ext.mathjax"]
+    "breathe", "sphinx.ext.autodoc", "sphinx.ext.doctest", "sphinx.ext.mathjax",
+    "sphinx_inline_tabs"]
 
 autodoc_default_options = {
     "members": True,

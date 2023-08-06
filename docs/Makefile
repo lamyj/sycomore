@@ -17,5 +17,5 @@ html: doxygen $(FIGURES)
 	mkdir -p _build
 	python3 -m sphinx -T -E -b html -d _build/doctrees . _build/html
 
-%.png: %.py
+epg/%.png: ../examples/epg/%.py
 	python3 $< $@

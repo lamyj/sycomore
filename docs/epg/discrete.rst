@@ -7,8 +7,15 @@ The following code sample show the full simulation of the DW-DESS_ sequence, wit
 
 The discrete EPG model, as well as other models, includes a ``threshold`` member (:cpp:member:`C++ <sycomore::epg::Base::threshold>`, :attr:`Python <sycomore.epg.Base.threshold>`) which controls how states with a low population are discarded. This yields better peformance, at the expanse of a slight loss in precision. As an example, using a threshold of :math:`10^{-6}` in the DESS simulation reduces the computation time from 23 ms to 15 ms (i.e. by a factor 1.5) while conserving a good precision, as shown in the figure below.
 
-.. literalinclude:: discrete.py
-  :lines: 2-6, 9-68
+.. tab:: Python
+  
+  .. literalinclude:: ../../examples/epg/discrete.py
+    :lines: 2-6, 9-68
+
+.. tab:: C++
+  
+  .. literalinclude:: ../../examples/epg/discrete.cpp
+    :language: cpp
 
 .. note:: The default bin width of :math:`\delta_k=1\ \mathrm{rad/m}` corresponds to a gradient area of :math:`\delta_k/\gamma \approx 3\ \mathrm{\mu T/m\, ms}`. The dephasing orders are stored as 64-bits, signed integers; the default bin width hence allows to handle dephasing orders in the range :math:`\left[-9\cdot 10^{18}\ \mathrm{rad/m}, +9\cdot 10^{18}\ \mathrm{rad/m} \right]`, i.e. :math:`\left[-3\cdot 10^{16}\ \mathrm{mT/m\, ms}, +3\cdot 10^{16}\ \mathrm{mT/m\, ms} \right]`
 

@@ -15,27 +15,45 @@ All three models share a common API, and can handle single-pool or two-pools (ex
 
 To create a single-pool model, a single species is sufficient. Additionally, the initial magnetization :math:`M_0` can be specified. If missing, it defaults to :math:`[0,0,1]`.
 
-.. code:: python
+.. tab:: Python
    
-   species_a = sycomore.Species(779*ms, 45*ms)
-   single_pool_model = sycomore.epg.Discrete(species_a)
+   .. literalinclude:: ../../examples/epg/models.py
+      :lines: 4-5
+
+.. tab:: C++
+   
+   .. literalinclude:: ../../examples/epg/models.cpp
+      :language: cpp
+      :lines: 9-10
+      :dedent: 4
 
 For an exchange model two species, their initial magnetizations, and the exchange rate from pool *a* to pool *b* must be provided. An optional frequency offset of pool *b* relative to pool *a* may be provided, default to 0 Hz.
 
-.. code:: python
+.. tab:: Python
    
-   species_b = sycomore.Species(100*ms, 20*ms)
-   M0_a = sycomore.Array[float](0, 0, 0.8)
-   M0_b = sycomore.Array[float](0, 0, 0.2)
-   k_a = 2*Hz
-   exchange_model = sycomore.epg.Discrete(species_a, species_b, M0_a, M0_b, k_a)
+   .. literalinclude:: ../../examples/epg/models.py
+      :lines: 7-11
+
+.. tab:: C++
+   
+   .. literalinclude:: ../../examples/epg/models.cpp
+      :language: cpp
+      :lines: 12-15
+      :dedent: 4
 
 In an MT model, pool *b* is assumed to have a very short :math:`T_2` and thus no transversal magnetization: one species, the :math:`R_1` or :math:`T_1` of pool *b*, both initial magnetizations, and the exchange rate from pool *a* to pool *b* must be provided.
 
-.. code:: python
+.. tab:: Python
    
-   R1_b = 100*ms
-   mt_model = sycomore.epg.Discrete(species_a, R1_b, M0_a, M0_b, k_a)
+   .. literalinclude:: ../../examples/epg/models.py
+      :lines: 13-14
+
+.. tab:: C++
+   
+   .. literalinclude:: ../../examples/epg/models.cpp
+      :language: cpp
+      :lines: 17-18
+      :dedent: 4
 
 Once the model is created, the main features are:
 
