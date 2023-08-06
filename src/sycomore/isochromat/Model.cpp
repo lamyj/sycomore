@@ -76,15 +76,23 @@ Operator
 Model
 ::build_pulse(TensorQ<1> const & angle, TensorQ<1> const & phase) const
 {
+    TensorQ<1> phase_dummy;
+    if(phase.size() == 0)
+    {
+        phase_dummy = xt::repeat(TensorQ<1>{0*units::rad}, angle.size(), 0);
+    }
+    
+    auto & phase_ = (phase.size()>0?phase:phase_dummy);
+    
     if(
-        angle.size() != phase.size()
+        angle.size() != phase_.size()
         || (angle.size() != 1 && angle.size() != this->_positions.shape()[0]))
     {
         throw std::runtime_error("Size mismatch");
     }
     
-    TensorR<1> const cos_angle = xt::cos(angle), cos_phase = xt::cos(phase);
-    TensorR<1> const sin_angle = xt::sin(angle), sin_phase = xt::sin(phase);
+    TensorR<1> const cos_angle = xt::cos(angle), cos_phase = xt::cos(phase_);
+    TensorR<1> const sin_angle = xt::sin(angle), sin_phase = xt::sin(phase_);
     
     Operator::Array op = xt::zeros<Operator::Array::value_type>(
         Operator::Array::shape_type{angle.size(), 4, 4});
@@ -110,7 +118,8 @@ Model
     TensorQ<1> const & gradient) const
 {
     return this->build_time_interval(
-        duration, TensorQ<1>{delta_omega}, xt::atleast_2d(gradient));
+        duration, TensorQ<1>{delta_omega},
+        gradient.size() != 0 ? xt::atleast_2d(gradient) : TensorQ<2>{});
 }
 
 Operator
@@ -123,15 +132,17 @@ Model
     auto const delta_omega_Hz = convert_to(delta_omega, units::Hz);
     auto const gradient_T_per_m = convert_to(gradient, units::T/units::m);
     
-    auto const angular_frequency =
+    auto angular_frequency = xt::eval(
         2*M_PI * (
             // Field-related dephasing
             delta_omega_Hz
             // Species-related dephasing, e.g. chemical shift or susceptibility
-            + this->_delta_omega
-        )
-        // Gradient-related dephasing
-        + gamma.magnitude*xt::sum(gradient_T_per_m * this->_positions, {1});
+            + this->_delta_omega));
+    if(gradient.size() > 0)
+    {
+        angular_frequency += gamma.magnitude * xt::sum(
+            gradient_T_per_m * this->_positions, {1});
+    }
     
     auto op = this->build_relaxation(duration);
     

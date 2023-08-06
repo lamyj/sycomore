@@ -31,21 +31,22 @@ public:
         TensorQ<1> const & delta_omega={});
     
     /// @brief Create a spatially constant RF pulse operator
-    Operator build_pulse(Quantity const & angle, Quantity const & phase) const;
+    Operator build_pulse(
+        Quantity const & angle, Quantity const & phase=0*units::rad) const;
     
     /// @brief Create a spatially-varying RF pulse operator
     Operator build_pulse(
-        TensorQ<1> const & angle, TensorQ<1> const & phase) const;
+        TensorQ<1> const & angle, TensorQ<1> const & phase=TensorQ<1>{}) const;
     
     /// @brief Create a spatially constant time interval operator
     Operator build_time_interval(
-        Quantity const & duration, Quantity const & delta_omega,
-        TensorQ<1> const & gradient) const;
+        Quantity const & duration, Quantity const & delta_omega=0*units::Hz,
+        TensorQ<1> const & gradient={}) const;
     
     /// @brief Create a spatially-varying time interval operator
     Operator build_time_interval(
         Quantity const & duration, TensorQ<1> const & delta_omega,
-        TensorQ<2> const & gradient) const;
+        TensorQ<2> const & gradient={}) const;
     
     /// @brief Create a relaxation operator
     Operator build_relaxation(Quantity const & duration) const;

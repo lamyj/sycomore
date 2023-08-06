@@ -16,6 +16,10 @@ class TestModel(unittest.TestCase):
                 [-numpy.sqrt(3)/2,             0.5,                0, 0],
                 [               0,               0,                0, 1]]])
         numpy.testing.assert_almost_equal(op.array, pulse)
+        
+        default_phase = model.build_pulse(numpy.pi/3*rad)
+        numpy.testing.assert_almost_equal(
+            default_phase.array, model.build_pulse(numpy.pi/3*rad, 0*rad).array)
     
     def test_pulse_variable(self):
         positions = [[-1*m, 0*m, 0*m], [1*m, 0*m, 0*m]]
@@ -35,6 +39,11 @@ class TestModel(unittest.TestCase):
                 [-numpy.sqrt(3)/2, 0,             0.5, 0],
                 [               0, 0,               0, 1]]])
         numpy.testing.assert_almost_equal(op.array, pulse)
+        
+        default_phase = model.build_pulse([90*deg, 60*deg])
+        numpy.testing.assert_almost_equal(
+            default_phase.array,
+            model.build_pulse([90*deg, 60*deg], [0*deg, 0*deg]).array)
     
     def test_relaxation(self):
         positions = [[0*m, 0*m, 0*m], [1*m, 0*m, 0*m]]
@@ -91,6 +100,16 @@ class TestModel(unittest.TestCase):
             2*numpy.pi*rad*400*10e-3 + sycomore.gamma.magnitude*50e-6*10e-3)
         combined.pre_multiply(model.build_relaxation(10*ms))
         numpy.testing.assert_almost_equal(op.array[1], combined.array[1])
+        
+        default_frequency_and_gradient = model.build_time_interval(10*ms)
+        numpy.testing.assert_almost_equal(
+            default_frequency_and_gradient.array,
+            model.build_time_interval(10*ms, 0*Hz, [0*T/m, 0*T/m, 0*T/m]).array)
+        
+        default_gradient = model.build_time_interval(10*ms, 400*Hz)
+        numpy.testing.assert_almost_equal(
+            default_gradient.array,
+            model.build_time_interval(10*ms, 400*Hz, [0*T/m, 0*T/m, 0*T/m]).array);
     
     def test_time_interval_variable(self):
         positions = [[-1*mm, 2*mm, 3*mm], [1*mm, 0*mm, 3*mm]]
@@ -109,6 +128,13 @@ class TestModel(unittest.TestCase):
             2*numpy.pi*rad*600*10e-3 + sycomore.gamma.magnitude*15e-6*10e-3)
         combined.pre_multiply(model.build_relaxation(10*ms))
         numpy.testing.assert_almost_equal(op.array[1], combined.array[1])
+        
+        default_gradient = model.build_time_interval(10*ms, [400*Hz, 600*Hz])
+        numpy.testing.assert_almost_equal(
+            default_gradient.array,
+            model.build_time_interval(
+                10*ms, [400*Hz, 600*Hz],
+                [[0*T/m, 0*T/m, 0*T/m], [0*T/m, 0*T/m, 0*T/m]]).array);
     
     def test_T1(self):
         model_1 = sycomore.isochromat.Model(

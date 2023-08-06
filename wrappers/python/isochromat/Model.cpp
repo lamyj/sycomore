@@ -30,27 +30,27 @@ void wrap_isochromat_Model(pybind11::module & m)
             "build_pulse",
             overload_cast<Quantity const &, Quantity const &>(
                 &Model::build_pulse, const_),
-            "angle"_a, "phase"_a,
+            "angle"_a, "phase"_a=0*units::rad,
             "Create a spatially constant RF pulse operator")
         .def(
             "build_pulse",
             overload_cast<TensorQ<1> const &, TensorQ<1> const &>(
                 &Model::build_pulse, const_),
-            "angle"_a, "phase"_a,
+            "angle"_a, "phase"_a=TensorQ<1>{},
             "Create a spatially-varying RF pulse operator")
         .def(
             "build_time_interval",
             overload_cast<
                     Quantity const &, Quantity const &, TensorQ<1> const &>(
                 &Model::build_time_interval, const_),
-            "duration"_a, "delta_omega"_a, "gradient"_a,
+            "duration"_a, "delta_omega"_a=0*units::Hz, "gradient"_a=TensorQ<1>{},
             "Create a spatially constant time interval operator")
         .def(
             "build_time_interval",
             overload_cast<
                     Quantity const &, TensorQ<1> const &, TensorQ<2> const &>(
                 &Model::build_time_interval, const_),
-            "duration"_a, "delta_omega"_a, "gradient"_a,
+            "duration"_a, "delta_omega"_a, "gradient"_a=TensorQ<2>{},
             "Create a spatially-varying time interval operator")
         .def(
             "build_relaxation", &Model::build_relaxation, "duration"_a,

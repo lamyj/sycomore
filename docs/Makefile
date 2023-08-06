@@ -1,6 +1,6 @@
 .PHONY: all clean doxygen figures html
 
-FIGURES = epg/regular.png epg/discrete.png epg/discrete_3d.png
+FIGURES = isochromat.png epg/regular.png epg/discrete.png epg/discrete_3d.png
 
 all: html
 
@@ -18,4 +18,7 @@ html: doxygen $(FIGURES)
 	python3 -m sphinx -T -E -b html -d _build/doctrees . _build/html
 
 epg/%.png: ../examples/epg/%.py
+	python3 $< $@
+
+%.png: ../examples/%.py
 	python3 $< $@

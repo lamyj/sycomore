@@ -20,6 +20,10 @@ BOOST_AUTO_TEST_CASE(PulseUniform)
          {              0,              0,               0, 1}}
     };
     BOOST_TEST(xt::allclose(op.array(), pulse));
+    
+    auto const default_phase = model.build_pulse(M_PI/3*rad);
+    BOOST_TEST(xt::allclose(
+        default_phase.array(), model.build_pulse(M_PI/3*rad, 0*rad).array()));
 }
 
 BOOST_AUTO_TEST_CASE(PulseVariable)
@@ -42,6 +46,11 @@ BOOST_AUTO_TEST_CASE(PulseVariable)
          {              0, 0,              0, 1}}
     };
     BOOST_TEST(xt::allclose(op.array(), pulse));
+    
+    auto const default_phase = model.build_pulse({M_PI/2.*rad, M_PI/3*rad});
+    BOOST_TEST(xt::allclose(
+        default_phase.array(),
+        model.build_pulse({M_PI/2.*rad, M_PI/3*rad}, {0*rad, 0*rad}).array()));
 }
 
 BOOST_AUTO_TEST_CASE(Relaxation)
@@ -109,6 +118,16 @@ BOOST_AUTO_TEST_CASE(TimeIntervalUniform)
         2*M_PI*400*10e-3 + sycomore::gamma.magnitude*50e-6*10e-3);
     combined.pre_multiply(model.build_relaxation(10*ms));
     BOOST_TEST(xt::allclose(xt::view(op.array(), 1), combined.array()));
+    
+    auto default_frequency_and_gradient = model.build_time_interval(10_ms);
+    BOOST_TEST(xt::allclose(
+        default_frequency_and_gradient.array(),
+        model.build_time_interval(10_ms, 0*Hz, {0*T/m, 0*T/m, 0*T/m}).array()));
+    
+    auto default_gradient = model.build_time_interval(10_ms, 400*Hz);
+    BOOST_TEST(xt::allclose(
+        default_gradient.array(),
+        model.build_time_interval(10_ms, 400*Hz, {0*T/m, 0*T/m, 0*T/m}).array()));
 }
 
 BOOST_AUTO_TEST_CASE(TimeIntervalVariable)
@@ -131,6 +150,13 @@ BOOST_AUTO_TEST_CASE(TimeIntervalVariable)
         2*M_PI*600*10e-3 + sycomore::gamma.magnitude*15e-6*10e-3);
     combined.pre_multiply(model.build_relaxation(10*ms));
     BOOST_TEST(xt::allclose(xt::view(op.array(), 1), combined.array()));
+    
+    auto default_gradient = model.build_time_interval(10_ms, {400*Hz, 600*Hz});
+    BOOST_TEST(xt::allclose(
+        default_gradient.array(),
+        model.build_time_interval(
+            10_ms, {400*Hz, 600*Hz},
+            {{0*T/m, 0*T/m, 0*T/m}, {0*T/m, 0*T/m, 0*T/m}}).array()));
 }
 
 BOOST_AUTO_TEST_CASE(T1)
