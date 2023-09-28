@@ -2,7 +2,7 @@ if(NOT MSVC)
     set(XTENSOR_USE_XSIMD 1)
 endif()
 
-find_package(PythonInterp REQUIRED)
+find_package(Python COMPONENTS Interpreter REQUIRED)
 find_package(xsimd REQUIRED)
 find_package(xtensor REQUIRED)
 
@@ -87,9 +87,11 @@ add_custom_target(
     SOURCES ${python_files})
 
 execute_process(
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${Python_EXECUTABLE}
         -c "import os; import sysconfig; \
-            print(sysconfig.get_path('platlib', os.name+'_user', {'userbase': '.'}))"
+        print(\ 
+            sysconfig.get_path('platlib', os.name+'_user', {'userbase': '.'})\
+            .replace('\\\\', '/'))"
     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 

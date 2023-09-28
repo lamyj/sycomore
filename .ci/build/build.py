@@ -18,7 +18,7 @@ os.environ["CMAKE_PREFIX_PATH"] = os.pathsep.join([
 
 subprocess.check_call(
     [
-        "cmake", f"-DPYTHON_EXECUTABLE={sys.executable}",
+        "cmake", f"-DPython_EXECUTABLE={sys.executable}",
         "-DCMAKE_BUILD_TYPE=Release", f"-DCMAKE_INSTALL_PREFIX={install_dir}", 
         workspace],
     cwd=build_dir)

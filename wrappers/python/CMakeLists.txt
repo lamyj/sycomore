@@ -2,6 +2,7 @@ if(NOT MSVC)
     set(XTENSOR_USE_XSIMD 1)
 endif()
 
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
 find_package(pybind11 REQUIRED)
 find_package(xsimd REQUIRED)
 find_package(xtensor REQUIRED)
@@ -40,7 +41,7 @@ add_custom_target(
     SOURCES ${python_files})
 
 execute_process(
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${Python_EXECUTABLE}
         -c "import os; import sysconfig; \
         print(\ 
             sysconfig.get_path('platlib', os.name+'_user', {'userbase': '.'})\
