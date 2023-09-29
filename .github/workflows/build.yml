@@ -16,12 +16,15 @@ jobs:
       WORKSPACE: "${{ github.workspace }}"
     defaults:
       run:
-        shell: bash -l {0}
+        shell: ${{ contains(matrix.os, 'windows') && 'pwsh' || 'bash -l {0}' }}
     steps:
       - uses: mamba-org/setup-micromamba@v1
         with:
           init-shell: bash powershell
         if: ${{ matrix.packaging == 'conda' }}
+      
+      - name: micromamba info
+        run: micromamba info
       
       - name: Checkout latest revision
         # Only the latest revision is required, as later steps do not depend on
