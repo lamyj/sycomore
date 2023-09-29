@@ -21,6 +21,8 @@ jobs:
       - uses: mamba-org/setup-micromamba@v1
         with:
           init-shell: bash powershell
+          environment-name: sycomore
+          create-args: python
         if: ${{ matrix.packaging == 'conda' }}
       
       - name: micromamba info
