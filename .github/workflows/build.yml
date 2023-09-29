@@ -40,7 +40,7 @@ jobs:
           git checkout ${{ github.ref_name }}
       
       - name: Set-up (${{ matrix.packaging }})
-        run: ${{ matrix.python }} .ci/build/${{ matrix.packaging }}.py micromamba
+        run: ${{ matrix.python }} .ci/build/${{ matrix.packaging }}.py ${{ env.MAMBA_EXE }}
         if: ${{ matrix.packaging == 'conda' }}
       
       - name: Set-up (${{ matrix.packaging }})
