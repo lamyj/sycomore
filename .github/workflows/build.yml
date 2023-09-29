@@ -25,9 +25,6 @@ jobs:
           create-args: python
         if: ${{ matrix.packaging == 'conda' }}
       
-      - name: micromamba info
-        run: micromamba info
-      
       - name: Checkout latest revision
         # Only the latest revision is required, as later steps do not depend on
         # tags.
