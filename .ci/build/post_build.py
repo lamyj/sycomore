@@ -25,6 +25,8 @@ environment = os.environ.copy()
 for name in ["DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH"]:
     environment[name] = os.pathsep.join([
         lib_dir, *os.environ.get(name, "").split(os.pathsep)])
+environment["PATH"] = os.pathsep.join([
+    bin_dir, *os.environ.get("PATH", "").split(os.pathsep)])
 cpp_tests_return_code = subprocess.call(
     ["ctest"], cwd=build_dir, env=environment)
 
