@@ -14,20 +14,26 @@ python_lib_dir = os.path.join(
     sysconfig.get_path("platlib", os.name+"_user", {"userbase": "."}))
 python_tests_dir = os.path.join(workspace, "tests", "python")
 
-# Set-up environment: C++ library, Python module and test data location.
-for name in ["DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH"]:
-    os.environ[name] = os.pathsep.join([
-        lib_dir, *os.environ.get(name, "").split(os.pathsep)])
-os.environ["PATH"] = os.pathsep.join([
-    bin_dir, *os.environ.get("PATH", "").split(os.pathsep)])
-os.environ["PYTHONPATH"] = os.pathsep.join([
-    python_lib_dir, *os.environ.get("PYTHONPATH", "").split(os.pathsep)])
+# Set-up common environment: test data location
 os.environ["SYCOMORE_TEST_DATA"] = os.path.join(workspace, "tests", "data")
 
 # Run C++ and Python tests even if the former fails, return non-zero if any
 # failed.
-cpp_tests_return_code = subprocess.call(["ctest"], cwd=build_dir)
+
+# C++ tests: only library path is needed
+environment = os.environ.copy()
+for name in ["DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH"]:
+    environment[name] = os.pathsep.join([
+        lib_dir, *os.environ.get(name, "").split(os.pathsep)])
+cpp_tests_return_code = subprocess.call(
+    ["ctest"], cwd=build_dir, env=environment)
+
+# Python tests: library path is needed since the Python extension links to it
+# Add PYTHONPATH for the pure-python module
+environment["PYTHONPATH"] = os.pathsep.join([
+    python_lib_dir, *environment.get("PYTHONPATH", "").split(os.pathsep)])
 python_tests_return_code = subprocess.call(
     [sys.executable, "-m", "unittest", "discover", "-s", python_tests_dir], 
-    cwd=build_dir)
+    cwd=build_dir, env=environment)
+
 sys.exit(max(cpp_tests_return_code, python_tests_return_code))
