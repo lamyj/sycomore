@@ -4,15 +4,14 @@ on: push
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
-    name: ${{ matrix.container || matrix.os }}
+    name: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - { os: "ubuntu-latest", packaging: "conda", python: "python" }
-          # - { os: "macos-latest", packaging: "conda", python: "python" }
-          # - { os: "windows-latest", packaging: "conda", python: "python" }
+          - { os: "macos-latest", packaging: "conda", python: "python" }
+          - { os: "windows-latest", packaging: "conda", python: "python" }
     env:
       WORKSPACE: "${{ github.workspace }}"
     defaults:
