@@ -18,7 +18,8 @@ jobs:
       run:
         shell: ${{ contains(matrix.os, 'windows') && 'pwsh' || 'bash -l {0}' }}
     steps:
-      - uses: mamba-org/setup-micromamba@v1
+      - name: Setup Micromamba
+        uses: mamba-org/setup-micromamba@v1
         with:
           init-shell: bash powershell
           environment-name: sycomore
@@ -46,6 +47,12 @@ jobs:
       
       - name: Build sycomore
         run: ${{ matrix.python }} ./.ci/build/build.py
+      
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: install/
       
       - name: Run tests
         run: ${{ matrix.python }} ./.ci/build/post_build.py
