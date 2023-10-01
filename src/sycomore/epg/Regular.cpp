@@ -1,5 +1,6 @@
 #include "Regular.h"
 
+#include <cmath>
 #include <vector>
 
 #include <xsimd/xsimd.hpp>
@@ -111,7 +112,7 @@ Regular
             throw std::runtime_error(
                 "Dephasing is not a integer multiple of unit dephasing");
         }
-        position = std::round(order/this->_unit_dephasing);
+        position = std::lround(order/this->_unit_dephasing);
     }
     
     return this->state(position);
@@ -206,7 +207,7 @@ Regular
             "Dephasing is not a integer multiple of unit dephasing");
     }
     
-    int n = std::round(dephasing/this->_unit_dephasing);
+    int n = std::lround(dephasing/this->_unit_dephasing);
     
     this->_shift(n);
 }

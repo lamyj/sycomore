@@ -146,7 +146,7 @@ Base
         result.unchecked(pool, 2) = this->_model.Z[pool][order];
     }
     
-    return this->_model.pools > 1 ? result : xt::view(result, 0);
+    return this->_model.pools > 1 ? result : xt::view(result, 0UL);
 }
 
 ArrayC
@@ -166,7 +166,7 @@ Base
         }
     }
     
-    return this->_model.pools > 1 ? result : xt::view(result, xt::all(), 0);
+    return this->_model.pools > 1 ? result : xt::view(result, xt::all(), 0UL);
 }
 
 Quantity
