@@ -54,7 +54,7 @@ Operator
     if(this->_array.shape()[0] == 1 && right._array.shape()[0] != 1)
     {
         auto temp = xt::empty_like(right._array);
-        auto l = xt::view(this->_array, 0);
+        auto l = xt::view(this->_array, 0UL);
         for(std::size_t item=0, end=right._array.shape()[0]; item<end; ++item)
         {
             auto destination = xt::view(temp, item);
@@ -65,7 +65,7 @@ Operator
     }
     else if(this->_array.shape()[0] != 1 && right._array.shape()[0] == 1)
     {
-        auto r = xt::view(right._array, 0);
+        auto r = xt::view(right._array, 0UL);
         for(std::size_t item=0, end=this->_array.shape()[0]; item<end; ++item)
         {
             auto l = xt::view(this->_array, item);
@@ -99,7 +99,7 @@ Operator
     
     if(left._array.shape()[0] == 1 && this->_array.shape()[0] != 1)
     {
-        auto l = xt::view(left._array, 0);
+        auto l = xt::view(left._array, 0UL);
         for(std::size_t item=0, end=this->_array.shape()[0]; item<end; ++item)
         {
             auto r = xt::view(this->_array, item);
@@ -110,7 +110,7 @@ Operator
     else if(left._array.shape()[0] != 1 && this->_array.shape()[0] == 1)
     {
         auto temp = xt::empty_like(left._array);
-        auto r = xt::view(this->_array, 0);
+        auto r = xt::view(this->_array, 0UL);
         for(std::size_t item=0, end=left._array.shape()[0]; item<end; ++item)
         {
             auto destination = xt::view(temp, item);

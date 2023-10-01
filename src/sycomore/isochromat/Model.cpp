@@ -21,6 +21,8 @@ namespace sycomore
 namespace isochromat
 {
 
+#pragma warning(push)
+#pragma warning(disable: 4267)
 Model
 ::Model(
     Quantity const & T1, Quantity const & T2, TensorR<1> const & M0,
@@ -33,12 +35,13 @@ Model
 {
     // Nothing else
 }
+#pragma warning(pop)
 
 Model
 ::Model(
     TensorQ<1> const & T1, TensorQ<1> const & T2, TensorR<2> const & M0,
     TensorQ<2> const & positions, TensorQ<1> const & delta_omega)
-: _T1(T1.shape()), _T2(T2.shape()), _M0(xt::view(M0, xt::all(), 2)),
+: _T1(T1.shape()), _T2(T2.shape()), _M0(xt::view(M0, xt::all(), 2UL)),
     _delta_omega(delta_omega.size() == 0 ? T1.shape() : delta_omega.shape()),
     _magnetization(TensorR<2>::shape_type{M0.shape()[0], 4}),
     _positions(positions.shape())
@@ -54,7 +57,7 @@ Model
     this->_T2 = convert_to(T2, units::s);
     
     xt::view(this->_magnetization, xt::all(), xt::range(0, 3)) = M0;
-    xt::view(this->_magnetization, xt::all(), 3) = 1;
+    xt::view(this->_magnetization, xt::all(), 3UL) = 1;
     
     this->_delta_omega = 
         delta_omega.size() == 0
@@ -162,11 +165,11 @@ Model
     auto const duration_s = duration.convert_to(units::s);
     auto const E1 = xt::exp(-duration_s/this->_T1);
     auto const E2 = xt::exp(-duration_s/this->_T2);
-    xt::view(op, xt::all(), 0, 0) = E2;
-    xt::view(op, xt::all(), 1, 1) = E2;
-    xt::view(op, xt::all(), 2, 2) = E1;
-    xt::view(op, xt::all(), 3, 3) = 1;
-    xt::view(op, xt::all(), 2, 3) = this->_M0*(1-E1);
+    xt::view(op, xt::all(), 0UL, 0UL) = E2;
+    xt::view(op, xt::all(), 1UL, 1UL) = E2;
+    xt::view(op, xt::all(), 2UL, 2UL) = E1;
+    xt::view(op, xt::all(), 3UL, 3UL) = 1;
+    xt::view(op, xt::all(), 2UL, 3UL) = this->_M0*(1-E1);
     
     return {op};
 }
@@ -256,7 +259,7 @@ Model
 {
     return xt::eval(
         xt::view(this->_magnetization, xt::all(), xt::range(0, 3))
-        / xt::expand_dims(xt::view(this->_magnetization, xt::all(), 3), 1));
+        / xt::expand_dims(xt::view(this->_magnetization, xt::all(), 3UL), 1));
 }
 
 TensorQ<2>

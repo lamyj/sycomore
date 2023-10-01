@@ -138,7 +138,10 @@ template<typename T>
 typename std::enable_if<is_batch<T>::value, T>::type
 exp(T const & arg)
 {
+#pragma warning(push)
+#pragma warning(disable: 4244)
     return xsimd::exp(arg);
+#pragma warning(pop)
 }
 
 template<typename T>

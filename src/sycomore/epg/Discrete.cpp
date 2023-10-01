@@ -78,7 +78,7 @@ ArrayC
 Discrete
 ::state(Order const & order) const
 {
-    std::size_t const k = std::round(double(order/this->_bin_width));
+    std::size_t const k = std::lround(double(order/this->_bin_width));
 
     auto const it = std::find(this->_orders.begin(), this->_orders.end(), k);
     if(it == this->_orders.end())
@@ -176,7 +176,7 @@ Discrete
 {
     // This assumes a constant gradient in the integral: 
     // k(t) = γ ∫_0^t G(t') dt' = γ⋅t⋅G
-    long long const delta_k = std::round(
+    long long const delta_k = std::lround(
         sycomore::gamma.magnitude*gradient.magnitude*duration.magnitude 
         / this->_bin_width.magnitude);
     

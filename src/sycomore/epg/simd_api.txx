@@ -431,7 +431,7 @@ template<INSTRUCTION_SET_TYPE InstructionSet>
 void
 diffusion_3d_d(
     Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+    Complex * F, Complex * F_star, Complex * Z, std::size_t states_count)
 {    
     using RealBatch = simd::Batch<Real, InstructionSet>;
     using ComplexBatch = simd::Batch<Complex, InstructionSet>;
@@ -485,7 +485,7 @@ diffusion_3d_b_d(
     Real const * k_m, Real const * k_n, Real delta_k_m, Real delta_k_n, 
     Real delta_k_product_term, Real tau, Real D_mn,
     Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D,
-    unsigned int states_count)
+    std::size_t states_count)
 {
     using Batch = simd::Batch<Real, InstructionSet>;
     auto const simd_end = states_count - states_count % Batch::size;

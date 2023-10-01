@@ -26,14 +26,14 @@ std::tuple<T, T, T> diffusion(
     Real D, Real duration, T const & k, Real delta_k)
 {
     auto const b_T_plus = 
-        duration*(sycomore::simd::pow(k+delta_k/2, 2.) + std::pow(delta_k, 2.) / 12);
+        duration*(sycomore::simd::pow(k+delta_k/2, 2) + std::pow(delta_k, 2) / 12);
     auto const D_T_plus = sycomore::simd::exp(-b_T_plus*D);
     
     auto const b_T_minus = 
-        duration*(sycomore::simd::pow(-k+delta_k/2, 2.) + std::pow(delta_k, 2.) / 12);
+        duration*(sycomore::simd::pow(-k+delta_k/2, 2) + std::pow(delta_k, 2) / 12);
     auto const D_T_minus = sycomore::simd::exp(-b_T_minus*D);
     
-    auto const b_L = sycomore::simd::pow(k, 2.) * duration;
+    auto const b_L = sycomore::simd::pow(k, 2) * duration;
     auto const D_L = sycomore::simd::exp(-b_L*D);
     
     return std::make_tuple(D_T_plus, D_T_minus, D_L);

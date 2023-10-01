@@ -136,7 +136,7 @@ SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
         Real const * k_m, Real const * k_n, Real delta_k_m, Real delta_k_n, 
         Real delta_k_product_term, Real tau, Real D_mn,
         Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D, 
-        unsigned int states_count))
+        std::size_t states_count))
 
 template<typename RealType, typename ComplexType>
 void diffusion_3d_w(
@@ -149,7 +149,7 @@ SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
     (
         Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
         Complex * F, Complex * F_star, Complex * Z,
-        unsigned int states_count))
+        std::size_t states_count))
 
 /*******************************************************************************
  *                           Off-resonance operator                            *

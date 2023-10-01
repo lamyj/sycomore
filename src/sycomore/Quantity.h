@@ -171,7 +171,7 @@ Quantity operator*(Quantity l, Quantity const & r);
 
 /// @brief Multiplication
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-Quantity operator*(Quantity q, T s) { q *= s; return q; }
+Quantity operator*(Quantity q, T s) { q *= static_cast<double>(s); return q; }
 
 /// @brief Multiplication
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>

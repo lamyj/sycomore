@@ -119,7 +119,7 @@ diffusion_3d_b_d<unsupported>(
     Real const * k_m, Real const * k_n, Real delta_k_m, Real delta_k_n, 
     Real delta_k_product_term, Real tau, Real D_mn,
     Real * b_L_D, Real * b_T_plus_D, Real * b_T_minus_D,
-    unsigned int states_count)
+    std::size_t states_count)
 {
     diffusion_3d_b_w<Real>(
         k_m, k_n, delta_k_m, delta_k_n, delta_k_product_term, tau, D_mn, 
@@ -131,7 +131,7 @@ template<>
 void
 diffusion_3d_d<unsupported>(
     Real const * b_L_D, Real const * b_T_plus_D, Real const * b_T_minus_D, 
-    Complex * F, Complex * F_star, Complex * Z, unsigned int states_count)
+    Complex * F, Complex * F_star, Complex * Z, std::size_t states_count)
 {
     diffusion_3d_w<Real, Complex>(
         b_L_D, b_T_plus_D, b_T_minus_D, F, F_star, Z, 0, states_count, 1);
