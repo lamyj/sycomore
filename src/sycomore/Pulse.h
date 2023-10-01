@@ -6,14 +6,13 @@
 
 #include "sycomore/Quantity.h"
 #include "sycomore/sycomore.h"
-#include "sycomore/sycomore_api.h"
 #include "sycomore/units.h"
 
 namespace sycomore
 {
 
 /// @brief RF pulse
-class SYCOMORE_API Pulse
+class Pulse
 {
 public:
     /// @brief Creator

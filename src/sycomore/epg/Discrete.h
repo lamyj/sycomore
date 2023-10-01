@@ -11,7 +11,6 @@
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
-#include "sycomore/sycomore_api.h"
 #include "sycomore/TimeInterval.h"
 #include "sycomore/units.h"
 
@@ -28,7 +27,7 @@ namespace epg
  * In this model, the orders of the model are stored in bins of user-specified
  * width (hence the term "discrete"), expressed in rad/m.
  */
-class SYCOMORE_API Discrete: public Base
+class Discrete: public Base
 {
 public:
     /// @brief Order of the model, as gradient area

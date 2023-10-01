@@ -4,14 +4,13 @@
 #include "sycomore/Array.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/sycomore.h"
-#include "sycomore/sycomore_api.h"
 #include "sycomore/units.h"
 
 namespace sycomore
 {
 
 /// @brief Species described by its NMR parameters
-class SYCOMORE_API Species
+class Species
 {
 public:
     /// @brief Create a species given relaxation rates or times

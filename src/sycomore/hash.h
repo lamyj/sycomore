@@ -4,13 +4,11 @@
 #include <cstddef>
 #include <functional>
 
-#include "sycomore/sycomore_api.h"
-
 namespace sycomore
 {
 
 /// @brief Combine two hashes, implementation from boost::hash_combine.
-SYCOMORE_API void combine_hashes(std::size_t & seed, std::size_t value);
+void combine_hashes(std::size_t & seed, std::size_t value);
 
 }
 

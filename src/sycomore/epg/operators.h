@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "sycomore/sycomore.h"
-#include "sycomore/sycomore_api.h"
 
 namespace sycomore
 {
@@ -25,13 +24,12 @@ namespace operators
  * @brief Return the row-wise matrix corresponding to the single-pool EPG pulse
  * operator.
  */
-SYCOMORE_API std::vector<Complex> pulse_single_pool(Real angle, Real phase);
+std::vector<Complex> pulse_single_pool(Real angle, Real phase);
 
 /**
  * @brief Return the row-wise matrix corresponding to the two-pools exchange EPG
  * pulse operator.
  */
-SYCOMORE_API
 std::vector<Complex>
 pulse_exchange(Real angle_a, Real phase_a, Real angle_b, Real phase_b);
 
@@ -39,7 +37,6 @@ pulse_exchange(Real angle_a, Real phase_a, Real angle_b, Real phase_b);
  * @brief Return the row-wise matrix corresponding to the two-pools 
  * magnetization transfer EPG pulse operator.
  */
-SYCOMORE_API
 std::vector<Complex>
 pulse_magnetization_transfer(Real angle_a, Real phase_a, Real saturation);
 
@@ -47,15 +44,13 @@ pulse_magnetization_transfer(Real angle_a, Real phase_a, Real saturation);
  * @brief Return the scalars associated respectively with relaxation of 
  * the \f$\tilde{F}\f$ states and \f$\tilde{Z}\f$ states.
  */
-SYCOMORE_API std::pair<Real, Real> relaxation_single_pool(
-    Real R1, Real R2, Real duration);
+std::pair<Real, Real> relaxation_single_pool(Real R1, Real R2, Real duration);
 
 /**
  * @brief Return the exchange-relaxation matrices: non-zero terms of
  * \f$\Xi_T\f$ (row-major), row-major \f$\Xi_L\f$, and
  * \f$(\Xi_L - I) \Lambda_L^{-1} C\f$
  */
-SYCOMORE_API
 std::tuple<std::array<Complex, 8>, std::array<Real, 4>, std::array<Real, 2>>
 relaxation_exchange(
     Real R1_a, Real R2_a, Real R1_b, Real R2_b,
@@ -68,7 +63,6 @@ relaxation_exchange(
  * \f$\Xi_T = e^{-R_{2a} \tau}\f$, row-major \f$\Xi_L\f$ and
  * \f$(\Xi_L - I) \Lambda_L^{-1} C\f$
  */
-SYCOMORE_API
 std::tuple<Real, std::array<Real, 4>, std::array<Real, 2>>
 relaxation_magnetization_transfer(
     Real R1_a, Real R2_a, Real R1_b,
@@ -77,26 +71,22 @@ relaxation_magnetization_transfer(
     Real duration);
 
 /// @brief Return the non-zero terms of \f$\Xi_T\f$ (row-major)
-SYCOMORE_API
 std::array<Complex, 8>
 relaxation_and_exchange_T(
     Real R2_a, Real R2_b, Real k_a, Real k_b, Real delta_b, Real duration);
 
 /// @brief Return \f$\Xi_L\f$ (row-major)
-SYCOMORE_API
 std::array<Real, 4>
 relaxation_and_exchange_L(
     Real R1_a, Real R1_b, Real k_a, Real k_b, Real duration);
 
 /// @brief Return \f$(\Xi_L - I) \Lambda_L^{-1} C\f$
-SYCOMORE_API
 std::array<Real, 2>
 relaxation_and_exchange_recovery(
     Real R1_a, Real R1_b, Real k_a, Real k_b, Real M0_a, Real M0_b,
     std::array<Real, 4> const & Xi_L);
 
 /// @brief Closed-form 2x2 matrix exponential
-SYCOMORE_API
 std::array<Real, 4> expm(std::array<Real, 4> const & A);
 
 /**
@@ -112,7 +102,7 @@ std::tuple<T, T, T> diffusion(Real D, Real duration, T const & k, Real delta_k);
  * with phase accumulation of respectively the \f$\tilde{F}(k)\f$ and
  * \f$\tilde{F}^*(-k)\f$ states.
  */
-SYCOMORE_API std::pair<Complex, Complex> phase_accumulation(Real angle);
+std::pair<Complex, Complex> phase_accumulation(Real angle);
 
 /**
  * @brief Return the phase accumulation expressed as a complex exponential 

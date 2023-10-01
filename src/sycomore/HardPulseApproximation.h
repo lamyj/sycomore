@@ -7,14 +7,13 @@
 
 #include "sycomore/Pulse.h"
 #include "sycomore/Quantity.h"
-#include "sycomore/sycomore_api.h"
 #include "sycomore/units.h"
 
 namespace sycomore
 {
 
 /// @brief Small tip angle approximation of a shaped pulse
-class SYCOMORE_API HardPulseApproximation
+class HardPulseApproximation
 {
 public:
     /// @brief Normalized envelope of the pulse as a function of time
@@ -49,16 +48,16 @@ private:
 /// @{
 
 /// @brief Create an apodized sinc envelope
-SYCOMORE_API HardPulseApproximation::Envelope apodized_sinc_envelope(
+HardPulseApproximation::Envelope apodized_sinc_envelope(
     Quantity const & t0, unsigned int N, Real alpha);
 /// @brief Create an Hann-apodized sinc envelope
-SYCOMORE_API HardPulseApproximation::Envelope hann_sinc_envelope(
+HardPulseApproximation::Envelope hann_sinc_envelope(
     Quantity const & t0, unsigned int N);
 /// @brief Create an Hamming-apodized sinc envelope
-SYCOMORE_API HardPulseApproximation::Envelope hamming_sinc_envelope(
+HardPulseApproximation::Envelope hamming_sinc_envelope(
     Quantity const & t0, unsigned int N);
 /// @brief Create a sinc envelope
-SYCOMORE_API HardPulseApproximation::Envelope sinc_envelope(Quantity const & t0);
+HardPulseApproximation::Envelope sinc_envelope(Quantity const & t0);
 
 /// @}
 

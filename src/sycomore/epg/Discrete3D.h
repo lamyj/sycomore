@@ -13,7 +13,6 @@
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
-#include "sycomore/sycomore_api.h"
 #include "sycomore/TimeInterval.h"
 #include "sycomore/units.h"
 
@@ -48,7 +47,7 @@ namespace epg
  * @brief Discrete EPG in which the gradients may be specified in three 
  * dimensions.
  */
-class SYCOMORE_API Discrete3D: public Base
+class Discrete3D: public Base
 {
 public:
     /// @brief Order of the model, as gradient area

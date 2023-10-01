@@ -21,8 +21,8 @@ namespace units
  */
 #define SYCOMORE_DECLARE_UNIT(dimensions, name, factor) \
     SYCOMORE_API extern Quantity const name; \
-    SYCOMORE_API Quantity operator "" _##name(unsigned long long v); \
-    SYCOMORE_API Quantity operator "" _##name(long double v);
+    Quantity operator "" _##name(unsigned long long v); \
+    Quantity operator "" _##name(long double v);
 
 /**
  * @brief Declare a unit and all its SI multiples (Q, R, Y, Z, E, P, T, E, P,

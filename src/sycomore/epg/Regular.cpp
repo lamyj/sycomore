@@ -11,7 +11,6 @@
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
-#include "sycomore/sycomore_api.h"
 #include "sycomore/TimeInterval.h"
 #include "sycomore/units.h"
 

@@ -6,8 +6,6 @@
 #include <vector>
 #include <xsimd/xsimd.hpp>
 
-#include "sycomore/sycomore_api.h"
-
 namespace sycomore
 {
 
@@ -85,8 +83,7 @@ using Batch = xsimd::batch<T, simd::width<InstructionSet, T>()>;
 #endif
 
 /// @brief Return the CPU information given by CPUID (x86/x64 only).
-SYCOMORE_API std::vector<unsigned int> cpu_info(
-    unsigned int leaf, unsigned int subleaf=0);
+std::vector<unsigned int> cpu_info(unsigned int leaf, unsigned int subleaf=0);
 
 /// @brief Return the instruction set (x86/x64 only).
 int instruction_set();

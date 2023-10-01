@@ -14,7 +14,7 @@ namespace epg
 {
 
 /// @brief Base class for all EPG models.
-class SYCOMORE_API Base
+class Base
 {
 public:
     /// @brief Frequency offset of the simulator

@@ -6,13 +6,12 @@
 
 #include "sycomore/Array.h"
 #include "sycomore/Dimensions.h"
-#include "sycomore/sycomore_api.h"
 
 namespace sycomore
 {
 
 /// @brief Quantity in the SI system.
-class SYCOMORE_API Quantity
+class Quantity
 {
 public:
     /// @brief Magnitude of the quantity in base units.
@@ -96,7 +95,7 @@ template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>:
 bool operator!=(T s, Quantity const & q) { return q != Quantity(s); }
 
 /// @brief Compare the magnitude of two compatible quantities.
-SYCOMORE_API bool operator<(Quantity const & l, Quantity const & r);
+bool operator<(Quantity const & l, Quantity const & r);
 
 /// @brief Compare the magnitude of two compatible quantities.
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
@@ -107,7 +106,7 @@ template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>:
 bool operator<(T s, Quantity const & q) { return Quantity(s) < q; }
 
 /// @brief Compare the magnitude of two compatible quantities.
-SYCOMORE_API bool operator<=(Quantity const & l, Quantity const & r);
+bool operator<=(Quantity const & l, Quantity const & r);
 
 /// @brief Compare the magnitude of two compatible quantities.
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
@@ -118,7 +117,7 @@ template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>:
 bool operator<=(T s, Quantity const & q) { return Quantity(s) <= q; }
 
 /// @brief Compare the magnitude of two compatible quantities.
-SYCOMORE_API bool operator>(Quantity const & l, Quantity const & r);
+bool operator>(Quantity const & l, Quantity const & r);
 
 /// @brief Compare the magnitude of two compatible quantities.
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
@@ -129,7 +128,7 @@ template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>:
 bool operator>(T s, Quantity const & q) { return Quantity(s) > q; }
 
 /// @brief Compare the magnitude of two compatible quantities.
-SYCOMORE_API bool operator>=(Quantity const & l, Quantity const & r);
+bool operator>=(Quantity const & l, Quantity const & r);
 
 /// @brief Compare the magnitude of two compatible quantities.
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
@@ -140,13 +139,13 @@ template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>:
 bool operator>=(T s, Quantity const & q) { return Quantity(s) >= q; }
 
 /// @brief Identity operator.
-SYCOMORE_API Quantity operator+(Quantity q);
+Quantity operator+(Quantity q);
 
 /// @brief Return a quantity with the opposite magnitude
-SYCOMORE_API Quantity operator-(Quantity q);
+Quantity operator-(Quantity q);
 
 /// @brief Addition of compatible quantities
-SYCOMORE_API Quantity operator+(Quantity l, Quantity const & r);
+Quantity operator+(Quantity l, Quantity const & r);
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
 
 /// @brief Addition of compatible quantities
@@ -157,7 +156,7 @@ template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>:
 Quantity operator+(T s, Quantity const & q) { return Quantity(s)+q; }
 
 /// @brief Subtraction of compatible quantities
-SYCOMORE_API Quantity operator-(Quantity l, Quantity const & r);
+Quantity operator-(Quantity l, Quantity const & r);
 
 /// @brief Subtraction of compatible quantities
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
@@ -168,7 +167,7 @@ template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>:
 Quantity operator-(T s, Quantity const & q) { return Quantity(s)-q; }
 
 /// @brief Multiplication
-SYCOMORE_API Quantity operator*(Quantity l, Quantity const & r);
+Quantity operator*(Quantity l, Quantity const & r);
 
 /// @brief Multiplication
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
@@ -179,7 +178,7 @@ template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>:
 Quantity operator*(T s, Quantity const & q) { return q*s; }
 
 /// @brief Division
-SYCOMORE_API Quantity operator/(Quantity l, Quantity const & r);
+Quantity operator/(Quantity l, Quantity const & r);
 
 /// @brief Division
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
@@ -190,14 +189,14 @@ template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>:
 Quantity operator/(T s, Quantity const & q) { return Quantity(s)/q; }
 
 /// @brief Floating-point modulo
-SYCOMORE_API Quantity operator%(Quantity l, Quantity const & r);
+Quantity operator%(Quantity l, Quantity const & r);
 
 /// @brief Floating-point modulo
 template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
 Quantity operator%(Quantity q, T s) { q %= double(s); return q; }
 
 /// @brief String representation of a quantity
-SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Quantity const & q);
+std::ostream & operator<<(std::ostream & stream, Quantity const & q);
 
 /// @}
 
@@ -264,26 +263,26 @@ namespace std
 {
 
 /// @brief Return a quantity with the absolute value of the magnitude
-SYCOMORE_API sycomore::Quantity abs(sycomore::Quantity q);
+sycomore::Quantity abs(sycomore::Quantity q);
 
 /// @brief Raise a quantity to a power
-SYCOMORE_API sycomore::Quantity pow(sycomore::Quantity q, double e);
+sycomore::Quantity pow(sycomore::Quantity q, double e);
 
 /// @brief Round the magnitude of a quantity
-SYCOMORE_API sycomore::Quantity round(sycomore::Quantity q);
+sycomore::Quantity round(sycomore::Quantity q);
 
 /// @brief Truncate the magnitude of a quantity
-SYCOMORE_API sycomore::Quantity trunc(sycomore::Quantity q);
+sycomore::Quantity trunc(sycomore::Quantity q);
 
 /// @brief Quantity with the largest integer magnitude not greater than the magnitude
-SYCOMORE_API sycomore::Quantity floor(sycomore::Quantity q);
+sycomore::Quantity floor(sycomore::Quantity q);
 
 /// @brief Quantity with the smallest integer magnitude not less than the magnitude
-SYCOMORE_API sycomore::Quantity ceil(sycomore::Quantity q);
+sycomore::Quantity ceil(sycomore::Quantity q);
 
 /// @brief Hash functor
 template<>
-struct SYCOMORE_API hash<sycomore::Quantity>
+struct hash<sycomore::Quantity>
 {
     /// @brief Hash function
     std::size_t operator()(sycomore::Quantity const & q) const;

@@ -10,7 +10,6 @@
 
 #include "sycomore/simd.h"
 #include "sycomore/sycomore.h"
-#include "sycomore/sycomore_api.h"
 #include "sycomore/units.h"
 
 namespace sycomore

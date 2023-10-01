@@ -3,14 +3,13 @@
 
 #include "sycomore/Array.h"
 #include "sycomore/Quantity.h"
-#include "sycomore/sycomore_api.h"
 #include "sycomore/units.h"
 
 namespace sycomore
 {
 
 /// @brief Time interval, with or without magnetic field gradient.
-class SYCOMORE_API TimeInterval
+class TimeInterval
 {
 public:
     // TODO: gradient shape

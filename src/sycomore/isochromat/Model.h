@@ -15,7 +15,7 @@ namespace isochromat
 {
 
 /// @brief Isochromat simulator
-class SYCOMORE_API Model
+class Model
 {
 public:
     /// @brief Create a spatially constant model

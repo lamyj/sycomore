@@ -9,7 +9,7 @@ namespace sycomore
 {
 
 /// @brief Physical dimensions of a quantity
-class SYCOMORE_API Dimensions
+class Dimensions
 {
 public:
     double length;
@@ -35,10 +35,10 @@ public:
 /// @addtogroup DimensionsOperators
 /// @{
 
-SYCOMORE_API extern Dimensions operator*(Dimensions l, Dimensions const & r);
-SYCOMORE_API extern Dimensions operator/(Dimensions l, Dimensions const & r);
+extern Dimensions operator*(Dimensions l, Dimensions const & r);
+extern Dimensions operator/(Dimensions l, Dimensions const & r);
 
-SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Dimensions const & d);
+std::ostream & operator<<(std::ostream & stream, Dimensions const & d);
 /// @}
 
 }
@@ -49,7 +49,7 @@ SYCOMORE_API std::ostream & operator<<(std::ostream & stream, Dimensions const &
 namespace std
 {
 
-SYCOMORE_API sycomore::Dimensions pow(sycomore::Dimensions const & d, double s);
+sycomore::Dimensions pow(sycomore::Dimensions const & d, double s);
 
 }
 

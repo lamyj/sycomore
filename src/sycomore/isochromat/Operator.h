@@ -12,7 +12,7 @@ namespace isochromat
 {
 
 /// @brief Isochromat simulation operator, i.e. an array of 4×4 matrices
-class SYCOMORE_API Operator
+class Operator
 {
 public:
     /// @brief Array representation of the operator
@@ -62,7 +62,7 @@ private:
 };
 
 /// @brief Operator chaining, representing right followed by left.
-SYCOMORE_API Operator operator*(Operator left, Operator const & right);
+Operator operator*(Operator left, Operator const & right);
 
 }
 
