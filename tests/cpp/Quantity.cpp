@@ -39,19 +39,19 @@ BOOST_AUTO_TEST_CASE(Comparison)
     BOOST_CHECK(scalar >= 2);
     BOOST_CHECK(2 >= scalar);
     
-    BOOST_CHECK_THROW(q1 < q3, std::runtime_error);
-    BOOST_CHECK_THROW(q1 <= q3, std::runtime_error);
-    BOOST_CHECK_THROW(q1 > q3, std::runtime_error);
-    BOOST_CHECK_THROW(q1 >= q3, std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (q1 < q3), std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (q1 <= q3), std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (q1 > q3), std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (q1 >= q3), std::runtime_error);
     
-    BOOST_CHECK_THROW(q1 < scalar, std::runtime_error);
-    BOOST_CHECK_THROW(scalar < q1, std::runtime_error);
-    BOOST_CHECK_THROW(q1 <= scalar, std::runtime_error);
-    BOOST_CHECK_THROW(scalar <= q1, std::runtime_error);
-    BOOST_CHECK_THROW(q1 > scalar, std::runtime_error);
-    BOOST_CHECK_THROW(scalar > q1, std::runtime_error);
-    BOOST_CHECK_THROW(q1 >= scalar, std::runtime_error);
-    BOOST_CHECK_THROW(scalar >= q1, std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (q1 < scalar), std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (scalar < q1), std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (q1 <= scalar), std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (scalar <= q1), std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (q1 > scalar), std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (scalar > q1), std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (q1 >= scalar), std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = (scalar >= q1), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(AdditionInPlace)
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(Double)
     sycomore::Quantity const scalar{3, {0,0,0,0,0,0,0}};
     sycomore::Quantity const q{3, {1,0,0,0,0,0,0}};
     BOOST_CHECK(double(scalar) == 3);
-    BOOST_CHECK_THROW((double(q)), std::runtime_error);
+    BOOST_CHECK_THROW(auto const x = double(q), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(UnaryPlus)
