@@ -54,6 +54,10 @@ install(DIRECTORY DESTINATION "${PYTHON_SITE_PACKAGES}")
 install(TARGETS pysycomore DESTINATION "${PYTHON_SITE_PACKAGES}/sycomore")
 install(FILES ${python_files} DESTINATION "${PYTHON_SITE_PACKAGES}/sycomore")
 
+if(WIN32)
+    install(TARGETS libsycomore DESTINATION "${PYTHON_SITE_PACKAGES}/sycomore")
+endif()
+
 foreach(include_file ${header_files} ${template_files})
     file(
         RELATIVE_PATH 
