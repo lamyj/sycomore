@@ -2,16 +2,11 @@ if(NOT MSVC)
     set(XTENSOR_USE_XSIMD 1)
 endif()
 
-find_package(Python COMPONENTS Interpreter Development Development.Module NumPy REQUIRED)
+find_package(Python COMPONENTS Interpreter Development NumPy REQUIRED)
 find_package(pybind11 REQUIRED)
 find_package(xsimd REQUIRED)
 find_package(xtensor REQUIRED)
 find_package(xtensor-python REQUIRED)
-
-execute_process(
-    COMMAND ${PYTHON_EXECUTABLE} -c "import numpy; print(numpy.get_include())"
-    OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 file(GLOB_RECURSE header_files "*.h")
 file(GLOB_RECURSE template_files "*.txx")
@@ -26,8 +21,7 @@ pybind11_add_module(pysycomore SHARED ${source_files} ${header_files})
 target_include_directories(
     pysycomore 
     PRIVATE 
-        ${CMAKE_SOURCE_DIR}/src ${PYTHON_INCLUDE_DIRS} ${xsimd_INCLUDE_DIRS}
-        ${NUMPY_INCLUDE_DIR})
+        ${CMAKE_SOURCE_DIR}/src ${PYTHON_INCLUDE_DIRS} ${xsimd_INCLUDE_DIRS})
 
 target_link_libraries(
     pysycomore PUBLIC libsycomore Python::NumPy xtensor xtensor-python)
