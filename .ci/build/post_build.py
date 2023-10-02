@@ -11,7 +11,9 @@ bin_dir = os.path.join(install_dir, "bin")
 lib_dir = os.path.join(install_dir, "lib")
 python_lib_dir = os.path.join(
     install_dir,
-    sysconfig.get_path("platlib", os.name+"_user", {"userbase": "."}))
+    sysconfig.get_path(
+        "purelib", {"posix":"posix_prefix", "nt":"nt"}[os.name], {"base": "."}))
+
 python_tests_dir = os.path.join(workspace, "tests", "python")
 
 # Set-up common environment: test data location

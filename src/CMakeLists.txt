@@ -90,9 +90,9 @@ add_custom_target(
 execute_process(
     COMMAND ${Python_EXECUTABLE}
         -c "import os; import sysconfig; \
-        print(\ 
-            sysconfig.get_path('platlib', os.name+'_user', {'userbase': '.'})\
-            .replace('\\\\', '/'))"
+            scheme = {'posix': 'posix_prefix', 'nt': 'nt'}[os.name]; \
+            path = sysconfig.get_path('purelib', scheme, {'base': '.'}); \
+            print(path.replace(os.path.sep, '/'))"
     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
