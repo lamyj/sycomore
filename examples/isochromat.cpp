@@ -21,24 +21,24 @@ int main()
     auto idle = model.build_time_interval(10*ms);
     
     std::vector<std::pair<sycomore::Quantity, sycomore::Vector3R>> record{
-        {0*s, xt::view(model.magnetization(), 0)}};
+        {0*s, xt::view(model.magnetization(), 0UL)}};
     
     for(std::size_t i=0; i!=10; ++i)
     {
         model.apply(idle);
         record.emplace_back(
-            record.back().first+step, xt::view(model.magnetization(), 0));
+            record.back().first+step, xt::view(model.magnetization(), 0UL));
     }
     
     model.apply(pulse);
     record.emplace_back(
-        record.back().first+step, xt::view(model.magnetization(), 0));
+        record.back().first+step, xt::view(model.magnetization(), 0UL));
     
     for(std::size_t i=0; i!=100; ++i)
     {
         model.apply(idle);
         record.emplace_back(
-            record.back().first+step, xt::view(model.magnetization(), 0));
+            record.back().first+step, xt::view(model.magnetization(), 0UL));
     }
     
     return 0;

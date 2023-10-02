@@ -112,12 +112,12 @@ BOOST_AUTO_TEST_CASE(TimeIntervalUniform)
     
     auto combined = model.build_phase_accumulation(2*M_PI*400*10e-3);
     combined.pre_multiply(model.build_relaxation(10*ms));
-    BOOST_TEST(xt::allclose(xt::view(op.array(), 0), combined.array()));
+    BOOST_TEST(xt::allclose(xt::view(op.array(), 0UL), combined.array()));
     
     combined = model.build_phase_accumulation(
         2*M_PI*400*10e-3 + sycomore::gamma.magnitude*50e-6*10e-3);
     combined.pre_multiply(model.build_relaxation(10*ms));
-    BOOST_TEST(xt::allclose(xt::view(op.array(), 1), combined.array()));
+    BOOST_TEST(xt::allclose(xt::view(op.array(), 1UL), combined.array()));
     
     auto default_frequency_and_gradient = model.build_time_interval(10_ms);
     BOOST_TEST(xt::allclose(
@@ -144,12 +144,12 @@ BOOST_AUTO_TEST_CASE(TimeIntervalVariable)
     auto combined = model.build_phase_accumulation(
         2*M_PI*400*10e-3 + sycomore::gamma.magnitude*10e-6*10e-3);
     combined.pre_multiply(model.build_relaxation(10*ms));
-    BOOST_TEST(xt::allclose(xt::view(op.array(), 0), combined.array()));
+    BOOST_TEST(xt::allclose(xt::view(op.array(), 0UL), combined.array()));
     
     combined = model.build_phase_accumulation(
         2*M_PI*600*10e-3 + sycomore::gamma.magnitude*15e-6*10e-3);
     combined.pre_multiply(model.build_relaxation(10*ms));
-    BOOST_TEST(xt::allclose(xt::view(op.array(), 1), combined.array()));
+    BOOST_TEST(xt::allclose(xt::view(op.array(), 1UL), combined.array()));
     
     auto default_gradient = model.build_time_interval(10_ms, {400*Hz, 600*Hz});
     BOOST_TEST(xt::allclose(

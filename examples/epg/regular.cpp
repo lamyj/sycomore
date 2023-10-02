@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <sycomore/epg/Regular.h>
 #include <sycomore/Species.h>
 #include <sycomore/sycomore.h>
@@ -13,7 +15,7 @@ int main()
     auto flip_angle=30*deg, TE=5*ms, TR=25*ms;
     std::vector<sycomore::Quantity> phase_steps{0*deg, 90*deg, 117*deg, 180*deg};
     auto slice_thickness=1*mm, tau_readout=1*ms;
-    std::size_t repetitions = 5*species.T1()/TR;
+    std::size_t repetitions = std::lround(5*species.T1()/TR);
     
     // Motion to k-space extremity and its associated gradient amplitude
     auto k_max = 0.5 * 2*M_PI / slice_thickness;

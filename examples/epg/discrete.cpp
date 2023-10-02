@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cmath>
 #include <iostream>
 
 #include <sycomore/epg/Discrete.h>
@@ -32,7 +33,7 @@ int main()
         sycomore::epg::Discrete(species), sycomore::epg::Discrete(species)};
     models[1].threshold = 1e-6;
 
-    std::size_t repetitions = 4*species.T1()/TR;
+    std::size_t repetitions = std::lround(4*species.T1()/TR);
 
     sycomore::TensorC<2> S_plus({models.size(), repetitions}, 0);
     sycomore::TensorC<2> S_minus({models.size(), repetitions}, 0);
