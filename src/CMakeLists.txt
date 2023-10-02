@@ -63,7 +63,7 @@ set_target_properties(
     VERSION ${sycomore_VERSION} 
     SOVERSION ${sycomore_VERSION_MAJOR}
     $<$<PLATFORM_ID:Darwin>:INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib>
-    $<$<PLATFORM_ID:Windows>:WINDOWS_EXPORT_ALL_SYMBOLS ON>)
+    WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 install(
     TARGETS libsycomore
