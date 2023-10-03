@@ -16,12 +16,9 @@ list(SORT header_files)
 list(SORT source_files)
 list(SORT python_files)
 
-pybind11_add_module(pysycomore SHARED ${source_files} ${header_files})
+pybind11_add_module(pysycomore ${source_files} ${header_files})
 
-target_include_directories(
-    pysycomore 
-    PRIVATE 
-        ${CMAKE_SOURCE_DIR}/src ${PYTHON_INCLUDE_DIRS} ${xsimd_INCLUDE_DIRS})
+target_include_directories(pysycomore PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 target_link_libraries(
     pysycomore PUBLIC libsycomore Python::NumPy xtensor xtensor-python)
