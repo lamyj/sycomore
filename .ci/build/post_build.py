@@ -40,4 +40,4 @@ python_tests_return_code = subprocess.call(
     [sys.executable, "-m", "unittest", "discover", "-s", python_tests_dir], 
     cwd=build_dir, env=environment)
 
-sys.exit(max(cpp_tests_return_code, python_tests_return_code))
+sys.exit(cpp_tests_return_code or python_tests_return_code)
