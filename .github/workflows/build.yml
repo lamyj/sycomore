@@ -23,7 +23,7 @@ jobs:
         with:
           init-shell: bash powershell
           environment-name: sycomore
-          create-args: python
+          create-args: python=3.11
         if: ${{ matrix.packaging == 'conda' }}
       
       - name: Checkout latest revision
