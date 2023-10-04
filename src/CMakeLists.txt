@@ -14,9 +14,10 @@ list(SORT source_files)
 list(SORT template_files)
 
 if(MSVC)
+    # NOTE: "/arch:SSE2" is an x86-only option, it does not exist on x64
     set_source_files_properties(
         sycomore/epg/simd_api_sse2.cpp PROPERTIES 
-        COMPILE_FLAGS "/arch:SSE2")
+        COMPILE_FLAGS "/arch:AVX")
     set_source_files_properties(
         sycomore/epg/simd_api_avx.cpp PROPERTIES
         COMPILE_FLAGS "/arch:AVX")
