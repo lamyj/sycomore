@@ -9,9 +9,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: "ubuntu-latest", packaging: "conda", python: "python" }
-          - { os: "macos-latest", packaging: "conda", python: "python" }
-          - { os: "windows-latest", packaging: "conda", python: "python" }
+          - { os: "ubuntu-latest" }
+          - { os: "macos-latest" }
+          - { os: "windows-latest" }
     env:
       WORKSPACE: "${{ github.workspace }}"
     defaults:
@@ -24,7 +24,6 @@ jobs:
           init-shell: bash powershell
           environment-name: sycomore
           create-args: python=3.11
-        if: ${{ matrix.packaging == 'conda' }}
       
       - name: Checkout latest revision
         # Only the latest revision is required, as later steps do not depend on
@@ -37,16 +36,11 @@ jobs:
           git fetch origin --depth=1 ${{ github.ref }}
           git checkout ${{ github.ref_name }}
       
-      - name: Set-up (${{ matrix.packaging }})
-        run: ${{ matrix.python }} .ci/build/${{ matrix.packaging }}.py ${{ env.MAMBA_EXE }}
-        if: ${{ matrix.packaging == 'conda' }}
+      - name: Set-up
+        run: python .ci/build/conda.py ${{ env.MAMBA_EXE }}
       
-      - name: Set-up (${{ matrix.packaging }})
-        run: ${{ matrix.python }} .ci/build/${{ matrix.packaging }}.py
-        if: ${{ matrix.packaging != 'conda' }}
-      
-      - name: Build sycomore
-        run: ${{ matrix.python }} ./.ci/build/build.py
+      - name: Build
+        run: python ./.ci/build/build.py
       
       - name: Upload build
         uses: actions/upload-artifact@v3
@@ -55,4 +49,4 @@ jobs:
           path: install/
       
       - name: Run tests
-        run: ${{ matrix.python }} ./.ci/build/post_build.py
+        run: python ./.ci/build/post_build.py
