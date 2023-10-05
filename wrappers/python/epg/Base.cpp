@@ -55,7 +55,7 @@ void wrap_epg_Base(pybind11::module & m)
             "Return the number of pools of the model, set at creation")
         .def_property_readonly(
             "states", &Base::states,
-            R"(Return all states in the model, as :math:`\f$\tilde{F}`, )"
+            R"(Return all states in the model, as :math:`\tilde{F}`, )"
                 R"(:math:`\tilde{F}^*`, and :math:`\tilde{Z}` for each order )"
                 "and each pool.")
         .def_property_readonly(
