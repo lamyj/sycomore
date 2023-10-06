@@ -62,7 +62,7 @@ void wrap_epg_Base(pybind11::module & m)
             "elapsed", &Base::elapsed, "Return the elapsed time")
         .def_property_readonly(
             "echo", [](Base const & r){ return r.echo(); },
-            "Echo signal, i.e. :math:`F_0\f`")
+            "Echo signal, i.e. :math:`F_0`")
         .def(
             "apply_pulse", 
             static_cast<void(Base::*)(Quantity const &, Quantity const &)>(
