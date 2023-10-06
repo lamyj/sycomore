@@ -1,6 +1,6 @@
 .PHONY: all clean doxygen figures html
 
-FIGURES = isochromat.png epg/regular.png epg/discrete.png epg/discrete_3d.png
+FIGURES = rare.png isochromat.png epg/regular.png epg/discrete.png epg/discrete_3d.png
 
 all: html
 
