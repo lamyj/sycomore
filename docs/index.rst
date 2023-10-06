@@ -47,7 +47,7 @@ Indices and tables
 
 * :ref:`genindex`
 
-.. _Anaconda: https://anaconda.org/conda-forge/dicomifier
+.. _Anaconda: https://anaconda.org/conda-forge/sycomore
 .. _GitHub: https://github.com/lamyj/sycomore/
 .. _MIT license: https://en.wikipedia.org/wiki/MIT_License
 .. _RARE sequence: https://doi.org/10.1002/mrm.1910030602
