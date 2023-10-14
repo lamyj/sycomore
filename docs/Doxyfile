@@ -1,6 +1,6 @@
 DOXYFILE_ENCODING = UTF-8
 PROJECT_NAME = "Sycomore"
-PROJECT_NUMBER = 1.3.2
+PROJECT_NUMBER = 2.0.0
 PROJECT_BRIEF = MRI Simulation Toolkit
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path

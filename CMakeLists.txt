@@ -3,7 +3,7 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)
     cmake_policy(SET CMP0148 NEW)
 endif()
 
-project("sycomore" VERSION 1.3.2)
+project("sycomore" VERSION 2.0.0)
 
 option(BUILD_SHARED_LIBS "Build Sycomore with shared libraries." ON)
 option(BUILD_TESTING "Build unit tests." ON)
