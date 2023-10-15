@@ -61,5 +61,6 @@ PYBIND11_MODULE(_sycomore, _sycomore)
         },
         "Generate evenly-spaced samples");
     
-    _sycomore.def("round", round<Quantity>, "Round to x nearest multiple of r");
+    _sycomore.def(
+        "round", sycomore::round<Quantity>, "Round to x nearest multiple of r");
 }
