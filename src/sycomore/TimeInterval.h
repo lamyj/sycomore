@@ -25,13 +25,16 @@ public:
      * or dephasing (rad/m) and maximum gradient amplitude
      */
     static TimeInterval shortest(Vector3Q const & k, Quantity const & G_max);
-
+    
+    /// @brief Default-initialize duration and gradient.
+    TimeInterval();
+    
     /**
      * @brief Constructor, gradient may be specified as amplitude (in T/m), 
      * area (in T/m*s) or dephasing (in rad/m).
      */
     TimeInterval(
-        Quantity const & duration=0*units::s,
+        Quantity const & duration,
         Quantity const & gradient=0*units::T/units::m);
     
     /**
@@ -39,7 +42,13 @@ public:
      * area (in T/m*s) or dephasing (in rad/m).
      */
     TimeInterval(Quantity const & duration, Vector3Q const & gradient);
-
+    
+    TimeInterval(TimeInterval const &) = default;
+    TimeInterval(TimeInterval &&) = default;
+    TimeInterval & operator=(TimeInterval const &) = default;
+    TimeInterval & operator=(TimeInterval &&) = default;
+    ~TimeInterval() = default;
+    
     /// @brief Return the duration.
     Quantity const & duration() const;
     

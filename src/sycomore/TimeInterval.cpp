@@ -37,6 +37,12 @@ TimeInterval
 }
 
 TimeInterval
+::TimeInterval()
+{
+    // Nothing else.
+}
+
+TimeInterval
 ::TimeInterval(
     Quantity const & duration, Quantity const & gradient)
 : TimeInterval(duration, {gradient, gradient, gradient})
