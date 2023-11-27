@@ -38,6 +38,7 @@ TimeInterval
 
 TimeInterval
 ::TimeInterval()
+: TimeInterval(0*sycomore::units::s, 0*sycomore::units::T/sycomore::units::m)
 {
     // Nothing else.
 }
