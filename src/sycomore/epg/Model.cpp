@@ -24,7 +24,7 @@ Model
     species({species}), M0(pools), k(0), delta_b(0*units::Hz),
     F(pools), F_star(pools), Z(pools)
 {
-    this->_initialize({M0}, initial_size);
+    this->_initialize(M0, initial_size);
 }
 
 Model
@@ -37,7 +37,7 @@ Model
     species({species_a, species_b}), M0(pools), k(pools), delta_b(delta_b),
     F(pools), F_star(pools), Z(pools)
 {
-    this->_initialize({M0_a, M0_b}, initial_size);
+    this->_initialize(M0_a, M0_b, initial_size);
     this->k = {
         k_a, this->M0[1]!=0. ? k_a*this->M0[0]/this->M0[1] : 0.*units::Hz};
 }
@@ -53,7 +53,7 @@ Model
     M0(pools), k(pools), delta_b(0*units::Hz),
     F(pools), F_star(pools), Z(pools)
 {
-    this->_initialize({M0_a, M0_b}, initial_size);
+    this->_initialize(M0_a, M0_b, initial_size);
     this->k = {
         k_a, this->M0[1]!=0. ? k_a*this->M0[0]/this->M0[1] : 0.*units::Hz};
 }
@@ -100,7 +100,7 @@ Model
 
 void
 Model
-::_initialize(std::vector<Vector3R> const & M0, std::size_t initial_size)
+::_initialize(Vector3R const & M0, std::size_t initial_size)
 {
     for(auto & item: this->F)
     {
@@ -115,16 +115,29 @@ Model
         item.resize(initial_size);
     }
     
-    for(std::size_t i=0; i<this->pools; ++i)
-    {
-        auto const M_plus = Complex(M0[i][0], M0[i][1]);
-        auto const M_minus = Complex(M0[i][0], -M0[i][1]);
-        
-        this->F[i][0] = M_plus;
-        this->F_star[i][0] = M_minus;
-        this->Z[i][0] = M0[i][2];
-        this->M0[i] = M0[i][2];
-    }
+    auto const M_plus = Complex(M0[0], M0[1]);
+    auto const M_minus = Complex(M0[0], -M0[1]);
+    
+    this->F[0][0] = M_plus;
+    this->F_star[0][0] = M_minus;
+    this->Z[0][0] = M0[2];
+    this->M0[0] = M0[2];
+}
+
+void
+Model
+::_initialize(
+    Vector3R const & M0_a, Vector3R const & M0_b, std::size_t initial_size)
+{
+    this->_initialize(M0_a, initial_size);
+    
+    auto const M_plus = Complex(M0_b[0], M0_b[1]);
+    auto const M_minus = Complex(M0_b[0], -M0_b[1]);
+    
+    this->F[1][0] = M_plus;
+    this->F_star[1][0] = M_minus;
+    this->Z[1][0] = M0_b[2];
+    this->M0[1] = M0_b[2];
 }
 
 }

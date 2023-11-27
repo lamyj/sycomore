@@ -81,8 +81,9 @@ public:
     Model & operator=(Model && other);
     
 private:
+    void _initialize(Vector3R const & M0, std::size_t initial_size);
     void _initialize(
-        std::vector<Vector3R> const & M0, std::size_t initial_size);
+        Vector3R const & M0_a, Vector3R const & M0_b, std::size_t initial_size);
 };
     
 }
