@@ -114,19 +114,39 @@ Discrete
     {
         auto const threshold_squared = std::pow(this->threshold, 2);
         
+        // NOTE: calling pow(abs(this->_model.F[p][i]), 2) is rather
+        // expensive. Since we don't care about abs(this->_model.F[p][i]),
+        // we just need the sum of squares of real part and imaginary part.
+        static std::array<double *, 2> F{nullptr, nullptr};
+        static std::array<double *, 2> F_star{nullptr, nullptr};
+        static std::array<double *, 2> Z{nullptr, nullptr};
+        F[0] = reinterpret_cast<double*>(this->_model.F[0].data());
+        F_star[0] = reinterpret_cast<double*>(this->_model.F_star[0].data());
+        Z[0] = reinterpret_cast<double*>(this->_model.Z[0].data());
+        if(this->_model.pools==2)
+        {
+            F[1] = reinterpret_cast<double*>(this->_model.F[1].data());
+            F_star[1] = reinterpret_cast<double*>(this->_model.F_star[1].data());
+            Z[1] = reinterpret_cast<double*>(this->_model.Z[1].data());
+        }
+        
         // Always include the zero order (implicit since we start at 1),
         // include other order if population is above threshold.
         std::size_t destination=1;
         for(std::size_t source=1, end=this->size(); source != end; ++source)
         {
+            // Indices of real and imaginary part in Real-F, F_star, Z
+            std::size_t const r = 2*source;
+            std::size_t const i = 2*source+1;
+                
             Real max_magnitude_squared = 0.;
             for(std::size_t pool=0; pool<this->_model.pools; ++pool)
             {
-                using std::pow; using std::abs;
+                
                 auto const magnitude_squared = 
-                    pow(abs(this->_model.F[pool][source]), 2)
-                    +pow(abs(this->_model.F_star[pool][source]), 2)
-                    +pow(abs(this->_model.Z[pool][source]), 2);
+                    F[pool][r]*F[pool][r] + F[pool][i]*F[pool][i]
+                    + F_star[pool][r]*F_star[pool][r] + F_star[pool][i]*F_star[pool][i]
+                    + Z[pool][r]*Z[pool][r] + Z[pool][i]*Z[pool][i];
                 max_magnitude_squared = std::max(
                     max_magnitude_squared, magnitude_squared);
             }
