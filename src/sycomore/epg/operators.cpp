@@ -211,22 +211,24 @@ std::array<Real, 4> expm(std::array<Real, 4> const & A)
     
     if(Delta == 0.)
     {
+        auto const e_lambda = std::exp(lambda);
         std::transform(
             A.begin(), A.end(), I.begin(), result.begin(),
             [&](Real a, Real i) {
-                return std::exp(lambda) * (a + (1-lambda)*i); });
+                return e_lambda * (a + (1-lambda)*i); });
     }
     else if(Delta < 0)
     {
+        auto const e_lambda = std::exp(lambda);
         auto const mu = std::sqrt(-Delta)/2.;
+        auto const cos_mu = std::cos(mu);
+        auto const sin_mu = std::sin(mu);
+        auto const X = (cos_mu-lambda*sin_mu/mu);
+        auto const Y = sin_mu/mu;
+        
         std::transform(
             A.begin(), A.end(), I.begin(), result.begin(),
-            [&](Real a, Real i) {
-                return (
-                    std::exp(lambda)
-                    * (
-                        (std::cos(mu)-lambda*std::sin(mu)/mu) * i
-                        + std::sin(mu)/mu*a)); });
+            [&](Real a, Real i) { return e_lambda * (X * i + Y*a); });
     }
     else
     {
@@ -234,31 +236,29 @@ std::array<Real, 4> expm(std::array<Real, 4> const & A)
         
         if(std::fabs(lambda) < 1e-6)
         {
+            auto const X = std::cosh(nu);
+            auto const Y = std::sinh(nu)/nu;
             std::transform(
                 A.begin(), A.end(), I.begin(), result.begin(),
-                [&](Real a, Real i) {
-                    return std::cosh(nu)*i + std::sinh(nu)/nu*a; });
+                [&](Real a, Real i) { return X*i + Y*a; });
         }
         else if(lambda == nu || lambda == -nu)
         {
+            auto const Y = (std::exp(2*lambda)-1.)/(2*lambda);
             std::transform(
                 A.begin(), A.end(), I.begin(), result.begin(),
-                [&](Real a, Real i) {
-                    return i + (std::exp(2*lambda)-1.)/(2*lambda)*a; });
+                [&](Real a, Real i) { return i + Y*a; });
         }
         else
         {
             auto const xi1 = lambda + nu, xi2 = lambda - nu;
+            auto const e_xi1 = std::exp(xi1);
+            auto const e_xi2 = std::exp(xi2);
+            auto const X = (xi2*e_xi1 - xi1*e_xi2);
+            auto const Y = (e_xi2-e_xi1);
             std::transform(
                 A.begin(), A.end(), I.begin(), result.begin(),
-                [&](Real a, Real i) {
-                    return (
-                        (
-                            (xi2*std::exp(xi1) - xi1*std::exp(xi2)) * i
-                            + (std::exp(xi2)-std::exp(xi1)) * a
-                        )
-                        / (xi2-xi1)
-                    ); });
+                [&](Real a, Real i) { return (X * i + Y * a) / (xi2-xi1); });
         }
     }
     
