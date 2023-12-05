@@ -75,7 +75,9 @@ void wrap_Quantity(pybind11::module & m)
 
     auto QuantityClass = class_<Quantity>(
             m, "Quantity", "Quantity in the SI system.")
-        .def(init<double, Dimensions>())
+        .def(
+            init<double, Dimensions>(),
+            "magnitude"_a=0, "dimensions"_a=Dimensions())
         .def_readwrite(
             "magnitude", &Quantity::magnitude, 
             "The magnitude of the quantity, in SI units.")
