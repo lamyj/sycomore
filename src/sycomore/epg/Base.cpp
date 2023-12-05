@@ -301,7 +301,7 @@ Base
     for(std::size_t pool=0; pool<this->_model.pools; ++pool)
     {
         auto const angle = 
-            duration.magnitude * 2*M_PI*units::rad 
+            duration.magnitude * 2*M_PI
             * (
                 this->delta_omega.magnitude
                 + this->_model.species[pool].delta_omega().magnitude);
