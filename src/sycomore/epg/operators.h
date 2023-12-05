@@ -4,7 +4,6 @@
 #include <array>
 #include <tuple>
 #include <utility>
-#include <vector>
 
 #include "sycomore/sycomore.h"
 
@@ -24,20 +23,20 @@ namespace operators
  * @brief Return the row-wise matrix corresponding to the single-pool EPG pulse
  * operator.
  */
-std::vector<Complex> pulse_single_pool(Real angle, Real phase);
+std::array<Complex, 9> pulse_single_pool(Real angle, Real phase);
 
 /**
  * @brief Return the row-wise matrix corresponding to the two-pools exchange EPG
  * pulse operator.
  */
-std::vector<Complex>
+std::array<Complex, 18>
 pulse_exchange(Real angle_a, Real phase_a, Real angle_b, Real phase_b);
 
 /**
  * @brief Return the row-wise matrix corresponding to the two-pools 
  * magnetization transfer EPG pulse operator.
  */
-std::vector<Complex>
+std::array<Complex, 10>
 pulse_magnetization_transfer(Real angle_a, Real phase_a, Real saturation);
 
 /**

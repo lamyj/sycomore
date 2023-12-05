@@ -22,7 +22,7 @@ namespace simd_api
 template<>
 void
 apply_pulse_single_pool_d<unsupported>(
-    std::vector<Complex> const & T, Model & model, std::size_t states_count)
+    std::array<Complex, 9> const & T, Model & model, std::size_t states_count)
 {
     apply_pulse_single_pool_w<Complex>(
         T,
@@ -33,7 +33,7 @@ apply_pulse_single_pool_d<unsupported>(
 template<>
 void
 apply_pulse_exchange_d<unsupported>(
-    std::vector<Complex> const & T, Model & model, std::size_t states_count)
+    std::array<Complex, 18> const & T, Model & model, std::size_t states_count)
 {
     apply_pulse_exchange_w<Complex>(
         T,
@@ -45,7 +45,7 @@ apply_pulse_exchange_d<unsupported>(
 template<>
 void
 apply_pulse_magnetization_transfer_d<unsupported>(
-    std::vector<Complex> const & T, Model & model, std::size_t states_count)
+    std::array<Complex, 10> const & T, Model & model, std::size_t states_count)
 {
     apply_pulse_magnetization_transfer_w<Complex>(
         T,

@@ -4,7 +4,6 @@
 #include <cmath>
 #include <tuple>
 #include <utility>
-#include <vector>
 
 #include "sycomore/sycomore.h"
 #include "sycomore/sycomore_api.h"
@@ -23,7 +22,7 @@ namespace operators
     exp(-2.*i*p)*pow(sin(a/2), 2), pow(cos(a/2), 2),              i*exp(-i*p)*sin(a), \
     -i/2.*exp(-i*p)*sin(a),        i/2.*exp(i*p)*sin(a),          cos(a)
 
-std::vector<Complex> pulse_single_pool(Real angle, Real phase)
+std::array<Complex, 9> pulse_single_pool(Real angle, Real phase)
 {
     using std::cos; using std::exp; using std::pow;
     constexpr Complex const i{0,1};
@@ -31,7 +30,7 @@ std::vector<Complex> pulse_single_pool(Real angle, Real phase)
     return { PULSE_MATRIX(angle, phase) };
 }
 
-std::vector<Complex>
+std::array<Complex, 18>
 pulse_exchange(Real angle_a, Real phase_a, Real angle_b, Real phase_b)
 {
     using std::cos; using std::exp; using std::pow;
@@ -43,7 +42,7 @@ pulse_exchange(Real angle_a, Real phase_a, Real angle_b, Real phase_b)
     };
 }
 
-std::vector<Complex>
+std::array<Complex, 10>
 pulse_magnetization_transfer(Real angle_a, Real phase_a, Real saturation)
 {
     using std::cos; using std::exp; using std::pow;

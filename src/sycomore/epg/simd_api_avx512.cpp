@@ -11,16 +11,16 @@ namespace simd_api
 
 template 
 void apply_pulse_single_pool_d<XSIMD_X86_AVX512_VERSION>(
-    std::vector<Complex> const & T,  Model & model, std::size_t states_count);
+    std::array<Complex, 9> const & T,  Model & model, std::size_t states_count);
 
 template
 void
 apply_pulse_magnetization_transfer_d<XSIMD_X86_AVX512_VERSION>(
-    std::vector<Complex> const & T,  Model & model, std::size_t states_count);
+    std::array<Complex, 10> const & T,  Model & model, std::size_t states_count);
 
 template 
 void apply_pulse_exchange_d<XSIMD_X86_AVX512_VERSION>(
-    std::vector<Complex> const & T,  Model & model, std::size_t states_count);
+    std::array<Complex, 18> const & T,  Model & model, std::size_t states_count);
 
 template 
 void relaxation_single_pool_d<XSIMD_X86_AVX512_VERSION>(

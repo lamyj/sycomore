@@ -33,34 +33,34 @@ namespace simd_api
 
 template<typename ValueType>
 void apply_pulse_single_pool_w(
-    std::vector<Complex> const & T,
+    std::array<Complex, 9> const & T,
     Complex * F, Complex * F_star, Complex * Z,
     std::size_t start, std::size_t end, std::size_t step);
 
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
     void, apply_pulse_single_pool_d, 
-    (std::vector<Complex> const & T, Model & model, std::size_t states_count))
+    (std::array<Complex, 9> const & T, Model & model, std::size_t states_count))
 
 template<typename ValueType>
 void apply_pulse_exchange_w(
-    std::vector<Complex> const & T,
+    std::array<Complex, 18> const & T,
     Complex * F_a, Complex * F_star_a, Complex * Z_a,
     Complex * F_b, Complex * F_star_b, Complex * Z_b,
     std::size_t start, std::size_t end, std::size_t step);
 
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
     void, apply_pulse_exchange_d, 
-    (std::vector<Complex> const & T, Model & model, std::size_t states_count))
+    (std::array<Complex, 18> const & T, Model & model, std::size_t states_count))
 
 template<typename ValueType>
 void apply_pulse_magnetization_transfer_w(
-    std::vector<Complex> const & T,
+    std::array<Complex, 10> const & T,
     Complex * F, Complex * F_star, Complex * Z_a, Complex * Z_b,
     std::size_t start, std::size_t end, std::size_t step);
 
 SYCOMORE_DEFINE_SIMD_DISPATCHER_FUNCTION(
     void, apply_pulse_magnetization_transfer_d, 
-    (std::vector<Complex> const & T, Model & model, std::size_t states_count))
+    (std::array<Complex, 10> const & T, Model & model, std::size_t states_count))
 
 /*******************************************************************************
  *                             Relaxation operators                            *
