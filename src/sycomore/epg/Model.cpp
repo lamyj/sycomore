@@ -104,15 +104,15 @@ Model
 {
     for(auto & item: this->F)
     {
-        item.resize(initial_size);
+        item.resize(initial_size, 0);
     }
     for(auto & item: this->F_star)
     {
-        item.resize(initial_size);
+        item.resize(initial_size, 0);
     }
     for(auto & item: this->Z)
     {
-        item.resize(initial_size);
+        item.resize(initial_size, 0);
     }
     
     auto const M_plus = Complex(M0[0], M0[1]);

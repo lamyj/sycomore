@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <xsimd/xsimd.hpp>
+#include <xtensor/xview.hpp>
 
 #include "sycomore/Array.h"
 #include "sycomore/epg/Base.h"

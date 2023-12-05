@@ -8,6 +8,7 @@
 #include <xtensor/xarray.hpp>
 
 #include "sycomore/Array.h"
+#include "sycomore/Buffer.h"
 #include "sycomore/epg/Base.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/Quantity.h"
@@ -121,7 +122,7 @@ public:
 
 private:
     using Bin = std::array<int64_t, 3>;
-    using Orders = std::vector<Bin::value_type, xsimd::aligned_allocator<Bin::value_type, 64>>;
+    using Orders = Buffer<Bin::value_type>;
     Orders _orders;
 
     Quantity _bin_width;
@@ -130,7 +131,7 @@ private:
     class Cache
     {
     public:
-        using RealVector = std::vector<Real, xsimd::aligned_allocator<Real, 64>>;
+        using RealVector = Buffer<Real>;
         
         // Shift-related data.
         // Mapping between a normalized (i.e. folded) order and its location in
@@ -140,7 +141,7 @@ private:
         std::vector<Model::Population> F, F_star, Z;
         
         // Diffusion-related data.
-        std::vector<RealVector, xsimd::aligned_allocator<RealVector, 64>> k{3};
+        std::vector<RealVector, xsimd::aligned_allocator<RealVector, 64>> k;
         RealVector b_L_D;
         RealVector b_T_plus_D;
         RealVector b_T_minus_D;

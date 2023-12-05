@@ -5,6 +5,7 @@
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/Array.h"
+#include "sycomore/Buffer.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
@@ -21,8 +22,7 @@ class Model
 {
 public:
     /// @brief Populations of the states
-    using Population = std::vector<
-        Complex, xsimd::aligned_allocator<Complex, 64>>;
+    using Population = Buffer<Complex>;
     
     /// @brief Kind of the model, determines the number of pools
     enum Kind { SinglePool, Exchange, MagnetizationTransfer };

@@ -11,6 +11,7 @@
 #include <xtensor/xio.hpp>
 
 #include "sycomore/Array.h"
+#include "sycomore/Buffer.h"
 #include "sycomore/epg/Base.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/epg/operators.h"
@@ -386,7 +387,7 @@ Discrete3D
 
 Discrete3D::Cache
 ::Cache(std::size_t pools)
-: orders(0), F(pools), F_star(pools), Z(pools)
+: orders(0), F(pools), F_star(pools), Z(pools), k(3)
 {
     // Nothing else.
 }

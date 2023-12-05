@@ -1,11 +1,10 @@
 #ifndef _fbf381fe_fd75_427e_88de_a033418c943c
 #define _fbf381fe_fd75_427e_88de_a033418c943c
 
-#include <vector>
-
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/Array.h"
+#include "sycomore/Buffer.h"
 #include "sycomore/epg/Base.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
@@ -145,7 +144,7 @@ private:
     {
     public:
         // Diffusion-related data.
-        std::vector<Real, xsimd::aligned_allocator<Real, 64>> k;
+        Buffer<Real> k;
         
         void update_diffusion(std::size_t size, Real unit_dephasing);
     };

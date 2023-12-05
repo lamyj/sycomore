@@ -6,6 +6,7 @@
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/Array.h"
+#include "sycomore/Buffer.h"
 #include "sycomore/epg/Base.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/Quantity.h"
@@ -114,7 +115,7 @@ public:
     void bulk_motion(Quantity const & duration, Quantity const & gradient);
     
 private:
-    using Orders = std::vector<long long, xsimd::aligned_allocator<long long, 64>>;
+    using Orders = Buffer<long long>;
     Quantity _bin_width;
     Orders _orders;
     
@@ -130,7 +131,7 @@ private:
         std::vector<Model::Population> F, F_star, Z;
         
         // Diffusion-related data.
-        std::vector<Real, xsimd::aligned_allocator<Real, 64>> k;
+        Buffer<Real> k;
         
         Cache(std::size_t pools);
         

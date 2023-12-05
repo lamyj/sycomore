@@ -1,11 +1,11 @@
 #include "Regular.h"
 
 #include <cmath>
-#include <vector>
 
 #include <xsimd/xsimd.hpp>
 
 #include "sycomore/Array.h"
+#include "sycomore/Buffer.h"
 #include "sycomore/epg/Base.h"
 #include "sycomore/epg/operators.h"
 #include "sycomore/epg/simd_api.h"
@@ -282,7 +282,7 @@ Regular
         return;
     }
     
-    std::vector<Real, xsimd::aligned_allocator<Real, 64>> k(this->size());
+    Buffer<Real> k(this->size());
     for(std::size_t i=0; i<k.size(); ++i)
     {
         k[i] = delta_k*i;
@@ -328,9 +328,9 @@ Regular
             auto & Z = this->_model.Z[pool];
             if(size >= F.size())
             {
-                F.resize(F.size()+100, 0);
-                F_star.resize(F_star.size()+100, 0);
-                Z.resize(Z.size()+100, 0);
+                F.resize(F.size()*2, 0);
+                F_star.resize(F_star.size()*2, 0);
+                Z.resize(Z.size()*2, 0);
             }
             
             if(n == +1)
