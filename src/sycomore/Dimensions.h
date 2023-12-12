@@ -24,7 +24,13 @@ public:
         double length=0, double mass=0, double time=0, double electric_current=0,
         double thermodynamic_temperature=0, double amount_of_substance=0,
         double luminous_intensity=0);
-
+    
+    Dimensions(Dimensions const &) = default;
+    Dimensions(Dimensions &&) = default;
+    Dimensions & operator=(Dimensions const &) = default;
+    Dimensions & operator=(Dimensions &&) = default;
+    ~Dimensions() = default;
+    
     bool operator==(Dimensions const & other) const;
     bool operator!=(Dimensions const & other) const;
 

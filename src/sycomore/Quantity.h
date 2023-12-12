@@ -23,6 +23,12 @@ public:
     /// @brief Create a quantity from a magnitude and dimensions. 
     Quantity(double magnitude={}, Dimensions const & dimensions={});
     
+    Quantity(Quantity const &) = default;
+    Quantity(Quantity &&) = default;
+    Quantity & operator=(Quantity const &) = default;
+    Quantity & operator=(Quantity &&) = default;
+    ~Quantity() = default;
+    
     /// @brief Test whether magnitudes and dimensions are equal.
     bool operator==(Quantity const & other) const;
     
