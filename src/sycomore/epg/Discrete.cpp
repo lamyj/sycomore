@@ -64,6 +64,15 @@ Discrete
     return this->_orders.size();
 }
 
+TensorL<1>
+Discrete
+::bins() const
+{
+    TensorL<1> bins(TensorL<1>::shape_type{this->size()});
+    std::copy(this->_orders.begin(), this->_orders.end(), bins.begin());
+    return bins;
+}
+
 TensorQ<1>
 Discrete
 ::orders() const

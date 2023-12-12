@@ -41,6 +41,10 @@ using Matrix3x3 = xt::xtensor_fixed<T, xt::xshape<3, 3>>;
 template <typename T>
 using Matrix4x4 = xt::xtensor_fixed<T, xt::xshape<4, 4>>;
 
+/// @brief Static-dimension array of long numbers
+template<std::size_t N, xt::layout_type L=XTENSOR_DEFAULT_LAYOUT>
+using TensorL = xt::xtensor<long, N, L>;
+
 /// @brief Static-dimension array of real numbers
 template<std::size_t N, xt::layout_type L=XTENSOR_DEFAULT_LAYOUT>
 using TensorR = xt::xtensor<Real, N, L>;

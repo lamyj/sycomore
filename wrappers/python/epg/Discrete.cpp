@@ -40,6 +40,7 @@ void wrap_epg_Discrete(pybind11::module & m)
                 Quantity const &, Quantity const &>(),
             "species_a"_a, "R1_b_or_T1_b"_a, "M0_a"_a, "M0_b"_a, "k_a"_a,
             "bin_width"_a=1*units::rad/units::m)
+        .def_property_readonly("bins", &Discrete::bins)
         .def_property_readonly(
             "orders", &Discrete::orders, 
             "The sequence of orders currently stored by the model, in the same "

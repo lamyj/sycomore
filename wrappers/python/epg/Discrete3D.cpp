@@ -38,6 +38,7 @@ void wrap_epg_Discrete3D(pybind11::module & m)
                 Quantity const &, Quantity const &>(),
             "species_a"_a, "R1_b_or_T1_b"_a, "M0_a"_a, "M0_b"_a, "k_a"_a,
             "bin_width"_a=1*units::rad/units::m)
+        .def_property_readonly("bins", &Discrete3D::bins)
         .def_property_readonly(
             "orders", &Discrete3D::orders, "Orders of the model.")
         .def_property_readonly("bin_width", &Discrete3D::bin_width)

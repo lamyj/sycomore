@@ -52,6 +52,7 @@ void wrap_epg_Regular(pybind11::module & m)
         .def_property_readonly(
             "unit_dephasing", &Regular::unit_dephasing,
             "Unit gradient dephasing of the model.")
+        .def_property_readonly("bins", &Regular::bins)
         .def_property_readonly(
             "orders", &Regular::orders, 
             "The sequence of orders currently stored by the model, in the same "

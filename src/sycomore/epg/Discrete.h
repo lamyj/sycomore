@@ -71,6 +71,8 @@ public:
     /// @brief Return the number of states of the model.
     virtual std::size_t size() const;
     
+    TensorL<1> bins() const;
+    
     /// @brief Return the orders of the model.
     TensorQ<1> orders() const;
     

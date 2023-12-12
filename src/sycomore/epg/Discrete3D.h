@@ -88,6 +88,8 @@ public:
     /// @brief Return the number of states of the model.
     virtual std::size_t size() const;
 
+    TensorL<2> bins() const;
+    
     /// @brief Return the orders of the model.
     TensorQ<2> orders() const;
     

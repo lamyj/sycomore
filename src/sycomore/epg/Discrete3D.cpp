@@ -66,6 +66,15 @@ Discrete3D
     return this->_orders.size()/3;
 }
 
+TensorL<2>
+Discrete3D
+::bins() const
+{
+    TensorL<2> bins(TensorL<2>::shape_type{this->size(), 3});
+    std::copy(this->_orders.begin(), this->_orders.end(), bins.begin());
+    return bins;
+}
+
 TensorQ<2>
 Discrete3D
 ::orders() const

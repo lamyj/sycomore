@@ -77,6 +77,18 @@ Regular
     return this->_states_count;
 }
 
+TensorL<1>
+Regular
+::bins() const
+{
+    TensorL<1> result(TensorL<1>::shape_type{this->size()});
+    for(std::size_t i=0; i!=result.size(); ++i)
+    {
+        result[i] = i;
+    }
+    return result;
+}
+
 TensorQ<1>
 Regular
 ::orders() const
