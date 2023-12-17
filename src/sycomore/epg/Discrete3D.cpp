@@ -162,7 +162,9 @@ Discrete3D
             {
                 if(source != destination)
                 {
-                    this->_orders[destination] = this->_orders[source];
+                    this->_orders[3*destination+0] = this->_orders[3*source+0];
+                    this->_orders[3*destination+1] = this->_orders[3*source+1];
+                    this->_orders[3*destination+2] = this->_orders[3*source+2];
                     for(std::size_t pool=0; pool<this->_model.pools; ++pool)
                     {
                         this->_model.F[pool][destination] =
@@ -176,8 +178,7 @@ Discrete3D
                 ++destination;
             }
         }
-
-        this->_orders.resize(destination);
+        this->_orders.resize(3*destination);
         for(std::size_t pool=0; pool<this->_model.pools; ++pool)
         {
             this->_model.F[pool].resize(destination);

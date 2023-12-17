@@ -417,6 +417,26 @@ BOOST_AUTO_TEST_CASE(Refocalization, *boost::unit_test::tolerance(1e-9))
         sycomore::Complex(0.30684831950624042, 0.53147687960193668));
 }
 
+BOOST_AUTO_TEST_CASE(Thresholding, *boost::unit_test::tolerance(1e-9))
+{
+    using namespace sycomore::units;
+
+    sycomore::epg::Discrete3D model(species);
+    model.threshold = 1e-2;
+    model.apply_pulse(90*deg);
+    model.apply_time_interval(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
+    model.apply_pulse(175*deg);
+    model.apply_time_interval(10*ms, {2*mT/m, 0*mT/m, 0*mT/m});
+    
+    sycomore::ArrayQ const orders{
+        {0*rad/m, 0*rad/m, 0*rad/m}, {5350*rad/m, 0*rad/m, 0*rad/m}};
+    sycomore::ArrayC const states{
+        {{0, 0.8167053180245013}, {0, -0.8167053180245013}, 0.0001364924480492},
+        {{0, -0.0007844631919493}, 0, -0.0389938732148604}};
+    
+    test_model(model, orders, states);
+}
+
 BOOST_AUTO_TEST_CASE(Elapsed)
 {
     using namespace sycomore::units;
