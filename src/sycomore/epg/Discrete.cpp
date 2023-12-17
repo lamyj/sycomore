@@ -152,7 +152,6 @@ Discrete
             Real max_magnitude_squared = 0.;
             for(std::size_t pool=0; pool<this->_model.pools; ++pool)
             {
-                
                 auto const magnitude_squared = 
                     F[pool][r]*F[pool][r] + F[pool][i]*F[pool][i]
                     + F_star[pool][r]*F_star[pool][r] + F_star[pool][i]*F_star[pool][i]
