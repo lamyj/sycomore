@@ -80,8 +80,9 @@ void wrap_epg_Regular(pybind11::module & m)
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects.")
         .def(
-            "shift", static_cast<void (Regular::*)()>(&Regular::shift), 
-            "Apply a unit gradient; in regular EPG, this shifts all orders by 1.")
+            "shift", static_cast<void (Regular::*)(int)>(&Regular::shift), 
+            "Apply a unit gradient n times.",
+            "n"_a=1)
         .def(
             "shift", 
             static_cast<

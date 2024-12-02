@@ -152,7 +152,10 @@ Regular
         }
         else
         {
-            this->shift();
+            this->shift(
+                gradient.magnitude > 0 ? +1
+                : gradient.magnitude < 0 ? -1
+                : 0 );
         }
     }
     this->off_resonance(duration);
@@ -198,9 +201,9 @@ Regular
 
 void
 Regular
-::shift()
+::shift(int n)
 {
-    this->_shift(1);
+    this->_shift(n);
 }
 
 void
@@ -345,6 +348,8 @@ Regular
                 Z.resize(Z.size()*2, 0);
             }
             
+            // FIXME: this copies unaligned memory and is thus slow. Use a cache
+            // as in discrete models?
             if(n == +1)
             {
                 // Shift positive F states right

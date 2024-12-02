@@ -98,8 +98,8 @@ public:
      */
     void apply_time_interval(TimeInterval const & interval);
 
-    /// @brief Apply a unit gradient; in regular EPG, this shifts all orders by 1.
-    void shift();
+    /// @brief Apply a unit gradient n times.
+    void shift(int n=1);
     
     /** 
      * @brief Apply an arbitrary gradient; in regular EPG, this shifts all 
