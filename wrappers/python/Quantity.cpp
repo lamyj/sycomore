@@ -257,4 +257,9 @@ void wrap_Quantity(pybind11::module & m)
             "trunc", static_cast<Quantity(*)(Quantity)>(std::trunc),
             "Truncate the magnitude of a quantity")
     ;
+    
+    m.def("convert_to", &convert_to<1>);
+    m.def("convert_to", &convert_to<2>);
+    m.def("convert_to", &convert_to<3>);
+    m.def("convert_to", &convert_to<4>);
 }
