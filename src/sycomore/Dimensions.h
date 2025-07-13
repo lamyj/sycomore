@@ -67,6 +67,8 @@ namespace sycomore
 /// @addtogroup KnownDimensions
 /// @{
 
+SYCOMORE_API extern Dimensions const Dimensionless;
+
 SYCOMORE_API extern Dimensions const Length;
 SYCOMORE_API extern Dimensions const Mass;
 SYCOMORE_API extern Dimensions const Time;

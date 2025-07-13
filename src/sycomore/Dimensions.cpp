@@ -107,6 +107,8 @@ std::ostream & operator<<(std::ostream & stream, Dimensions const & d)
     return stream;
 }
 
+Dimensions const Dimensionless{0, 0, 0, 0, 0, 0, 0};
+
 Dimensions const Length{1, 0, 0, 0, 0, 0, 0};
 Dimensions const Mass{0, 1, 0, 0, 0, 0, 0};
 Dimensions const Time{0, 0, 1, 0, 0, 0, 0};
