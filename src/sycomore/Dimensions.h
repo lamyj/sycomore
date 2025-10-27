@@ -3,6 +3,7 @@
 
 #include <ostream>
 
+#include "sycomore/hash.h"
 #include "sycomore/sycomore_api.h"
 
 namespace sycomore
@@ -56,6 +57,24 @@ namespace std
 {
 
 sycomore::Dimensions pow(sycomore::Dimensions const & d, double s);
+
+template<>
+struct hash<sycomore::Dimensions>
+{
+    std::size_t operator()(sycomore::Dimensions const & dimensions) const noexcept
+    {
+        std::size_t seed=0;
+        hash<double> hasher;
+        sycomore::combine_hashes(seed, hasher(dimensions.length));
+        sycomore::combine_hashes(seed, hasher(dimensions.mass));
+        sycomore::combine_hashes(seed, hasher(dimensions.time));
+        sycomore::combine_hashes(seed, hasher(dimensions.electric_current));
+        sycomore::combine_hashes(seed, hasher(dimensions.thermodynamic_temperature));
+        sycomore::combine_hashes(seed, hasher(dimensions.amount_of_substance));
+        sycomore::combine_hashes(seed, hasher(dimensions.luminous_intensity));
+        return seed;
+    }
+};
 
 }
 
