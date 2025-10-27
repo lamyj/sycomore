@@ -1,301 +1,92 @@
-#ifndef _bd3de17b_e4fa_4e7f_8d72_8ac9df01606f
-#define _bd3de17b_e4fa_4e7f_8d72_8ac9df01606f
+#ifndef _dfbc0517_611a_4989_a51c_fa60b94c587f
+#define _dfbc0517_611a_4989_a51c_fa60b94c587f
 
-#include <ostream>
 #include <xtensor/xtensor.hpp>
 
-#include "sycomore/Array.h"
-#include "sycomore/Dimensions.h"
+#include "sycomore/hash.h"
+#include "sycomore/QuantityBase.h"
 
 namespace sycomore
 {
 
-/// @brief Quantity in the SI system.
-class Quantity
+/// @brief Scalar quantity
+class Quantity: public QuantityBase<Quantity, double>
 {
 public:
-    /// @brief Magnitude of the quantity in base units.
-    double magnitude;
+    using Self = Quantity;
+    using Container = double;
+    using Base = QuantityBase<Self, Container>;
     
-    /// @brief Dimensions of the quantity.
-    Dimensions dimensions;
-    
-    /// @brief Create a quantity from a magnitude and dimensions. 
-    Quantity(double magnitude={}, Dimensions const & dimensions={});
-    
-    Quantity(Quantity const &) = default;
-    Quantity(Quantity &&) = default;
-    Quantity & operator=(Quantity const &) = default;
-    Quantity & operator=(Quantity &&) = default;
-    ~Quantity() = default;
-    
-    /// @brief Test whether magnitudes and dimensions are equal.
-    bool operator==(Quantity const & other) const;
-    
-    /// @brief Test whether magnitudes or dimensions differ.
-    bool operator!=(Quantity const & other) const;
-    
-    /// @brief In-place addition of a compatible quantity.
-    Quantity & operator+=(Quantity const & other);
-    
-    /// @brief In-place addition of a compatible quantity.
-    Quantity & operator+=(double s);
-    
-    /// @brief In-place subtraction of a compatible quantity.
-    Quantity & operator-=(Quantity const & other);
-    
-    /// @brief In-place subtraction of a compatible quantity.
-    Quantity & operator-=(double s);
-    
-    /// @brief In-place multiplication.
-    Quantity & operator*=(Quantity const & other);
-    
-    /// @brief In-place multiplication.
-    Quantity & operator*=(double scalar);
-    
-    /// @brief In-place division.
-    Quantity & operator/=(Quantity const & other);
-    
-    /// @brief In-place division.
-    Quantity & operator/=(double scalar);
-    
-    /// @brief In-place floating-point modulo.
-    Quantity & operator%=(Quantity const & other);
-    
-    /// @brief In-place floating-point modulo.
-    Quantity & operator%=(double scalar);
-
-    /**
-     * @brief Return the scalar value of the quantity converted to the given 
-     * unit.
-     *
-     * Raise an exception if the given unit is not compatible.
-    */
-    double convert_to(Quantity const & destination) const;
-    
-    /**
-     * @brief Convert to a scalar.
-     *
-     * Raise an exception if the quantity is not unitless.
-     */
-    operator double() const;
+    using Base::Base;
 };
 
-/// @addtogroup QuantityOperators
-/// @{
+/// @brief Compare the magnitude of two compatible quantities
+bool operator<(Quantity const & left, Quantity const & right);
 
-/// @brief Test whether magnitudes and dimensions are equal.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator==(Quantity const & q, T s) { return q == Quantity(s); }
+/// @brief Compare the magnitude of two compatible quantities
+bool operator<=(Quantity const & left, Quantity const & right);
 
-/// @brief Test whether magnitudes and dimensions are equal.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator==(T s, Quantity const & q) { return q == Quantity(s); }
+/// @brief Compare the magnitude of two compatible quantities
+bool operator>(Quantity const & left, Quantity const & right);
 
-/// @brief Test whether magnitudes or dimensions differ.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator!=(Quantity const & q, T s) { return q != Quantity(s); }
+/// @brief Compare the magnitude of two compatible quantities
+bool operator>=(Quantity const & left, Quantity const & right);
 
-/// @brief Test whether magnitudes or dimensions differ.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator!=(T s, Quantity const & q) { return q != Quantity(s); }
-
-/// @brief Compare the magnitude of two compatible quantities.
-bool operator<(Quantity const & l, Quantity const & r);
-
-/// @brief Compare the magnitude of two compatible quantities.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator<(Quantity const & q, T s) { return q < Quantity(s); }
-
-/// @brief Compare the magnitude of two compatible quantities.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator<(T s, Quantity const & q) { return Quantity(s) < q; }
-
-/// @brief Compare the magnitude of two compatible quantities.
-bool operator<=(Quantity const & l, Quantity const & r);
-
-/// @brief Compare the magnitude of two compatible quantities.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator<=(Quantity const & q, T s) { return q <= Quantity(s); }
-
-/// @brief Compare the magnitude of two compatible quantities.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator<=(T s, Quantity const & q) { return Quantity(s) <= q; }
-
-/// @brief Compare the magnitude of two compatible quantities.
-bool operator>(Quantity const & l, Quantity const & r);
-
-/// @brief Compare the magnitude of two compatible quantities.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator>(Quantity const & q, T s) { return q > Quantity(s); }
-
-/// @brief Compare the magnitude of two compatible quantities.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator>(T s, Quantity const & q) { return Quantity(s) > q; }
-
-/// @brief Compare the magnitude of two compatible quantities.
-bool operator>=(Quantity const & l, Quantity const & r);
-
-/// @brief Compare the magnitude of two compatible quantities.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator>=(Quantity const & q, T s) { return q >= Quantity(s); }
-
-/// @brief Compare the magnitude of two compatible quantities.
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-bool operator>=(T s, Quantity const & q) { return Quantity(s) >= q; }
-
-/// @brief Identity operator.
-Quantity operator+(Quantity q);
-
-/// @brief Return a quantity with the opposite magnitude
-Quantity operator-(Quantity q);
-
-/// @brief Addition of compatible quantities
-Quantity operator+(Quantity l, Quantity const & r);
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-
-/// @brief Addition of compatible quantities
-Quantity operator+(Quantity const & q, T s) { return q+Quantity(s); }
-
-/// @brief Addition of compatible quantities
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-Quantity operator+(T s, Quantity const & q) { return Quantity(s)+q; }
-
-/// @brief Subtraction of compatible quantities
-Quantity operator-(Quantity l, Quantity const & r);
-
-/// @brief Subtraction of compatible quantities
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-Quantity operator-(Quantity const & q, T s) { return q-Quantity(s); }
-
-/// @brief Subtraction of compatible quantities
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-Quantity operator-(T s, Quantity const & q) { return Quantity(s)-q; }
-
-/// @brief Multiplication
-Quantity operator*(Quantity l, Quantity const & r);
-
-/// @brief Multiplication
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-Quantity operator*(Quantity q, T s) { q *= static_cast<double>(s); return q; }
-
-/// @brief Multiplication
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-Quantity operator*(T s, Quantity const & q) { return q*s; }
-
-/// @brief Division
-Quantity operator/(Quantity l, Quantity const & r);
-
-/// @brief Division
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-Quantity operator/(Quantity q, T s) { q /= static_cast<double>(s); return q; }
-
-/// @brief Division
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-Quantity operator/(T s, Quantity const & q) { return Quantity(s)/q; }
-
-/// @brief Floating-point modulo
-Quantity operator%(Quantity l, Quantity const & r);
-
-/// @brief Floating-point modulo
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type=0>
-Quantity operator%(Quantity q, T s) { q %= double(s); return q; }
-
-/// @brief String representation of a quantity
-std::ostream & operator<<(std::ostream & stream, Quantity const & q);
-
-/// @}
-
-/// @addtogroup QuantityArrays
-/// @{
-
-/// @brief Static-dimension array of Quantity objects
-template<std::size_t N, xt::layout_type L=XTENSOR_DEFAULT_LAYOUT>
-using TensorQ = xt::xtensor<Quantity, N, L>;
-
-/// @brief Dynamic-dimension array of Quantity objects
-using ArrayQ = xt::xarray<Quantity>;
-
-/// @brief 2D vector of Quantity
-using Vector2Q = Vector2<Quantity>;
-
-/// @brief 3D vector of Quantity
-using Vector3Q = Vector3<Quantity>;
-
-/// @brief 4D vector of Quantity
-using Vector4Q = Vector4<Quantity>;
-
-/// @brief 2x2 matrix of Quantity
-using Matrix2x2Q = Matrix2x2<Quantity>;
-
-/// @brief 3x3 matrix of Quantity
-using Matrix3x3Q = Matrix3x3<Quantity>;
-
-/// @brief 3x3 matrix of Quantity
-using Matrix4x4Q = Matrix4x4<Quantity>;
-
-/// @}
-
-/// @addtogroup QuantityOperators
-/// @{
-
-/// @brief Convert a sequence of Quantity to given unit
-template<typename SourceIt, typename DestinationIt>
-DestinationIt convert_to(
-    SourceIt const & begin, SourceIt const & end, DestinationIt destination,
-    Quantity const & t)
+/// @brief Helper functions for quantity container constructors
+namespace details
 {
-    return std::transform(
-        begin, end, destination, [&](auto && x) { return x.convert_to(t); });
-}
 
-/// @brief Convert a sequence of Quantity to given unit
-template<std::size_t N, xt::layout_type L=XTENSOR_DEFAULT_LAYOUT>
-TensorR<N, L> convert_to(TensorQ<N, L> const & q, Quantity const & t)
+template<std::size_t D>
+Dimensions get_dimensions(xt::nested_initializer_list_t<Quantity, D> const & t)
 {
-    TensorR<N, L> r(q.shape());
-    convert_to(q.begin(), q.end(), r.begin(), t);
-    return r;
+    return get_dimensions<D-1>(*t.begin());
 }
 
-/// @}
+template<>
+Dimensions get_dimensions<1>(xt::nested_initializer_list_t<Quantity, 1> const & t);
+
+template<std::size_t D>
+void nested_check_dimensions(
+    xt::nested_initializer_list_t<Quantity, D> const & t,
+    Dimensions const & dimensions)
+{
+    return nested_check_dimensions<D-1>(*t.begin(), dimensions);
+}
+
+template<>
+void nested_check_dimensions<1>(
+    xt::nested_initializer_list_t<Quantity, 1> const & t,
+    Dimensions const & dimensions);
+
+template<typename Destination>
+void nested_copy_magnitude(Destination && destination, Quantity const & source)
+{
+    *destination = source.magnitude;
+    ++destination;
+}
+
+template<typename Destination, typename Source>
+void nested_copy_magnitude(Destination && destination, Source const & source)
+{
+    for(auto && item: source)
+    {
+        nested_copy_magnitude(std::forward<Destination>(destination), item);
+    }
+}
 
 }
 
-/// @addtogroup QuantityOperators
-/// @{
+}
 
 namespace std
 {
 
-/// @brief Return a quantity with the absolute value of the magnitude
-sycomore::Quantity abs(sycomore::Quantity q);
-
-/// @brief Raise a quantity to a power
-sycomore::Quantity pow(sycomore::Quantity q, double e);
-
-/// @brief Round the magnitude of a quantity
-sycomore::Quantity round(sycomore::Quantity q);
-
-/// @brief Truncate the magnitude of a quantity
-sycomore::Quantity trunc(sycomore::Quantity q);
-
-/// @brief Quantity with the largest integer magnitude not greater than the magnitude
-sycomore::Quantity floor(sycomore::Quantity q);
-
-/// @brief Quantity with the smallest integer magnitude not less than the magnitude
-sycomore::Quantity ceil(sycomore::Quantity q);
-
-/// @brief Hash functor
 template<>
 struct hash<sycomore::Quantity>
 {
-    /// @brief Hash function
-    std::size_t operator()(sycomore::Quantity const & q) const;
+    std::size_t operator()(sycomore::Quantity const & q) const noexcept;
 };
 
 }
 
-/// @}
-
-#endif // _bd3de17b_e4fa_4e7f_8d72_8ac9df01606f
+#endif // _dfbc0517_611a_4989_a51c_fa60b94c587f

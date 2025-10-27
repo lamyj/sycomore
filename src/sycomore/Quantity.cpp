@@ -1,205 +1,60 @@
-#include "Quantity.h"
+#include "sycomore/Quantity.h"
 
-#include <cmath>
-#include <ostream>
-#include <sstream>
-#include <stdexcept>
-
-#include "sycomore/Dimensions.h"
-#include "sycomore/hash.h"
+#include "sycomore/QuantityBase.h"
 
 namespace sycomore
 {
 
-Quantity
-::Quantity(double magnitude, Dimensions const & dimensions)
-: magnitude(magnitude), dimensions(dimensions)
+template<template<typename> typename Operator>
+bool order(Quantity const & left, Quantity const & right)
 {
-    // Nothing else.
+    left.check_dimensions(right, "Ordering requires same dimensions");
+    return Operator<Quantity::Container>()(left.magnitude, right.magnitude);
 }
 
-bool
-Quantity
-::operator==(Quantity const & other) const
+bool operator<(Quantity const & left, Quantity const & right)
 {
-    return (
-        this->magnitude == other.magnitude
-        && this->dimensions == other.dimensions);
+    return order<std::less>(left, right);
 }
 
-bool
-Quantity
-::operator!=(Quantity const & other) const
+bool operator<=(Quantity const & left, Quantity const & right)
 {
-    return !this->operator==(other);
+    return order<std::less_equal>(left, right);
 }
 
-Quantity &
-Quantity
-::operator+=(Quantity const & other)
+bool operator>(Quantity const & left, Quantity const & right)
 {
-    if(this->dimensions != other.dimensions)
+    return order<std::greater>(left, right);
+}
+
+bool operator>=(Quantity const & left, Quantity const & right)
+{
+    return order<std::greater_equal>(left, right);
+}
+
+namespace details
+{
+
+template<>
+Dimensions get_dimensions<1>(xt::nested_initializer_list_t<Quantity, 1> const & t)
+{
+    return t.begin()->dimensions;
+}
+
+template<>
+void nested_check_dimensions<1>(
+    xt::nested_initializer_list_t<Quantity, 1> const & t,
+    Dimensions const & dimensions)
+{
+    for(auto && x: t)
     {
-        std::ostringstream message;
-        message
-            << "Addition requires equal dimensions: "
-            << this->dimensions << " != " << other.dimensions;
-        throw std::runtime_error(message.str());
+        if(x.dimensions != dimensions)
+        {
+            throw std::runtime_error("Constructor requires same dimensions");
+        }
     }
-    this->magnitude += other.magnitude;
-    return *this;
 }
 
-Quantity &
-Quantity
-::operator+=(double s)
-{
-    return this->operator+=(Quantity(s));
-}
-
-Quantity &
-Quantity
-::operator-=(Quantity const & other)
-{
-    if(this->dimensions != other.dimensions)
-    {
-        std::ostringstream message;
-        message
-            << "Subtraction requires equal dimensions: "
-            << this->dimensions << " != " << other.dimensions;
-        throw std::runtime_error(message.str());
-    }
-    this->magnitude -= other.magnitude;
-    return *this;
-}
-
-Quantity &
-Quantity
-::operator-=(double s)
-{
-    return this->operator-=(Quantity(s));
-}
-
-Quantity &
-Quantity
-::operator*=(Quantity const & other)
-{
-    this->dimensions *= other.dimensions;
-    this->magnitude *= other.magnitude;
-    return *this;
-}
-
-Quantity &
-Quantity
-::operator*=(double scalar)
-{
-    this->magnitude *= scalar;
-    return *this;
-}
-
-Quantity &
-Quantity
-::operator/=(Quantity const & other)
-{
-    this->dimensions /= other.dimensions;
-    this->magnitude /= other.magnitude;
-    return *this;
-}
-
-Quantity &
-Quantity
-::operator/=(double scalar)
-{
-    this->magnitude /= scalar;
-    return *this;
-}
-
-Quantity &
-Quantity
-::operator%=(Quantity const & other)
-{
-    if(this->dimensions != other.dimensions)
-    {
-        std::ostringstream message;
-        message
-            << "Modulo requires equal dimensions: "
-            << this->dimensions << " != " << other.dimensions;
-        throw std::runtime_error(message.str());
-    }
-    this->magnitude = std::fmod(this->magnitude, other.magnitude);
-    return *this;
-}
-
-Quantity &
-Quantity
-::operator%=(double scalar)
-{
-    this->magnitude = std::fmod(this->magnitude, scalar);
-    return *this;
-}
-
-double
-Quantity
-::convert_to(Quantity const & destination) const
-{
-    if(this->dimensions != destination.dimensions)
-    {
-        std::ostringstream message;
-        message
-            << "Conversion requires equal dimensions: "
-            << this->dimensions << " != " << destination.dimensions;
-        throw std::runtime_error(message.str());
-    }
-    return this->magnitude / destination.magnitude;
-}
-
-Quantity
-::operator double() const
-{
-    return this->convert_to(Quantity(1));
-}
-
-bool operator<(Quantity const & l, Quantity const & r)
-{
-    if(l.dimensions != r.dimensions)
-    {
-        std::ostringstream message;
-        message
-            << "Comparison requires equal dimensions: "
-            << l.dimensions << " != " << r.dimensions;
-        throw std::runtime_error(message.str());
-    }
-    return l.magnitude < r.magnitude;
-}
-
-bool operator<=(Quantity const & l, Quantity const & r)
-{
-    return l<r || l==r;
-}
-
-bool operator>(Quantity const & l, Quantity const & r)
-{
-    return !(l<=r);
-}
-
-bool operator>=(Quantity const & l, Quantity const & r)
-{
-    return !(l<r);
-}
-
-Quantity operator+(Quantity q) { return q; }
-Quantity operator-(Quantity q) { q *= -1; return q; }
-
-Quantity operator+(Quantity l, Quantity const & r) { l += r; return l; }
-Quantity operator-(Quantity l, Quantity const & r) { l -= r; return l; }
-Quantity operator*(Quantity l, Quantity const & r) { l *= r; return l; }
-Quantity operator/(Quantity l, Quantity const & r) { l /= r; return l; }
-Quantity operator%(Quantity l, Quantity const & r) { l %= r; return l; }
-
-std::ostream & operator<<(std::ostream & stream, Quantity const & q)
-{
-    stream << q.magnitude << " " << q.dimensions;
-    return stream;
 }
 
 }
@@ -207,59 +62,15 @@ std::ostream & operator<<(std::ostream & stream, Quantity const & q)
 namespace std
 {
 
-sycomore::Quantity abs(sycomore::Quantity q)
-{
-    q.magnitude = std::abs(q.magnitude);
-    return q;
-}
-
-sycomore::Quantity pow(sycomore::Quantity q, double e)
-{
-    q.dimensions = std::pow(q.dimensions, e);
-    q.magnitude = std::pow(q.magnitude, e);
-    return q;
-}
-
-sycomore::Quantity round(sycomore::Quantity q)
-{
-    q.magnitude = std::round(q.magnitude);
-    return q;
-}
-
-sycomore::Quantity trunc(sycomore::Quantity q)
-{
-    q.magnitude = std::trunc(q.magnitude);
-    return q;
-}
-
-sycomore::Quantity floor(sycomore::Quantity q)
-{
-    q.magnitude = std::floor(q.magnitude);
-    return q;
-}
-
-sycomore::Quantity ceil(sycomore::Quantity q)
-{
-    q.magnitude = std::ceil(q.magnitude);
-    return q;
-}
-
-//template<>
 std::size_t
 hash<sycomore::Quantity>
-::operator()(sycomore::Quantity const & q) const
+::operator()(sycomore::Quantity const & q) const noexcept
 {
     std::size_t seed=0;
     hash<double> hasher;
     sycomore::combine_hashes(seed, hasher(q.magnitude));
-    sycomore::combine_hashes(seed, hasher(q.dimensions.length));
-    sycomore::combine_hashes(seed, hasher(q.dimensions.mass));
-    sycomore::combine_hashes(seed, hasher(q.dimensions.time));
-    sycomore::combine_hashes(seed, hasher(q.dimensions.electric_current));
-    sycomore::combine_hashes(seed, hasher(q.dimensions.thermodynamic_temperature));
-    sycomore::combine_hashes(seed, hasher(q.dimensions.amount_of_substance));
-    sycomore::combine_hashes(seed, hasher(q.dimensions.luminous_intensity));
-
+    sycomore::combine_hashes(
+        seed, std::hash<sycomore::Dimensions>{}(q.dimensions));
     return seed;
 }
 
