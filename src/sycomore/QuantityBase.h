@@ -27,6 +27,14 @@ public:
     /// @brief Create a quantity from a magnitude and dimensions
     QuantityBase(Container const & magnitude={}, Dimensions const & dimensions={});
     
+    QuantityBase(QuantityBase<TDerived, TContainer> const &) = default;
+    QuantityBase(QuantityBase<TDerived, TContainer> &&) = default;
+    QuantityBase<TDerived, TContainer> & operator=(
+        QuantityBase<TDerived, TContainer> const &) = default;
+    QuantityBase<TDerived, TContainer> & operator=(
+        QuantityBase<TDerived, TContainer> &&) = default;
+    ~QuantityBase() override = default;
+    
     /// @brief Return the number of elements in a quantity array
     auto size() const
     {

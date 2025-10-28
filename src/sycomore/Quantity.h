@@ -18,6 +18,12 @@ public:
     using Base = QuantityBase<Self, Container>;
     
     using Base::Base;
+    
+    Quantity(Quantity const &) = default;
+    Quantity(Quantity &&) = default;
+    Quantity & operator=(Quantity const &) = default;
+    Quantity & operator=(Quantity &&) = default;
+    ~Quantity() override = default;
 };
 
 /// @brief Compare the magnitude of two compatible quantities

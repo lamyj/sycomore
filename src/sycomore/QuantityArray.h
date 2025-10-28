@@ -48,6 +48,12 @@ public:
     /// @brief Create a quantity container from a homogeneous container of quantity
     ArrayQ(xt::nested_initializer_list_t<Quantity, 5> args);
     
+    ArrayQ(ArrayQ const &) = default;
+    ArrayQ(ArrayQ &&) = default;
+    ArrayQ & operator=(ArrayQ const &) = default;
+    ArrayQ & operator=(ArrayQ &&) = default;
+    ~ArrayQ() override = default;
+    
 private:
     /// @brief Helper for the constructors
     template<std::size_t D>

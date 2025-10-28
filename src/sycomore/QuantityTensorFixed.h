@@ -27,6 +27,12 @@ public:
     
     /// @brief Create a quantity container from a homogeneous container of quantity
     TensorFixedQ(xt::nested_initializer_list_t<Quantity, rank> args);
+    
+    TensorFixedQ(TensorFixedQ<S> const &) = default;
+    TensorFixedQ(TensorFixedQ<S> &&) = default;
+    TensorFixedQ<S> & operator=(TensorFixedQ<S> const &) = default;
+    TensorFixedQ<S> & operator=(TensorFixedQ<S> &&) = default;
+    ~TensorFixedQ() override = default;
 private:
     /// @brief Helper for the constructors
     void _from_array(xt::nested_initializer_list_t<Quantity, rank> const & args);

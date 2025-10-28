@@ -22,6 +22,15 @@ template<typename TDerived>
 class QuantityInterface
 {
 public:
+    QuantityInterface() = default;
+    QuantityInterface(QuantityInterface<TDerived> const &) = default;
+    QuantityInterface(QuantityInterface<TDerived> &&) = default;
+    QuantityInterface<TDerived> & operator=(
+        QuantityInterface<TDerived> const &) = default;
+    QuantityInterface<TDerived> & operator=(
+        QuantityInterface<TDerived> &&) = default;
+    virtual ~QuantityInterface() = default;
+    
     /**
      * @brief Raise an exception if this->dimensions do not match provided
      * dimensions

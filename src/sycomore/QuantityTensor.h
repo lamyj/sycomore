@@ -25,6 +25,12 @@ public:
     /// @brief Create a quantity container from a homogeneous container of quantity
     TensorQ(xt::nested_initializer_list_t<Quantity, N> args);
     
+    TensorQ(TensorQ<N> const &) = default;
+    TensorQ(TensorQ<N> &&) = default;
+    TensorQ<N> & operator=(TensorQ<N> const &) = default;
+    TensorQ<N> & operator=(TensorQ<N> &&) = default;
+    ~TensorQ() override = default;
+    
 private:
     /// @brief Helper for the constructors
     void _from_array(xt::nested_initializer_list_t<Quantity, N> const & args);
