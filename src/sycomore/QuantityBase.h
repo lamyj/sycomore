@@ -4,8 +4,10 @@
 #include <initializer_list>
 
 #include "sycomore/Dimensions.h"
+#include "sycomore/QuantityConstIterator.h"
 #include "sycomore/QuantityConstReference.h"
 #include "sycomore/QuantityInterface.h"
+#include "sycomore/QuantityIterator.h"
 #include "sycomore/QuantityReference.h"
 
 namespace sycomore
@@ -52,6 +54,14 @@ public:
     {
         return this->magnitude.shape(d);
     }
+    
+    QuantityConstIterator<TDerived> begin() const;
+    QuantityConstIterator<TDerived> cbegin() const;
+    QuantityIterator<TDerived> begin();
+    
+    QuantityConstIterator<TDerived> end() const;
+    QuantityConstIterator<TDerived> cend() const;
+    QuantityIterator<TDerived> end();
     
     /**
      * @brief Returns a reference to the element at the specified position of

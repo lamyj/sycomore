@@ -15,6 +15,54 @@ QuantityBase<TDerived, TContainer>
 }
 
 template<typename TDerived, typename TContainer>
+QuantityConstIterator<TDerived>
+QuantityBase<TDerived, TContainer>
+::begin() const
+{
+    return {this->derived_cast()};
+}
+
+template<typename TDerived, typename TContainer>
+QuantityConstIterator<TDerived>
+QuantityBase<TDerived, TContainer>
+::cbegin() const
+{
+    return {this->derived_cast()};
+}
+
+template<typename TDerived, typename TContainer>
+QuantityIterator<TDerived>
+QuantityBase<TDerived, TContainer>
+::begin()
+{
+    return {this->derived_cast()};
+}
+
+template<typename TDerived, typename TContainer>
+QuantityConstIterator<TDerived>
+QuantityBase<TDerived, TContainer>
+::end() const
+{
+    return {this->derived_cast(), true};
+}
+
+template<typename TDerived, typename TContainer>
+QuantityConstIterator<TDerived>
+QuantityBase<TDerived, TContainer>
+::cend() const
+{
+    return {this->derived_cast(), true};
+}
+
+template<typename TDerived, typename TContainer>
+QuantityIterator<TDerived>
+QuantityBase<TDerived, TContainer>
+::end()
+{
+    return {this->derived_cast(), true};
+}
+
+template<typename TDerived, typename TContainer>
 template<typename ... Args>
 QuantityConstReference
 QuantityBase<TDerived, TContainer>

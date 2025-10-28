@@ -9,14 +9,14 @@ namespace sycomore
 
 class Quantity;
 
-/// @brief Read/write view to a quantity
+/// @brief Read/write view to a quantity magnitude, with read-only dimensions
 class QuantityReference: public QuantityInterface<QuantityReference>
 {
 public:
     double & magnitude;
-    Dimensions & dimensions;
+    Dimensions const & dimensions;
     
-    QuantityReference(double & magnitude, Dimensions & dimensions)
+    QuantityReference(double & magnitude, Dimensions const & dimensions)
     : magnitude(magnitude), dimensions(dimensions)
     {
         // Nothing else
