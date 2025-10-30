@@ -17,11 +17,7 @@ TimeInterval
 TimeInterval
 ::shortest(Vector3Q const & k, Quantity const & G_max)
 {
-    auto max = 0*k[0];
-    for(auto && x: k)
-    {
-        max = std::max<sycomore::Quantity>(max, std::abs(x));
-    }
+    Quantity max(xt::amax(xt::abs(k.magnitude))(), k.dimensions);
     
     if(max.dimensions == (units::rad/units::m).dimensions)
     {
@@ -92,34 +88,12 @@ void
 TimeInterval
 ::set_gradient(Vector3Q const & a)
 {
-    auto const & q = a[0];
-    
-    if(q.dimensions == (units::T/units::m).dimensions)
+    if(a.dimensions == (units::T/units::m).dimensions)
     {
-        for(auto && q:a)
-        {
-            if(q.dimensions != (units::T/units::m).dimensions)
-            {
-                std::ostringstream message;
-                message << "Invalid gradient amplitude dimensions: " << q.dimensions;
-                throw std::runtime_error(message.str());
-            }
-        }
-
         this->_gradient_amplitude = a;
     }
-    else if(q.dimensions == (units::T/units::m*units::s).dimensions)
+    else if(a.dimensions == (units::T/units::m*units::s).dimensions)
     {
-        for(auto && q:a)
-        {
-            if(q.dimensions != (units::T/units::m*units::s).dimensions)
-            {
-                std::ostringstream message;
-                message << "Invalid gradient area dimensions: " << q.dimensions;
-                throw std::runtime_error(message.str());
-            }
-        }
-        
         if(this->_duration == 0*units::s)
         {
             this->_gradient_amplitude.fill(0*units::T/units::m);
@@ -129,18 +103,8 @@ TimeInterval
             this->_gradient_amplitude = a/this->_duration;
         }
     }
-    else if(q.dimensions == (units::rad/units::m).dimensions)
+    else if(a.dimensions == (units::rad/units::m).dimensions)
     {
-        for(auto && q:a)
-        {
-            if(q.dimensions != GradientDephasing)
-            {
-                std::ostringstream message;
-                message << "Invalid gradient dephasing dimensions: " << q.dimensions;
-                throw std::runtime_error(message.str());
-            }
-        }
-        
         if(this->_duration == 0*units::s)
         {
             this->_gradient_amplitude.fill(0*units::T/units::m);
@@ -153,7 +117,7 @@ TimeInterval
     else
     {
         std::ostringstream message;
-        message << "Invalid gradient specification: " << q.dimensions;
+        message << "Invalid gradient specification: " << a.dimensions;
         throw std::runtime_error(message.str());
     }
 }

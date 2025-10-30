@@ -91,7 +91,7 @@ hamming_sinc_envelope(Quantity const & t0, unsigned int N)
 HardPulseApproximation::Envelope sinc_envelope(Quantity const & t0)
 {
     return [&](Quantity const x) {
-        double const x_scaled = M_PI*x/t0;
+        double const x_scaled = M_PI*(x/t0).scalar();
         return x_scaled==0?1:std::sin(x_scaled)/(x_scaled);
     };
 }

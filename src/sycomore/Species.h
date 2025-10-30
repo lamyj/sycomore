@@ -3,6 +3,7 @@
 
 #include "sycomore/Array.h"
 #include "sycomore/Quantity.h"
+#include "sycomore/QuantityTensorFixed.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/units.h"
 
