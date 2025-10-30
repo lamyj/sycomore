@@ -8,6 +8,7 @@
 
 #include "sycomore/Dimensions.h"
 #include "sycomore/quantity_traits.h"
+#include "sycomore/QuantityCommonType.h"
 
 namespace sycomore
 {
@@ -142,7 +143,7 @@ struct is_quantity<
     std::enable_if_t<std::is_base_of<QuantityInterface<T>, T>::value>>
 : public std::true_type { };
 
-/// @brief Identity opereator
+/// @brief Identity operator
 template<typename T, enable_if_quantity<T> = true>
 OwningType<T> operator+(T x)
 {
@@ -158,37 +159,53 @@ OwningType<T> operator-(T const & x)
 
 /// @brief Addition of compatible quantities
 template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
-OwningType<T1> operator+(T1 const & left, T2 const & right)
+CommonQuantityType<T1, T2> operator+(T1 const & left, T2 const & right)
 {
-    return OwningType<T1>{left.magnitude, left.dimensions} += right;
+    left.check_dimensions(right);
+    return {left.magnitude + right.magnitude, left.dimensions};
 }
 
 /// @brief Subtraction of compatible quantities
 template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
-OwningType<T1> operator-(T1 const & left, T2 const & right)
+CommonQuantityType<T1, T2> operator-(T1 const & left, T2 const & right)
 {
-    return OwningType<T1>{left.magnitude, left.dimensions} -= right;
+    left.check_dimensions(right);
+    return {left.magnitude - right.magnitude, left.dimensions};
 }
 
 /// @brief Multiplication of quantities
-template<typename T1, typename T2, enable_if_quantity<T1> = true>
-OwningType<T1> operator*(T1 const & left, T2 const & right)
+template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
+CommonQuantityType<T1, T2> operator*(T1 const & left, T2 const & right)
 {
-    return OwningType<T1>{left.magnitude, left.dimensions} *= right;
+    return {left.magnitude * right.magnitude, left.dimensions * right.dimensions};
 }
 
-/// @brief Multiplication of a scalar and a quantitie
+/// @brief Multiplication of a quantity and a scalar
+template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true>
+OwningType<T1> operator*(T1 const & left, T2 const & right)
+{
+    return {left.magnitude * right, left.dimensions};
+}
+
+/// @brief Multiplication of a scalar and a quantity
 template<typename T1, typename T2, enable_if_not_quantity<T1> = true, enable_if_quantity<T2> = true>
 OwningType<T2> operator*(T1 const & left, T2 const & right)
 {
     return {left * right.magnitude, right.dimensions};
 }
 
-/// @brief Multiplication of a quantity and a scalar
-template<typename T1, typename T2, enable_if_quantity<T1> = true>
+/// @brief Division of quantities
+template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
+CommonQuantityType<T1, T2> operator/(T1 const & left, T2 right)
+{
+    return {left.magnitude / right.magnitude, left.dimensions / right.dimensions};
+}
+
+/// @brief Division of a quantity and a scalar
+template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true>
 OwningType<T1> operator/(T1 left, T2 const & right)
 {
-    return OwningType<T1>{left.magnitude, left.dimensions} /= right;
+    return {left.magnitude / right, left.dimensions};
 }
 
 /// @brief Division of quantities
