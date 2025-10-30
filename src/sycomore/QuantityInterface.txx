@@ -90,6 +90,18 @@ QuantityInterface<TDerived>
     return left;
 }
 
+template<typename TDerived>
+template<typename T>
+TDerived &
+QuantityInterface<TDerived>
+::fill(T const & x)
+{
+    auto & self = this->derived_cast();
+    self.magnitude.fill(x.magnitude);
+    self.dimensions = x.dimensions;
+    return self;
+}
+
 }
 
 #endif // _f4271617_4909_4e41_bd07_ee1eb44f75ab

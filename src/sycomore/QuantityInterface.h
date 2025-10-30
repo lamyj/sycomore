@@ -130,6 +130,9 @@ public:
         left.magnitude = fmod(left.magnitude, right);
         return left;
     }
+    
+    template<typename T>
+    TDerived & fill(T const & x);
 };
 
 /// @brief Explicit specialization for true quantity types
