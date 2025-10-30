@@ -28,10 +28,17 @@ Model
     Quantity const & T1, Quantity const & T2, TensorR<1> const & M0,
     TensorQ<2> const & positions, Quantity const & delta_omega)
 : Model(
-    xt::repeat(TensorQ<1>{T1}, positions.shape()[0], 0),
-    xt::repeat(TensorQ<1>{T2}, positions.shape()[0], 0),
+    TensorQ<1>(
+        xt::repeat(TensorR<1>{T1.magnitude}, positions.shape()[0], 0),
+        T1.dimensions),
+    TensorQ<1>(
+        xt::repeat(TensorR<1>{T2.magnitude}, positions.shape()[0], 0),
+        T2.dimensions),
     xt::eval(xt::repeat(xt::atleast_2d(M0), positions.shape()[0], 0)),
-    positions, xt::repeat(TensorQ<1>{delta_omega}, positions.shape()[0], 0))
+    positions,
+    TensorQ<1>(
+        xt::repeat(TensorR<1>{delta_omega.magnitude}, positions.shape()[0], 0),
+        delta_omega.dimensions))
 {
     // Nothing else
 }
@@ -53,8 +60,8 @@ Model
     {
         throw std::runtime_error("Size mismatch");
     }
-    this->_T1 = convert_to(T1, units::s);
-    this->_T2 = convert_to(T2, units::s);
+    this->_T1 = T1.convert_to(units::s);
+    this->_T2 = T2.convert_to(units::s);
     
     xt::view(this->_magnetization, xt::all(), xt::range(0, 3)) = M0;
     xt::view(this->_magnetization, xt::all(), 3UL) = 1;
@@ -62,9 +69,9 @@ Model
     this->_delta_omega = 
         delta_omega.size() == 0
         ? xt::repeat(TensorR<1>{0.}, T1.size(), 0)
-        : convert_to(delta_omega, units::Hz);
+        : delta_omega.convert_to(units::Hz);
     
-    this->_positions = convert_to(positions, units::m);
+    this->_positions = positions.convert_to(units::m);
 }
 
 Operator
@@ -79,13 +86,13 @@ Operator
 Model
 ::build_pulse(TensorQ<1> const & angle, TensorQ<1> const & phase) const
 {
-    TensorQ<1> phase_dummy;
+    TensorR<1> phase_dummy;
     if(phase.size() == 0)
     {
-        phase_dummy = xt::repeat(TensorQ<1>{0*units::rad}, angle.size(), 0);
+        phase_dummy = xt::repeat(TensorR<1>{0}, angle.size(), 0);
     }
     
-    auto & phase_ = (phase.size()>0?phase:phase_dummy);
+    auto & phase_ = (phase.size()>0?phase.magnitude:phase_dummy);
     
     if(
         angle.size() != phase_.size()
@@ -94,13 +101,25 @@ Model
         throw std::runtime_error("Size mismatch");
     }
     
-    TensorR<1> const cos_angle = xt::cos(angle), cos_phase = xt::cos(phase_);
-    TensorR<1> const sin_angle = xt::sin(angle), sin_phase = xt::sin(phase_);
+    auto const & angle_ = angle.magnitude;
+    
+    TensorR<1> const cos_angle = xt::cos(angle_), cos_phase = xt::cos(phase_);
+    TensorR<1> const sin_angle = xt::sin(angle_), sin_phase = xt::sin(phase_);
     
     Operator::Array op = xt::zeros<Operator::Array::value_type>(
         Operator::Array::shape_type{angle.size(), 4, 4});
     for(std::size_t i=0; i<angle.size(); ++i)
     {
+        // Using the Rodrigues' formula in matrix notation, the RF pulse is a
+        // rotation of angle α around an axis (cos ϕ, sin ϕ, 0)
+        //           0       0    sin ϕ
+        // K =       0       0   -cos ϕ
+        //      -sin ϕ   cos ϕ        0
+        // And its square
+        //           -sin² ϕ   sin ϕ⋅cos ϕ   0
+        // K² =  sin ϕ⋅cos ϕ       -cos² ϕ   0
+        //                 0             0  -1
+        // The rotation matrix is then R = I + sin α K + (1-cos α) K²
         auto const ca=cos_angle.unchecked(i), cp=cos_phase.unchecked(i);
         auto const sa=sin_angle.unchecked(i), sp=sin_phase.unchecked(i);
         auto const cp2=std::pow(cp, 2), sp2=std::pow(sp, 2);
@@ -122,7 +141,9 @@ Model
 {
     return this->build_time_interval(
         duration, TensorQ<1>{delta_omega},
-        gradient.size() != 0 ? xt::atleast_2d(gradient) : TensorQ<2>{});
+        gradient.size() != 0 ?
+        TensorQ<2>(xt::atleast_2d(gradient.magnitude), gradient.dimensions)
+        : TensorQ<2>{});
 }
 
 Operator
@@ -132,10 +153,10 @@ Model
     TensorQ<2> const & gradient) const
 {
     auto const duration_s = duration.convert_to(units::s);
-    auto const delta_omega_Hz = convert_to(delta_omega, units::Hz);
-    auto const gradient_T_per_m = convert_to(gradient, units::T/units::m);
+    auto const delta_omega_Hz = delta_omega.convert_to(units::Hz);
+    auto const gradient_T_per_m = gradient.convert_to(units::T/units::m);
     
-    auto angular_frequency = xt::eval(
+    TensorR<1> angular_frequency = xt::eval(
         2*M_PI * (
             // Field-related dephasing
             delta_omega_Hz
@@ -151,7 +172,7 @@ Model
     
     op.pre_multiply(
         this->build_phase_accumulation(
-            units::rad * duration_s * angular_frequency));
+            {duration_s * angular_frequency, Angle}));
     
     return op;
 }
@@ -185,8 +206,9 @@ Operator
 Model
 ::build_phase_accumulation(TensorQ<1> const & angle) const
 {
-    TensorR<1> const cos_angle = xt::cos(angle);
-    TensorR<1> const sin_angle = xt::sin(angle);
+    auto const angle_ = angle.magnitude;
+    TensorR<1> const cos_angle = xt::cos(angle_);
+    TensorR<1> const sin_angle = xt::sin(angle_);
     
     Operator::Array op = xt::zeros<Operator::Array::value_type>(
         Operator::Array::shape_type{angle.size(), 4, 4});
@@ -229,14 +251,14 @@ TensorQ<1>
 Model
 ::T1() const
 {
-    return this->_T1*units::s;
+    return {this->_T1, Time};
 }
 
 TensorQ<1>
 Model
 ::T2() const
 {
-    return this->_T2*units::s;
+    return {this->_T2, Time};
 }
 
 TensorR<1> const &
@@ -266,7 +288,7 @@ TensorQ<2>
 Model
 ::positions() const
 {
-    return this->_positions*units::m;
+    return {this->_positions, Length};
 }
 
 }

@@ -4,6 +4,7 @@
 #include <xtensor/xtensor.hpp>
 
 #include "sycomore/Quantity.h"
+#include "sycomore/QuantityTensor.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/units.h"
 #include "sycomore/isochromat/Operator.h"
