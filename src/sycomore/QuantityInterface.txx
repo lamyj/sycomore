@@ -60,10 +60,7 @@ bool
 QuantityInterface<TDerived>
 ::operator!=(TDerived const & right) const
 {
-    auto const & left = this->derived_cast();
-    return
-        left.magnitude != right.magnitude
-        || left.dimensions != right.dimensions;
+    return !this->operator==(right);
 }
 
 template<typename TDerived>

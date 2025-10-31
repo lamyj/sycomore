@@ -143,6 +143,18 @@ struct is_quantity<
     std::enable_if_t<std::is_base_of<QuantityInterface<T>, T>::value>>
 : public std::true_type { };
 
+template<typename T, enable_if_quantity<T> = true>
+bool operator==(typename T::Container const & left, T const & right)
+{
+    return right.operator==(left);
+}
+
+template<typename T, enable_if_quantity<T> = true>
+bool operator!=(typename T::Container const & left, T const & right)
+{
+    return !(left == right);
+}
+
 /// @brief Identity operator
 template<typename T, enable_if_quantity<T> = true>
 OwningType<T> operator+(T x)
