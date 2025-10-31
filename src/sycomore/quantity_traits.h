@@ -57,7 +57,7 @@ template<typename T1, typename T2>
 struct CommonQuantityTypeStruct
 {
     using Type = typename CommonQuantityTypeTrait<
-            std::remove_cv_t<T1>, std::remove_cv_t<T2>
+            OwningType<std::remove_cv_t<T1>>, OwningType<std::remove_cv_t<T2>>
         >::Type;
 };
 
