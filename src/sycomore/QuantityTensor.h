@@ -38,6 +38,9 @@ private:
     void _from_array(xt::nested_initializer_list_t<Quantity, N> const & args);
 };
 
+template<std::size_t N>
+struct QuantityContainerTrait<xt::xtensor<double, N>> { using Type = TensorQ<N>; };
+
 // For TensorFixedQ, the common shape cannot be computed at compile time:
 // default to TensorQ with the largest dimension
 template<typename S1, typename S2>

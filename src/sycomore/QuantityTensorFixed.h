@@ -38,6 +38,12 @@ private:
     void _from_array(xt::nested_initializer_list_t<Quantity, rank> const & args);
 };
 
+template<typename S>
+struct QuantityContainerTrait<xt::xtensor_fixed<double, S>>
+{
+    using Type = TensorFixedQ<S>;
+};
+
 using Vector2Q = TensorFixedQ<xt::xshape<2>>;
 using Vector3Q = TensorFixedQ<xt::xshape<3>>;
 using Vector4Q = TensorFixedQ<xt::xshape<4>>;

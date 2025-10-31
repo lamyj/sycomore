@@ -60,6 +60,9 @@ private:
     void _from_array(xt::nested_initializer_list_t<Quantity, D> const & args);
 };
 
+template<>
+struct QuantityContainerTrait<xt::xarray<double>> { using Type = ArrayQ; };
+
 }
 
 namespace std

@@ -34,6 +34,14 @@ struct OwningTypeTrait { using Type = T; };
 template<typename T>
 using OwningType = typename OwningTypeTrait<T>::Type;
 
+/// Quantity type associated with container type
+template<typename ContainerType>
+struct QuantityContainerTrait {};
+
+/// @brief Helper for QuantityContainerTrait
+template<typename T>
+using QuantityContainer = typename QuantityContainerTrait<T>::Type;
+
 // Forward declaration of concrete quantity type
 class ArrayQ;
 

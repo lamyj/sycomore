@@ -26,6 +26,9 @@ public:
     ~Quantity() override = default;
 };
 
+template<>
+struct QuantityContainerTrait<double> { using Type = Quantity; };
+
 // Quantity holds a scalar value: its common type is the other one
 template<typename T>
 struct CommonQuantityTypeTrait<
