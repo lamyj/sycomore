@@ -92,7 +92,7 @@ Model
         phase_dummy = xt::repeat(TensorR<1>{0}, angle.size(), 0);
     }
     
-    auto & phase_ = (phase.size()>0?phase.magnitude:phase_dummy);
+    auto const & phase_ = (phase.size()>0?phase.magnitude:phase_dummy);
     
     if(
         angle.size() != phase_.size()
@@ -152,27 +152,27 @@ Model
     Quantity const & duration, TensorQ<1> const & delta_omega,
     TensorQ<2> const & gradient) const
 {
-    auto const duration_s = duration.convert_to(units::s);
-    auto const delta_omega_Hz = delta_omega.convert_to(units::Hz);
-    auto const gradient_T_per_m = gradient.convert_to(units::T/units::m);
+    auto const & duration_ = duration.magnitude;
+    auto const & delta_omega_ = delta_omega.magnitude;
+    auto const & gradient_ = gradient.magnitude;
     
-    TensorR<1> angular_frequency = xt::eval(
+    TensorR<1> angular_frequency = 
         2*M_PI * (
             // Field-related dephasing
-            delta_omega_Hz
+            delta_omega_
             // Species-related dephasing, e.g. chemical shift or susceptibility
-            + this->_delta_omega));
+            + this->_delta_omega);
     if(gradient.size() > 0)
     {
         angular_frequency += gamma.magnitude * xt::sum(
-            gradient_T_per_m * this->_positions, {1});
+            gradient_ * this->_positions, {1});
     }
     
     auto op = this->build_relaxation(duration);
     
     op.pre_multiply(
         this->build_phase_accumulation(
-            {duration_s * angular_frequency, Angle}));
+            {duration_ * angular_frequency, Angle}));
     
     return op;
 }
@@ -183,9 +183,9 @@ Model
 {
     Operator::Array op = xt::zeros<Operator::Array::value_type>(
         Operator::Array::shape_type{this->_positions.shape()[0], 4, 4});
-    auto const duration_s = duration.convert_to(units::s);
-    auto const E1 = xt::exp(-duration_s/this->_T1);
-    auto const E2 = xt::exp(-duration_s/this->_T2);
+    auto const & duration_ = duration.magnitude;
+    auto const E1 = xt::exp(-duration_/this->_T1);
+    auto const E2 = xt::exp(-duration_/this->_T2);
     xt::view(op, xt::all(), 0UL, 0UL) = E2;
     xt::view(op, xt::all(), 1UL, 1UL) = E2;
     xt::view(op, xt::all(), 2UL, 2UL) = E1;
@@ -251,14 +251,14 @@ TensorQ<1>
 Model
 ::T1() const
 {
-    return {this->_T1, Time};
+    return this->_T1*units::s;
 }
 
 TensorQ<1>
 Model
 ::T2() const
 {
-    return {this->_T2, Time};
+    return this->_T2*units::s;
 }
 
 TensorR<1> const &
@@ -288,7 +288,7 @@ TensorQ<2>
 Model
 ::positions() const
 {
-    return {this->_positions, Length};
+    return this->_positions*units::m;
 }
 
 }

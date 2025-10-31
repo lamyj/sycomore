@@ -155,16 +155,11 @@ void
 Species
 ::set_D(Matrix3x3Q const & q)
 {
-    for(std::size_t i=0; i<q.size(); ++i)
+    if(q.dimensions != Diffusion)
     {
-        if(q[i].dimensions != Diffusion)
-        {
-            std::ostringstream message;
-            message
-                << "D[" << i << "] must be a diffusion coefficient, not "
-                << q[i].dimensions;
-            throw std::runtime_error(message.str());
-        }
+        std::ostringstream message;
+        message << "D must be a diffusion coefficient, not " << q.dimensions;
+        throw std::runtime_error(message.str());
     }
     this->_D = q;
 }
