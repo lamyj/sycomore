@@ -61,6 +61,31 @@ bool operator>(Quantity const & left, Quantity const & right);
 /// @brief Compare the magnitude of two compatible quantities
 bool operator>=(Quantity const & left, Quantity const & right);
 
+
+template<typename T>
+QuantityContainer<T> operator*(T const & left, Quantity const & right)
+{
+    return {left * right.magnitude, right.dimensions};
+}
+
+template<typename T>
+QuantityContainer<T> operator*(Quantity const & left, T const & right)
+{
+    return right*left;
+}
+
+template<typename T>
+QuantityContainer<T> operator/(T const & left, Quantity const & right)
+{
+    return {left / right.magnitude, std::pow(right.dimensions, -1)};
+}
+
+template<typename T>
+QuantityContainer<T> operator/(Quantity const & left, T const & right)
+{
+    return {left.magnitude / right, left.dimensions};
+}
+
 /// @brief Helper functions for quantity container constructors
 namespace details
 {
