@@ -60,77 +60,44 @@ public:
     bool operator!=(TDerived const & right) const;
     
     /// @brief In-place addition of a compatible quantity
-    template<typename T>
+    template<typename T, enable_if_quantity<T> = true>
+    TDerived & operator+=(T const & right);
+    
+    /// @brief In-place addition of a compatible quantity
+    template<typename T, enable_if_not_quantity<T> = true>
     TDerived & operator+=(T const & right);
     
     /// @brief In-place subtraction of a compatible quantity
-    template<typename T>
+    template<typename T, enable_if_quantity<T> = true>
+    TDerived & operator-=(T const & right);
+    
+    /// @brief In-place subtraction of a compatible quantity
+    template<typename T, enable_if_not_quantity<T> = true>
     TDerived & operator-=(T const & right);
     
     /// @brief In-place multiplication
     template<typename T, enable_if_quantity<T> = true>
-    TDerived & operator*=(T const & right)
-    {
-        auto & left = this->derived_cast();
-        left.magnitude *= right.magnitude;
-        left.dimensions *= right.dimensions;
-        return left;
-    }
+    TDerived & operator*=(T const & right);
     
     /// @brief In-place multiplication
     template<typename T, enable_if_not_quantity<T> = true>
-    TDerived & operator*=(T const & right)
-    {
-        auto & left = this->derived_cast();
-        left.magnitude *= right;
-        return left;
-    }
+    TDerived & operator*=(T const & right);
     
     /// @brief In-place division
     template<typename T, enable_if_quantity<T> = true>
-    TDerived & operator/=(T const & right)
-    {
-        auto & left = this->derived_cast();
-        left.magnitude /= right.magnitude;
-        left.dimensions /= right.dimensions;
-        return left;
-    }
+    TDerived & operator/=(T const & right);
     
     /// @brief In-place division
     template<typename T, enable_if_not_quantity<T> = true>
-    TDerived & operator/=(T const & right)
-    {
-        auto & left = this->derived_cast();
-        left.magnitude /= right;
-        return left;
-    }
+    TDerived & operator/=(T const & right);
     
     /// @brief In-place floating-point modulo
     template<typename T, enable_if_quantity<T> = true>
-    TDerived & operator%=(T const & right)
-    {
-        auto & left = this->derived_cast();
-        if(right.dimensions == Dimensionless || left.dimensions == right.dimensions)
-        {
-            return this->operator%=(right.magnitude);
-        }
-        else
-        {
-            throw std::runtime_error("Modulo requires same dimensions");
-        }
-        return left;
-    }
+    TDerived & operator%=(T const & right);
     
     /// @brief In-place floating-point modulo
     template<typename T, enable_if_not_quantity<T> = true>
-    TDerived & operator%=(T const & right)
-    {
-        auto & left = this->derived_cast();
-        using std::fmod;
-        using xt::fmod;
-        left.magnitude = fmod(left.magnitude, right);
-        return left;
-    }
+    TDerived & operator%=(T const & right);
     
     template<typename T>
     TDerived & fill(T const & x);

@@ -64,7 +64,7 @@ QuantityInterface<TDerived>
 }
 
 template<typename TDerived>
-template<typename T>
+template<typename T, enable_if_quantity<T>>
 TDerived &
 QuantityInterface<TDerived>
 ::operator+=(T const & right)
@@ -76,7 +76,19 @@ QuantityInterface<TDerived>
 }
 
 template<typename TDerived>
-template<typename T>
+template<typename T, enable_if_not_quantity<T> >
+TDerived &
+QuantityInterface<TDerived>
+::operator+=(T const & right)
+{
+    this->check_dimensions(Dimensionless, "Addition requires same dimensions");
+    auto & left = this->derived_cast();
+    left.magnitude += right;
+    return left;
+}
+
+template<typename TDerived>
+template<typename T, enable_if_quantity<T>>
 TDerived &
 QuantityInterface<TDerived>
 ::operator-=(T const & right)
@@ -84,6 +96,95 @@ QuantityInterface<TDerived>
     this->check_dimensions(right, "Subtraction requires same dimensions");
     auto & left = this->derived_cast();
     left.magnitude -= right.magnitude;
+    return left;
+}
+
+template<typename TDerived>
+template<typename T, enable_if_not_quantity<T> >
+TDerived &
+QuantityInterface<TDerived>
+::operator-=(T const & right)
+{
+    this->check_dimensions(Dimensionless, "Subtraction requires same dimensions");
+    auto & left = this->derived_cast();
+    left.magnitude -= right;
+    return left;
+}
+
+template<typename TDerived>
+template<typename T, enable_if_quantity<T>>
+TDerived &
+QuantityInterface<TDerived>
+::operator*=(T const & right)
+{
+    auto & left = this->derived_cast();
+    left.magnitude *= right.magnitude;
+    left.dimensions *= right.dimensions;
+    return left;
+}
+
+template<typename TDerived>
+template<typename T, enable_if_not_quantity<T>>
+TDerived &
+QuantityInterface<TDerived>
+::operator*=(T const & right)
+{
+    auto & left = this->derived_cast();
+    left.magnitude *= right;
+    return left;
+}
+
+template<typename TDerived>
+template<typename T, enable_if_quantity<T>>
+TDerived &
+QuantityInterface<TDerived>
+::operator/=(T const & right)
+{
+    auto & left = this->derived_cast();
+    left.magnitude /= right.magnitude;
+    left.dimensions /= right.dimensions;
+    return left;
+}
+
+template<typename TDerived>
+template<typename T, enable_if_not_quantity<T>>
+TDerived &
+QuantityInterface<TDerived>
+::operator/=(T const & right)
+{
+    auto & left = this->derived_cast();
+    left.magnitude /= right;
+    return left;
+}
+
+template<typename TDerived>
+template<typename T, enable_if_quantity<T>>
+TDerived &
+QuantityInterface<TDerived>
+::operator%=(T const & right)
+{
+    auto & left = this->derived_cast();
+    if(right.dimensions == Dimensionless || left.dimensions == right.dimensions)
+    {
+        return this->operator%=(right.magnitude);
+    }
+    else
+    {
+        throw std::runtime_error("Modulo requires same dimensions");
+    }
+    return left;
+}
+
+template<typename TDerived>
+template<typename T, enable_if_not_quantity<T>>
+TDerived &
+QuantityInterface<TDerived>
+::operator%=(T const & right)
+{
+    auto & left = this->derived_cast();
+    using std::fmod;
+    using xt::fmod;
+    left.magnitude = fmod(left.magnitude, right);
     return left;
 }
 
