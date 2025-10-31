@@ -12,6 +12,7 @@
 #include "sycomore/epg/Base.h"
 #include "sycomore/epg/robin_hood.h"
 #include "sycomore/Quantity.h"
+#include "sycomore/QuantityTensor.h"
 #include "sycomore/Species.h"
 #include "sycomore/sycomore.h"
 #include "sycomore/TimeInterval.h"

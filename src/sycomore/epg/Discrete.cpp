@@ -77,18 +77,15 @@ TensorQ<1>
 Discrete
 ::orders() const
 {
-    TensorQ<1> orders(TensorQ<1>::shape_type{this->size()});
-    std::transform(
-        this->_orders.begin(), this->_orders.end(), orders.begin(),
-        [&](Orders::value_type const & k){ return k*this->_bin_width; });
-    return orders;
+    auto const bins = xt::eval(xt::cast<double>(this->bins()));
+    return bins * this->_bin_width;
 }
 
 ArrayC
 Discrete
 ::state(Order const & order) const
 {
-    std::size_t const k = std::lround(double(order/this->_bin_width));
+    std::size_t const k = std::lround(order.magnitude/this->_bin_width.magnitude);
 
     auto const it = std::find(this->_orders.begin(), this->_orders.end(), k);
     if(it == this->_orders.end())
@@ -306,7 +303,7 @@ Discrete
     if(
         std::all_of(
             this->_model.species.begin(), this->_model.species.end(),
-            [](Species const & s) { return s.D().unchecked(0, 0).magnitude == 0; }))
+            [](Species const & s) { return s.D().magnitude.unchecked(0, 0) == 0; }))
     {
         return;
     }
@@ -325,7 +322,7 @@ Discrete
     
     for(std::size_t pool=0; pool<this->_model.pools; ++pool)
     {
-        auto const & D = this->_model.species[pool].D().unchecked(0, 0).magnitude;
+        auto const & D = this->_model.species[pool].D().magnitude.unchecked(0, 0);
         if(D == 0.)
         {
             continue;
@@ -347,7 +344,8 @@ Discrete
         return;
     }
     
-    auto const delta_k = (sycomore::gamma*gradient*duration).magnitude;
+    auto const delta_k =
+        sycomore::gamma.magnitude * gradient.magnitude * duration.magnitude;
     if(delta_k == 0)
     {
         return;

@@ -93,15 +93,11 @@ TensorQ<1>
 Regular
 ::orders() const
 {
-    TensorQ<1> result(TensorQ<1>::shape_type{this->size()});
     auto const factor = 
         (this->_unit_dephasing.magnitude != 0)
         ? this->_unit_dephasing : Quantity(1.);
-    for(std::size_t i=0; i<result.size(); ++i)
-    {
-        result[i] = i * factor;
-    }
-    return result;
+    auto const bins = xt::eval(xt::cast<double>(this->bins()));
+    return bins * factor;
 }
 
 ArrayC
@@ -124,7 +120,7 @@ Regular
             throw std::runtime_error(
                 "Dephasing is not a integer multiple of unit dephasing");
         }
-        position = std::lround(order/this->_unit_dephasing);
+        position = std::lround(order.magnitude/this->_unit_dephasing.magnitude);
     }
     
     return this->state(position);
@@ -210,11 +206,11 @@ void
 Regular
 ::shift(Quantity const & duration, Quantity const & gradient)
 {
-    auto const dephasing = sycomore::gamma*duration*gradient;
-    auto const epsilon = 
-        this->_gradient_tolerance*this->_unit_dephasing.magnitude;
-    auto const remainder = std::remainder(
-        dephasing.magnitude, this->_unit_dephasing.magnitude);
+    auto const dephasing =
+        sycomore::gamma.magnitude * duration.magnitude * gradient.magnitude;
+    auto const & unit_dephasing = this->_unit_dephasing.magnitude;
+    auto const epsilon = this->_gradient_tolerance* unit_dephasing;
+    auto const remainder = std::remainder(dephasing, unit_dephasing);
     
     if(std::abs(remainder) >= epsilon)
     {
@@ -222,7 +218,7 @@ Regular
             "Dephasing is not a integer multiple of unit dephasing");
     }
     
-    int n = std::lround(dephasing/this->_unit_dephasing);
+    int n = std::lround(dephasing/unit_dephasing);
     
     this->_shift(n);
 }
@@ -234,7 +230,7 @@ Regular
     if(
         std::all_of(
             this->_model.species.begin(), this->_model.species.end(),
-            [](Species const & s) { return s.D().unchecked(0, 0).magnitude == 0; }))
+            [](Species const & s) { return s.D().magnitude.unchecked(0, 0) == 0; }))
     {
         return;
     }
@@ -268,7 +264,7 @@ Regular
     
     for(std::size_t pool=0; pool<this->_model.pools; ++pool)
     {
-        auto const & D = this->_model.species[pool].D().unchecked(0, 0).magnitude;
+        auto const & D = this->_model.species[pool].D().magnitude.unchecked(0, 0);
         if(D == 0.)
         {
             continue;

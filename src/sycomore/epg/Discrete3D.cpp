@@ -79,11 +79,8 @@ TensorQ<2>
 Discrete3D
 ::orders() const
 {
-    TensorQ<2> orders(TensorQ<2>::shape_type{this->size(), 3});
-    std::transform(
-        this->_orders.begin(), this->_orders.end(), orders.begin(),
-        [&](Orders::value_type const & k){ return k*this->_bin_width; });
-    return orders;
+    auto const bins = xt::eval(xt::cast<double>(this->bins()));
+    return bins * this->_bin_width;
 }
 
 ArrayC
@@ -97,10 +94,11 @@ Discrete3D
         throw std::runtime_error(message.str());
     }
     
+    auto const & bin_width = this->_bin_width.magnitude;
     Bin bin{
-        static_cast<int64_t>(std::round(order[0]/this->_bin_width)),
-        static_cast<int64_t>(std::round(order[1]/this->_bin_width)),
-        static_cast<int64_t>(std::round(order[2]/this->_bin_width)) };
+        static_cast<int64_t>(std::round(order[0].magnitude/bin_width)),
+        static_cast<int64_t>(std::round(order[1].magnitude/bin_width)),
+        static_cast<int64_t>(std::round(order[2].magnitude/bin_width)) };
     auto it = this->_orders.begin();
     for(auto end = this->_orders.end(); it != end; it+=3)
     {
@@ -214,7 +212,7 @@ Discrete3D
 ::apply_time_interval(TimeInterval const & interval)
 {
     this->apply_time_interval(
-        interval.duration(), interval.gradient_amplitude()[0]);
+        interval.duration(), interval.gradient_amplitude());
 }
 
 void
@@ -350,8 +348,8 @@ Discrete3D
             this->_model.species.begin(), this->_model.species.end(),
             [](Species const & s) {
                 return std::all_of(
-                    s.D().begin(), s.D().end(),
-                    [](Quantity const & x) { return x.magnitude == 0;});
+                    s.D().magnitude.begin(), s.D().magnitude.end(),
+                    [](Quantity const & x) { return x == 0;});
             }
         ))
     {
@@ -392,7 +390,7 @@ Discrete3D
                 simd_api::diffusion_3d_b(
                     cache.k[m].data(), cache.k[n].data(), 
                     delta_k[m], delta_k[n], delta_k_product_term,
-                    tau, species.D().unchecked(m, n).magnitude,
+                    tau, species.D().magnitude.unchecked(m, n),
                     cache.b_L_D.data(), 
                     cache.b_T_plus_D.data(), cache.b_T_minus_D.data(),
                     F.size());

@@ -173,7 +173,7 @@ Quantity
 Base
 ::elapsed() const
 {
-    return this->_elapsed*sycomore::units::s;
+    return {this->_elapsed, Time};
 }
 
 Complex const &
