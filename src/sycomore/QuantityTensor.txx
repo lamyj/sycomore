@@ -31,7 +31,7 @@ TensorQ<N>
     auto const dimensions = details::get_dimensions<N>(args);
     details::nested_check_dimensions<N>(args, dimensions);
     
-    this->magnitude.resize(xt::shape<typename Container::shape_type>(args));
+    this->magnitude.resize(xt::shape<shape_type>(args));
     constexpr auto const tmp = xt::layout_type::row_major;
     this->magnitude.layout() == tmp
         ? details::nested_copy_magnitude(this->magnitude.begin(), args)

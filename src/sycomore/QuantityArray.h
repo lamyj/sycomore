@@ -2,6 +2,7 @@
 #define _ef70a062_eaab_4ac7_abe8_a22cc86789cd
 
 #include <xtensor/xarray.hpp>
+#include <xtensor/xio.hpp>
 
 #include "sycomore/QuantityBase.h"
 
@@ -15,11 +16,12 @@ public:
     using Self = ArrayQ;
     using Container = xt::xarray<double>;
     using Base = QuantityBase<Self, Container>;
+    using shape_type = Container::shape_type;
     
     using Base::Base;
     
     /// @brief Create an unitialized quantity from a shape
-    ArrayQ(typename Container::shape_type const & shape)
+    ArrayQ(shape_type const & shape)
     : Base(Container(shape))
     {
         // Nothing else.

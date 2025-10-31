@@ -18,11 +18,12 @@ public:
     using Self = TensorQ<N>;
     using Container = xt::xtensor<double, N>;
     using Base = QuantityBase<Self, Container>;
+    using shape_type = typename Container::shape_type;
     
     using Base::Base;
     
     /// @brief Create an unitialized quantity from a shape
-    TensorQ(typename Container::shape_type const & shape)
+    TensorQ(shape_type const & shape)
     : Base(Container(shape))
     {
         // Nothing else.
