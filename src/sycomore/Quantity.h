@@ -19,6 +19,7 @@ public:
     
     using Base::Base;
     
+    Quantity(QuantityConstReference const & q);
     Quantity(Quantity const &) = default;
     Quantity(Quantity &&) = default;
     Quantity & operator=(Quantity const &) = default;
