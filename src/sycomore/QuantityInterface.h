@@ -211,7 +211,7 @@ OwningType<T1> operator/(T1 left, T2 const & right)
 template<typename T1, typename T2, enable_if_not_quantity<T1> = true, enable_if_quantity<T2> = true>
 OwningType<T2> operator/(T1 const & left, T2 right)
 {
-    return {left/right.magnitude, 1/right.dimensions};
+    return {left/right.magnitude, std::pow(right.dimensions, -1)};
 }
 
 /// @brief Floating point modulo of quantities
