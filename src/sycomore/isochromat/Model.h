@@ -64,29 +64,35 @@ public:
     /// @brief Return the T1 field
     TensorQ<1> T1() const;
     
+    /// @brief Return the R1 field
+    TensorQ<1> const & R1() const;
+    
     /// @brief Return the T2 field
     TensorQ<1> T2() const;
+    
+    /// @brief Return the R2 field
+    TensorQ<1> const & R2() const;
     
     /// @brief Return the M0 field
     TensorR<1> const & M0() const;
     
     /// @brief Return the off-resonance field.
-    TensorR<1> const & delta_omega() const;
+    TensorQ<1> const & delta_omega() const;
     
     /// @brief Return the magnetization field
     TensorR<2> magnetization() const;
     
     /// @brief Return the positions of the isochromats
-    TensorQ<2> positions() const;
+    TensorQ<2> const & positions() const;
     
 private:
-    TensorR<1> _T1;
-    TensorR<1> _T2;
+    TensorQ<1> _R1;
+    TensorQ<1> _R2;
     TensorR<1> _M0;
-    TensorR<1> _delta_omega;
+    TensorQ<1> _delta_omega;
     
     TensorR<2> _magnetization;
-    TensorR<2> _positions;
+    TensorQ<2> _positions;
 };
 
 }

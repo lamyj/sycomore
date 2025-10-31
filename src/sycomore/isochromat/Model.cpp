@@ -48,7 +48,7 @@ Model
 ::Model(
     TensorQ<1> const & T1, TensorQ<1> const & T2, TensorR<2> const & M0,
     TensorQ<2> const & positions, TensorQ<1> const & delta_omega)
-: _T1(T1.shape()), _T2(T2.shape()), _M0(xt::view(M0, xt::all(), 2UL)),
+: _R1(T1.shape()), _R2(T2.shape()), _M0(xt::view(M0, xt::all(), 2UL)),
     _delta_omega(delta_omega.size() == 0 ? T1.shape() : delta_omega.shape()),
     _magnetization(TensorR<2>::shape_type{M0.shape()[0], 4}),
     _positions(positions.shape())
@@ -60,18 +60,46 @@ Model
     {
         throw std::runtime_error("Size mismatch");
     }
-    this->_T1 = T1.convert_to(units::s);
-    this->_T2 = T2.convert_to(units::s);
+    
+    if(T1.dimensions == Frequency)
+    {
+        this->_R1 = T1;
+    }
+    else if(T1.dimensions == Time)
+    {
+        this->_R1 = 1/T1;
+    }
+    else
+    {
+        std::ostringstream message;
+        message << "T1 must be duration or frequency, not " << T1.dimensions;
+        throw std::runtime_error(message.str());
+    }
+    
+    if(T2.dimensions == Frequency)
+    {
+        this->_R2 = T2;
+    }
+    else if(T2.dimensions == Time)
+    {
+        this->_R2 = 1/T2;
+    }
+    else
+    {
+        std::ostringstream message;
+        message << "T2 must be duration or frequency, not " << T2.dimensions;
+        throw std::runtime_error(message.str());
+    }
     
     xt::view(this->_magnetization, xt::all(), xt::range(0, 3)) = M0;
     xt::view(this->_magnetization, xt::all(), 3UL) = 1;
     
     this->_delta_omega = 
         delta_omega.size() == 0
-        ? xt::repeat(TensorR<1>{0.}, T1.size(), 0)
-        : delta_omega.convert_to(units::Hz);
+        ? TensorQ<1>{xt::repeat(TensorR<1>{0.}, T1.size(), 0), Frequency}
+        : delta_omega;
     
-    this->_positions = positions.convert_to(units::m);
+    this->_positions = positions;
 }
 
 Operator
@@ -101,10 +129,10 @@ Model
         throw std::runtime_error("Size mismatch");
     }
     
-    auto const & angle_ = angle.magnitude;
-    
-    TensorR<1> const cos_angle = xt::cos(angle_), cos_phase = xt::cos(phase_);
-    TensorR<1> const sin_angle = xt::sin(angle_), sin_phase = xt::sin(phase_);
+    TensorR<1> const cos_angle = xt::cos(angle.magnitude);
+    TensorR<1> const cos_phase = xt::cos(phase_);
+    TensorR<1> const sin_angle = xt::sin(angle.magnitude);
+    TensorR<1> const sin_phase = xt::sin(phase_);
     
     Operator::Array op = xt::zeros<Operator::Array::value_type>(
         Operator::Array::shape_type{angle.size(), 4, 4});
@@ -152,27 +180,23 @@ Model
     Quantity const & duration, TensorQ<1> const & delta_omega,
     TensorQ<2> const & gradient) const
 {
-    auto const & duration_ = duration.magnitude;
-    auto const & delta_omega_ = delta_omega.magnitude;
-    auto const & gradient_ = gradient.magnitude;
-    
     TensorR<1> angular_frequency = 
         2*M_PI * (
             // Field-related dephasing
-            delta_omega_
+            delta_omega.magnitude
             // Species-related dephasing, e.g. chemical shift or susceptibility
-            + this->_delta_omega);
+            + this->_delta_omega.magnitude);
     if(gradient.size() > 0)
     {
         angular_frequency += gamma.magnitude * xt::sum(
-            gradient_ * this->_positions, {1});
+            gradient.magnitude * this->_positions.magnitude, {1});
     }
     
     auto op = this->build_relaxation(duration);
     
     op.pre_multiply(
         this->build_phase_accumulation(
-            {duration_ * angular_frequency, Angle}));
+            {duration.magnitude * angular_frequency, Angle}));
     
     return op;
 }
@@ -183,9 +207,8 @@ Model
 {
     Operator::Array op = xt::zeros<Operator::Array::value_type>(
         Operator::Array::shape_type{this->_positions.shape()[0], 4, 4});
-    auto const & duration_ = duration.magnitude;
-    auto const E1 = xt::exp(-duration_/this->_T1);
-    auto const E2 = xt::exp(-duration_/this->_T2);
+    auto const E1 = xt::exp(-duration.magnitude*this->_R1.magnitude);
+    auto const E2 = xt::exp(-duration.magnitude*this->_R2.magnitude);
     xt::view(op, xt::all(), 0UL, 0UL) = E2;
     xt::view(op, xt::all(), 1UL, 1UL) = E2;
     xt::view(op, xt::all(), 2UL, 2UL) = E1;
@@ -206,9 +229,8 @@ Operator
 Model
 ::build_phase_accumulation(TensorQ<1> const & angle) const
 {
-    auto const angle_ = angle.magnitude;
-    TensorR<1> const cos_angle = xt::cos(angle_);
-    TensorR<1> const sin_angle = xt::sin(angle_);
+    TensorR<1> const cos_angle = xt::cos(angle.magnitude);
+    TensorR<1> const sin_angle = xt::sin(angle.magnitude);
     
     Operator::Array op = xt::zeros<Operator::Array::value_type>(
         Operator::Array::shape_type{angle.size(), 4, 4});
@@ -251,14 +273,28 @@ TensorQ<1>
 Model
 ::T1() const
 {
-    return this->_T1*units::s;
+    return 1./this->_R1;
+}
+
+TensorQ<1> const &
+Model
+::R1() const
+{
+    return this->_R1;
 }
 
 TensorQ<1>
 Model
 ::T2() const
 {
-    return this->_T2*units::s;
+    return 1./this->_R2;
+}
+
+TensorQ<1> const &
+Model
+::R2() const
+{
+    return this->_R2;
 }
 
 TensorR<1> const &
@@ -268,7 +304,7 @@ Model
     return this->_M0;
 }
 
-TensorR<1> const &
+TensorQ<1> const &
 Model
 ::delta_omega() const
 {
@@ -284,11 +320,11 @@ Model
         / xt::expand_dims(xt::view(this->_magnetization, xt::all(), 3UL), 1));
 }
 
-TensorQ<2>
+TensorQ<2> const &
 Model
 ::positions() const
 {
-    return this->_positions*units::m;
+    return this->_positions;
 }
 
 }

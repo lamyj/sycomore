@@ -21,6 +21,13 @@ public:
     
     using Base::Base;
     
+    /// @brief Create an unitialized quantity from a shape
+    TensorQ(typename Container::shape_type const & shape)
+    : Base(Container(shape))
+    {
+        // Nothing else.
+    }
+    
     /// @brief Create a scalar quantity
     TensorQ(xt::nested_initializer_list_t<double, N> t);
     
