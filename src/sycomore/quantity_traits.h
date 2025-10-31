@@ -23,15 +23,46 @@ template<typename T>
 using enable_if_not_quantity = std::enable_if_t<!is_quantity<T>::value, bool>;
 
 /**
- * @brief Return an equivalent type which owns its data
+ * @brief Equivalent type which owns its data
  * @sa QuantityReference
  * @sa QuantityConstReference
  */
 template<typename T>
 struct OwningTypeTrait { using Type = T; };
 
+/// @brief Helper for OwningTypeTrait
 template<typename T>
 using OwningType = typename OwningTypeTrait<T>::Type;
+
+// Forward declaration of concrete quantity type
+class ArrayQ;
+
+/// @brief Common types to T1 and T2, default to ArrayQ which may hold any dimension
+template<typename T1, typename T2, typename Enable = void>
+struct CommonQuantityTypeTrait
+{
+    using Type = ArrayQ;
+};
+
+/// @brief Helper to CommonQuantityTypeTrait for cv-qualified types
+template<typename T1, typename T2>
+struct CommonQuantityTypeStruct
+{
+    using Type = typename CommonQuantityTypeTrait<
+            std::remove_cv_t<T1>, std::remove_cv_t<T2>
+        >::Type;
+};
+
+/// @brief Helper for CommonQuantityTypeStruct
+template<typename T1, typename T2>
+using CommonQuantityType = typename CommonQuantityTypeStruct<T1, T2>::Type;
+
+// If the two types are the same, they are their common type
+template<typename T>
+struct CommonQuantityTypeTrait<T, T>
+{
+    using Type = T;
+};
 
 }
 

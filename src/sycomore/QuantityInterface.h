@@ -8,7 +8,6 @@
 
 #include "sycomore/Dimensions.h"
 #include "sycomore/quantity_traits.h"
-#include "sycomore/QuantityCommonType.h"
 
 namespace sycomore
 {

@@ -26,6 +26,26 @@ public:
     ~Quantity() override = default;
 };
 
+// Quantity holds a scalar value: its common type is the other one
+template<typename T>
+struct CommonQuantityTypeTrait<
+    T, Quantity, 
+    // Disable <Quantity, Quantity> specialization to avoid ambiguity
+    typename std::enable_if<!std::is_same<T, Quantity>::value>::type>
+{
+    using Type = T;
+};
+
+// Same as above
+template<typename T>
+struct CommonQuantityTypeTrait<
+    Quantity, T,
+    typename std::enable_if<!std::is_same<T, Quantity>::value>::type>
+{
+    using Type = T;
+};
+
+
 /// @brief Compare the magnitude of two compatible quantities
 bool operator<(Quantity const & left, Quantity const & right);
 
