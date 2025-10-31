@@ -2,6 +2,7 @@
 #define _950e1518_e22c_46bd_afd1_5f2d045d8d73
 
 #include <cmath>
+#include <ostream>
 #include <stdexcept>
 
 #include <xtensor/xmath.hpp>
@@ -220,6 +221,10 @@ OwningType<T1> operator%(T1 left, T2 const & right)
 {
     return OwningType<T1>{left.magnitude, left.dimensions} %= right;
 }
+
+template<typename TDerived>
+std::ostream & operator<<(
+    std::ostream & stream, QuantityInterface<TDerived> const & q);
 
 }
 

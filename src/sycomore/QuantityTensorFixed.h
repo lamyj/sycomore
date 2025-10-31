@@ -2,6 +2,7 @@
 #define _0b6aefc6_cf98_4fff_965c_d22c09e27aac
 
 #include <xtensor/xfixed.hpp>
+#include <xtensor/xio.hpp>
 
 #include "sycomore/Quantity.h"
 #include "sycomore/QuantityBase.h"

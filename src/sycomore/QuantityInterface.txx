@@ -102,6 +102,15 @@ QuantityInterface<TDerived>
     return self;
 }
 
+template<typename TDerived>
+std::ostream & operator<<(
+    std::ostream & stream, QuantityInterface<TDerived> const & q)
+{
+    auto const & q_ = q.derived_cast();
+    stream << q_.magnitude << " " << q_.dimensions << std::endl;
+    return stream;
+}
+
 }
 
 #endif // _f4271617_4909_4e41_bd07_ee1eb44f75ab

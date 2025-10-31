@@ -1,6 +1,7 @@
 #ifndef _9b8b809d_7065_4e2a_9c8c_24267f529679
 #define _9b8b809d_7065_4e2a_9c8c_24267f529679
 
+#include <xtensor/xio.hpp>
 #include <xtensor/xtensor.hpp>
 
 #include "sycomore/QuantityBase.h"
