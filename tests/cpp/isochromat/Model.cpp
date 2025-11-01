@@ -6,6 +6,34 @@
 #include "sycomore/isochromat/Model.h"
 #include "sycomore/units.h"
 
+#include "../utils.h"
+
+BOOST_AUTO_TEST_CASE(T1R1Constructor)
+{
+    using namespace sycomore::units;
+    
+    sycomore::isochromat::Model model1(2*s, 1*s, {0,0,1}, {{0*m,0*m,0*m}});
+    CHECK_QUANTITY(model1.T1(), (sycomore::TensorQ<1>{{2*s}}));
+    CHECK_QUANTITY(model1.R1(), (sycomore::TensorQ<1>{{0.5*Hz}}));
+    
+    sycomore::isochromat::Model model2(0.5*Hz, 1*s, {0,0,1}, {{0*m,0*m,0*m}});
+    CHECK_QUANTITY(model2.T1(), (sycomore::TensorQ<1>{{2*s}}));
+    CHECK_QUANTITY(model2.R1(), (sycomore::TensorQ<1>{{0.5*Hz}}));
+}
+
+BOOST_AUTO_TEST_CASE(T2R2Constructor)
+{
+    using namespace sycomore::units;
+    
+    sycomore::isochromat::Model model1(1*s, 2*s, {0,0,1}, {{0*m,0*m,0*m}});
+    CHECK_QUANTITY(model1.T2(), (sycomore::TensorQ<1>{{2*s}}));
+    CHECK_QUANTITY(model1.R2(), (sycomore::TensorQ<1>{{0.5*Hz}}));
+    
+    sycomore::isochromat::Model model2(1*s, 0.5*Hz, {0,0,1}, {{0*m,0*m,0*m}});
+    CHECK_QUANTITY(model2.T2(), (sycomore::TensorQ<1>{{2*s}}));
+    CHECK_QUANTITY(model2.R2(), (sycomore::TensorQ<1>{{0.5*Hz}}));
+}
+
 BOOST_AUTO_TEST_CASE(PulseUniform)
 {
     using namespace sycomore::units;
