@@ -7,19 +7,7 @@
 #include "sycomore/Species.h"
 #include "sycomore/units.h"
 
-#define TEST_COMPLEX_EQUAL(v1, v2) \
-    { \
-        sycomore::Complex const c1(v1), c2(v2); \
-        BOOST_TEST(c1.real() == c2.real()); \
-        BOOST_TEST(c1.imag() == c2.imag()); \
-    }
-
-#define TEST_ORDER(o1, o2) \
-    { \
-        BOOST_TEST(o1.magnitude == o2.magnitude); \
-        BOOST_TEST(o1.dimensions == o2.dimensions); \
-    }
-
+#include "../utils.h"
 
 void test_model(
     sycomore::epg::Regular const & model,
@@ -38,7 +26,7 @@ void test_model(
         auto && order = orders(i);
         auto && expected_order = expected_orders(i);
         
-        TEST_ORDER(order, expected_order);
+        CHECK_QUANTITY(order, expected_order);
         
         auto && expected_state = xt::view(expected_states, i);
         
@@ -294,8 +282,8 @@ BOOST_AUTO_TEST_CASE(Elapsed)
     sycomore::Species const species(1000*ms, 100*ms);
         
     sycomore::epg::Regular model(species, {0,0,1}, 100, 10*mT/m*ms);
-    BOOST_TEST(model.elapsed() == 0*s);
+    CHECK_QUANTITY(model.elapsed(), 0*s);
     
     model.apply_time_interval(10*ms);
-    BOOST_TEST(model.elapsed() == 10*ms);
+    CHECK_QUANTITY(model.elapsed(), 10*ms);
 }

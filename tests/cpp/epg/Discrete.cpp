@@ -7,12 +7,7 @@
 #include "sycomore/Species.h"
 #include "sycomore/units.h"
 
-#define TEST_COMPLEX_EQUAL(v1, v2) \
-    { \
-        sycomore::Complex const c1(v1), c2(v2); \
-        BOOST_TEST(c1.real() == c2.real()); \
-        BOOST_TEST(c1.imag() == c2.imag()); \
-    }
+#include "../utils.h"
 
 void test_model(
     sycomore::epg::Discrete const & model,
@@ -31,7 +26,7 @@ void test_model(
         auto && order = orders(i);
         auto && expected_order = expected_orders(i);
         
-        BOOST_TEST(order == expected_order);
+        CHECK_QUANTITY(order, expected_order);
         
         auto && expected_state = xt::view(expected_states, i);
         
@@ -53,7 +48,7 @@ BOOST_AUTO_TEST_CASE(Empty, *boost::unit_test::tolerance(1e-9))
         
     sycomore::epg::Discrete model(species);
 
-    sycomore::ArrayQ const orders{0*rad/m};
+    sycomore::TensorQ<1> const orders{0*rad/m};
     sycomore::ArrayC const states{{0, 0, 1}};
     test_model(model, orders, states);
     TEST_COMPLEX_EQUAL(model.echo(), 0.);
@@ -66,7 +61,7 @@ BOOST_AUTO_TEST_CASE(Pulse, *boost::unit_test::tolerance(1e-9))
     sycomore::epg::Discrete model(species);
     model.apply_pulse(47*deg, 23*deg);
 
-    sycomore::ArrayQ const orders{0*rad/m};
+    sycomore::TensorQ<1> const orders{0*rad/m};
     sycomore::ArrayC const states{
         {
             {0.2857626571584661, -0.6732146319308543},
@@ -86,7 +81,7 @@ BOOST_AUTO_TEST_CASE(PositiveGradient, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.shift(10*ms, 2*mT/m);
 
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 5350*rad/m};
     sycomore::ArrayC const states{
         {0, 0, 0.6819983600624985},
@@ -103,7 +98,7 @@ BOOST_AUTO_TEST_CASE(NegativeGradient, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.shift(10*ms, -2*mT/m);
 
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 5350*rad/m};
     sycomore::ArrayC const states{
         {0, 0, 0.6819983600624985},
@@ -122,7 +117,7 @@ BOOST_AUTO_TEST_CASE(MultipleGradient, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.shift(10*ms, 1*mT/m);
 
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 2675*rad/m, 5350*rad/m, 8025*rad/m};
     sycomore::ArrayC const states{
         {0, 0, 0.4651217631279373},
@@ -145,7 +140,7 @@ BOOST_AUTO_TEST_CASE(Relaxation, *boost::unit_test::tolerance(1e-9))
     model.shift(10*ms, 2*mT/m);
     model.relaxation(10*ms);
 
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 5350*rad/m};
     sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
@@ -164,7 +159,7 @@ BOOST_AUTO_TEST_CASE(Diffusion, *boost::unit_test::tolerance(1e-9))
     model.relaxation(10*ms);
     model.diffusion(10*ms, 2*mT/m);
 
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 5350*rad/m};
     sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
@@ -183,7 +178,7 @@ BOOST_AUTO_TEST_CASE(OffResonance, *boost::unit_test::tolerance(1e-9))
     model.shift(10*ms, 2*mT/m);
 
     model.off_resonance(10*ms);
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 5350*rad/m};
     sycomore::ArrayC const states{
         {0, 0, 0.6819983600624985},
@@ -200,7 +195,7 @@ BOOST_AUTO_TEST_CASE(TimeInterval, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.apply_time_interval(10*ms, 2*mT/m);
 
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 5350*rad/m};
     sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
@@ -218,7 +213,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalFieldOffResonance, *boost::unit_test::tolerance
     model.apply_pulse(47*deg, 23*deg);
 
     model.apply_time_interval({10*ms, 2*mT/m});
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 5350*rad/m};
     sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
@@ -236,7 +231,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalSpeciesOffResonance, *boost::unit_test::toleran
     model.apply_pulse(47*deg, 23*deg);
     model.apply_time_interval(10*ms, 2*mT/m);
 
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 5350*rad/m};
     sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
@@ -255,7 +250,7 @@ BOOST_AUTO_TEST_CASE(TimeIntervalBothOffResonance, *boost::unit_test::tolerance(
     model.apply_pulse(47*deg, 23*deg);
 
     model.apply_time_interval({10*ms, 2*mT/m, });
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 5350*rad/m};
     sycomore::ArrayC const states{
         {0, 0, 0.6851625292479138},
@@ -274,7 +269,7 @@ BOOST_AUTO_TEST_CASE(Refocalization, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(120*deg, 0*deg);
     model.apply_time_interval(10*ms, 2*mT/m);
 
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 5350*rad/m, 10700*rad/m};
     sycomore::ArrayC const states{
         {
@@ -303,7 +298,7 @@ BOOST_AUTO_TEST_CASE(BulkMotion, *boost::unit_test::tolerance(1e-9))
     model.apply_pulse(47*deg, 23*deg);
     model.apply_time_interval(10*ms, 1*mT/m);
 
-    sycomore::ArrayQ const orders{
+    sycomore::TensorQ<1> const orders{
         0*rad/m, 2675*rad/m};    
     sycomore::ArrayC const states = {
         {0, 0, 0.6851625292479138},
@@ -319,8 +314,8 @@ BOOST_AUTO_TEST_CASE(Elapsed)
     sycomore::Species const species(1000*ms, 100*ms);
         
     sycomore::epg::Discrete model(species);
-    BOOST_TEST(model.elapsed() == 0*s);
+    CHECK_QUANTITY(model.elapsed(), 0*s);
     
     model.apply_time_interval(10*ms);
-    BOOST_TEST(model.elapsed() == 10*ms);
+    CHECK_QUANTITY(model.elapsed(), 10*ms);
 }

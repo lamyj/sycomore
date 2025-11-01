@@ -5,6 +5,8 @@
 
 #include <xtensor/xmath.hpp>
 
+#include "sycomore/Array.h"
+
 template<typename T>
 auto difference(T const & left, T const & right, double epsilon=1e-12)
 {
@@ -47,5 +49,12 @@ is_close(T const & left, T const & right, double epsilon=1e-12)
 #define CHECK_IDENTITY_AND_QUANTITY(x, y, z) \
     CHECK_IDENTITY(x, y); \
     CHECK_QUANTITY(x, z);
+
+#define TEST_COMPLEX_EQUAL(v1, v2) \
+    { \
+        sycomore::Complex const c1(v1), c2(v2); \
+        BOOST_TEST(c1.real() == c2.real()); \
+        BOOST_TEST(c1.imag() == c2.imag()); \
+    }
 
 #endif // _e55feb28_6959_4759_ac43_7eaddb0fb7a3
