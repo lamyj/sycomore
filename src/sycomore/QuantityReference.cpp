@@ -16,4 +16,10 @@ QuantityReference
     return *this;
 }
 
+QuantityReference
+::operator Quantity() const
+{
+    return {this->magnitude, this->dimensions};
+}
+
 }

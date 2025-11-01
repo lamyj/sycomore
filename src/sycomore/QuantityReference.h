@@ -27,6 +27,8 @@ public:
     QuantityReference & operator=(Quantity const & other);
     QuantityReference & operator=(QuantityReference && other) = delete;
     ~QuantityReference() override = default;
+    
+    operator Quantity() const;
 };
 
 template<>

@@ -1,16 +1,7 @@
 #include "sycomore/Quantity.h"
 
-#include "sycomore/QuantityBase.h"
-
 namespace sycomore
 {
-
-Quantity
-::Quantity(QuantityConstReference const & q)
-: Base(q.magnitude, q.dimensions)
-{
-    // Nothing else
-}
 
 template<template<typename> typename Operator>
 bool order(Quantity const & left, Quantity const & right)
