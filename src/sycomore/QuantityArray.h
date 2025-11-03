@@ -85,6 +85,22 @@ struct hash<sycomore::ArrayQ>
 
 }
 
+// NOTE: forbid ArrayQ to participate in the operators overloads of namespace xt
+namespace xt
+{
+namespace detail
+{
+template<typename F, typename T>
+struct xfunction_type<F, T, sycomore::ArrayQ> { };
+template<typename F, typename T>
+struct xfunction_type<F, sycomore::ArrayQ, T> { };
+template<typename F, typename T>
+struct xfunction_type<F, T, sycomore::ArrayQ const &> { };
+template<typename F, typename T>
+struct xfunction_type<F, sycomore::ArrayQ const &, T> { };
+}
+}
+
 #include "QuantityArray.txx"
 
 #endif // _ef70a062_eaab_4ac7_abe8_a22cc86789cd

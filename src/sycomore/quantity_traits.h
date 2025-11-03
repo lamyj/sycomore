@@ -14,13 +14,13 @@ struct is_quantity: public std::false_type { };
  * @brief Wrapper around std::enable_if for quantity or quantity container types
  */
 template<typename T>
-using enable_if_quantity = std::enable_if_t<is_quantity<T>::value, bool>;
+using enable_if_quantity = std::enable_if_t<is_quantity<std::decay_t<T>>::value, bool>;
 
 /**
  * @brief Wrapper for std::enable_if for non-quantity and non-quantity container
  * types*/
 template<typename T>
-using enable_if_not_quantity = std::enable_if_t<!is_quantity<T>::value, bool>;
+using enable_if_not_quantity = std::enable_if_t<!is_quantity<std::decay_t<T>>::value, bool>;
 
 /**
  * @brief Equivalent type which owns its data

@@ -61,19 +61,6 @@ bool operator>(Quantity const & left, Quantity const & right);
 /// @brief Compare the magnitude of two compatible quantities
 bool operator>=(Quantity const & left, Quantity const & right);
 
-
-template<typename T>
-QuantityContainer<T> operator*(T const & left, Quantity const & right)
-{
-    return {left * right.magnitude, right.dimensions};
-}
-
-template<typename T>
-QuantityContainer<T> operator*(Quantity const & left, T const & right)
-{
-    return right*left;
-}
-
 template<typename T>
 QuantityContainer<T> operator/(T const & left, Quantity const & right)
 {
@@ -141,6 +128,22 @@ struct hash<sycomore::Quantity>
     std::size_t operator()(sycomore::Quantity const & q) const noexcept;
 };
 
+}
+
+// NOTE: forbid Quantity to participate in the operators overloads of namespace xt
+namespace xt
+{
+namespace detail
+{
+template<typename F, typename T>
+struct xfunction_type<F, T, sycomore::Quantity> { };
+template<typename F, typename T>
+struct xfunction_type<F, sycomore::Quantity, T> { };
+template<typename F, typename T>
+struct xfunction_type<F, T, sycomore::Quantity const &> { };
+template<typename F, typename T>
+struct xfunction_type<F, sycomore::Quantity const &, T> { };
+}
 }
 
 #endif // _dfbc0517_611a_4989_a51c_fa60b94c587f

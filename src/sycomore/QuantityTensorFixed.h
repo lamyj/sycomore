@@ -66,6 +66,22 @@ struct hash<sycomore::TensorFixedQ<S>>
 
 }
 
+// NOTE: forbid TensorFixedQ to participate in the operators overloads of namespace xt
+namespace xt
+{
+namespace detail
+{
+template<typename F, typename T, typename S>
+struct xfunction_type<F, T, sycomore::TensorFixedQ<S>> { };
+template<typename F, typename S, typename T>
+struct xfunction_type<F, sycomore::TensorFixedQ<S>, T> { };
+template<typename F, typename T, typename S>
+struct xfunction_type<F, T, sycomore::TensorFixedQ<S> const &> { };
+template<typename F, typename S, typename T>
+struct xfunction_type<F, sycomore::TensorFixedQ<S> const &, T> { };
+}
+}
+
 #include "QuantityTensorFixed.txx"
 
 #endif // _0b6aefc6_cf98_4fff_965c_d22c09e27aac

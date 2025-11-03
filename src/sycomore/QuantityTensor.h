@@ -96,6 +96,23 @@ struct hash<sycomore::TensorQ<N>>
 
 }
 
+// NOTE: forbid TensorQ to participate in the operators overloads of namespace xt
+namespace xt
+{
+namespace detail
+{
+template<typename F, typename T, std::size_t N>
+struct xfunction_type<F, T, sycomore::TensorQ<N>> { };
+template<typename F, std::size_t N, typename T>
+struct xfunction_type<F, sycomore::TensorQ<N>, T> { };
+template<typename F, typename T, std::size_t N>
+struct xfunction_type<F, T, sycomore::TensorQ<N> const &> { };
+template<typename F, std::size_t N, typename T>
+struct xfunction_type<F, sycomore::TensorQ<N> const &, T> { };
+}
+}
+
+
 #include "QuantityTensor.txx"
 
 #endif // _9b8b809d_7065_4e2a_9c8c_24267f529679
