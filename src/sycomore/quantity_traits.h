@@ -35,7 +35,7 @@ template<typename T>
 using OwningType = typename OwningTypeTrait<T>::Type;
 
 /// Quantity type associated with container type
-template<typename ContainerType>
+template<typename ContainerType, typename Enable=void>
 struct QuantityContainerTrait {};
 
 /// @brief Helper for QuantityContainerTrait

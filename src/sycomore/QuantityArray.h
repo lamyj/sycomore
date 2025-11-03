@@ -69,8 +69,14 @@ private:
     void _from_array(xt::nested_initializer_list_t<Quantity, D> const & args);
 };
 
-template<>
-struct QuantityContainerTrait<xt::xarray<double>> { using Type = ArrayQ; };
+template<typename T>
+struct QuantityContainerTrait<
+        xt::xarray<T>,
+        typename std::enable_if<std::is_arithmetic<T>::value>::type
+    >
+{
+    using Type = ArrayQ;
+};
 
 }
 

@@ -40,8 +40,10 @@ private:
     void _from_array(xt::nested_initializer_list_t<Quantity, rank> const & args);
 };
 
-template<typename S>
-struct QuantityContainerTrait<xt::xtensor_fixed<double, S>>
+template<typename T, typename S>
+struct QuantityContainerTrait<
+        xt::xtensor_fixed<T, S>,
+        typename std::enable_if<std::is_arithmetic<T>::value>::type>
 {
     using Type = TensorFixedQ<S>;
 };
