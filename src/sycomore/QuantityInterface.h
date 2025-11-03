@@ -207,12 +207,35 @@ template<
 CommonQuantityType<QuantityContainer<T1>, T2>
 operator/(T1 const & left, T2 const & right);
 
-/// @brief Floating point modulo of quantities
-template<typename T1, typename T2, enable_if_quantity<T1> = true>
-OwningType<T1> operator%(T1 left, T2 const & right)
-{
-    return OwningType<T1>{left.magnitude, left.dimensions} %= right;
-}
+/// @brief Floating-point modulo of compatible quantities
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_quantity<T2> = true,
+    std::enable_if_t<!std::is_same<typename T2::Container, double>::value, bool> = true>
+CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right);
+
+/// @brief Floating-point modulo of compatible quantities
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_quantity<T2> = true,
+    std::enable_if_t<std::is_same<typename T2::Container, double>::value, bool> = true>
+CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right);
+
+/// @brief Floating-point modulo of a quantity and a scalar
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true,
+    std::enable_if_t<!std::is_same<std::decay_t<T2>, double>::value, bool> = true>
+CommonQuantityType<T1, QuantityContainer<T2>>
+fmod(T1 const & left, T2 const & right);
+
+/// @brief Floating-point modulo of a quantity and a scalar
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true,
+    std::enable_if_t<std::is_same<std::decay_t<T2>, double>::value, bool> = true>
+CommonQuantityType<T1, QuantityContainer<T2>>
+fmod(T1 const & left, T2 const & right);
 
 template<typename TDerived>
 std::ostream & operator<<(

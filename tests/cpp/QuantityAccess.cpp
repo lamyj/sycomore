@@ -125,9 +125,9 @@ template<typename T> struct QuantityReferenceFixture: public Fixture<T>
         CHECK_QUANTITY(q/Quantity(8, Time), Quantity(0.5, Length/Time));
         CHECK_QUANTITY(Quantity(8, Time)/q, Quantity(2, Time/Length));
         // Modulo
-        CHECK_QUANTITY(q%3, Quantity(1, Length));
-        CHECK_QUANTITY(q%Quantity(3, Length), Quantity(1, Length));
-        CHECK_QUANTITY(Quantity(5, Length)%q, Quantity(1, Length));
+        CHECK_QUANTITY(sycomore::fmod(q, 3), Quantity(1, Length));
+        CHECK_QUANTITY(sycomore::fmod(q, Quantity(3, Length)), Quantity(1, Length));
+        CHECK_QUANTITY(sycomore::fmod(Quantity(5, Length), q), Quantity(1, Length));
         // Identity
         CHECK_QUANTITY(+q, Quantity(+4, Length));
         // Opposite

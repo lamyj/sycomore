@@ -1,6 +1,7 @@
 #ifndef _f4271617_4909_4e41_bd07_ee1eb44f75ab
 #define _f4271617_4909_4e41_bd07_ee1eb44f75ab
 
+#include <cmath>
 #include <stdexcept>
 
 #include "QuantityInterface.h"
@@ -333,6 +334,59 @@ operator/(T1 const & left, T2 const & right)
 {
     return {left / right.magnitude, std::pow(right.dimensions, -1)};
 }
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_quantity<T2>,
+    std::enable_if_t<!std::is_same<typename T2::Container, double>::value, bool>>
+CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right)
+{
+    if(right.dimensions == Dimensionless || left.dimensions == right.dimensions)
+    {
+        return {xt::fmod(left.magnitude, right.magnitude), left.dimensions};
+    }
+    else
+    {
+        throw std::runtime_error("Modulo requires same dimensions");
+    }
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_quantity<T2>,
+    std::enable_if_t<std::is_same<typename T2::Container, double>::value, bool>>
+CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right)
+{
+    if(right.dimensions == Dimensionless || left.dimensions == right.dimensions)
+    {
+        return {std::fmod(left.magnitude, right.magnitude), left.dimensions};
+    }
+    else
+    {
+        throw std::runtime_error("Modulo requires same dimensions");
+    }
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_not_quantity<T2>,
+    std::enable_if_t<!std::is_same<std::decay_t<T2>, double>::value, bool>>
+CommonQuantityType<T1, QuantityContainer<T2>>
+fmod(T1 const & left, T2 const & right)
+{
+    return {xt::fmod(left.magnitude, right), left.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_not_quantity<T2>,
+    std::enable_if_t<std::is_same<std::decay_t<T2>, double>::value, bool>>
+CommonQuantityType<T1, QuantityContainer<T2>>
+fmod(T1 const & left, T2 const & right)
+{
+    return {std::fmod(left.magnitude, right), left.dimensions};
+}
+
 template<typename TDerived>
 std::ostream & operator<<(
     std::ostream & stream, QuantityInterface<TDerived> const & q)

@@ -316,15 +316,15 @@ namespace Modulo
     
     BOOST_FIXTURE_TEST_CASE_TEMPLATE(Modulo, T, Types, Fixture<T>)
     {
-        auto const t1 = this->q1 % this->q2;
+        auto const t1 = sycomore::fmod(this->q1, this->q2);
         CHECK_TYPE_AND_QUANTITY(t1, T, this->r1);
         
-        auto const t2 = this->q1 % this->q3;
+        auto const t2 = sycomore::fmod(this->q1, this->q3);
         CHECK_TYPE_AND_QUANTITY(t2, T, this->r1);
         
-        auto const t3 = this->q1 % this->s1;
+        auto const t3 = sycomore::fmod(this->q1, this->s1);
         CHECK_TYPE_AND_QUANTITY(t3, T, this->r1);
         
-        BOOST_CHECK_THROW(this->q1 % this->q4, std::runtime_error);
+        BOOST_CHECK_THROW(sycomore::fmod(this->q1, this->q4), std::runtime_error);
     }
 }
