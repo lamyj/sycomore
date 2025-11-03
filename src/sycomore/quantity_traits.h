@@ -40,7 +40,7 @@ struct QuantityContainerTrait {};
 
 /// @brief Helper for QuantityContainerTrait
 template<typename T>
-using QuantityContainer = typename QuantityContainerTrait<T>::Type;
+using QuantityContainer = typename QuantityContainerTrait<std::decay_t<T>>::Type;
 
 // Forward declaration of concrete quantity type
 class ArrayQ;
@@ -57,7 +57,7 @@ template<typename T1, typename T2>
 struct CommonQuantityTypeStruct
 {
     using Type = typename CommonQuantityTypeTrait<
-            OwningType<std::remove_cv_t<T1>>, OwningType<std::remove_cv_t<T2>>
+            OwningType<std::decay_t<T1>>, OwningType<std::decay_t<T2>>
         >::Type;
 };
 
