@@ -13,6 +13,8 @@ class Quantity;
 class QuantityConstReference: public QuantityInterface<QuantityConstReference>
 {
 public:
+    using Container = double;
+    
     double const & magnitude;
     Dimensions const & dimensions;
     
@@ -33,7 +35,6 @@ public:
 
 template<>
 struct OwningTypeTrait<QuantityConstReference> { using Type = Quantity; };
-
 
 }
 

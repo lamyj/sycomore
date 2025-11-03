@@ -13,6 +13,8 @@ class Quantity;
 class QuantityReference: public QuantityInterface<QuantityReference>
 {
 public:
+    using Container = double;
+    
     double & magnitude;
     Dimensions const & dimensions;
     
