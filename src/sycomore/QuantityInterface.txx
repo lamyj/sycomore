@@ -200,6 +200,139 @@ QuantityInterface<TDerived>
     return self;
 }
 
+template<typename T, enable_if_quantity<T>>
+bool operator==(typename T::Container const & left, T const & right)
+{
+    return right.operator==(left);
+}
+
+template<typename T, enable_if_quantity<T>>
+bool operator!=(typename T::Container const & left, T const & right)
+{
+    return !(left == right);
+}
+
+template<typename T, enable_if_quantity<T>>
+OwningType<T> operator+(T x)
+{
+    return {+x.magnitude, x.dimensions};
+}
+
+template<typename T, enable_if_quantity<T>>
+OwningType<T> operator-(T const & x)
+{
+    return {-x.magnitude, x.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_quantity<T2>>
+CommonQuantityType<T1, T2> operator+(T1 const & left, T2 const & right)
+{
+    left.check_dimensions(right, "Addition requires same dimensions");
+    return {left.magnitude + right.magnitude, left.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_not_quantity<T2>>
+CommonQuantityType<T1, QuantityContainer<T2>>
+operator+(T1 const & left, T2 const & right)
+{
+    left.check_dimensions(Dimensionless, "Addition requires same dimensions");
+    return {left.magnitude + right, left.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_not_quantity<T1>, enable_if_quantity<T2>>
+CommonQuantityType<QuantityContainer<T1>, T2>
+operator+(T1 const & left, T2 const & right)
+{
+    right.check_dimensions(Dimensionless, "Addition requires same dimensions");
+    return {left + right.magnitude, right.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_quantity<T2>>
+CommonQuantityType<T1, T2> operator-(T1 const & left, T2 const & right)
+{
+    left.check_dimensions(right, "Subtraction requires same dimensions");
+    return {left.magnitude - right.magnitude, left.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_not_quantity<T2>>
+CommonQuantityType<T1, QuantityContainer<T2>>
+operator-(T1 const & left, T2 const & right)
+{
+    left.check_dimensions(Dimensionless, "Subtraction requires same dimensions");
+    return {left.magnitude - right, left.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_not_quantity<T1>, enable_if_quantity<T2>>
+CommonQuantityType<QuantityContainer<T1>, T2>
+operator-(T1 const & left, T2 const & right)
+{
+    right.check_dimensions(Dimensionless, "Subtraction requires same dimensions");
+    return {left - right.magnitude, right.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_quantity<T2>>
+CommonQuantityType<T1, T2> operator*(T1 const & left, T2 const & right)
+{
+    return {left.magnitude * right.magnitude, left.dimensions * right.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_not_quantity<T2>>
+CommonQuantityType<T1, QuantityContainer<T2>>
+operator*(T1 const & left, T2 const & right)
+{
+    return {left.magnitude * right, left.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_not_quantity<T1>, enable_if_quantity<T2>>
+CommonQuantityType<QuantityContainer<T1>, T2>
+operator*(T1 const & left, T2 const & right)
+{
+    return {left * right.magnitude, right.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_quantity<T2>>
+CommonQuantityType<T1, T2> operator/(T1 const & left, T2 const & right)
+{
+    return {left.magnitude / right.magnitude, left.dimensions / right.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1>, enable_if_not_quantity<T2>>
+CommonQuantityType<T1, QuantityContainer<T2>>
+operator/(T1 const & left, T2 const & right)
+{
+    return {left.magnitude / right, left.dimensions};
+}
+
+template<
+    typename T1, typename T2,
+    enable_if_not_quantity<T1>, enable_if_quantity<T2>>
+CommonQuantityType<QuantityContainer<T1>, T2>
+operator/(T1 const & left, T2 const & right)
+{
+    return {left / right.magnitude, std::pow(right.dimensions, -1)};
+}
 template<typename TDerived>
 std::ostream & operator<<(
     std::ostream & stream, QuantityInterface<TDerived> const & q)

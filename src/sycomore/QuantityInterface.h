@@ -110,89 +110,102 @@ struct is_quantity<
     std::enable_if_t<std::is_base_of<QuantityInterface<T>, T>::value>>
 : public std::true_type { };
 
+/// @brief Test whether magnitudes are equal for unitless quantity
 template<typename T, enable_if_quantity<T> = true>
-bool operator==(typename T::Container const & left, T const & right)
-{
-    return right.operator==(left);
-}
+bool operator==(typename T::Container const & left, T const & right);
 
+/// @brief Test whether magnitudes differ for unitless quantity
 template<typename T, enable_if_quantity<T> = true>
-bool operator!=(typename T::Container const & left, T const & right)
-{
-    return !(left == right);
-}
+bool operator!=(typename T::Container const & left, T const & right);
 
 /// @brief Identity operator
 template<typename T, enable_if_quantity<T> = true>
-OwningType<T> operator+(T x)
-{
-    return {+x.magnitude, x.dimensions};
-}
+OwningType<T> operator+(T x);
 
-/// @brief Return a quantity with the opposite magnitude
+/// @brief Opposite operator (opposite magnitude, same dimenions)
 template<typename T, enable_if_quantity<T> = true>
-OwningType<T> operator-(T const & x)
-{
-    return {-x.magnitude, x.dimensions};
-}
+OwningType<T> operator-(T const & x);
 
 /// @brief Addition of compatible quantities
-template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
-CommonQuantityType<T1, T2> operator+(T1 const & left, T2 const & right)
-{
-    left.check_dimensions(right);
-    return {left.magnitude + right.magnitude, left.dimensions};
-}
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
+CommonQuantityType<T1, T2> operator+(T1 const & left, T2 const & right);
+
+/// @brief Addition of a quantity and a scalar
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true>
+CommonQuantityType<T1, QuantityContainer<T2>>
+operator+(T1 const & left, T2 const & right);
+
+/// @brief Addition of a scalar and a quantity
+template<
+    typename T1, typename T2,
+    enable_if_not_quantity<T1> = true, enable_if_quantity<T2> = true>
+CommonQuantityType<QuantityContainer<T1>, T2>
+operator+(T1 const & left, T2 const & right);
 
 /// @brief Subtraction of compatible quantities
-template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
-CommonQuantityType<T1, T2> operator-(T1 const & left, T2 const & right)
-{
-    left.check_dimensions(right);
-    return {left.magnitude - right.magnitude, left.dimensions};
-}
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
+CommonQuantityType<T1, T2>
+operator-(T1 const & left, T2 const & right);
+
+/// @brief Subtraction of a quantity and a scalar
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true>
+CommonQuantityType<T1, QuantityContainer<T2>>
+operator-(T1 const & left, T2 const & right);
+
+/// @brief Subtraction of a scalar and a quantity
+template<
+    typename T1, typename T2,
+    enable_if_not_quantity<T1> = true, enable_if_quantity<T2> = true>
+CommonQuantityType<QuantityContainer<T1>, T2>
+operator-(T1 const & left, T2 const & right);
 
 /// @brief Multiplication of quantities
-template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
-CommonQuantityType<T1, T2> operator*(T1 const & left, T2 const & right)
-{
-    return {left.magnitude * right.magnitude, left.dimensions * right.dimensions};
-}
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
+CommonQuantityType<T1, T2> operator*(T1 const & left, T2 const & right);
 
 /// @brief Multiplication of a quantity and a scalar
-template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true>
-OwningType<T1> operator*(T1 const & left, T2 const & right)
-{
-    return {left.magnitude * right, left.dimensions};
-}
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true>
+CommonQuantityType<T1, QuantityContainer<T2>>
+operator*(T1 const & left, T2 const & right);
 
 /// @brief Multiplication of a scalar and a quantity
-template<typename T1, typename T2, enable_if_not_quantity<T1> = true, enable_if_quantity<T2> = true>
-OwningType<T2> operator*(T1 const & left, T2 const & right)
-{
-    return {left * right.magnitude, right.dimensions};
-}
+template<
+    typename T1, typename T2,
+    enable_if_not_quantity<T1> = true, enable_if_quantity<T2> = true>
+CommonQuantityType<QuantityContainer<T1>, T2>
+operator*(T1 const & left, T2 const & right);
 
 /// @brief Division of quantities
-template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
-CommonQuantityType<T1, T2> operator/(T1 const & left, T2 right)
-{
-    return {left.magnitude / right.magnitude, left.dimensions / right.dimensions};
-}
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_quantity<T2> = true>
+CommonQuantityType<T1, T2> operator/(T1 const & left, T2 const & right);
 
 /// @brief Division of a quantity and a scalar
-template<typename T1, typename T2, enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true>
-OwningType<T1> operator/(T1 left, T2 const & right)
-{
-    return {left.magnitude / right, left.dimensions};
-}
+template<
+    typename T1, typename T2,
+    enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true>
+CommonQuantityType<T1, QuantityContainer<T2>>
+operator/(T1 const & left, T2 const & right);
 
-/// @brief Division of quantities
-template<typename T1, typename T2, enable_if_not_quantity<T1> = true, enable_if_quantity<T2> = true>
-OwningType<T2> operator/(T1 const & left, T2 right)
-{
-    return {left/right.magnitude, std::pow(right.dimensions, -1)};
-}
+/// @brief Division of a scalar and a quantity
+template<
+    typename T1, typename T2,
+    enable_if_not_quantity<T1> = true, enable_if_quantity<T2> = true>
+CommonQuantityType<QuantityContainer<T1>, T2>
+operator/(T1 const & left, T2 const & right);
 
 /// @brief Floating point modulo of quantities
 template<typename T1, typename T2, enable_if_quantity<T1> = true>
