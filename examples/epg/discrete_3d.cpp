@@ -34,7 +34,8 @@ int main()
 {
     sycomore::Species species(
         1000*ms, 100*ms,
-        xt::diag(sycomore::Vector3R{2000, 500, 100})*std::pow(um, 2)/s);
+        sycomore::Matrix3x3R{{2000, 0, 0}, {0, 500, 0}, {0, 0, 100}}
+        *std::pow(um, 2)/s);
     
     auto TE = 50*ms, b = 2000*s/std::pow(mm, 2);
     
@@ -47,9 +48,9 @@ int main()
     
     // Simulate the sequence with a diffusion gradient along different directions
     auto S_0 = dw_se(species, TE, {0*mT/m, 0*mT/m, 0*mT/m});
-    auto S_1 = dw_se(species, TE, G*sycomore::Vector3R{1, 0, 0});
-    auto S_2 = dw_se(species, TE, G*sycomore::Vector3R{0, 1, 0});
-    auto S_3 = dw_se(species, TE, G*sycomore::Vector3R{0, 0, 1});
+    auto S_1 = dw_se(species, TE, G*sycomore::Vector3Q{1, 0, 0});
+    auto S_2 = dw_se(species, TE, G*sycomore::Vector3Q{0, 1, 0});
+    auto S_3 = dw_se(species, TE, G*sycomore::Vector3Q{0, 0, 1});
     
     std::cout
         << "S_x=" << S_1/S_0 << "\n"

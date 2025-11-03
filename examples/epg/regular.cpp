@@ -15,7 +15,7 @@ int main()
     auto flip_angle=30*deg, TE=5*ms, TR=25*ms;
     std::vector<sycomore::Quantity> phase_steps{0*deg, 90*deg, 117*deg, 180*deg};
     auto slice_thickness=1*mm, tau_readout=1*ms;
-    std::size_t repetitions = std::lround(5*species.T1()/TR);
+    std::size_t repetitions = std::lround((5*species.T1()/TR).scalar());
     
     // Motion to k-space extremity and its associated gradient amplitude
     auto k_max = 0.5 * 2*M_PI / slice_thickness;
@@ -48,7 +48,7 @@ int main()
             // Echo at the center of the readout, cancel the phase imparted by
             // the RF-spoiling
             signals(index, r) =
-                model.echo() * std::exp(sycomore::Complex(0, phase));
+                model.echo() * std::exp(sycomore::Complex(0, phase.scalar()));
             
             // Second half of the readout, idle until the end of the TR
             model.apply_time_interval(+G, tau_readout/2);

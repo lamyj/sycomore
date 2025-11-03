@@ -16,10 +16,11 @@ int main()
     std::cout << species.D()(0,0) << "\n";
     
     // Assign the diffusion coefficient as a tensor
-    species.set_D( {
-         {3*std::pow(um, 2)/s, 0*std::pow(um, 2)/s, 0*std::pow(um, 2)/s },
-         {0*std::pow(um, 2)/s, 2*std::pow(um, 2)/s, 0*std::pow(um, 2)/s },
-         {0*std::pow(um, 2)/s, 0*std::pow(um, 2)/s, 1*std::pow(um, 2)/s } });
+    species.set_D(
+        std::pow(um, 2)/s * sycomore::Matrix3x3R{
+            {3, 0, 0},
+            {0, 2, 0},
+            {0, 0, 1}});
     std::cout << species.D() << "\n";
     
     return 0;
