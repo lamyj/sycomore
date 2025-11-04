@@ -338,7 +338,7 @@ operator/(T1 const & left, T2 const & right)
 template<
     typename T1, typename T2,
     enable_if_quantity<T1>, enable_if_quantity<T2>,
-    std::enable_if_t<!std::is_same<typename T2::Container, double>::value, bool>>
+    std::enable_if_t<!std::is_same_v<typename T2::Container, double>, bool>>
 CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right)
 {
     if(right.dimensions == Dimensionless || left.dimensions == right.dimensions)
@@ -354,7 +354,7 @@ CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right)
 template<
     typename T1, typename T2,
     enable_if_quantity<T1>, enable_if_quantity<T2>,
-    std::enable_if_t<std::is_same<typename T2::Container, double>::value, bool>>
+    std::enable_if_t<std::is_same_v<typename T2::Container, double>, bool>>
 CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right)
 {
     if(right.dimensions == Dimensionless || left.dimensions == right.dimensions)
@@ -370,7 +370,7 @@ CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right)
 template<
     typename T1, typename T2,
     enable_if_quantity<T1>, enable_if_not_quantity<T2>,
-    std::enable_if_t<!std::is_same<std::decay_t<T2>, double>::value, bool>>
+    std::enable_if_t<!std::is_same_v<std::decay_t<T2>, double>, bool>>
 CommonQuantityType<T1, QuantityContainer<T2>>
 fmod(T1 const & left, T2 const & right)
 {
@@ -380,7 +380,7 @@ fmod(T1 const & left, T2 const & right)
 template<
     typename T1, typename T2,
     enable_if_quantity<T1>, enable_if_not_quantity<T2>,
-    std::enable_if_t<std::is_same<std::decay_t<T2>, double>::value, bool>>
+    std::enable_if_t<std::is_same_v<std::decay_t<T2>, double>, bool>>
 CommonQuantityType<T1, QuantityContainer<T2>>
 fmod(T1 const & left, T2 const & right)
 {

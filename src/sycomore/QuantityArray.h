@@ -72,7 +72,7 @@ private:
 template<typename T>
 struct QuantityContainerTrait<
         xt::xarray<T>,
-        typename std::enable_if<std::is_arithmetic<T>::value>::type
+        typename std::enable_if<std::is_arithmetic_v<T>>::type
     >
 {
     using Type = ArrayQ;

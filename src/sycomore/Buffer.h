@@ -16,7 +16,7 @@ namespace sycomore
  */
 template<
     typename T,
-    typename Enable=std::enable_if_t<std::is_standard_layout<T>::value>>
+    typename Enable=std::enable_if_t<std::is_standard_layout_v<T>>>
 class Buffer
 {
 public:

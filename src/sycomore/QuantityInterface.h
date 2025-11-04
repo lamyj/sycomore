@@ -107,7 +107,7 @@ public:
 template<typename T>
 struct is_quantity<
     T,
-    std::enable_if_t<std::is_base_of<QuantityInterface<T>, T>::value>>
+    std::enable_if_t<std::is_base_of_v<QuantityInterface<T>, T>>>
 : public std::true_type { };
 
 /// @brief Test whether magnitudes are equal for unitless quantity
@@ -211,21 +211,21 @@ operator/(T1 const & left, T2 const & right);
 template<
     typename T1, typename T2,
     enable_if_quantity<T1> = true, enable_if_quantity<T2> = true,
-    std::enable_if_t<!std::is_same<typename T2::Container, double>::value, bool> = true>
+    std::enable_if_t<!std::is_same_v<typename T2::Container, double>, bool> = true>
 CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right);
 
 /// @brief Floating-point modulo of compatible quantities
 template<
     typename T1, typename T2,
     enable_if_quantity<T1> = true, enable_if_quantity<T2> = true,
-    std::enable_if_t<std::is_same<typename T2::Container, double>::value, bool> = true>
+    std::enable_if_t<std::is_same_v<typename T2::Container, double>, bool> = true>
 CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right);
 
 /// @brief Floating-point modulo of a quantity and a scalar
 template<
     typename T1, typename T2,
     enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true,
-    std::enable_if_t<!std::is_same<std::decay_t<T2>, double>::value, bool> = true>
+    std::enable_if_t<!std::is_same_v<std::decay_t<T2>, double>, bool> = true>
 CommonQuantityType<T1, QuantityContainer<T2>>
 fmod(T1 const & left, T2 const & right);
 
@@ -233,7 +233,7 @@ fmod(T1 const & left, T2 const & right);
 template<
     typename T1, typename T2,
     enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true,
-    std::enable_if_t<std::is_same<std::decay_t<T2>, double>::value, bool> = true>
+    std::enable_if_t<std::is_same_v<std::decay_t<T2>, double>, bool> = true>
 CommonQuantityType<T1, QuantityContainer<T2>>
 fmod(T1 const & left, T2 const & right);
 

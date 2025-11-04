@@ -50,7 +50,7 @@ private:
 template<typename T, std::size_t N>
 struct QuantityContainerTrait<
         xt::xtensor<T, N>,
-        typename std::enable_if<std::is_arithmetic<T>::value>::type>
+        typename std::enable_if<std::is_arithmetic_v<T>>::type>
 {
     using Type = TensorQ<N>;
 };
@@ -60,7 +60,7 @@ struct QuantityContainerTrait<
 template<typename S1, typename S2>
 struct CommonQuantityTypeTrait<
     TensorFixedQ<S1>, TensorFixedQ<S2>,
-    typename std::enable_if<!std::is_same<S1, S2>::value>::type>
+    typename std::enable_if<!std::is_same_v<S1, S2>>::type>
 {
     using Type = TensorQ<std::max(S1::size(), S2::size())>;
 };

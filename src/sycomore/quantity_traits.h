@@ -10,17 +10,20 @@ namespace sycomore
 template<typename T, typename enabled=void>
 struct is_quantity: public std::false_type { };
 
+template<typename T, typename enabled=void>
+constexpr bool is_quantity_v = is_quantity<T, enabled>::value;
+
 /**
  * @brief Wrapper around std::enable_if for quantity or quantity container types
  */
 template<typename T>
-using enable_if_quantity = std::enable_if_t<is_quantity<std::decay_t<T>>::value, bool>;
+using enable_if_quantity = std::enable_if_t<is_quantity_v<std::decay_t<T>>, bool>;
 
 /**
  * @brief Wrapper for std::enable_if for non-quantity and non-quantity container
  * types*/
 template<typename T>
-using enable_if_not_quantity = std::enable_if_t<!is_quantity<std::decay_t<T>>::value, bool>;
+using enable_if_not_quantity = std::enable_if_t<!is_quantity_v<std::decay_t<T>>, bool>;
 
 /**
  * @brief Equivalent type which owns its data

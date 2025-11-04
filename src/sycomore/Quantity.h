@@ -36,7 +36,7 @@ public:
 template<typename T>
 struct QuantityContainerTrait<
         T,
-        typename std::enable_if<std::is_arithmetic<T>::value>::type
+        typename std::enable_if<std::is_arithmetic_v<T>>::type
     >
 {
     using Type = Quantity;
@@ -47,7 +47,7 @@ template<typename T>
 struct CommonQuantityTypeTrait<
     T, Quantity, 
     // Disable <Quantity, Quantity> specialization to avoid ambiguity
-    typename std::enable_if<!std::is_same<T, Quantity>::value>::type>
+    typename std::enable_if<!std::is_same_v<T, Quantity>>::type>
 {
     using Type = T;
 };
@@ -56,7 +56,7 @@ struct CommonQuantityTypeTrait<
 template<typename T>
 struct CommonQuantityTypeTrait<
     Quantity, T,
-    typename std::enable_if<!std::is_same<T, Quantity>::value>::type>
+    typename std::enable_if<!std::is_same_v<T, Quantity>>::type>
 {
     using Type = T;
 };

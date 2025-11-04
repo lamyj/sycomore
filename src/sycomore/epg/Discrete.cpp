@@ -396,7 +396,7 @@ Discrete::Cache
         // NOTE memset is slightly faster than std::fill, but requires that
         // Complex has a trivial representation.
         static_assert(
-            std::is_trivially_copyable<Complex>::value, 
+            std::is_trivially_copyable_v<Complex>,
             "Complex cannot be used with memset");
         std::memset(
             reinterpret_cast<void*>(F.data()), 0, F.size()*sizeof(Complex));

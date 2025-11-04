@@ -43,7 +43,7 @@ private:
 template<typename T, typename S>
 struct QuantityContainerTrait<
         xt::xtensor_fixed<T, S>,
-        typename std::enable_if<std::is_arithmetic<T>::value>::type>
+        typename std::enable_if<std::is_arithmetic_v<T>>::type>
 {
     using Type = TensorFixedQ<S>;
 };
