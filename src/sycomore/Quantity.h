@@ -66,13 +66,37 @@ struct CommonQuantityTypeTrait<
 bool operator<(Quantity const & left, Quantity const & right);
 
 /// @brief Compare the magnitude of two compatible quantities
+bool operator<(Quantity const & left, double right);
+
+/// @brief Compare the magnitude of two compatible quantities
+bool operator<(double left, Quantity const & right);
+
+/// @brief Compare the magnitude of two compatible quantities
 bool operator<=(Quantity const & left, Quantity const & right);
+
+/// @brief Compare the magnitude of two compatible quantities
+bool operator<=(Quantity const & left, double right);
+
+/// @brief Compare the magnitude of two compatible quantities
+bool operator<=(double left, Quantity const & right);
 
 /// @brief Compare the magnitude of two compatible quantities
 bool operator>(Quantity const & left, Quantity const & right);
 
 /// @brief Compare the magnitude of two compatible quantities
+bool operator>(Quantity const & left, double right);
+
+/// @brief Compare the magnitude of two compatible quantities
+bool operator>(double left, Quantity const & right);
+
+/// @brief Compare the magnitude of two compatible quantities
 bool operator>=(Quantity const & left, Quantity const & right);
+
+/// @brief Compare the magnitude of two compatible quantities
+bool operator>=(Quantity const & left, double right);
+
+/// @brief Compare the magnitude of two compatible quantities
+bool operator>=(double left, Quantity const & right);
 
 /// @brief Helper functions for quantity container constructors
 namespace details

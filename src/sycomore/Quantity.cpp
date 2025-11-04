@@ -36,9 +36,34 @@ bool operator<(Quantity const & left, Quantity const & right)
     return order<std::less>(left, right);
 }
 
+bool operator<(Quantity const & left, double right)
+{
+    left.check_dimensions(Dimensionless, "Ordering requires same dimensions");
+    return left.magnitude < right;
+}
+
+bool operator<(double left, Quantity const & right)
+{
+    right.check_dimensions(Dimensionless, "Ordering requires same dimensions");
+    return left < right.magnitude;
+}
+
 bool operator<=(Quantity const & left, Quantity const & right)
 {
     return order<std::less_equal>(left, right);
+}
+
+
+bool operator<=(Quantity const & left, double right)
+{
+    left.check_dimensions(Dimensionless, "Ordering requires same dimensions");
+    return left.magnitude <= right;
+}
+
+bool operator<=(double left, Quantity const & right)
+{
+    right.check_dimensions(Dimensionless, "Ordering requires same dimensions");
+    return left <= right.magnitude;
 }
 
 bool operator>(Quantity const & left, Quantity const & right)
@@ -46,9 +71,35 @@ bool operator>(Quantity const & left, Quantity const & right)
     return order<std::greater>(left, right);
 }
 
+
+bool operator>(Quantity const & left, double right)
+{
+    left.check_dimensions(Dimensionless, "Ordering requires same dimensions");
+    return left.magnitude > right;
+}
+
+bool operator>(double left, Quantity const & right)
+{
+    right.check_dimensions(Dimensionless, "Ordering requires same dimensions");
+    return left > right.magnitude;
+}
+
 bool operator>=(Quantity const & left, Quantity const & right)
 {
     return order<std::greater_equal>(left, right);
+}
+
+
+bool operator>=(Quantity const & left, double right)
+{
+    left.check_dimensions(Dimensionless, "Ordering requires same dimensions");
+    return left.magnitude >= right;
+}
+
+bool operator>=(double left, Quantity const & right)
+{
+    right.check_dimensions(Dimensionless, "Ordering requires same dimensions");
+    return left >= right.magnitude;
 }
 
 namespace details
