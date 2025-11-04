@@ -24,6 +24,13 @@ public:
     Quantity & operator=(Quantity const &) = default;
     Quantity & operator=(Quantity &&) = default;
     ~Quantity() override = default;
+    
+    using Base::operator==;
+    using Base::operator!=;
+    bool operator==(double x) const;
+    bool operator!=(double x) const;
+    
+    operator double() const;
 };
 
 template<typename T>

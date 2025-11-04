@@ -3,6 +3,27 @@
 namespace sycomore
 {
 
+bool
+Quantity
+::operator==(double x) const
+{
+    return this->dimensions == Dimensionless && this->magnitude == x;
+}
+
+bool
+Quantity
+::operator!=(double x) const
+{
+    return !this->operator==(x);
+}
+    
+Quantity
+::operator double() const
+{
+    this->check_dimensions(Dimensionless, "Cast to double requires dimensionless");
+    return this->magnitude;
+}
+
 template<template<typename> typename Operator>
 bool order(Quantity const & left, Quantity const & right)
 {

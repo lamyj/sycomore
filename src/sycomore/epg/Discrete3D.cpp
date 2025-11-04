@@ -349,7 +349,7 @@ Discrete3D
             [](Species const & s) {
                 return std::all_of(
                     s.D().magnitude.begin(), s.D().magnitude.end(),
-                    [](Quantity const & x) { return x == 0;});
+                    [](double x) { return x == 0;});
             }
         ))
     {
