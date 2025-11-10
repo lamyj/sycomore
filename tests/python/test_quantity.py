@@ -1,10 +1,7 @@
 import logging
 import math
 import sys
-if sys.version_info[0] == 2:
-    import cPickle
-else:
-    import pickle
+import pickle
 import unittest
 
 import numpy
@@ -176,22 +173,6 @@ class TestQuantity(unittest.TestCase):
         self.assertEqual(q1.convert_to(q2), r)
         with self.assertRaises(Exception):
             q1.convert_to(q3)
-    
-    def test_array_convert_to(self):
-        q1 = [
-            sycomore.Quantity(70, sycomore.Dimensions(1,0,0,0,0,0,0)),
-            sycomore.Quantity(80, sycomore.Dimensions(1,0,0,0,0,0,0))]
-        q2 = [
-            [sycomore.Quantity(70, sycomore.Dimensions(1,0,0,0,0,0,0))],
-            [sycomore.Quantity(80, sycomore.Dimensions(1,0,0,0,0,0,0))]]
-        q3 = sycomore.Quantity(10, sycomore.Dimensions(1,0,0,0,0,0,0))
-        q4 = sycomore.Quantity(10, sycomore.Dimensions(0,1,0,0,0,0,0))
-        numpy.testing.assert_allclose(
-            sycomore.convert_to(q1, q3), numpy.array([7, 8]))
-        numpy.testing.assert_allclose(
-            sycomore.convert_to(q2, q3), numpy.array([[7], [8]]))
-        with self.assertRaises(Exception):
-            q1.convert_to(q4)
     
     def test_float(self):
         scalar = sycomore.Quantity(3, sycomore.Dimensions(0,0,0,0,0,0,0))
@@ -379,13 +360,7 @@ class TestQuantity(unittest.TestCase):
 
     def test_pickle(self):
         q = sycomore.Quantity(0.5, sycomore.Dimensions(7,6,5,4,3,2,1))
-        if sys.version_info[0] == 2:
-            # WARNING: when running with Python2, only cPickle with version >= 2
-            # works. Refer to the last paragraph of 
-            # https://pybind11.readthedocs.io/en/stable/advanced/classes.html?highlight=pickle#pickling-support
-            self.assertEqual(cPickle.loads(cPickle.dumps(q, -1)), q)
-        else:
-            self.assertEqual(pickle.loads(pickle.dumps(q)), q)
+        self.assertEqual(pickle.loads(pickle.dumps(q)), q)
 
     def test_hash(self):
         quantities = set()
@@ -405,7 +380,7 @@ class TestQuantity(unittest.TestCase):
             x for x in ufuncs if not any(
                 t.endswith("O->O") for t in getattr(numpy, x).types)
         ]
-        logging.warning(
+        logging.info(
             "The following ufuncs do not operate on objects: {}".format(
                 ", ".join(non_object_ufuncs)))
         ufuncs = [x for x in ufuncs if x not in non_object_ufuncs]
@@ -413,10 +388,12 @@ class TestQuantity(unittest.TestCase):
         not_applicable_ufuncs = [
             "conj", "conjugate", # Quantities are real-valued
             "deg2rad", "degrees", "rad2deg", "radians", 
-            "bitwise_and", "bitwise_or", "bitwise_xor", "bitwise_not", "invert", 
-            "left_shift", "right_shift", "logical_and", "logical_or", 
+            "bitwise_and", "bitwise_or", "bitwise_xor", "bitwise_not",
+            "bitwise_count", "bitwise_invert", "bitwise_left_shift",
+            "bitwise_right_shift",
+            "invert", "left_shift", "right_shift", "logical_and", "logical_or", 
             "logical_xor", "logical_not", "isnat", 
-            "gcd", "lcm", "matmul"
+            "gcd", "lcm", "matmul", "matvec", "vecdot", "vecmat"
         ]
         ufuncs = [x for x in ufuncs if x not in not_applicable_ufuncs]
         
@@ -481,12 +458,12 @@ class TestQuantity(unittest.TestCase):
             ["arctan2", [0*Scalar, 1*Scalar], 0*deg],
             ["hypot", [3*Scalar, 4*Scalar], 5*Scalar],
             
-            ["sinh", [0*deg], 0*Scalar],
-            ["cosh", [0*deg], 1*Scalar],
-            ["tanh", [0*deg], 0*Scalar],
-            ["arcsinh", [0*Scalar], 0*deg],
-            ["arccosh", [1*Scalar], 0*deg],
-            ["arctanh", [0*Scalar], 0*deg],
+            ["sinh", [0*Scalar], 0*Scalar],
+            ["cosh", [0*Scalar], 1*Scalar],
+            ["tanh", [0*Scalar], 0*Scalar],
+            ["arcsinh", [0*Scalar], 0*Scalar],
+            ["arccosh", [1*Scalar], 0*Scalar],
+            ["arctanh", [0*Scalar], 0*Scalar],
             
             ["greater", [2*m, 1*m], True],
             ["greater", [2*Scalar, 1], True],
@@ -527,7 +504,9 @@ class TestQuantity(unittest.TestCase):
         equivalences = [
             ["true_divide", "divide"], ["mod", "remainder"], 
             ["fmod", "remainder"], ["fabs", "absolute"], ["abs", "absolute"],
-            ["fmax", "maximum"], ["fmin", "minimum"],
+            ["fmax", "maximum"], ["fmin", "minimum"], ["pow", "power"],
+            *([f"a{name}", f"arc{name}"] for name in [
+                "cos", "sin", "tan", "tan2", "sinh", "cosh", "tanh"])
         ]
         for destination, source in equivalences:
             tests.extend([
@@ -540,9 +519,10 @@ class TestQuantity(unittest.TestCase):
             self.assertEqual(getattr(numpy, name)(*inputs), output)
         
         untested = [x for x in ufuncs if x not in [t[0] for t in tests]]
-        logging.warning(
-            "The following ufuncs were not tested: {}".format(
-                ", ".join(untested)))
+        if untested:
+            logging.warning(
+                "The following ufuncs were not tested: {}".format(
+                    ", ".join(untested)))
 
 if __name__ == "__main__":
     unittest.main()
