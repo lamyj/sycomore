@@ -290,27 +290,32 @@ namespace Modulo
 {
     template<typename T> struct Fixture
     {
-        T q1{{{10, 11}, {12, 13}}, sycomore::Length};
+        T const q1{{{10, 11}, {12, 13}}, sycomore::Length};
         T const q2{{{2, 3}, {8, 5}}, sycomore::Length};
         T const q3{{2, 3}, {8, 5}};
+        sycomore::Quantity const q5{5, sycomore::Length};
+        double const q6 = 5;
         
         typename T::Container const s1{{{2, 3}, {8, 5}}};
         
         T const r1{{{0, 2}, {4, 3}}, sycomore::Length};
+        T const r2{{{0, 1}, {2, 3}}, sycomore::Length};
         
         T const q4{{{2, 3}, {8, 5}}, sycomore::Time};
     };
     
     template<> struct Fixture<sycomore::Quantity>
     {
-        sycomore::Quantity q1{11, sycomore::Length};
+        sycomore::Quantity const q1{11, sycomore::Length};
         sycomore::Quantity const q2{3, sycomore::Length};
         sycomore::Quantity const q3{3};
+        sycomore::Quantity const q5{5, sycomore::Length};
+        double const q6 = 5;
         
         sycomore::Quantity::Container const s1{3};
         
         sycomore::Quantity const r1{2, sycomore::Length};
-        
+        sycomore::Quantity const r2{1, sycomore::Length};
         sycomore::Quantity const q4{3, sycomore::Time};
     };
     
@@ -324,6 +329,12 @@ namespace Modulo
         
         auto const t3 = sycomore::fmod(this->q1, this->s1);
         CHECK_TYPE_AND_QUANTITY(t3, T, this->r1);
+        
+        auto const t4 = sycomore::fmod(this->q1, this->q5);
+        CHECK_TYPE_AND_QUANTITY(t4, T, this->r2);
+        
+        auto const t5 = sycomore::fmod(this->q1, this->q6);
+        CHECK_TYPE_AND_QUANTITY(t5, T, this->r2);
         
         BOOST_CHECK_THROW(sycomore::fmod(this->q1, this->q4), std::runtime_error);
     }

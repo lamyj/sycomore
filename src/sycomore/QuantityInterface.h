@@ -211,21 +211,33 @@ operator/(T1 const & left, T2 const & right);
 template<
     typename T1, typename T2,
     enable_if_quantity<T1> = true, enable_if_quantity<T2> = true,
-    std::enable_if_t<!std::is_same_v<typename T2::Container, double>, bool> = true>
+    std::enable_if_t<
+        !std::is_same_v<typename T1::Container, double>
+            || !std::is_same_v<typename T2::Container, double>, 
+        bool
+    > = true>
 CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right);
 
 /// @brief Floating-point modulo of compatible quantities
 template<
     typename T1, typename T2,
     enable_if_quantity<T1> = true, enable_if_quantity<T2> = true,
-    std::enable_if_t<std::is_same_v<typename T2::Container, double>, bool> = true>
+    std::enable_if_t<
+        std::is_same_v<typename T1::Container, double>
+            && std::is_same_v<typename T2::Container, double>,
+        bool
+    > = true>
 CommonQuantityType<T1, T2> fmod(T1 const & left, T2 const & right);
 
 /// @brief Floating-point modulo of a quantity and a scalar
 template<
     typename T1, typename T2,
     enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true,
-    std::enable_if_t<!std::is_same_v<std::decay_t<T2>, double>, bool> = true>
+    std::enable_if_t<
+        !std::is_same_v<typename T1::Container, double>
+            || !std::is_same_v<std::decay_t<T2>, double>,
+        bool
+    > = true>
 CommonQuantityType<T1, QuantityContainer<T2>>
 fmod(T1 const & left, T2 const & right);
 
@@ -233,7 +245,11 @@ fmod(T1 const & left, T2 const & right);
 template<
     typename T1, typename T2,
     enable_if_quantity<T1> = true, enable_if_not_quantity<T2> = true,
-    std::enable_if_t<std::is_same_v<std::decay_t<T2>, double>, bool> = true>
+    std::enable_if_t<
+        std::is_same_v<typename T1::Container, double>
+            && std::is_same_v<std::decay_t<T2>, double>,
+        bool
+    > = true>
 CommonQuantityType<T1, QuantityContainer<T2>>
 fmod(T1 const & left, T2 const & right);
 
