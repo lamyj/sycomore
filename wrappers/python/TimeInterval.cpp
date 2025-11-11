@@ -5,8 +5,6 @@
 #include "sycomore/Quantity.h"
 #include "sycomore/TimeInterval.h"
 
-#include "type_casters.h"
-
 void set_gradient(
     sycomore::TimeInterval & time_interval, pybind11::object const & value)
 {
@@ -47,14 +45,14 @@ void wrap_TimeInterval(pybind11::module & m)
             "area (in T/m*s) or dephasing (in rad/m).")
         .def_static(
             "shortest",
-            static_cast<TimeInterval(*)(Quantity const &, Quantity const &)>(
+            overload_cast<Quantity const &, Quantity const &>(
                 &TimeInterval::shortest),
             "k"_a, "G_max"_a,
             "Shortest possible time interval given 3D gradient area (T/m*s) "
             "or dephasing (rad/m) and maximum gradient amplitude")
         .def_static(
             "shortest",
-            static_cast<TimeInterval(*)(Vector3Q const &, Quantity const &)>(
+            overload_cast<Vector3Q const &, Quantity const &>(
                 &TimeInterval::shortest),
             "k"_a, "G_max"_a,
             "Shortest possible time interval given 3D gradient area (T/m*s) "
