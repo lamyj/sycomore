@@ -40,7 +40,7 @@ class TestArrayQ(unittest.TestCase):
         
         q = sycomore.ArrayQ(numpy.array([[1, 2], [3, 4]]) * sycomore.units.m)
         self.assertTrue(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
-        
+    
     def test_comparison(self):
         q1 = [[1, 2], [3, 4]] * sycomore.units.m
         q2 = [[0, 2], [3, 4]] * sycomore.units.m
@@ -63,6 +63,53 @@ class TestArrayQ(unittest.TestCase):
         self.assertTrue(scalar != [[0, 2], [3, 4]])
         self.assertTrue([[0, 2], [3, 4]] !=scalar)
     
+    def test_getitem(self):
+        from sycomore.units import m
+        
+        q = [[1, 2], [3, 4]] * m
+        self.assertEqual(q[1, 0], 3 * m)
+        self.assertEqual(q[-1, -2], 3 * m)
+        with self.assertRaises(IndexError):
+            q[1]
+        with self.assertRaises(IndexError):
+            q[2, 0]
+        
+        q = sycomore.Vector3Q([1*m, 2*m, 3*m])
+        self.assertEqual(q[1], 2 * m)
+        self.assertEqual(q[-2], 2 * m)
+        with self.assertRaises(IndexError):
+            q[0, 1]
+        with self.assertRaises(IndexError):
+            q[3]
+    
+    def test_setitem(self):
+        from sycomore.units import m
+        
+        q = [[1, 2], [3, 4]] * m
+        
+        q[1, 0] = 42 * m
+        self.assertEqual(q[1, 0], 42 * m)
+        
+        q[-1, -2] = 43 * m
+        self.assertEqual(q[1, 0], 43 * m)
+        
+        with self.assertRaises(IndexError):
+            q[1] = 1 * m
+        with self.assertRaises(IndexError):
+            q[2, 0] = 1 * m
+        
+        q = sycomore.Vector3Q([1*m, 2*m, 3*m])
+        
+        q[1] = 42 * m
+        self.assertEqual(q[1], 42 * sycomore.units.m)
+        
+        q[-2] = 43 * m
+        self.assertEqual(q[1], 43 * sycomore.units.m)
+        with self.assertRaises(IndexError):
+            q[0, 1] = 1 * m
+        with self.assertRaises(IndexError):
+            q[3] = 1 * m
+        
     def test_addition_in_place(self):
         q = [[1, 2], [3, 4]] * sycomore.units.m
         q += [[5, 6], [7, 8]] * sycomore.units.m

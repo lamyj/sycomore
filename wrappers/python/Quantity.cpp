@@ -3,12 +3,15 @@
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include <xtensor-python/pyarray.hpp>
 #include <xtensor-python/pytensor.hpp>
 
-#include "sycomore/QuantityArray.h"
 #include "sycomore/Dimensions.h"
+#include "sycomore/QuantityArray.h"
+#include "sycomore/QuantityTensor.h"
+#include "sycomore/QuantityTensorFixed.h"
 #include "sycomore/Quantity.h"
 
 namespace
@@ -40,6 +43,63 @@ T constructor(pybind11::array_t<pybind11::object> array)
     array.resize(shape);
     
     return destination;
+}
+
+template<typename T>
+std::vector<std::size_t> normalize_index(
+    T const & magnitude, std::vector<ssize_t> const & i)
+{
+    if(magnitude.dimension() != i.size())
+    {
+        throw std::out_of_range(
+            "Number of arguments (" + std::to_string(i.size())
+                + ") does not match the number of dimensions ("
+                + std::to_string(magnitude.dimension()) + ")");
+    }
+    
+    // Convert signed values (counting from end) to unsigned values
+    std::vector<std::size_t> signed_i(i.size());
+    for(std::size_t d=0; d != i.size(); ++d)
+    {
+        if(i[d] < 0)
+        {
+            signed_i[d] = magnitude.shape()[d] + i[d];
+        }
+        else
+        {
+            signed_i[d] = i[d];
+        }
+    }
+    
+    xt::check_element_index(magnitude.shape(), signed_i.begin(), signed_i.end());
+    
+    return signed_i;
+}
+
+template<typename T>
+sycomore::Quantity getitem(T const & q, std::vector<ssize_t> const & i)
+{
+    return q[normalize_index(q.magnitude, i)];
+}
+
+template<typename T>
+sycomore::Quantity getitem(T const & q, ssize_t i)
+{
+    return getitem(q, std::vector<ssize_t>{i});
+}
+
+template<typename T>
+sycomore::Quantity const & setitem(
+    T & l, std::vector<ssize_t> const & i, sycomore::Quantity const & r)
+{
+    l[normalize_index(l.magnitude, i)] = r;
+    return r;
+}
+
+template<typename T>
+sycomore::Quantity const & setitem(T & l, ssize_t i, sycomore::Quantity const & r)
+{
+    return setitem(l, std::vector<ssize_t>{i}, r);
 }
 
 }
@@ -372,7 +432,28 @@ void wrap_Quantity(pybind11::module & m)
             "__float__", [](Quantity const & q) { return double(q); },
             "Convert to a scalar");
     
-    auto ArrayQClass = wrap_quantity<ArrayQ>(m, "ArrayQ");
-    ArrayQClass
-        .def(init(&constructor<ArrayQ>));
+    #define WRAP_QUANTITY_CONTAINER(C) \
+        auto C ## Class = wrap_quantity<C>(m, #C); \
+        C ## Class \
+            .def(init(&constructor<C>)) \
+            .def( \
+                "__getitem__", \
+                overload_cast<C const &, std::vector<ssize_t> const &>(getitem<C>)) \
+            .def( \
+                "__getitem__", \
+                overload_cast<C const &, ssize_t>(getitem<C>)) \
+            .def( \
+                "__setitem__", \
+                overload_cast<C &, std::vector<ssize_t> const &, Quantity const &>( \
+                    setitem<C>)) \
+            .def( \
+                "__setitem__", \
+                overload_cast<C &, ssize_t, Quantity const &>(setitem<C>));
+            
+    WRAP_QUANTITY_CONTAINER(Vector2Q);
+    WRAP_QUANTITY_CONTAINER(Vector3Q);
+    WRAP_QUANTITY_CONTAINER(Vector4Q);
+    WRAP_QUANTITY_CONTAINER(Matrix2x2Q);
+    WRAP_QUANTITY_CONTAINER(Matrix3x3Q);
+    WRAP_QUANTITY_CONTAINER(ArrayQ);
 }
