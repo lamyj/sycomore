@@ -7,6 +7,8 @@ import numpy
 
 import sycomore
 
+from test_case import TestCase
+
 def assertQuantityAlmostEqual(left, right, msg=None):
     if not numpy.allclose(left.magnitude, right.magnitude):
         raise AssertionError(
@@ -17,10 +19,7 @@ def assertQuantityAlmostEqual(left, right, msg=None):
             msg if msg is not None
             else f"Unequal dimensions: {left.dimensions} vs. {right.dimensions}")
 
-class TestArrayQ(unittest.TestCase):
-    def setUp(self):
-        self.addTypeEqualityFunc(sycomore.ArrayQ, assertQuantityAlmostEqual)
-    
+class TestArrayQ(TestCase):
     def test_creation(self):
         q = sycomore.ArrayQ([
             [1*sycomore.units.m, 2*sycomore.units.m],
