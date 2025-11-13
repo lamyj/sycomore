@@ -404,7 +404,7 @@ std::ostream & operator<<(
     std::ostream & stream, QuantityInterface<TDerived> const & q)
 {
     auto const & q_ = q.derived_cast();
-    stream << q_.magnitude << " " << q_.dimensions << std::endl;
+    stream << q_.magnitude << " " << q_.dimensions;
     return stream;
 }
 
