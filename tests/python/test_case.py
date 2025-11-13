@@ -15,5 +15,6 @@ def assertQuantityAlmostEqual(left, right, msg=None):
 
 class TestCase(unittest.TestCase):
     def setUp(self):
+        self.addTypeEqualityFunc(sycomore.Vector3Q, assertQuantityAlmostEqual)
         self.addTypeEqualityFunc(sycomore.Matrix3x3Q, assertQuantityAlmostEqual)
         self.addTypeEqualityFunc(sycomore.ArrayQ, assertQuantityAlmostEqual)

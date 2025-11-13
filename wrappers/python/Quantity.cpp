@@ -14,36 +14,10 @@
 #include "sycomore/QuantityTensorFixed.h"
 #include "sycomore/Quantity.h"
 
+#include "Quantity.h"
+
 namespace
 {
-
-template<typename T>
-T constructor(pybind11::array_t<pybind11::object> array)
-{
-    std::vector<size_t> const shape{array.shape(), array.shape()+array.ndim()};
-    
-    T destination(T::Container::from_shape(shape));
-    auto dest_it = destination.magnitude.begin();
-    
-    array.resize({array.size()});
-    
-    if(array.size() != 0)
-    {
-        destination.dimensions = array.data()->cast<sycomore::Quantity>().dimensions;
-    }
-    
-    for(auto && source: array)
-    {
-        auto const & q = source.cast<sycomore::Quantity>();
-        destination.check_dimensions(q, "Constructor requires same dimensions");
-        *dest_it = q.magnitude;
-        ++dest_it;
-    }
-    
-    array.resize(shape);
-    
-    return destination;
-}
 
 template<typename T>
 std::vector<std::size_t> normalize_index(
@@ -435,7 +409,7 @@ void wrap_Quantity(pybind11::module & m)
     #define WRAP_QUANTITY_CONTAINER(C) \
         auto C ## Class = wrap_quantity<C>(m, #C); \
         C ## Class \
-            .def(init(&constructor<C>)) \
+            .def(init(&wrappers::as_quantity<C>)) \
             .def( \
                 "__getitem__", \
                 overload_cast<C const &, std::vector<ssize_t> const &>(getitem<C>)) \
