@@ -24,21 +24,21 @@ class TestArrayQ(TestCase):
         q = sycomore.ArrayQ([
             [1*sycomore.units.m, 2*sycomore.units.m],
             [3*sycomore.units.m, 4*sycomore.units.m]])
-        self.assertTrue(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
+        self.assertEqual(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
         
         q = sycomore.ArrayQ(numpy.array([
             [1*sycomore.units.m, 2*sycomore.units.m],
             [3*sycomore.units.m, 4*sycomore.units.m]]))
-        self.assertTrue(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
+        self.assertEqual(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
         
         q = sycomore.units.m * [[1, 2], [3, 4]]
-        self.assertTrue(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
+        self.assertEqual(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
         
         q = [[1, 2], [3, 4]] * sycomore.units.m
-        self.assertTrue(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
+        self.assertEqual(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
         
         q = sycomore.ArrayQ(numpy.array([[1, 2], [3, 4]]) * sycomore.units.m)
-        self.assertTrue(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
+        self.assertEqual(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
     
     def test_comparison(self):
         q1 = [[1, 2], [3, 4]] * sycomore.units.m
