@@ -9,16 +9,6 @@ import sycomore
 
 from test_case import TestCase
 
-def assertQuantityAlmostEqual(left, right, msg=None):
-    if not numpy.allclose(left.magnitude, right.magnitude):
-        raise AssertionError(
-            msg if msg is not None
-            else f"Unequal magnitudes: {left.magnitude} vs. {right.magnitude}")
-    if left.dimensions != right.dimensions:
-        raise AssertionError(
-            msg if msg is not None
-            else f"Unequal dimensions: {left.dimensions} vs. {right.dimensions}")
-
 class TestArrayQ(TestCase):
     def test_creation(self):
         q = sycomore.ArrayQ([
@@ -39,6 +29,18 @@ class TestArrayQ(TestCase):
         
         q = sycomore.ArrayQ(numpy.array([[1, 2], [3, 4]]) * sycomore.units.m)
         self.assertEqual(q, sycomore.ArrayQ([[1, 2], [3, 4]], sycomore.Length))
+    
+    def test_len(self):
+        q = sycomore.ArrayQ([
+            [1*sycomore.units.m, 2*sycomore.units.m, 3*sycomore.units.m],
+            [4*sycomore.units.m, 5*sycomore.units.m, 6*sycomore.units.m]])
+        self.assertEqual(len(q), 2)
+    
+    def test_shape(self):
+        q = sycomore.ArrayQ([
+            [1*sycomore.units.m, 2*sycomore.units.m, 3*sycomore.units.m],
+            [4*sycomore.units.m, 5*sycomore.units.m, 6*sycomore.units.m]])
+        self.assertEqual(q.shape, (2, 3))
     
     def test_comparison(self):
         q1 = [[1, 2], [3, 4]] * sycomore.units.m

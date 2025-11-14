@@ -422,8 +422,29 @@ void wrap_Quantity(pybind11::module & m)
                     setitem<C>)) \
             .def( \
                 "__setitem__", \
-                overload_cast<C &, ssize_t, Quantity const &>(setitem<C>));
-            
+                overload_cast<C &, ssize_t, Quantity const &>(setitem<C>)) \
+            .def( \
+                "__len__", [](C const & c) { \
+                    if(c.magnitude.dimension() > 0) \
+                    { \
+                        return c.shape().front(); \
+                    } \
+                    else \
+                    { \
+                        throw pybind11::type_error("len() of unsized object"); \
+                    } \
+                }) \
+            .def_property_readonly( \
+                "shape", [](C const & c) { \
+                    auto const shape = c.shape(); \
+                    tuple result(shape.size()); \
+                    for(std::size_t i=0; i!=shape.size(); ++i) \
+                    { \
+                        PyTuple_SET_ITEM(result.ptr(), i, pybind11::cast(shape[i]).release().ptr()); \
+                    } \
+                    return result; \
+                });
+    
     WRAP_QUANTITY_CONTAINER(Vector2Q);
     WRAP_QUANTITY_CONTAINER(Vector3Q);
     WRAP_QUANTITY_CONTAINER(Vector4Q);
@@ -443,6 +464,4 @@ void wrap_Quantity(pybind11::module & m)
     WRAP_QUANTITY_CONTAINER(TensorQ4);
     
     WRAP_QUANTITY_CONTAINER(ArrayQ);
-    // TODO: construct any container from ArrayQ. Check shape for Vector/Matrix,
-    // Check dim for Tensor
 }
