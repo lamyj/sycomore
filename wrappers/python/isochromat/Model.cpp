@@ -4,7 +4,160 @@
 
 #include "sycomore/isochromat/Model.h"
 
-#include "../type_casters.h"
+#include "../Quantity.h"
+
+namespace
+{
+
+sycomore::isochromat::Model
+constructor(
+    pybind11::object T1, pybind11::object T2, pybind11::object M0,
+    pybind11::object positions, pybind11::object delta_omega)
+{
+    using sycomore::Quantity;
+    using sycomore::TensorR;
+    using sycomore::TensorQ;
+    using sycomore::wrappers::as_quantity;
+    
+    try
+    {
+        auto const T1_ = T1.cast<Quantity const &>();
+        if(delta_omega.is(pybind11::none()))
+        {
+            return {
+                T1_, T2.cast<Quantity const &>(),
+                M0.cast<TensorR<1>>(), as_quantity<TensorQ<2>>(positions)};
+        }
+        else
+        {
+            return {
+                T1_, T2.cast<Quantity const &>(),
+                M0.cast<TensorR<1>>(), as_quantity<TensorQ<2>>(positions),
+                delta_omega.cast<Quantity const &>()};
+        }
+    }
+    catch(pybind11::cast_error &)
+    {
+        if(delta_omega.is(pybind11::none()))
+        {
+            return {
+                as_quantity<TensorQ<1>>(T1), as_quantity<TensorQ<1>>(T2),
+                M0.cast<TensorR<2>>(), as_quantity<TensorQ<2>>(positions)};
+        }
+        else
+        {
+            return {
+                as_quantity<TensorQ<1>>(T1), as_quantity<TensorQ<1>>(T2),
+                M0.cast<TensorR<2>>(), as_quantity<TensorQ<2>>(positions),
+                as_quantity<TensorQ<1>>(delta_omega)
+            };
+        }
+    }
+}
+
+sycomore::isochromat::Operator
+build_pulse(
+    sycomore::isochromat::Model const & model,
+    pybind11::object angle, pybind11::object phase)
+{
+    using sycomore::Quantity;
+    using sycomore::TensorQ;
+    using sycomore::wrappers::as_quantity;
+    
+    try
+    {
+        if(phase.is(pybind11::none()))
+        {
+            return model.build_pulse(
+                angle.cast<Quantity const &>());
+        }
+        else
+        {
+            return model.build_pulse(
+                angle.cast<Quantity const &>(),
+                phase.cast<Quantity const &>());
+        }
+    }
+    catch(pybind11::cast_error &)
+    {
+        if(phase.is(pybind11::none()))
+        {
+            return model.build_pulse(as_quantity<TensorQ<1>>(angle));
+        }
+        else
+        {
+            return model.build_pulse(
+                as_quantity<TensorQ<1>>(angle), as_quantity<TensorQ<1>>(phase));
+        }
+    }
+}
+
+sycomore::isochromat::Operator
+build_phase_accumulation(
+    sycomore::isochromat::Model const & model, pybind11::object angle)
+{
+    using sycomore::Quantity;
+    using sycomore::TensorQ;
+    using sycomore::wrappers::as_quantity;
+    
+    try
+    {
+        return model.build_phase_accumulation(angle.cast<Quantity const &>());
+    }
+    catch(pybind11::cast_error &)
+    {
+        return model.build_phase_accumulation(as_quantity<TensorQ<1>>(angle));
+    }
+}
+
+sycomore::isochromat::Operator
+build_time_interval(
+    sycomore::isochromat::Model const & model,
+    sycomore::Quantity const & duration, pybind11::object delta_omega,
+    pybind11::object gradient)
+{
+    using sycomore::Quantity;
+    using sycomore::TensorQ;
+    using sycomore::wrappers::as_quantity;
+    
+    if(delta_omega.is(pybind11::none()))
+    {
+        return model.build_time_interval(duration);
+    }
+    else if(gradient.is(pybind11::none()))
+    {
+        try
+        {
+            return model.build_time_interval(
+                duration, delta_omega.cast<Quantity>());
+        }
+        catch(pybind11::cast_error &)
+        {
+            return model.build_time_interval(
+                duration, as_quantity<TensorQ<1>>(delta_omega));
+        }
+    }
+    else
+    {
+        try
+        {
+            auto const delta_omega_ = delta_omega.cast<Quantity>();
+            return model.build_time_interval(
+                duration,
+                delta_omega_,
+                as_quantity<TensorQ<1>>(gradient));
+        }
+        catch(pybind11::cast_error &)
+        {
+            return model.build_time_interval(
+                duration,
+                as_quantity<TensorQ<1>>(delta_omega),
+                as_quantity<TensorQ<2>>(gradient));
+        }
+    }
+}
+
+}
 
 void wrap_isochromat_Model(pybind11::module & m)
 {
@@ -15,57 +168,24 @@ void wrap_isochromat_Model(pybind11::module & m)
 
     class_<Model>(m, "Model")
         .def(
-            init<
-                Quantity const &, Quantity const &, TensorR<1> const &,
-                TensorQ<2> const &, Quantity const &>(),
-            "T1"_a, "T2"_a, "M0"_a, "positions"_a, "delta_omega"_a=0*units::Hz,
-            "Create a spatially constant model")
+            init(&constructor),
+            "T1"_a, "T2"_a, "M0"_a, "positions"_a, "delta_omega"_a=none(),
+            "Create a model")
         .def(
-            init<
-                TensorQ<1> const &, TensorQ<1> const &, TensorR<2> const &,
-                TensorQ<2> const &, TensorQ<1> const &>(),
-            "T1"_a, "T2"_a, "M0"_a, "positions"_a, "delta_omega"_a=TensorQ<1>{},
-            "Create a spatially-varying model")
+            "build_pulse", &build_pulse,
+            "angle"_a, "phase"_a=none(),
+            "Create an RF pulse operator")
         .def(
-            "build_pulse",
-            overload_cast<Quantity const &, Quantity const &>(
-                &Model::build_pulse, const_),
-            "angle"_a, "phase"_a=0*units::rad,
-            "Create a spatially constant RF pulse operator")
-        .def(
-            "build_pulse",
-            overload_cast<TensorQ<1> const &, TensorQ<1> const &>(
-                &Model::build_pulse, const_),
-            "angle"_a, "phase"_a=TensorQ<1>{},
-            "Create a spatially-varying RF pulse operator")
-        .def(
-            "build_time_interval",
-            overload_cast<
-                    Quantity const &, Quantity const &, TensorQ<1> const &>(
-                &Model::build_time_interval, const_),
-            "duration"_a, "delta_omega"_a=0*units::Hz, "gradient"_a=TensorQ<1>{},
-            "Create a spatially constant time interval operator")
-        .def(
-            "build_time_interval",
-            overload_cast<
-                    Quantity const &, TensorQ<1> const &, TensorQ<2> const &>(
-                &Model::build_time_interval, const_),
-            "duration"_a, "delta_omega"_a, "gradient"_a=TensorQ<2>{},
-            "Create a spatially-varying time interval operator")
+            "build_time_interval", &build_time_interval,
+            "duration"_a, "delta_omega"_a=none(), "gradient"_a=none(),
+            "Create a time interval operator")
         .def(
             "build_relaxation", &Model::build_relaxation, "duration"_a,
             "Create a relaxation operator")
         .def(
-            "build_phase_accumulation",
-            overload_cast<Quantity const &>(
-                &Model::build_phase_accumulation, const_),
+            "build_phase_accumulation", &build_phase_accumulation,
             "angle"_a,
-            "Create a spatially constant phase accumulation operator")
-        .def(
-            "build_phase_accumulation",
-            overload_cast<TensorQ<1> const &>(
-                &Model::build_phase_accumulation, const_),
-            "angle"_a, "Create a spatially-varying phase accumulation operator")
+            "Create a phase accumulation operator")
         .def(
             "apply", &Model::apply, "operator"_a,
             "Apply an operator to the magnetization")

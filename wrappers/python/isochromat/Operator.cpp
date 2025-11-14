@@ -4,8 +4,6 @@
 
 #include "sycomore/isochromat/Operator.h"
 
-#include "../type_casters.h"
-
 void wrap_isochromat_Operator(pybind11::module & m)
 {
     using namespace pybind11;

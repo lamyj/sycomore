@@ -10,13 +10,11 @@
 sycomore::TimeInterval constructor(
     sycomore::Quantity const & duration, pybind11::object gradient)
 {
-    static auto const quantity_type =
-        pybind11::module::import("sycomore").attr("Quantity");
-    if(pybind11::type::of(gradient).is(quantity_type))
+    try
     {
         return {duration, gradient.cast<sycomore::Quantity>()};
     }
-    else
+    catch(pybind11::cast_error const &)
     {
         return {
             duration,
@@ -27,14 +25,12 @@ sycomore::TimeInterval constructor(
 sycomore::TimeInterval shortest(
     pybind11::object k, sycomore::Quantity const & G_max)
 {
-    static auto const quantity_type =
-        pybind11::module::import("sycomore").attr("Quantity");
-    if(pybind11::type::of(k).is(quantity_type))
+    try
     {
         return sycomore::TimeInterval::shortest(
             k.cast<sycomore::Quantity>(), G_max);
     }
-    else
+    catch(pybind11::cast_error const &)
     {
         return sycomore::TimeInterval::shortest(
             sycomore::wrappers::as_quantity<sycomore::Vector3Q>(k), G_max);
@@ -44,11 +40,11 @@ sycomore::TimeInterval shortest(
 void set_gradient(
     sycomore::TimeInterval & time_interval, pybind11::object const & value)
 {
-    if(pybind11::isinstance<sycomore::Quantity>(value))
+    try
     {
         time_interval.set_gradient(value.cast<sycomore::Quantity>());
     }
-    else
+    catch(pybind11::cast_error const &)
     {
         time_interval.set_gradient(value.cast<sycomore::Vector3Q>());
     }

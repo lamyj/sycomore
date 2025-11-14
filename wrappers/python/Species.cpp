@@ -13,11 +13,11 @@ namespace
 
 void set_D(sycomore::Species & species, pybind11::object const & value)
 {
-    if(pybind11::isinstance<sycomore::Quantity>(value))
+    try
     {
         species.set_D(value.cast<sycomore::Quantity>());
     }
-    else
+    catch(pybind11::cast_error const &)
     {
         species.set_D(value.cast<sycomore::Matrix3x3Q>());
     }

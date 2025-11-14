@@ -4,7 +4,12 @@ import unittest
 import sycomore
 from sycomore.units import *
 
-class TestModel(unittest.TestCase):
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from test_case import TestCase
+
+class TestModel(TestCase):
     def test_pulse_uniform(self):
         positions = [[0*m, 0*m, 0*m]]
         model = sycomore.isochromat.Model(1*s, 0.1*s, [0, 0, 1], positions)
@@ -134,27 +139,27 @@ class TestModel(unittest.TestCase):
             default_gradient.array,
             model.build_time_interval(
                 10*ms, [400*Hz, 600*Hz],
-                [[0*T/m, 0*T/m, 0*T/m], [0*T/m, 0*T/m, 0*T/m]]).array);
+                [[0*T/m, 0*T/m, 0*T/m], [0*T/m, 0*T/m, 0*T/m]]).array)
     
     def test_T1(self):
         model_1 = sycomore.isochromat.Model(
             1*s, 2*s, [3, 4, 5], [[0*m, 0*m, 11*m], [0*m, 0*m, 12*m]])
-        self._test_quantity_array(model_1.T1, [1*s, 1*s])
+        self.assertEqual(model_1.T1, sycomore.TensorQ1([1*s, 1*s]))
         
         model_2 = sycomore.isochromat.Model(
             [1*s, 2*s], [3*s, 4*s], [[5, 6, 7], [8, 9, 10]],
             [[0*m, 0*m, 11*m], [0*m, 0*m, 12*m]])
-        self._test_quantity_array(model_2.T1, [1*s, 2*s])
+        self.assertEqual(model_2.T1, sycomore.TensorQ1([1*s, 2*s]))
     
     def test_T2(self):
         model_1 = sycomore.isochromat.Model(
             1*s, 2*s, [3, 4, 5], [[0*m, 0*m, 11*m], [0*m, 0*m, 12*m]])
-        self._test_quantity_array(model_1.T2, [2*s, 2*s])
+        self.assertEqual(model_1.T2, sycomore.TensorQ1([2*s, 2*s]))
         
         model_2 = sycomore.isochromat.Model(
             [1*s, 2*s], [3*s, 4*s], [[5, 6, 7], [8, 9, 10]],
             [[0*m, 0*m, 11*m], [0*m, 0*m, 12*m]])
-        self._test_quantity_array(model_2.T2, [3*s, 4*s])
+        self.assertEqual(model_2.T2, sycomore.TensorQ1([3*s, 4*s]))
     
     def test_M0(self):
         model_1 = sycomore.isochromat.Model(
@@ -178,11 +183,12 @@ class TestModel(unittest.TestCase):
         numpy.testing.assert_almost_equal(
             model_2.magnetization, [[5,6,7], [8,9,10]])
     
-    def test_posittions(self):
+    def test_positions(self):
         model = sycomore.isochromat.Model(
             1*s, 2*s, [3, 4, 5], [[0*m, 0*m, 11*m], [0*m, 0*m, 12*m]])
-        self._test_quantity_array(
-            model.positions, [[0*m,0*m,11*m], [0*m,0*m,12*m]])
+        self.assertEqual(
+            model.positions,
+            sycomore.TensorQ2([[0*m,0*m,11*m], [0*m,0*m,12*m]]))
     
     def test_apply(self):
         operator = sycomore.isochromat.Operator(
@@ -209,15 +215,6 @@ class TestModel(unittest.TestCase):
             [801, 1018, 1235]]
         
         numpy.testing.assert_almost_equal(model.magnetization, magnetization)
-    
-    def _test_quantity_array(self, left, right):
-        self.assertEqual(numpy.shape(left), numpy.shape(right))
-        self.assertSequenceEqual(
-            [x.dimensions for x in numpy.ravel(left)],
-            [x.dimensions for x in numpy.ravel(right)])
-        self.assertSequenceEqual(
-            [x.magnitude for x in numpy.ravel(left)],
-            [x.magnitude for x in numpy.ravel(right)])
-    
+
 if __name__ == "__main__":
     unittest.main()

@@ -429,5 +429,20 @@ void wrap_Quantity(pybind11::module & m)
     WRAP_QUANTITY_CONTAINER(Vector4Q);
     WRAP_QUANTITY_CONTAINER(Matrix2x2Q);
     WRAP_QUANTITY_CONTAINER(Matrix3x3Q);
+    
+    using TensorQ1 = TensorQ<1>;
+    WRAP_QUANTITY_CONTAINER(TensorQ1);
+    
+    using TensorQ2 = TensorQ<2>;
+    WRAP_QUANTITY_CONTAINER(TensorQ2);
+    
+    using TensorQ3 = TensorQ<3>;
+    WRAP_QUANTITY_CONTAINER(TensorQ3);
+    
+    using TensorQ4 = TensorQ<4>;
+    WRAP_QUANTITY_CONTAINER(TensorQ4);
+    
     WRAP_QUANTITY_CONTAINER(ArrayQ);
+    // TODO: construct any container from ArrayQ. Check shape for Vector/Matrix,
+    // Check dim for Tensor
 }
