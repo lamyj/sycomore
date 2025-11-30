@@ -9,6 +9,16 @@
 
 void wrap_Dimensions(pybind11::module &);
 void wrap_Quantity(pybind11::module &);
+void wrap_Vector2Q(pybind11::module &);
+void wrap_Vector3Q(pybind11::module &);
+void wrap_Vector4Q(pybind11::module &);
+void wrap_Matrix2x2Q(pybind11::module &);
+void wrap_Matrix3x3Q(pybind11::module &);
+void wrap_TensorQ1(pybind11::module &);
+void wrap_TensorQ2(pybind11::module &);
+void wrap_TensorQ3(pybind11::module &);
+void wrap_TensorQ4(pybind11::module &);
+void wrap_ArrayQ(pybind11::module &);
 void wrap_units(pybind11::module &);
 
 void wrap_Pulse(pybind11::module &);
@@ -25,6 +35,16 @@ PYBIND11_MODULE(_sycomore, _sycomore)
     
     wrap_Dimensions(_sycomore);
     wrap_Quantity(_sycomore);
+    wrap_Vector2Q(_sycomore);
+    wrap_Vector3Q(_sycomore);
+    wrap_Vector4Q(_sycomore);
+    wrap_Matrix2x2Q(_sycomore);
+    wrap_Matrix3x3Q(_sycomore);
+    wrap_TensorQ1(_sycomore);
+    wrap_TensorQ2(_sycomore);
+    wrap_TensorQ3(_sycomore);
+    wrap_TensorQ4(_sycomore);
+    wrap_ArrayQ(_sycomore);
     wrap_units(_sycomore);
 
     wrap_Pulse(_sycomore);

@@ -1,6 +1,9 @@
 #ifndef _d81aa20b_dd7e_4a5a_a47c_837fd494e686
 #define _d81aa20b_dd7e_4a5a_a47c_837fd494e686
 
+#include <string>
+#include <vector>
+
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
@@ -13,35 +16,44 @@ namespace wrappers
 {
 
 template<typename T>
-T as_quantity(pybind11::array_t<pybind11::object> array)
-{
-    std::vector<size_t> const shape{array.shape(), array.shape()+array.ndim()};
-    
-    T destination(T::Container::from_shape(shape));
-    auto dest_it = destination.magnitude.begin();
-    
-    array.resize({array.size()});
-    
-    if(array.size() != 0)
-    {
-        destination.dimensions = array.data()->cast<sycomore::Quantity>().dimensions;
-    }
-    
-    for(auto && source: array)
-    {
-        auto const & q = source.cast<sycomore::Quantity>();
-        destination.check_dimensions(q, "Constructor requires same dimensions");
-        *dest_it = q.magnitude;
-        ++dest_it;
-    }
-    
-    array.resize(shape);
-    
-    return destination;
-}
+pybind11::class_<T>
+wrap_quantity_class(pybind11::module & m, std::string const & name);
+
+template<typename T>
+pybind11::object
+wrap_ufuncs(
+    T const &, pybind11::object ufunc, std::string const & method,
+    pybind11::args args, pybind11::kwargs kwargs);
+
+template<typename T>
+pybind11::class_<T>
+wrap_quantity_array(pybind11::class_<T> & _class);
+
+template<typename T>
+T as_quantity(pybind11::array_t<pybind11::object> array);
+
+template<typename T>
+std::vector<std::size_t>
+normalize_index(T const & magnitude, std::vector<ssize_t> const & i);
+
+template<typename T>
+sycomore::Quantity getitem(T const & q, std::vector<ssize_t> const & i);
+
+template<typename T>
+sycomore::Quantity getitem(T const & q, ssize_t i);
+
+template<typename T>
+sycomore::Quantity const &
+setitem(T & l, std::vector<ssize_t> const & i, sycomore::Quantity const & r);
+
+template<typename T>
+sycomore::Quantity const &
+setitem(T & l, ssize_t i, sycomore::Quantity const & r);
 
 }
 
 }
+
+#include "Quantity.txx"
 
 #endif // _d81aa20b_dd7e_4a5a_a47c_837fd494e686
