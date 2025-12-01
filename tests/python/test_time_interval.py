@@ -30,7 +30,6 @@ class TestTimeInterval(TestCase):
             interval.gradient_dephasing, sycomore.Vector3Q(3*[20.*rad/m]))
 
     def test_dephasing_vector_constructor(self):
-        print("------------------------------------")
         interval = sycomore.TimeInterval(
             1.*ms, [2*rad/dm, 4*rad/m, 8*rad/dam])
         self.assertEqual(interval.duration, 1e-3*s)

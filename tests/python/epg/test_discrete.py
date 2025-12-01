@@ -4,21 +4,23 @@ import numpy
 import sycomore
 from sycomore.units import *
 
-class TestDiscrete(unittest.TestCase):
+from epg_test_case import EPGTestCase
+
+class TestDiscrete(EPGTestCase):
     def setUp(self):
         self.species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)
     
     def test_empty(self):
         model = sycomore.epg.Discrete(self.species)
         
-        self._test_model(model, [0*rad/m], [[0, 0, 1]])
+        self._test_model(model, [0]*rad/m, [[0, 0, 1]])
     
     def test_pulse(self):
         model = sycomore.epg.Discrete(self.species)
         model.apply_pulse(47*deg, 23*deg)
         
         self._test_model(
-            model, [0*rad/m], 
+            model, [0]*rad/m, 
             [[
                 0.2857626571584661-0.6732146319308543j, 
                 0.2857626571584661+0.6732146319308543j, 
@@ -30,7 +32,7 @@ class TestDiscrete(unittest.TestCase):
         model.shift(10*ms, 2*mT/m)
         
         self._test_model(
-            model, [0*rad/m, 5350*rad/m], 
+            model, [0, 5350]*rad/m,
             [
                 [0, 0, 0.6819983600624985], 
                 [0.2857626571584661-0.6732146319308543j, 0, 0]])
@@ -41,7 +43,7 @@ class TestDiscrete(unittest.TestCase):
         model.shift(10*ms, -2*mT/m)
         
         self._test_model(
-            model, [0*rad/m, 5350*rad/m], 
+            model, [0, 5350]*rad/m, 
             [
                 [0, 0, 0.6819983600624985], 
                 [0, 0.2857626571584661+0.6732146319308543j, 0]])
@@ -54,7 +56,7 @@ class TestDiscrete(unittest.TestCase):
         model.shift(10*ms, 1*mT/m)
         
         self._test_model(
-            model, [0*rad/m, 2675*rad/m, 5350*rad/m, 8025*rad/m], 
+            model, [0, 2675, 5350, 8025]*rad/m, 
             [
                 [0, 0, 0.4651217631279373], 
                 [
@@ -71,7 +73,7 @@ class TestDiscrete(unittest.TestCase):
         model.relaxation(10*ms)
         
         self._test_model(
-            model, [0*rad/m, 5350*rad/m],
+            model, [0, 5350]*rad/m,
             [
                 [0, 0, 0.6851625292479138], 
                 [0.2585687448743616-0.6091497893403431j, 0, 0]])
@@ -84,7 +86,7 @@ class TestDiscrete(unittest.TestCase):
         model.diffusion(10*ms, 2*mT/m)
         
         self._test_model(
-            model, [0*rad/m, 5350*rad/m],
+            model, [0, 5350]*rad/m,
             [
                 [0, 0, 0.6851625292479138], 
                 [0.25805117100742553-0.6079304617214332j, 0, 0]])
@@ -97,7 +99,7 @@ class TestDiscrete(unittest.TestCase):
         model.off_resonance(10*ms)
         
         self._test_model(
-            model, [0*rad/m, 5350*rad/m], 
+            model, [0, 5350]*rad/m, 
             [
                 [0, 0, 0.6819983600624985], 
                 [0.6268924782754024-0.37667500256027975j, 0, 0]])
@@ -108,7 +110,7 @@ class TestDiscrete(unittest.TestCase):
         model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
-            model, [0*rad/m, 5350*rad/m],
+            model, [0, 5350]*rad/m,
             [
                 [0, 0, 0.6851625292479138], 
                 [0.2584947343504123-0.6089754314724013j, 0, 0]])
@@ -120,7 +122,7 @@ class TestDiscrete(unittest.TestCase):
         model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
-            model, [0*rad/m, 5350*rad/m],
+            model, [0, 5350]*rad/m,
             [
                 [0, 0, 0.6851625292479138], 
                 [0.56707341067384409-0.34073208057155585j, 0, 0]])
@@ -134,7 +136,7 @@ class TestDiscrete(unittest.TestCase):
         model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
-            model, [0*rad/m, 5350*rad/m],
+            model, [0, 5350]*rad/m,
             [
                 [0, 0, 0.6851625292479138], 
                 [0.56707341067384409-0.34073208057155585j, 0, 0]])
@@ -149,7 +151,7 @@ class TestDiscrete(unittest.TestCase):
         model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
-            model, [0*rad/m, 5350*rad/m],
+            model, [0, 5350]*rad/m,
             [
                 [0, 0, 0.6851625292479138], 
                 [0.2584947343504123-0.6089754314724013j, 0, 0]])
@@ -162,7 +164,7 @@ class TestDiscrete(unittest.TestCase):
         model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
-            model, [0*rad/m, 5350*rad/m, 10700*rad/m],
+            model, [0, 5350, 10700]*rad/m,
             [
                 [
                     0.30684831950624042+0.53147687960193668j, 
@@ -183,29 +185,13 @@ class TestDiscrete(unittest.TestCase):
         self.assertEqual(model.elapsed, 10*ms)
     
     def _test_model(self, model, orders, states):
-        self._test_quantity_array(orders, model.orders)
-        numpy.testing.assert_allclose(states, model.states)
-        
-        self.assertEqual(model.states.shape, (len(orders), 3))
-        numpy.testing.assert_array_almost_equal(states, model.states)
-        for i, order in enumerate(orders):
-            numpy.testing.assert_almost_equal(model.state(i), states[i])
-            numpy.testing.assert_almost_equal(model.state(order), states[i])
+        EPGTestCase._test_model(self, model, orders, states)
         
         try:
             numpy.testing.assert_almost_equal(
                 model.state(0*rad/m)[0], model.echo)
         except Exception:
             self.assertEqual(model.echo, 0)
-    
-    def _test_quantity_array(self, left, right):
-        self.assertEqual(numpy.shape(left), numpy.shape(right))
-        self.assertSequenceEqual(
-            [x.dimensions for x in numpy.ravel(left)],
-            [x.dimensions for x in numpy.ravel(right)])
-        self.assertSequenceEqual(
-            [x.magnitude for x in numpy.ravel(left)],
-            [x.magnitude for x in numpy.ravel(right)])
 
 if __name__ == "__main__":
     unittest.main()

@@ -4,8 +4,6 @@
 
 #include "sycomore/epg/Model.h"
 
-#include "../type_casters.h"
-
 void wrap_epg_Model(pybind11::module & m)
 {
     using namespace pybind11;

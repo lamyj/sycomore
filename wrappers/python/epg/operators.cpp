@@ -4,8 +4,6 @@
 
 #include "sycomore/epg/operators.h"
 
-#include "../type_casters.h"
-
 template<typename Container, typename Shape>
 xt::xtensor_fixed<typename Container::value_type, Shape>
 as_xtensor_fixed(Container const & array, Shape &&)

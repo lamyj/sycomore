@@ -2,10 +2,10 @@
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
+#include <xtensor-python/pyarray.hpp>
+
 #include "sycomore/epg/Base.h"
 #include "sycomore/Species.h"
-
-#include "../type_casters.h"
 
 void wrap_epg_Base(pybind11::module & m)
 {
@@ -65,23 +65,22 @@ void wrap_epg_Base(pybind11::module & m)
             "Echo signal, i.e. :math:`F_0`")
         .def(
             "apply_pulse", 
-            static_cast<void(Base::*)(Quantity const &, Quantity const &)>(
+            overload_cast<Quantity const &, Quantity const &>(
                 &Base::apply_pulse),
             "angle"_a, "phase"_a=0*units::rad,
             "Apply an RF hard pulse to a single-pool model")
         .def(
             "apply_pulse", 
-            static_cast<
-                    void(Base::*)(
-                        Quantity const &, Quantity const &,
-                        Quantity const &, Quantity const &)
+            overload_cast<
+                    Quantity const &, Quantity const &,
+                    Quantity const &, Quantity const &
                 >(&Base::apply_pulse),
             "angle_a"_a, "phase_a"_a, "angle_B"_a, "phase_b"_a,
             "Apply an RF hard pulse to an two-pools exchange model")
         .def(
             "apply_pulse", 
-            static_cast<
-                    void(Base::*)(Quantity const &, Quantity const &, Real)
+            overload_cast<
+                    Quantity const &, Quantity const &, Real
                 >(&Base::apply_pulse),
             "angle_a"_a, "phase_a"_a, "saturation"_a,
             "Apply an RF pulse to an two-pools magnetization transfer model")

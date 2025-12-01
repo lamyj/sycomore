@@ -7,8 +7,6 @@
 #include "sycomore/epg/Regular.h"
 #include "sycomore/Species.h"
 
-#include "../type_casters.h"
-
 void wrap_epg_Regular(pybind11::module & m)
 {
     using namespace pybind11;
@@ -67,27 +65,24 @@ void wrap_epg_Regular(pybind11::module & m)
             "Magnetization at a given state, expressed by its *order*.")
         .def(
             "apply_time_interval", 
-            static_cast<void(Regular::*)(Quantity const &, Quantity const &)>(
+            overload_cast<Quantity const &, Quantity const &>(
                 &Regular::apply_time_interval),
             "duration"_a, "gradient"_a=0*units::T/units::m,
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects.")
         .def(
             "apply_time_interval", 
-            static_cast<void(Regular::*)(TimeInterval const &)>(
-                &Regular::apply_time_interval),
+            overload_cast<TimeInterval const &>(&Regular::apply_time_interval),
             "time_interval"_a,
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects.")
         .def(
-            "shift", static_cast<void (Regular::*)(int)>(&Regular::shift), 
+            "shift", overload_cast<int>(&Regular::shift), 
             "Apply a unit gradient n times.",
             "n"_a=1)
         .def(
             "shift", 
-            static_cast<
-                    void (Regular::*)(Quantity const &, Quantity const &)
-                >(&Regular::shift), 
+            overload_cast<Quantity const &, Quantity const &>(&Regular::shift), 
             "duration"_a, "gradient"_a,
             "Apply an arbitrary gradient; in regular EPG, this shifts all "
             "orders by an integer number corresponding to a multiple of the "

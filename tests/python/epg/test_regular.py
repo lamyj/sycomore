@@ -4,13 +4,15 @@ import numpy
 import sycomore
 from sycomore.units import *
 
-class TestRegular(unittest.TestCase):
+from epg_test_case import EPGTestCase
+
+class TestRegular(EPGTestCase):
     def test_empty(self):
         species = sycomore.Species(1000*ms, 100*ms)
         model = sycomore.epg.Regular(species)
         
         self._test_model(
-            model, [sycomore.Quantity(0, sycomore.Dimensions())], [[0,0,1]])
+            model, sycomore.TensorQ1([0]), [[0,0,1]])
     
     def test_pulse(self):
         species = sycomore.Species(1000*ms, 100*ms, 3*um**2/ms)
@@ -18,8 +20,7 @@ class TestRegular(unittest.TestCase):
         model.apply_pulse(47*deg, 23*deg)
         
         self._test_model(
-            model,  
-            [sycomore.Quantity(0, sycomore.Dimensions())],
+            model, [0],
             [[
                 0.2857626571584661-0.6732146319308543j,
                 0.2857626571584661+0.6732146319308543j,
@@ -32,8 +33,7 @@ class TestRegular(unittest.TestCase):
         model.shift()
         
         self._test_model(
-            model,  
-            [sycomore.Quantity(x, sycomore.Dimensions()) for x in [0, 1]],
+            model, [0, 1],
             [
                 [0, 0, 0.6819983600624985],
                 [0.2857626571584661-0.6732146319308543j, 0, 0]])
@@ -45,18 +45,14 @@ class TestRegular(unittest.TestCase):
         
         model.shift(1*ms, 1*mT/m)
         self._test_model(
-            model,  
-            [sycomore.gamma*0*mT/m*ms, sycomore.gamma*1*mT/m*ms],
+            model, sycomore.gamma*[0, 1]*mT/m*ms,
             [
                 [0, 0, 0.6819983600624985],
                 [0.2857626571584661-0.6732146319308543j, 0, 0]])
         
         model.shift(2*ms, 1*mT/m)
         self._test_model(
-            model,  
-            [
-                sycomore.gamma*0*mT/m*ms, sycomore.gamma*1*mT/m*ms,
-                sycomore.gamma*2*mT/m*ms, sycomore.gamma*3*mT/m*ms],
+            model, sycomore.gamma*[0, 1, 2, 3]*mT/m*ms,
             [
                 [0, 0, 0.6819983600624985],
                 [0, 0, 0],
@@ -65,11 +61,7 @@ class TestRegular(unittest.TestCase):
         
         model.shift(1*ms, -1*mT/m)
         self._test_model(
-            model,  
-            [
-                sycomore.gamma*0*mT/m*ms, sycomore.gamma*1*mT/m*ms,
-                sycomore.gamma*2*mT/m*ms, sycomore.gamma*3*mT/m*ms,
-                sycomore.gamma*4*mT/m*ms],
+            model, sycomore.gamma*[0, 1, 2, 3, 4]*mT/m*ms,
             [
                 [0, 0, 0.6819983600624985],
                 [0, 0, 0],
@@ -88,8 +80,7 @@ class TestRegular(unittest.TestCase):
         model.relaxation(10*ms)
         
         self._test_model(
-            model,  
-            [sycomore.Quantity(x, sycomore.Dimensions()) for x in [0, 1]],
+            model, [0, 1],
             [
                 [0, 0, 0.6851625292479138],
                 [0.2585687448743616-0.6091497893403431j, 0, 0]])
@@ -103,8 +94,7 @@ class TestRegular(unittest.TestCase):
         model.diffusion(10*ms, 2*mT/m)
         
         self._test_model(
-            model,  
-            [sycomore.gamma*0*mT/m*ms, sycomore.gamma*20*mT/m*ms],
+            model, sycomore.gamma*[0, 20]*mT/m*ms,
             [
                 [0, 0, 0.6851625292479138],
                 [0.25805111586158685-0.60793033180597855j, 0, 0]])
@@ -118,8 +108,7 @@ class TestRegular(unittest.TestCase):
         model.off_resonance(10*ms)
         
         self._test_model(
-            model,
-            [sycomore.Quantity(x, sycomore.Dimensions()) for x in [0, 1]],
+            model, [0, 1],
             [
                 [0, 0, 0.6819983600624985], 
                 [0.6268924782754024-0.37667500256027975j, 0, 0]])
@@ -131,10 +120,7 @@ class TestRegular(unittest.TestCase):
         model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
-            model,  
-            [
-                sycomore.gamma*0*mT/m*ms, sycomore.gamma*10*mT/m*ms,
-                sycomore.gamma*20*mT/m*ms],
+            model, sycomore.gamma*[0, 10, 20]*mT/m*ms,
             [
                 [0, 0, 0.6851625292479138],
                 [0, 0, 0],
@@ -142,8 +128,7 @@ class TestRegular(unittest.TestCase):
         
         model.apply_time_interval(10*ms, -2*mT/m)
         self._test_model(
-            model, 
-            [sycomore.gamma*0*mT/m*ms],
+            model, sycomore.gamma*[0]*mT/m*ms,
             [
                 [
                     0.23382875968307784-0.5508660366970124j, 
@@ -158,10 +143,7 @@ class TestRegular(unittest.TestCase):
         model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
-            model, 
-            [
-                sycomore.gamma*0*mT/m*ms, sycomore.gamma*10*mT/m*ms,
-                sycomore.gamma*20*mT/m*ms],
+            model, sycomore.gamma*[0, 10, 20]*mT/m*ms,
             [
                 [0, 0, 0.6851625292479138], 
                 [0, 0, 0],
@@ -174,11 +156,7 @@ class TestRegular(unittest.TestCase):
         model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
-            model, 
-            [
-                sycomore.gamma*0*mT/m*ms,
-                sycomore.gamma*10*mT/m*ms,
-                sycomore.gamma*20*mT/m*ms],
+            model, sycomore.gamma*[0, 10, 20]*mT/m*ms,
             [
                 [0, 0, 0.6851625292479138], 
                 [0, 0, 0],
@@ -192,11 +170,7 @@ class TestRegular(unittest.TestCase):
         model.apply_time_interval(10*ms, 2*mT/m)
         
         self._test_model(
-            model, 
-            [
-                sycomore.gamma*0*mT/m*ms,
-                sycomore.gamma*10*mT/m*ms,
-                sycomore.gamma*20*mT/m*ms],
+            model, sycomore.gamma*[0, 10, 20]*mT/m*ms,
             [
                 [0, 0, 0.6851625292479138], 
                 [0, 0, 0],
@@ -209,27 +183,6 @@ class TestRegular(unittest.TestCase):
         
         model.apply_time_interval(10*ms)
         self.assertEqual(model.elapsed, 10*ms)
-    
-    def _test_model(self, model, orders, states):
-        self._test_quantity_array(orders, model.orders)
-        numpy.testing.assert_allclose(states, model.states)
-        
-        self.assertEqual(model.states.shape, (len(orders), 3))
-        numpy.testing.assert_array_almost_equal(states, model.states)
-        for i, order in enumerate(orders):
-            numpy.testing.assert_almost_equal(model.state(i), states[i])
-            numpy.testing.assert_almost_equal(model.state(order), states[i])
-        
-        numpy.testing.assert_almost_equal(states[0][0], model.echo)
-        
-    def _test_quantity_array(self, left, right):
-        self.assertEqual(numpy.shape(left), numpy.shape(right))
-        self.assertSequenceEqual(
-            [x.dimensions for x in numpy.ravel(left)],
-            [x.dimensions for x in numpy.ravel(right)])
-        numpy.testing.assert_almost_equal(
-            [x.magnitude for x in numpy.ravel(left)],
-            [x.magnitude for x in numpy.ravel(right)])
 
 if __name__ == "__main__":
     unittest.main()
