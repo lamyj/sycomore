@@ -5,9 +5,26 @@
 #include <vector>
 
 #include <pybind11/numpy.h>
+#include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 
 #include "sycomore/Quantity.h"
+
+// NOTE: forbid TensorQ to participate in the operators overloads of namespace xt
+namespace xt
+{
+namespace detail
+{
+template<typename F, typename T>
+struct xfunction_type<F, T, decltype(pybind11::self)> { };
+template<typename F, typename T>
+struct xfunction_type<F, decltype(pybind11::self), T> { };
+template<typename F, typename T>
+struct xfunction_type<F, T, decltype(pybind11::self) const &> { };
+template<typename F, typename T>
+struct xfunction_type<F, decltype(pybind11::self) const &, T> { };
+}
+}
 
 namespace sycomore
 {

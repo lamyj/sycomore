@@ -138,44 +138,22 @@ wrap_quantity_class(pybind11::module & m, std::string const & name)
     
     /**************************************************************************/
     /************************** ARITHMETIC OPERATORS **************************/
-    /********************* (OUT OF PLACE,  CLASS ON LEFT) *********************/
+    /********************* (OUT OF PLACE, HETEROGENENOUS) *********************/
     /**************************************************************************/
     _class
-        .def("__add__", sycomore::operator+<T, Container>, is_operator())
-        .def("__sub__", sycomore::operator-<T, Container>, is_operator())
-        .def("__mul__", sycomore::operator*<T, Container>, is_operator())
-        .def("__truediv__", sycomore::operator/<T, Container>, is_operator())
+        .def(self + Container()).def(Container() + self)
+        .def(self - Container()).def(Container() - self)
+        .def(self * Container()).def(Container() * self)
+        .def(self / Container()).def(Container() / self)
         .def(
             "__floordiv__",
             [](T const & l, Container const & r) { return std::floor(l/r); },
-            is_operator())
-        .def("__mod__", sycomore::fmod<T, Container>, is_operator());
-    
-    /**************************************************************************/
-    /************************** ARITHMETIC OPERATORS **************************/
-    /********************* (OUT OF PLACE, CLASS ON RIGHT) *********************/
-    /**************************************************************************/
-    _class
-        .def(
-            "__radd__",
-            [](T const & r, Container const & l) { return l + r; },
-            is_operator())
-        .def(
-            "__rsub__",
-            [](T const & r, Container const & l) { return l - r; },
-            is_operator())
-        .def(
-            "__rmul__",
-            [](T const & r, Container const & l) { return l * r; },
-            is_operator())
-        .def(
-            "__rtruediv__",
-            [](T const & r, Container const & l) { return l / r; },
             is_operator())
         .def(
             "__rfloordiv__",
             [](T const & r, Container const & l) { return std::floor(l/r); },
             is_operator())
+        .def("__mod__", sycomore::fmod<T, Container>, is_operator())
         .def(
             "__divmod__",
             [](object const & l, object const & r) {
@@ -217,27 +195,16 @@ wrap_quantity_array(pybind11::class_<T> & _class)
     using namespace pybind11;
     using namespace sycomore;
     
-    IN_PLACE_OPERATOR("__iadd__", +=);
-    IN_PLACE_OPERATOR("__isub__", -=);
-    IN_PLACE_OPERATOR("__imul__", *=);
-    IN_PLACE_OPERATOR("__itruediv__", /=);
-    _class.def(
-        "__ifloordiv__",
-        [](T & l, Quantity const & r) { l = std::floor(l/r); return l; },
-        is_operator());
-    IN_PLACE_OPERATOR("__imod__", %=);
-    
-    OUT_OF_PLACE_OPERATOR("__add__", +);
-    OUT_OF_PLACE_R_OPERATOR("__radd__", +);
-    OUT_OF_PLACE_OPERATOR("__sub__", -);
-    OUT_OF_PLACE_R_OPERATOR("__rsub__", -);
-    OUT_OF_PLACE_OPERATOR("__mul__", *);
-    OUT_OF_PLACE_R_OPERATOR("__rmul__", *);
-    OUT_OF_PLACE_OPERATOR("__truediv__", /);
-    OUT_OF_PLACE_R_OPERATOR("__rtruediv__", /);
-    
     _class
         .def(init(&wrappers::as_quantity<T>))
+        .def(self += Quantity()).def(self + Quantity()).def(Quantity() + self)
+        .def(self -= Quantity()).def(self - Quantity()).def(Quantity() - self)
+        .def(self *= Quantity()).def(self * Quantity()).def(Quantity() * self)
+        .def(self /= Quantity()).def(self / Quantity()).def(Quantity() / self)
+        .def(
+            "__ifloordiv__",
+            [](T & l, Quantity const & r) { l = std::floor(l/r); return l; },
+            is_operator())
         .def(
             "__floordiv__",
             [](T const & l, Quantity const & r) { return std::floor(l/r); },
@@ -246,6 +213,12 @@ wrap_quantity_array(pybind11::class_<T> & _class)
             "__rfloordiv__",
             [](T const & r, Quantity const & l) { return std::floor(l/r); },
             is_operator())
+        .def(
+            "__imod__",
+            [](T & l, Quantity const & r) { return (l %= r); },
+            is_operator());
+    
+    _class
         .def(
             "__mod__",
             overload_cast<T const &, Quantity const &>(sycomore::fmod<T, Quantity>),
@@ -392,10 +365,6 @@ setitem(T & l, ssize_t i, sycomore::Quantity const & r)
 {
     return setitem(l, std::vector<ssize_t>{i}, r);
 }
-
-#undef OUT_OF_PLACE_R_OPERATOR
-#undef OUT_OF_PLACE_OPERATOR
-#undef IN_PLACE_OPERATOR
 
 }
 

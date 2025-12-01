@@ -21,22 +21,8 @@ void wrap_Quantity(pybind11::module & m)
 
     auto QuantityClass = wrappers::wrap_quantity_class<Quantity>(m, "Quantity");
     QuantityClass
-        .def(
-            "__mul__",
-            [](Quantity const & l, xt::xarray<double> const & r) { return l*r; },
-            is_operator())
-        .def(
-            "__rmul__",
-            [](Quantity const & r, xt::xarray<double> const & l) { return l*r; },
-            is_operator())
-        .def(
-            "__truediv__",
-            [](Quantity const & l, xt::xarray<double> const & r) { return l/r; },
-            is_operator())
-        .def(
-            "__rtruediv__",
-            [](Quantity const & r, xt::xarray<double> const & l) { return l/r; },
-            is_operator())
+        .def(self * xt::xarray<double>()).def(xt::xarray<double>() * self)
+        .def(self / xt::xarray<double>()).def(xt::xarray<double>() / self)
         .def(self > self, "Compare the magnitude of two compatible quantities")
         .def(
             self > double(),
