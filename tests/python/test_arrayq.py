@@ -42,6 +42,17 @@ class TestArrayQ(TestCase):
             [4*sycomore.units.m, 5*sycomore.units.m, 6*sycomore.units.m]])
         self.assertEqual(q.shape, (2, 3))
     
+    def test_iter(self):
+        qa = sycomore.ArrayQ([
+            [1*sycomore.units.m, 2*sycomore.units.m, 3*sycomore.units.m],
+            [4*sycomore.units.m, 5*sycomore.units.m, 6*sycomore.units.m]])
+        
+        ql = [q for q in qa]
+        self.assertEqual(ql, [i * sycomore.units.m for i in range(1, 7)])
+        
+        ql = list(qa)
+        self.assertEqual(ql, [i * sycomore.units.m for i in range(1, 7)])
+    
     def test_comparison(self):
         q1 = [[1, 2], [3, 4]] * sycomore.units.m
         q2 = [[0, 2], [3, 4]] * sycomore.units.m

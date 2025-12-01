@@ -270,8 +270,10 @@ wrap_quantity_array(pybind11::class_<T> & _class)
                 return result;
             })
         .def(
-            "__iter__", [](T & v) {
-                return make_iterator(v.begin(), v.end());
+            "__iter__", [](T const & v) {
+                return make_iterator(
+                    QuantityConstIteratorAdapter<T>(v.cbegin()),
+                    QuantityConstIteratorAdapter<T>(v.cend()));
             },
             keep_alive<0, 1>());
     
@@ -364,6 +366,47 @@ sycomore::Quantity const &
 setitem(T & l, ssize_t i, sycomore::Quantity const & r)
 {
     return setitem(l, std::vector<ssize_t>{i}, r);
+}
+
+template<typename T>
+QuantityConstIteratorAdapter<T>
+::QuantityConstIteratorAdapter(Iterator const & it)
+: iterator(it)
+{
+    // Nothing else
+}
+
+template<typename T>
+bool
+QuantityConstIteratorAdapter<T>
+::operator==(QuantityConstIteratorAdapter<T> const & other) const
+{
+    return this->iterator == other.iterator;
+}
+
+template<typename T>
+bool
+QuantityConstIteratorAdapter<T>
+::operator!=(QuantityConstIteratorAdapter<T> const & other) const
+{
+    return !this->operator==(other);
+}
+
+template<typename T>
+Quantity
+QuantityConstIteratorAdapter<T>
+::operator*()
+{
+    return *this->iterator;
+}
+
+template<typename T>
+QuantityConstIteratorAdapter<T> &
+QuantityConstIteratorAdapter<T>
+::operator++()
+{
+    ++iterator;
+    return *this;
 }
 
 }

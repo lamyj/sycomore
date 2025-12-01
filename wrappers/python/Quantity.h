@@ -61,6 +61,22 @@ template<typename T>
 sycomore::Quantity const &
 setitem(T & l, ssize_t i, sycomore::Quantity const & r);
 
+template<typename T>
+struct QuantityConstIteratorAdapter
+{
+    using Iterator = QuantityConstIterator<T>;
+    
+    Iterator iterator;
+    
+    QuantityConstIteratorAdapter(Iterator const & it);
+    
+    bool operator==(QuantityConstIteratorAdapter<T> const & other) const;
+    bool operator!=(QuantityConstIteratorAdapter<T> const & other) const;
+    
+    Quantity operator*();
+    QuantityConstIteratorAdapter<T> & operator++();
+};
+
 }
 
 }
