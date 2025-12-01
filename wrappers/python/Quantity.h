@@ -20,12 +20,6 @@ pybind11::class_<T>
 wrap_quantity_class(pybind11::module & m, std::string const & name);
 
 template<typename T>
-pybind11::object
-wrap_ufuncs(
-    T const &, pybind11::object ufunc, std::string const & method,
-    pybind11::args args, pybind11::kwargs kwargs);
-
-template<typename T>
 pybind11::class_<T>
 wrap_quantity_array(pybind11::class_<T> & _class);
 
