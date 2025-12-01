@@ -213,6 +213,11 @@ class TestArrayQ(TestCase):
             q.convert_to(sycomore.units.mm), [[10, 20], [30, 40]])
         with self.assertRaises(RuntimeError):
             q.convert_to(sycomore.units.s)
+        with self.assertRaises(RuntimeError):
+            q.scalar
+        
+        q = sycomore.ArrayQ([[1, 2], [3, 4]])
+        numpy.testing.assert_allclose(q.scalar, q.magnitude)
     
     def test_unary_plus(self):
         q = [[1, 2], [3, 4]] * sycomore.units.cm

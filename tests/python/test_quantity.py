@@ -173,6 +173,11 @@ class TestQuantity(unittest.TestCase):
         self.assertEqual(q1.convert_to(q2), r)
         with self.assertRaises(Exception):
             q1.convert_to(q3)
+        with self.assertRaises(RuntimeError):
+            q1.scalar
+        
+        q = sycomore.Quantity(1)
+        numpy.testing.assert_allclose(q.scalar, q.magnitude)
     
     def test_float(self):
         scalar = sycomore.Quantity(3, sycomore.Dimensions(0,0,0,0,0,0,0))

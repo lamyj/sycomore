@@ -50,6 +50,7 @@ wrap_quantity_class(pybind11::module & m, std::string const & name)
             "convert_to", &T::template convert_to<Quantity>, 
             "Return the scalar value of the quantity converted to the given "
             "unit.")
+        .def_property_readonly("scalar", &T::scalar)
         .def(
             "__repr__",
             [](T const & d) {
