@@ -8,7 +8,9 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 
+#include "sycomore/QuantityArray.h"
 #include "sycomore/Quantity.h"
+#include "sycomore/QuantityConstView.h"
 
 // NOTE: forbid TensorQ to participate in the operators overloads of namespace xt
 namespace xt
@@ -38,7 +40,7 @@ wrap_quantity_class(pybind11::module & m, std::string const & name);
 
 template<typename T>
 pybind11::class_<T>
-wrap_quantity_array(pybind11::class_<T> & _class);
+wrap_quantity_array(pybind11::module & m, pybind11::class_<T> & _class);
 
 template<typename T>
 T as_quantity(pybind11::array_t<pybind11::object> array);
@@ -64,17 +66,16 @@ setitem(T & l, ssize_t i, sycomore::Quantity const & r);
 template<typename T>
 struct QuantityConstIteratorAdapter
 {
-    using Iterator = QuantityConstIterator<T>;
+    /// @brief C++ object to iterate on
+    T const & q;
+    /// @brief Keep-alive reference to Python object
+    pybind11::object r;
+    /// @brief Index of current item
+    std::size_t index;
     
-    Iterator iterator;
+    QuantityConstIteratorAdapter(T const & q, pybind11::object r);
     
-    QuantityConstIteratorAdapter(Iterator const & it);
-    
-    bool operator==(QuantityConstIteratorAdapter<T> const & other) const;
-    bool operator!=(QuantityConstIteratorAdapter<T> const & other) const;
-    
-    Quantity operator*();
-    QuantityConstIteratorAdapter<T> & operator++();
+    pybind11::object next();
 };
 
 }

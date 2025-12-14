@@ -190,7 +190,7 @@ wrap_quantity_class(pybind11::module & m, std::string const & name)
 
 template<typename T>
 pybind11::class_<T>
-wrap_quantity_array(pybind11::class_<T> & _class)
+wrap_quantity_array(pybind11::module & m, pybind11::class_<T> & _class)
 {
     using namespace pybind11;
     using namespace sycomore;
@@ -217,6 +217,11 @@ wrap_quantity_array(pybind11::class_<T> & _class)
             "__imod__",
             [](T & l, Quantity const & r) { return (l %= r); },
             is_operator());
+    
+    pybind11::class_<QuantityConstIteratorAdapter<T>>(
+            m, (std::string(typeid(T).name())+"Iterator").c_str())
+        .def("__iter__", [](QuantityConstIteratorAdapter<T> it) { return it; })
+        .def("__next__", &QuantityConstIteratorAdapter<T>::next);
     
     _class
         .def(
@@ -270,12 +275,11 @@ wrap_quantity_array(pybind11::class_<T> & _class)
                 return result;
             })
         .def(
-            "__iter__", [](T const & v) {
-                return make_iterator(
-                    QuantityConstIteratorAdapter<T>(v.cbegin()),
-                    QuantityConstIteratorAdapter<T>(v.cend()));
-            },
-            keep_alive<0, 1>());
+            "__iter__", 
+            [](object q) {
+                return QuantityConstIteratorAdapter<T>(q.cast<T const &>(), q);
+            }
+        );
     
     return _class;
 }
@@ -370,43 +374,35 @@ setitem(T & l, ssize_t i, sycomore::Quantity const & r)
 
 template<typename T>
 QuantityConstIteratorAdapter<T>
-::QuantityConstIteratorAdapter(Iterator const & it)
-: iterator(it)
+::QuantityConstIteratorAdapter(T const & q, pybind11::object r)
+: q(q), r(r), index(0)
 {
     // Nothing else
 }
 
 template<typename T>
-bool
+pybind11::object
 QuantityConstIteratorAdapter<T>
-::operator==(QuantityConstIteratorAdapter<T> const & other) const
+::next()
 {
-    return this->iterator == other.iterator;
-}
-
-template<typename T>
-bool
-QuantityConstIteratorAdapter<T>
-::operator!=(QuantityConstIteratorAdapter<T> const & other) const
-{
-    return !this->operator==(other);
-}
-
-template<typename T>
-Quantity
-QuantityConstIteratorAdapter<T>
-::operator*()
-{
-    return *this->iterator;
-}
-
-template<typename T>
-QuantityConstIteratorAdapter<T> &
-QuantityConstIteratorAdapter<T>
-::operator++()
-{
-    ++iterator;
-    return *this;
+    auto const & shape = this->q.shape();
+    
+    if(shape.empty() || this->index == shape[0])
+    {
+        throw pybind11::stop_iteration();
+    }
+    else
+    {
+        if(shape.size() == 1)
+        {
+            return pybind11::cast(this->q.unchecked(this->index++));
+        }
+        else
+        {
+            return pybind11::cast(
+                sycomore::ArrayQ(sycomore::view(this->q, this->index++)));
+        }
+    }
 }
 
 }

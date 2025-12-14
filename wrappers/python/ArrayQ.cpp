@@ -9,5 +9,5 @@ void wrap_ArrayQ(pybind11::module & m)
     using namespace sycomore;
 
     auto ArrayQClass = wrappers::wrap_quantity_class<ArrayQ>(m, "ArrayQ");
-    wrappers::wrap_quantity_array(ArrayQClass);
+    wrappers::wrap_quantity_array(m, ArrayQClass);
 }

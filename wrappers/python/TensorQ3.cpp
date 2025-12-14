@@ -10,5 +10,5 @@ void wrap_TensorQ3(pybind11::module & m)
     
     using TensorQ3 = TensorQ<3>;
     auto TensorQ3Class = wrappers::wrap_quantity_class<TensorQ3>(m, "TensorQ3");
-    wrappers::wrap_quantity_array(TensorQ3Class);
+    wrappers::wrap_quantity_array(m, TensorQ3Class);
 }

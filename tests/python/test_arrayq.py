@@ -48,10 +48,16 @@ class TestArrayQ(TestCase):
             [4*sycomore.units.m, 5*sycomore.units.m, 6*sycomore.units.m]])
         
         ql = [q for q in qa]
-        self.assertEqual(ql, [i * sycomore.units.m for i in range(1, 7)])
+        self.assertEqual(len(ql), qa.shape[0])
+        for i, row in enumerate(ql):
+            self.assertEqual(
+                row, list(range(1+3*i, 1+3+3*i))*sycomore.units.m)
         
         ql = list(qa)
-        self.assertEqual(ql, [i * sycomore.units.m for i in range(1, 7)])
+        self.assertEqual(len(ql), qa.shape[0])
+        for i, row in enumerate(ql):
+            self.assertEqual(
+                row, list(range(1+3*i, 1+3+3*i))*sycomore.units.m)
     
     def test_comparison(self):
         q1 = [[1, 2], [3, 4]] * sycomore.units.m

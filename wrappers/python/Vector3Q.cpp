@@ -9,5 +9,5 @@ void wrap_Vector3Q(pybind11::module & m)
     using namespace sycomore;
     
     auto Vector3QClass = wrappers::wrap_quantity_class<Vector3Q>(m, "Vector3Q");
-    wrappers::wrap_quantity_array(Vector3QClass);
+    wrappers::wrap_quantity_array(m, Vector3QClass);
 }
