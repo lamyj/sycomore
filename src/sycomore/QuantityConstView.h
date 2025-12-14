@@ -2,6 +2,7 @@
 #define _55a43ad4_6f2d_4347_8c43_1a9558173c62
 
 #include <xtensor/xview.hpp>
+#include <xtensor/xstrided_view.hpp>
 
 #include "sycomore/Dimensions.h"
 #include "sycomore/QuantityInterface.h"
@@ -80,6 +81,9 @@ public:
 
 template<typename Q, typename ... S>
 auto view(Q const & q, S && ... slices);
+
+template<typename Q>
+auto strided_view(Q const & q, xt::xstrided_slice_vector slices);
 
 }
 

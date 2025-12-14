@@ -91,7 +91,7 @@ QuantityConstView<V>
     {
         throw std::runtime_error("Size mismatch");
     }
-    return {this->magnitude.front(), this->dimensions};
+    return {*this->magnitude.begin(), this->dimensions};
 }
 
 template<typename V>
@@ -108,6 +108,13 @@ auto view(Q const & q, S && ... slices)
     return QuantityConstView(
         xt::view(q.magnitude, std::forward<S>(slices)...),
         q.dimensions);
+}
+
+template<typename Q>
+auto strided_view(Q const & q, xt::xstrided_slice_vector slices)
+{
+    return QuantityConstView(
+        xt::strided_view(q.magnitude, slices), q.dimensions);
 }
 
 }
