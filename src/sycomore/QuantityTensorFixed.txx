@@ -24,6 +24,14 @@ TensorFixedQ<S>
 }
 
 template<typename S>
+TensorFixedQ<S>
+::TensorFixedQ(ArrayQ const & other)
+: Base(Container(other.magnitude), other.dimensions)
+{
+    
+}
+
+template<typename S>
 void
 TensorFixedQ<S>
 ::_from_array(xt::nested_initializer_list_t<Quantity, rank> const & args)

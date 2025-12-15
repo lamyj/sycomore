@@ -4,6 +4,7 @@
 #include <xtensor/xio.hpp>
 #include <xtensor/xtensor.hpp>
 
+#include "sycomore/QuantityArray.h"
 #include "sycomore/QuantityBase.h"
 // Required for common types
 #include "sycomore/QuantityTensorFixed.h"
@@ -29,6 +30,9 @@ public:
     {
         // Nothing else.
     }
+    
+    /// @brief Create a quantity from a shape-compatible Quantity array
+    TensorQ(ArrayQ const & other);
     
     /// @brief Create a scalar quantity
     TensorQ(xt::nested_initializer_list_t<double, N> t);

@@ -24,6 +24,14 @@ TensorQ<N>
 }
 
 template<std::size_t N>
+TensorQ<N>
+::TensorQ(ArrayQ const & other)
+: Base(Container(other.magnitude), other.dimensions)
+{
+    
+}
+
+template<std::size_t N>
 void
 TensorQ<N>
 ::_from_array(xt::nested_initializer_list_t<Quantity, N> const & args)

@@ -5,6 +5,7 @@
 #include <xtensor/xio.hpp>
 
 #include "sycomore/Quantity.h"
+#include "sycomore/QuantityArray.h"
 #include "sycomore/QuantityBase.h"
 
 namespace sycomore
@@ -29,6 +30,9 @@ public:
     
     /// @brief Create a quantity container from a homogeneous container of quantity
     TensorFixedQ(xt::nested_initializer_list_t<Quantity, rank> args);
+    
+    /// @brief Create a quantity from a shape-compatible Quantity array
+    TensorFixedQ(ArrayQ const & other);
     
     TensorFixedQ(TensorFixedQ<S> const &) = default;
     TensorFixedQ(TensorFixedQ<S> &&) = default;
