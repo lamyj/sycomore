@@ -5,9 +5,8 @@
 #include <xtensor-python/pytensor.hpp>
 
 #include "sycomore/epg/Discrete3D.h"
+#include "sycomore/QuantityArray.h"
 #include "sycomore/Species.h"
-
-#include "../type_casters.h"
 
 void wrap_epg_Discrete3D(pybind11::module & m)
 {
@@ -51,11 +50,25 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             overload_cast<Discrete3D::Order const &>(
                 &Discrete3D::state, const_),
             "order"_a, "Access a given state of the model")
+        .def(
+            "state", 
+            [](Discrete3D const & m, ArrayQ const & o) { return m.state(o); },
+            "order"_a, "Access a given state of the model")
         .def_property_readonly("elapsed", &Discrete3D::elapsed)
         .def(
             "apply_time_interval",
             overload_cast<Quantity const &, Vector3Q const &>(
                 &Discrete3D::apply_time_interval),
+            "duration"_a, "gradient"_a=Vector3Q{
+                0*units::T/units::m, 0*units::T/units::m, 0*units::T/units::m},
+            "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
+            "off-resonance effects. States with a population lower than "
+            "*threshold* will be removed.")
+        .def(
+            "apply_time_interval",
+            [](Discrete3D & m, Quantity const & d, ArrayQ const & g) {
+                return m.apply_time_interval(d, g);
+            },
             "duration"_a, "gradient"_a=Vector3Q{
                 0*units::T/units::m, 0*units::T/units::m, 0*units::T/units::m},
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
@@ -75,7 +88,23 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             "Apply a gradient; in discrete EPG, this shifts all orders by "
             "specified value.")
         .def(
+            "shift", 
+            [](Discrete3D & m, Quantity const & d, ArrayQ const & g) {
+                return m.shift(d, g);
+            },
+            "duration"_a, "gradient"_a,
+            "Apply a gradient; in discrete EPG, this shifts all orders by "
+            "specified value.")
+        .def(
             "diffusion", &Discrete3D::diffusion,
+            "duration"_a, "gradient"_a,
+            "Simulate diffusion during given duration with given gradient "
+            "amplitude.")
+        .def(
+            "diffusion",
+            [](Discrete3D & m, Quantity const & d, ArrayQ const & g) {
+                return m.diffusion(d, g);
+            },
             "duration"_a, "gradient"_a,
             "Simulate diffusion during given duration with given gradient "
             "amplitude.")
