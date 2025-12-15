@@ -4,6 +4,9 @@ import numpy
 import sycomore
 from sycomore.units import *
 
+import os
+import sys
+sys.path.append(os.path.dirname(__file__))
 from epg_test_case import EPGTestCase
 
 class TestDiscrete(EPGTestCase):
