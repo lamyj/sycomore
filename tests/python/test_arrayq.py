@@ -84,11 +84,22 @@ class TestArrayQ(TestCase):
     def test_getitem(self):
         from sycomore.units import m
         
-        q = [[1, 2], [3, 4]] * m
-        self.assertEqual(q[1, 0], 3 * m)
-        self.assertEqual(q[-1, -2], 3 * m)
-        with self.assertRaises(IndexError):
-            q[1]
+        q = [[1, 2, 3], [4, 5, 6]] * m
+        self.assertEqual(q[1, 0], 4 * m)
+        self.assertEqual(q[-1, -2], 5 * m)
+        self.assertEqual(q[1], [4, 5, 6] * m)
+        
+        self.assertEqual(q[:, 1], [2, 5]*m)
+        
+        self.assertEqual(q[:, 1:], [[2, 3], [5, 6]] * m)
+        self.assertEqual(q[:, -1:], [[3], [6]] * m)
+        
+        self.assertEqual(q[:, :2], [[1, 2], [4, 5]] * m)
+        self.assertEqual(q[:, :-2], [[1], [4]] * m)
+        
+        self.assertEqual(q[:, ::2], [[1, 3], [4, 6]] * m)
+        self.assertEqual(q[:, ::-2], [[3, 1], [6, 4]] * m)
+        
         with self.assertRaises(IndexError):
             q[2, 0]
         

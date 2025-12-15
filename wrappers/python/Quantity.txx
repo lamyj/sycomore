@@ -240,12 +240,7 @@ wrap_quantity_array(pybind11::module & m, pybind11::class_<T> & _class)
             "fmod",
             overload_cast<T const &, double const &>(sycomore::fmod<T, double>),
             "Floating-point modulo")
-        .def(
-            "__getitem__",
-            overload_cast<T const &, std::vector<ssize_t> const &>(getitem<T>))
-        .def(
-            "__getitem__",
-            overload_cast<T const &, ssize_t>(getitem<T>))
+        .def("__getitem__", &getitem<T>)
         .def(
             "__setitem__",
             overload_cast<T &, std::vector<ssize_t> const &, Quantity const &>(
@@ -319,42 +314,127 @@ normalize_index(T const & magnitude, std::vector<ssize_t> const & i)
     if(magnitude.dimension() != i.size())
     {
         throw std::out_of_range(
-            "Number of arguments (" + std::to_string(i.size())
-                + ") does not match the number of dimensions ("
-                + std::to_string(magnitude.dimension()) + ")");
+            "Number of arguments ("
+            + std::to_string(i.size())
+            + ") does not match the number of dimensions ("
+            + std::to_string(magnitude.dimension())
+            + ")");
     }
     
     // Convert signed values (counting from end) to unsigned values
-    std::vector<std::size_t> signed_i(i.size());
+    std::vector<std::size_t> unsigned_i(i.size());
     for(std::size_t d=0; d != i.size(); ++d)
     {
         if(i[d] < 0)
         {
-            signed_i[d] = magnitude.shape()[d] + i[d];
+            unsigned_i[d] = magnitude.shape()[d] + i[d];
         }
         else
         {
-            signed_i[d] = i[d];
+            unsigned_i[d] = i[d];
         }
     }
     
-    xt::check_element_index(magnitude.shape(), signed_i.begin(), signed_i.end());
+    xt::check_element_index(magnitude.shape(), unsigned_i.begin(), unsigned_i.end());
     
-    return signed_i;
+    return unsigned_i;
 }
 
 template<typename T>
-sycomore::Quantity
-getitem(T const & q, std::vector<ssize_t> const & i)
+pybind11::object
+getitem(T const & q, pybind11::object index)
 {
-    return q[normalize_index(q.magnitude, i)];
-}
-
-template<typename T>
-sycomore::Quantity
-getitem(T const & q, ssize_t i)
-{
-    return getitem(q, std::vector<ssize_t>{i});
+    if(pybind11::isinstance<pybind11::int_>(index))
+    {
+        auto const view = sycomore::view(
+            q, normalize_index(q.shape(0), index.cast<ssize_t>()));
+        return view.size() == 1
+            ? pybind11::cast(sycomore::Quantity(view.unchecked(0)))
+            : pybind11::cast(sycomore::ArrayQ(view));
+    }
+    else 
+    {
+        auto const length = pybind11::len(index);
+        
+        if(length > q.shape().size())
+        {
+            throw std::out_of_range(
+                "Number of arguments ("
+                + std::to_string(length)
+                + ") is greater than the number of dimensions ("
+                + std::to_string(q.shape().size()) + ")");
+        }
+        
+        xt::xstrided_slice_vector slices;
+        slices.reserve(length);
+        
+        // Dimension counter
+        std::size_t d = 0;
+        for(auto && item: index)
+        {
+            auto const s = q.shape(d);
+            
+            if(pybind11::isinstance<pybind11::int_>(item))
+            {
+                slices.push_back(normalize_index(s, item.cast<ssize_t>()));
+            }
+            else
+            {
+                auto const slice = item.cast<pybind11::slice>();
+                auto const start = slice.attr("start").cast<pybind11::object>();
+                auto const stop = slice.attr("stop").cast<pybind11::object>();
+                auto const step = slice.attr("step").cast<pybind11::object>();
+                
+                auto const start_is_none = start.is(pybind11::none());
+                auto const stop_is_none = stop.is(pybind11::none());
+                auto const step_is_none = step.is(pybind11::none());
+                
+                // FIXME: is there a cleaner way to write all 8 different calls?
+                // Note that xt::range returns a type which depends on the
+                // parameters
+                using namespace xt::placeholders;
+                if(start_is_none && stop_is_none && step_is_none)
+                {
+                    slices.push_back(xt::all());
+                }
+                else if(start_is_none && stop_is_none && !step_is_none)
+                {
+                    slices.push_back(xt::range(_, _, step.cast<ssize_t>()));
+                }
+                else if(start_is_none && !stop_is_none && step_is_none)
+                {
+                    slices.push_back(xt::range(_, stop.cast<ssize_t>(), _));
+                }
+                else if(start_is_none && !stop_is_none && !step_is_none)
+                {
+                    slices.push_back(xt::range(_, stop.cast<ssize_t>(), step.cast<ssize_t>()));
+                }
+                else if(!start_is_none && stop_is_none && step_is_none)
+                {
+                    slices.push_back(xt::range(start.cast<ssize_t>(), _, _));
+                }
+                else if(!start_is_none && stop_is_none && !step_is_none)
+                {
+                    slices.push_back(xt::range(start.cast<ssize_t>(), _, step.cast<ssize_t>()));
+                }
+                else if(!start_is_none && !stop_is_none && step_is_none)
+                {
+                    slices.push_back(xt::range(start.cast<ssize_t>(), stop.cast<ssize_t>(), _));
+                }
+                else if(!start_is_none && !stop_is_none && !step_is_none)
+                {
+                    slices.push_back(xt::range(start.cast<ssize_t>(), stop.cast<ssize_t>(), step.cast<ssize_t>()));
+                }
+            }
+            
+            ++d;
+        }
+        
+        auto const view = sycomore::strided_view(q, slices);
+        return view.size() == 1
+            ? pybind11::cast(sycomore::Quantity(view.unchecked(0)))
+            : pybind11::cast(sycomore::ArrayQ(view));
+    }
 }
 
 template<typename T>

@@ -14,6 +14,36 @@
 
 #include "Quantity.h"
 
+namespace sycomore
+{
+namespace wrappers
+{
+
+std::size_t normalize_index(std::size_t shape, ssize_t i)
+{
+    std::size_t unsigned_i;
+    if(i < 0)
+    {
+        unsigned_i = shape + i;
+    }
+    else
+    {
+        unsigned_i = i;
+    }
+    
+    if(unsigned_i >= shape)
+    {
+        throw std::out_of_range(
+            "index " + std::to_string(i) + " is out of bounds with size "
+            + std::to_string(shape));
+    }
+    
+    return unsigned_i;
+}
+
+}
+}
+
 void wrap_Quantity(pybind11::module & m)
 {
     using namespace pybind11;
