@@ -475,7 +475,7 @@ QuantityConstIteratorAdapter<T>
     {
         if(shape.size() == 1)
         {
-            return pybind11::cast(this->q.unchecked(this->index++));
+            return pybind11::cast(sycomore::Quantity(this->q.unchecked(this->index++)));
         }
         else
         {
