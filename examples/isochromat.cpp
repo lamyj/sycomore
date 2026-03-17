@@ -1,9 +1,11 @@
 #include <sycomore/isochromat/Model.h>
 #include <sycomore/units.h>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xview.hpp>
-
-#include <xtensor/xio.hpp>
+#else
+#include <xtensor/views/xview.hpp>
+#endif
 
 int main()
 {

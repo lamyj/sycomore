@@ -1,7 +1,11 @@
 #ifndef _e0796018_5e39_4c59_988a_1e882e463fd4
 #define _e0796018_5e39_4c59_988a_1e882e463fd4
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xtensor.hpp>
+#else
+#include <xtensor/containers/xtensor.hpp>
+#endif
 
 #include "sycomore/sycomore.h"
 

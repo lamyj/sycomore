@@ -1,8 +1,13 @@
 #ifndef _9b8b809d_7065_4e2a_9c8c_24267f529679
 #define _9b8b809d_7065_4e2a_9c8c_24267f529679
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xio.hpp>
 #include <xtensor/xtensor.hpp>
+#else
+#include <xtensor/containers/xtensor.hpp>
+#include <xtensor/io/xio.hpp>
+#endif
 
 #include "sycomore/QuantityArray.h"
 #include "sycomore/QuantityBase.h"

@@ -5,7 +5,12 @@
 #include <sycomore/sycomore.h>
 #include <sycomore/units.h>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xbuilder.hpp>
+#else
+#include <xtensor/generators/xbuilder.hpp>
+#endif
+
 
 using namespace sycomore::units;
 

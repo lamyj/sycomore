@@ -7,7 +7,11 @@
 #include "sycomore/Species.h"
 #include "sycomore/units.h"
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xview.hpp>
+#else
+#include <xtensor/views/xview.hpp>
+#endif
 
 #include "../utils.h"
 

@@ -1,7 +1,11 @@
 #ifndef _8db2389d_b425_4fa0_8897_04a4ff117e15
 #define _8db2389d_b425_4fa0_8897_04a4ff117e15
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xtensor.hpp>
+#else
+#include <xtensor/containers/xtensor.hpp>
+#endif
 
 #include "sycomore/Quantity.h"
 #include "sycomore/QuantityTensor.h"

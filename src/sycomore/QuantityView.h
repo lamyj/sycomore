@@ -1,7 +1,11 @@
 #ifndef _c86da767_3b1b_44e0_ad8e_6c294a8e4df9
 #define _c86da767_3b1b_44e0_ad8e_6c294a8e4df9
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xview.hpp>
+#else
+#include <xtensor/views/xview.hpp>
+#endif
 
 #include "sycomore/QuantityBase.h"
 

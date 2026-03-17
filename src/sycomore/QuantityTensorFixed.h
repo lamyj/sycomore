@@ -1,8 +1,13 @@
 #ifndef _0b6aefc6_cf98_4fff_965c_d22c09e27aac
 #define _0b6aefc6_cf98_4fff_965c_d22c09e27aac
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xfixed.hpp>
 #include <xtensor/xio.hpp>
+#else
+#include <xtensor/containers/xfixed.hpp>
+#include <xtensor/io/xio.hpp>
+#endif
 
 #include "sycomore/Quantity.h"
 #include "sycomore/QuantityArray.h"

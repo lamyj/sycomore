@@ -3,7 +3,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xarray.hpp>
+#else
+#include <xtensor/containers/xarray.hpp>
+#endif
 
 #include <xtensor-python/pyarray.hpp>
 #include <xtensor-python/pytensor.hpp>

@@ -4,11 +4,19 @@
 #include <cmath>
 #include <stdexcept>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xbuilder.hpp>
 #include <xtensor/xmath.hpp>
 #include <xtensor/xmanipulation.hpp>
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xview.hpp>
+#else
+#include <xtensor/generators/xbuilder.hpp>
+#include <xtensor/core/xmath.hpp>
+#include <xtensor/misc/xmanipulation.hpp>
+#include <xtensor/containers/xtensor.hpp>
+#include <xtensor/views/xview.hpp>
+#endif
 
 #include "sycomore/Quantity.h"
 #include "sycomore/sycomore.h"

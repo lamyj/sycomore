@@ -4,7 +4,11 @@
 #include <sycomore/TimeInterval.h>
 #include <sycomore/units.h>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xio.hpp>
+#else
+#include <xtensor/io/xio.hpp>
+#endif
 
 int main()
 {

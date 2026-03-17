@@ -5,7 +5,12 @@
 #include <vector>
 
 #include <xsimd/xsimd.hpp>
+
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xarray.hpp>
+#else
+#include <xtensor/containers/xarray.hpp>
+#endif
 
 #include "sycomore/Array.h"
 #include "sycomore/Buffer.h"

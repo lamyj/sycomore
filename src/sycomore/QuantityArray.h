@@ -1,8 +1,13 @@
 #ifndef _ef70a062_eaab_4ac7_abe8_a22cc86789cd
 #define _ef70a062_eaab_4ac7_abe8_a22cc86789cd
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xarray.hpp>
 #include <xtensor/xio.hpp>
+#else
+#include <xtensor/containers/xarray.hpp>
+#include <xtensor/io/xio.hpp>
+#endif
 
 #include "sycomore/QuantityBase.h"
 

@@ -3,7 +3,11 @@
 #include <cmath>
 #include <stdexcept>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xview.hpp>
+#else
+#include <xtensor/views/xview.hpp>
+#endif
 
 #include "sycomore/epg/Model.h"
 #include "sycomore/epg/operators.h"

@@ -3,7 +3,11 @@
 
 #include <boost/test/tools/assertion_result.hpp>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xmath.hpp>
+#else
+#include <xtensor/core/xmath.hpp>
+#endif
 
 #include "sycomore/Array.h"
 

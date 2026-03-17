@@ -1,12 +1,15 @@
 #define BOOST_TEST_MODULE isochromat_Operator
 #include <boost/test/unit_test.hpp>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xmath.hpp>
 #include <xtensor/xview.hpp>
-#include "sycomore/isochromat/Operator.h"
+#else
+#include <xtensor/core/xmath.hpp>
+#include <xtensor/views/xview.hpp>
+#endif
 
-#include <iostream>
-#include <xtensor/xio.hpp>
+#include "sycomore/isochromat/Operator.h"
 
 BOOST_AUTO_TEST_CASE(PostMultiply)
 {

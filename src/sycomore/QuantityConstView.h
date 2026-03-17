@@ -1,8 +1,13 @@
 #ifndef _55a43ad4_6f2d_4347_8c43_1a9558173c62
 #define _55a43ad4_6f2d_4347_8c43_1a9558173c62
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xview.hpp>
 #include <xtensor/xstrided_view.hpp>
+#else
+#include <xtensor/views/xview.hpp>
+#include <xtensor/views/xstrided_view.hpp>
+#endif
 
 #include "sycomore/Dimensions.h"
 #include "sycomore/QuantityInterface.h"

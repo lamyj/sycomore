@@ -5,7 +5,11 @@
 #include <complex>
 #include <vector>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xfixed.hpp>
+#else
+#include <xtensor/containers/xfixed.hpp>
+#endif
 
 #include "sycomore/Array.h"
 #include "sycomore/Dimensions.h"

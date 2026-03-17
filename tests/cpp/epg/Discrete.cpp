@@ -1,7 +1,11 @@
 #define BOOST_TEST_MODULE epg_Discrete
 #include <boost/test/unit_test.hpp>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xview.hpp>
+#else
+#include <xtensor/views/xview.hpp>
+#endif
 
 #include "sycomore/epg/Discrete.h"
 #include "sycomore/Species.h"

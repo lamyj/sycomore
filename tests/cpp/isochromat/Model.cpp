@@ -1,8 +1,14 @@
 #define BOOST_TEST_MODULE isochromat_Model
 #include <boost/test/unit_test.hpp>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xmath.hpp>
 #include <xtensor/xview.hpp>
+#else
+#include <xtensor/core/xmath.hpp>
+#include <xtensor/views/xview.hpp>
+#endif
+
 #include "sycomore/isochromat/Model.h"
 #include "sycomore/units.h"
 

@@ -14,8 +14,6 @@
 
 #include "utils.h"
 
-#include <xtensor/xio.hpp>
-
 using Types = boost::mpl::list<
     sycomore::Quantity,
     sycomore::Matrix2x2Q, sycomore::TensorQ<2>, sycomore::ArrayQ>;

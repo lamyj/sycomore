@@ -1,10 +1,18 @@
 #include "Operator.h"
 
 #include <stdexcept>
+
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xbuilder.hpp>
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xfixed.hpp>
 #include <xtensor/xview.hpp>
+#else
+#include <xtensor/generators/xbuilder.hpp>
+#include <xtensor/containers/xtensor.hpp>
+#include <xtensor/containers/xfixed.hpp>
+#include <xtensor/views/xview.hpp>
+#endif
 
 #include "sycomore/Array.h"
 #include "sycomore/sycomore.h"

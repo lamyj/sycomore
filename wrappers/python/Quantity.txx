@@ -13,7 +13,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xexception.hpp>
+#else
+#include <xtensor/utils/xexception.hpp>
+#endif
 
 #include <xtensor-python/pyarray.hpp>
 #include <xtensor-python/pytensor.hpp>

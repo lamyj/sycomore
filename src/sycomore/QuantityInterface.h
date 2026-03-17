@@ -5,7 +5,11 @@
 #include <ostream>
 #include <stdexcept>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xmath.hpp>
+#else
+#include <xtensor/core/xmath.hpp>
+#endif
 
 #include "sycomore/Dimensions.h"
 #include "sycomore/quantity_traits.h"

@@ -8,7 +8,11 @@
 #include <utility>
 #include <vector>
 
+#if __has_include(<xtensor/xtensor.hpp>)
 #include <xtensor/xio.hpp>
+#else
+#include <xtensor/io/xio.hpp>
+#endif
 
 #include "sycomore/Array.h"
 #include "sycomore/Buffer.h"
