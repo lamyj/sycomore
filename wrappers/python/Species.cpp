@@ -1,9 +1,6 @@
-#include <algorithm>
-
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
-#include "sycomore/Array.h"
 #include "sycomore/Quantity.h"
 #include "sycomore/Species.h"
 #include "sycomore/units.h"
