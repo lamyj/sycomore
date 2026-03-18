@@ -8,18 +8,33 @@
 #include "sycomore/Species.h"
 #include "sycomore/units.h"
 
+#include "Quantity.h"
+#include "utils.h"
+
 namespace
 {
 
 void set_D(sycomore::Species & species, pybind11::object const & value)
 {
-    try
+    using namespace pybind11;
+    using namespace sycomore;
+    
+    if(isinstance<Quantity>(value))
     {
-        species.set_D(value.cast<sycomore::Quantity>());
+        species.set_D(value.cast<Quantity>());
     }
-    catch(pybind11::cast_error const &)
+    else if(isinstance<Matrix3x3Q>(value))
     {
-        species.set_D(value.cast<sycomore::Matrix3x3Q>());
+        species.set_D(value.cast<Matrix3x3Q>());
+    }
+    else if(isinstance<array_t<object>>(value))
+    {
+        auto const D = value.cast<array_t<object>>();
+        species.set_D(wrappers::as_quantity<Matrix3x3Q>(D));
+    }
+    else
+    {
+        throw cast_error();
     }
 }
 
@@ -43,6 +58,16 @@ void wrap_Species(pybind11::module & m)
             init<
                 Quantity const &, Quantity const &,
                 Matrix3x3Q const &, Quantity const &>(),
+            "R1"_a, "R2"_a, "D"_a, "delta_omega"_a=0*units::Hz)
+        .def(
+            init(
+                [&](Quantity const & R1, Quantity const & R2, object D,
+                    Quantity const & delta_omega) {
+                    sycomore::Species species(
+                        R1, R2, 0*units::m*units::m/units::s, delta_omega);
+                    set_D(species, D);
+                    return species;
+                }),
             "R1"_a, "R2"_a, "D"_a, "delta_omega"_a=0*units::Hz)
         .def_property(
             "R1", &Species::R1, &Species::set_R1,

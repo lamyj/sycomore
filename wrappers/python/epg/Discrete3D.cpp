@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
@@ -69,8 +71,42 @@ void wrap_epg_Discrete3D(pybind11::module & m)
             [](Discrete3D & m, Quantity const & d, ArrayQ const & g) {
                 return m.apply_time_interval(d, g);
             },
-            "duration"_a, "gradient"_a=Vector3Q{
-                0*units::T/units::m, 0*units::T/units::m, 0*units::T/units::m},
+            "duration"_a, "gradient"_a,
+            "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
+            "off-resonance effects. States with a population lower than "
+            "*threshold* will be removed.")
+        .def(
+            "apply_time_interval",
+            [](Discrete3D & m, Quantity const & d, list g) {
+                if(g.size() != 3)
+                {
+                    throw std::runtime_error("Invalid size");
+                }
+                return m.apply_time_interval(
+                    d,
+                    {
+                        g[0].cast<Quantity>(),
+                        g[1].cast<Quantity>(),
+                        g[2].cast<Quantity>()});
+            },
+            "duration"_a, "gradient"_a,
+            "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
+            "off-resonance effects. States with a population lower than "
+            "*threshold* will be removed.")
+        .def(
+            "apply_time_interval",
+            [](Discrete3D & m, Quantity const & d, array_t<object> g) {
+                if(g.size() != 3)
+                {
+                    throw std::runtime_error("Invalid size");
+                }
+                return m.apply_time_interval(
+                    d, {
+                        g.data()[0].cast<Quantity>(),
+                        g.data()[1].cast<Quantity>(),
+                        g.data()[2].cast<Quantity>() });
+            },
+            "duration"_a, "gradient"_a,
             "Apply a time interval, i.e. relaxation, diffusion, gradient, and "
             "off-resonance effects. States with a population lower than "
             "*threshold* will be removed.")
