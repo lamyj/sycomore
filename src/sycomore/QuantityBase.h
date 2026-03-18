@@ -139,8 +139,8 @@ public:
      *
      * Raise an exception if the given unit is not compatible.
      */
-    template<typename D, typename C, std::enable_if_t<std::is_scalar<C>::value, bool> = true>
-    TContainer convert_to(QuantityBase<D, C> const & destination) const
+    template<typename T>
+    TContainer convert_to(T const & destination) const
     {
         this->check_dimensions(destination, "Conversion requires same dimensions");
         return this->magnitude/destination.magnitude;
