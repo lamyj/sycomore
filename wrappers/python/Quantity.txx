@@ -1,6 +1,7 @@
 #ifndef _e0c9f20a_f96b_4c09_8459_f2be8e7df213
 #define _e0c9f20a_f96b_4c09_8459_f2be8e7df213
 
+#include <cstddef>
 #include <sstream>
 
 #include "Quantity.h"
@@ -22,6 +23,7 @@
 #include <xtensor-python/pyarray.hpp>
 #include <xtensor-python/pytensor.hpp>
 
+#include "sycomore/sycomore.h"
 #include "sycomore/Dimensions.h"
 #include "sycomore/Quantity.h"
 
@@ -188,6 +190,9 @@ wrap_quantity_class(pybind11::module & m, std::string const & name)
             "__ceil__", overload_cast<T const &>(std::ceil<T>),
             "Quantity with the smallest integer magnitude not less than the "
                 "magnitude");
+    
+    m.def(
+        "round", sycomore::round<Quantity>, "Round to x nearest multiple of r");
     
     return _class;
 }
@@ -380,7 +385,8 @@ getitem(T const & q, pybind11::object index)
             
             if(pybind11::isinstance<pybind11::int_>(item))
             {
-                slices.push_back(normalize_index(s, item.cast<ssize_t>()));
+                slices.push_back(
+                    std::ptrdiff_t(normalize_index(s, item.cast<ssize_t>())));
             }
             else
             {
