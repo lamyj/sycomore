@@ -25,6 +25,7 @@ public:
     using Self = TensorQ<N>;
     using Container = xt::xtensor<double, N>;
     using Base = QuantityBase<Self, Container>;
+    using value_type = Container::value_type;
     using shape_type = typename Container::shape_type;
     
     using Base::Base;

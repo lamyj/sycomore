@@ -24,6 +24,7 @@ public:
     using Self = TensorFixedQ<S>;
     using Container = xt::xtensor_fixed<double, S>;
     using Base = QuantityBase<Self, Container>;
+    using value_type = Container::value_type;
     using shape_type = typename Container::shape_type;
     
     static constexpr std::size_t const rank = std::tuple_size<S>::value;

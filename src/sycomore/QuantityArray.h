@@ -21,6 +21,7 @@ public:
     using Self = ArrayQ;
     using Container = xt::xarray<double>;
     using Base = QuantityBase<Self, Container>;
+    using value_type = Container::value_type;
     using shape_type = Container::shape_type;
     
     using Base::Base;
