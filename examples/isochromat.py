@@ -37,7 +37,7 @@ magnetization = numpy.array(magnetization)
 x_axis = [x.convert_to(ms) for x in time]
 figure, plot = matplotlib.pyplot.subplots(tight_layout=True, figsize=(8, 6))
 plot.plot(
-    x_axis, numpy.linalg.norm(magnetization[:, :2], axis=-1), label="$M_\perp$")
+    x_axis, numpy.linalg.norm(magnetization[:, :2], axis=-1), label=r"$M_\perp$")
 plot.plot(x_axis, magnetization[:, 2], label="$M_z$")
 plot.set(xlim=0, ylim=-0.02, xlabel="Time (ms)", ylabel="$M/M_0$")
 matplotlib.pyplot.legend()
