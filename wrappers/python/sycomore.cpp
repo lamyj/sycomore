@@ -1,11 +1,12 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
 #define FORCE_IMPORT_ARRAY
-#include <xtensor-python/pycontainer.hpp>
+#include <xtensor-python/pyarray.hpp>
+#include <xtensor-python/pytensor.hpp>
 
 #include "sycomore/sycomore.h"
-
-#include "type_casters.h"
+#include "sycomore/QuantityArray.h"
 
 void wrap_Dimensions(pybind11::module &);
 void wrap_Quantity(pybind11::module &);
@@ -76,8 +77,9 @@ PYBIND11_MODULE(_sycomore, _sycomore)
         "Generate evenly-spaced samples");
     _sycomore.def(
         "linspace", [](ArrayQ span, std::size_t size){
-            return sycomore::linspace(
-                xt::eval(-span/2.), xt::eval(+span/2.), size);
+            ArrayQ const min = -span/2.;
+            ArrayQ const max = +span/2.;
+            return sycomore::linspace(min, max, size);
         },
         "Generate evenly-spaced samples");
     
