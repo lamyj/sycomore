@@ -64,23 +64,11 @@ PYBIND11_MODULE(_sycomore, _sycomore)
 
     _sycomore.def(
         "linspace", 
-        overload_cast<Quantity, Quantity, std::size_t>(linspace<Quantity>),
+        overload_cast<Quantity const &, Quantity const &, std::size_t>(linspace),
         "Generate evenly-spaced samples");
     _sycomore.def(
         "linspace",
-        overload_cast<Quantity, std::size_t>(linspace<Quantity>),
-        "Generate evenly-spaced samples");
-
-    _sycomore.def(
-        "linspace",
-        overload_cast<ArrayQ, ArrayQ, std::size_t>(sycomore::linspace<ArrayQ>),
-        "Generate evenly-spaced samples");
-    _sycomore.def(
-        "linspace", [](ArrayQ span, std::size_t size){
-            ArrayQ const min = -span/2.;
-            ArrayQ const max = +span/2.;
-            return sycomore::linspace(min, max, size);
-        },
+        overload_cast<Quantity const &, std::size_t>(linspace),
         "Generate evenly-spaced samples");
     
     _sycomore.def(

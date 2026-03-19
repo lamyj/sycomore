@@ -14,6 +14,7 @@
 #include "sycomore/Array.h"
 #include "sycomore/Dimensions.h"
 #include "sycomore/Quantity.h"
+#include "sycomore/QuantityTensor.h"
 #include "sycomore/sycomore_api.h"
 
 /// @namespace sycomore @brief MRI Simulation Toolkit
@@ -30,25 +31,10 @@ SYCOMORE_API extern Dimensions const Diffusion;
 SYCOMORE_API extern Dimensions const GradientDephasing;
 
 /// @brief Generate evenly-spaced samples
-template<typename T>
-std::vector<T> linspace(T min, T max, std::size_t size)
-{
-    std::vector<T> result;
-    result.reserve(size);
-    auto const delta = (max-min)/(size-1);
-    for(std::size_t i=0; i<size; ++i)
-    {
-        result.push_back(min+i*delta);
-    }
-    return result;
-}
+TensorQ<1> linspace(Quantity const & min, Quantity const & max, std::size_t size);
 
 /// @brief Generate evenly-spaced samples
-template<typename T>
-std::vector<T> linspace(T span, std::size_t size)
-{
-    return linspace(-span/2., span/2., size);
-}
+TensorQ<1> linspace(Quantity const & span, std::size_t size);
 
 /// @brief Round to x nearest multiple of r
 template<typename T>
