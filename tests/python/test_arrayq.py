@@ -89,6 +89,8 @@ class TestArrayQ(TestCase):
         self.assertEqual(q[-1, -2], 5 * m)
         self.assertEqual(q[1], [4, 5, 6] * m)
         
+        self.assertEqual(q[1:, ], [4, 5, 6]*m)
+        
         self.assertEqual(q[:, 1], [2, 5]*m)
         
         self.assertEqual(q[:, 1:], [[2, 3], [5, 6]] * m)

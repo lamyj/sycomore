@@ -363,7 +363,18 @@ getitem(T const & q, pybind11::object index)
     }
     else 
     {
-        auto const length = pybind11::len(index);
+        pybind11::object index_;
+        if(isinstance<pybind11::slice>(index))
+        {
+            index_ = pybind11::list();
+            index_.cast<pybind11::list>().append(index);
+        }
+        else
+        {
+            index_ = index;
+        }
+        
+        auto const length = pybind11::len(index_);
         
         if(length > q.shape().size())
         {
@@ -379,7 +390,7 @@ getitem(T const & q, pybind11::object index)
         
         // Dimension counter
         std::size_t d = 0;
-        for(auto && item: index)
+        for(auto && item: index_)
         {
             auto const s = q.shape(d);
             
