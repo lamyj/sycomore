@@ -252,11 +252,11 @@ wrap_quantity_array(pybind11::module & m, pybind11::class_<T> & _class)
         .def("__getitem__", &getitem<T>)
         .def(
             "__setitem__",
-            overload_cast<T &, std::vector<ssize_t> const &, Quantity const &>(
+            overload_cast<T &, std::vector<std::ptrdiff_t> const &, Quantity const &>(
                 setitem<T>))
         .def(
             "__setitem__",
-            overload_cast<T &, ssize_t, Quantity const &>(setitem<T>))
+            overload_cast<T &, std::ptrdiff_t, Quantity const &>(setitem<T>))
         .def(
             "__len__", [](T const & c) {
                 if(c.magnitude.dimension() > 0)
@@ -318,7 +318,7 @@ T as_quantity(pybind11::array_t<pybind11::object> array)
 
 template<typename T>
 std::vector<std::size_t>
-normalize_index(T const & magnitude, std::vector<ssize_t> const & i)
+normalize_index(T const & magnitude, std::vector<std::ptrdiff_t> const & i)
 {
     if(magnitude.dimension() != i.size())
     {
@@ -356,7 +356,7 @@ getitem(T const & q, pybind11::object index)
     if(pybind11::isinstance<pybind11::int_>(index))
     {
         auto const view = sycomore::view(
-            q, normalize_index(q.shape(0), index.cast<ssize_t>()));
+            q, normalize_index(q.shape(0), index.cast<std::ptrdiff_t>()));
         return view.size() == 1
             ? pybind11::cast(sycomore::Quantity(view.unchecked(0)))
             : pybind11::cast(sycomore::ArrayQ(view));
@@ -397,7 +397,7 @@ getitem(T const & q, pybind11::object index)
             if(pybind11::isinstance<pybind11::int_>(item))
             {
                 slices.push_back(
-                    std::ptrdiff_t(normalize_index(s, item.cast<ssize_t>())));
+                    std::ptrdiff_t(normalize_index(s, item.cast<std::ptrdiff_t>())));
             }
             else
             {
@@ -410,6 +410,13 @@ getitem(T const & q, pybind11::object index)
                 auto const stop_is_none = stop.is(pybind11::none());
                 auto const step_is_none = step.is(pybind11::none());
                 
+                auto const start_ =
+                    !start_is_none ? start.cast<std::ptrdiff_t>() : 0;
+                auto const stop_ =
+                    !stop_is_none ? stop.cast<std::ptrdiff_t>() : 0;
+                auto const step_ =
+                    !step_is_none ? step.cast<std::ptrdiff_t>() : 0;
+                
                 // FIXME: is there a cleaner way to write all 8 different calls?
                 // Note that xt::range returns a type which depends on the
                 // parameters
@@ -420,31 +427,31 @@ getitem(T const & q, pybind11::object index)
                 }
                 else if(start_is_none && stop_is_none && !step_is_none)
                 {
-                    slices.push_back(xt::range(_, _, step.cast<ssize_t>()));
+                    slices.push_back(xt::range(_, _, step_));
                 }
                 else if(start_is_none && !stop_is_none && step_is_none)
                 {
-                    slices.push_back(xt::range(_, stop.cast<ssize_t>(), _));
+                    slices.push_back(xt::range(_, stop_, _));
                 }
                 else if(start_is_none && !stop_is_none && !step_is_none)
                 {
-                    slices.push_back(xt::range(_, stop.cast<ssize_t>(), step.cast<ssize_t>()));
+                    slices.push_back(xt::range(_, stop_, step_));
                 }
                 else if(!start_is_none && stop_is_none && step_is_none)
                 {
-                    slices.push_back(xt::range(start.cast<ssize_t>(), _, _));
+                    slices.push_back(xt::range(start_, _, _));
                 }
                 else if(!start_is_none && stop_is_none && !step_is_none)
                 {
-                    slices.push_back(xt::range(start.cast<ssize_t>(), _, step.cast<ssize_t>()));
+                    slices.push_back(xt::range(start_, _, step_));
                 }
                 else if(!start_is_none && !stop_is_none && step_is_none)
                 {
-                    slices.push_back(xt::range(start.cast<ssize_t>(), stop.cast<ssize_t>(), _));
+                    slices.push_back(xt::range(start_, stop_, _));
                 }
                 else if(!start_is_none && !stop_is_none && !step_is_none)
                 {
-                    slices.push_back(xt::range(start.cast<ssize_t>(), stop.cast<ssize_t>(), step.cast<ssize_t>()));
+                    slices.push_back(xt::range(start_, stop_, step_));
                 }
             }
             
@@ -460,7 +467,7 @@ getitem(T const & q, pybind11::object index)
 
 template<typename T>
 sycomore::Quantity const &
-setitem(T & l, std::vector<ssize_t> const & i, sycomore::Quantity const & r)
+setitem(T & l, std::vector<std::ptrdiff_t> const & i, sycomore::Quantity const & r)
 {
     l[normalize_index(l.magnitude, i)] = r;
     return r;
@@ -468,9 +475,9 @@ setitem(T & l, std::vector<ssize_t> const & i, sycomore::Quantity const & r)
 
 template<typename T>
 sycomore::Quantity const &
-setitem(T & l, ssize_t i, sycomore::Quantity const & r)
+setitem(T & l, std::ptrdiff_t i, sycomore::Quantity const & r)
 {
-    return setitem(l, std::vector<ssize_t>{i}, r);
+    return setitem(l, std::vector<std::ptrdiff_t>{i}, r);
 }
 
 template<typename T>

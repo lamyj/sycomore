@@ -45,22 +45,22 @@ wrap_quantity_array(pybind11::module & m, pybind11::class_<T> & _class);
 template<typename T>
 T as_quantity(pybind11::array_t<pybind11::object> array);
 
-std::size_t normalize_index(std::size_t shape, ssize_t i);
+std::size_t normalize_index(std::size_t shape, std::ptrdiff_t i);
 
 template<typename T>
 std::vector<std::size_t>
-normalize_index(T const & magnitude, std::vector<ssize_t> const & i);
+normalize_index(T const & magnitude, std::vector<std::ptrdiff_t> const & i);
 
 template<typename T>
 pybind11::object getitem(T const & q, pybind11::object index);
 
 template<typename T>
 sycomore::Quantity const &
-setitem(T & l, std::vector<ssize_t> const & i, sycomore::Quantity const & r);
+setitem(T & l, std::vector<std::ptrdiff_t> const & i, sycomore::Quantity const & r);
 
 template<typename T>
 sycomore::Quantity const &
-setitem(T & l, ssize_t i, sycomore::Quantity const & r);
+setitem(T & l, std::ptrdiff_t i, sycomore::Quantity const & r);
 
 template<typename T>
 struct QuantityConstIteratorAdapter

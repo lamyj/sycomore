@@ -23,7 +23,7 @@ namespace sycomore
 namespace wrappers
 {
 
-std::size_t normalize_index(std::size_t shape, ssize_t i)
+std::size_t normalize_index(std::size_t shape, std::ptrdiff_t i)
 {
     std::size_t unsigned_i;
     if(i < 0)
