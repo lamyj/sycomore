@@ -10,7 +10,8 @@ jobs:
       matrix:
         include:
           - { os: "ubuntu-latest" }
-          - { os: "macos-latest" }
+          # NOTE: sycomore is x86-only, GitHub builder uses ARM-based macOS
+          # - { os: "macos-latest" }
           - { os: "windows-latest" }
     env:
       WORKSPACE: "${{ github.workspace }}"
