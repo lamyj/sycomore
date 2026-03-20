@@ -1,4 +1,5 @@
 #include "simd.h"
+#include "xsimd/config/xsimd_arch.hpp"
 
 #include <vector>
 
@@ -37,7 +38,17 @@ std::vector<unsigned int> cpu_info(unsigned int leaf, unsigned int subleaf)
 
 int instruction_set()
 {
-#if XSIMD_VERSION_MAJOR >= 8
+#if XSIMD_VERSION_MAJOR >= 13
+    // Values from xsimd 12.1.1
+    if(xsimd::available_architectures().avx512f) { return XSIMD_X86_AVX512_VERSION_NUMBER; }
+    else if(xsimd::available_architectures().avx2) { return XSIMD_X86_AVX2_VERSION_NUMBER; }
+    else if(xsimd::available_architectures().avx) { return XSIMD_X86_AVX_VERSION_NUMBER; }
+    else if(xsimd::available_architectures().sse4_2) { return XSIMD_X86_SSE4_2_VERSION_NUMBER; }
+    else if(xsimd::available_architectures().sse4_1) { return XSIMD_X86_SSE4_1_VERSION_NUMBER; }
+    else if(xsimd::available_architectures().sse3) { return XSIMD_X86_SSE3_VERSION_NUMBER; }
+    else if(xsimd::available_architectures().sse2) { return XSIMD_X86_SSE2_VERSION_NUMBER; }
+    else { return 0; }
+#elif XSIMD_VERSION_MAJOR >= 8
     return xsimd::available_architectures().best;
 #else
     auto info = cpu_info(1);

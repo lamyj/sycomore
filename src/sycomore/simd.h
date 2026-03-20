@@ -9,7 +9,28 @@
 namespace sycomore
 {
 
-#if XSIMD_VERSION_MAJOR >= 8
+#if XSIMD_VERSION_MAJOR >= 13
+
+#define INSTRUCTION_SET_TYPE typename
+
+int const XSIMD_X86_SSE2_VERSION_NUMBER = 120;
+int const XSIMD_X86_SSE3_VERSION_NUMBER = 130;
+int const XSIMD_X86_SSE4_1_VERSION_NUMBER = 141;
+int const XSIMD_X86_SSE4_2_VERSION_NUMBER = 142;
+int const XSIMD_X86_AVX_VERSION_NUMBER = 210;
+int const XSIMD_X86_AVX2_VERSION_NUMBER = 220;
+int const XSIMD_X86_AVX512_VERSION_NUMBER = 310;
+
+using XSIMD_X86_SSE2_VERSION = xsimd::sse2;
+using XSIMD_X86_AVX_VERSION = xsimd::avx;
+using XSIMD_X86_AVX512_VERSION = xsimd::avx512f;
+
+using unsupported = xsimd::unsupported;
+
+template<typename T>
+using is_batch = xsimd::is_batch<T>;
+
+#elif XSIMD_VERSION_MAJOR >= 8
 
 #define INSTRUCTION_SET_TYPE typename
 
@@ -169,7 +190,22 @@ conj(T arg)
 
 }
 
-#if XSIMD_VERSION_MAJOR >= 8
+#if XSIMD_VERSION_MAJOR >= 13
+#define SYCOMORE_SET_API_FUNCTION(name) \
+    name = &name##_d<xsimd::unsupported>; \
+    if(instruction_set >= XSIMD_X86_SSE2_VERSION_NUMBER) \
+    { \
+        name = &name##_d<xsimd::sse2>; \
+    } \
+    if(instruction_set >= XSIMD_X86_AVX_VERSION_NUMBER) \
+    { \
+        name = &name##_d<xsimd::avx>; \
+    } \
+    if(instruction_set >= XSIMD_X86_AVX512_VERSION_NUMBER) \
+    { \
+        name = &name##_d<xsimd::avx512f>; \
+    }
+#elif XSIMD_VERSION_MAJOR >= 8
 #define SYCOMORE_SET_API_FUNCTION(name) \
     name = &name##_d<xsimd::unsupported>; \
     if(instruction_set >= XSIMD_X86_SSE2_VERSION::version()) \
