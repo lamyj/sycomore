@@ -26,6 +26,7 @@
 #include "sycomore/sycomore.h"
 #include "sycomore/Dimensions.h"
 #include "sycomore/Quantity.h"
+#include "sycomore/QuantityArray.h"
 
 namespace sycomore
 {
@@ -288,10 +289,35 @@ wrap_quantity_array(pybind11::module & m, pybind11::class_<T> & _class)
     return _class;
 }
 
+template<typename TContainer>
+struct DimensionChecker;
+
+template<>
+struct DimensionChecker<ArrayQ>
+{
+    constexpr static bool check(std::size_t /* dimension */) { return true; }
+};
+
+template<template<std::size_t> typename TContainer, std::size_t N>
+struct DimensionChecker<TContainer<N>>
+{
+    static bool check(std::size_t dimension) { return N == dimension; }
+};
+
+template<template<typename> typename TContainer, typename S>
+struct DimensionChecker<TContainer<S>>
+{
+    static bool check(std::size_t dimension) { return TContainer<S>::rank == dimension; }
+};
+
 template<typename T>
 T as_quantity(pybind11::array_t<pybind11::object> array)
 {
     std::vector<size_t> const shape{array.shape(), array.shape()+array.ndim()};
+    if(!DimensionChecker<T>::check(shape.size()))
+    {
+        throw pybind11::cast_error("Shape size mismatch");
+    }
     
     T destination(T::Container::from_shape(shape));
     auto dest_it = destination.magnitude.begin();
@@ -306,7 +332,10 @@ T as_quantity(pybind11::array_t<pybind11::object> array)
     for(auto && source: array)
     {
         auto const & q = source.cast<sycomore::Quantity>();
-        destination.check_dimensions(q, "Constructor requires same dimensions");
+        if(destination.dimensions != q.dimensions)
+        {
+            throw pybind11::cast_error("Dimensions mismatch");
+        }
         *dest_it = q.magnitude;
         ++dest_it;
     }
