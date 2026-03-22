@@ -214,7 +214,9 @@ void wrap_isochromat_Model(pybind11::module & m)
             "apply", &Model::apply, "operator"_a,
             "Apply an operator to the magnetization")
         .def_property_readonly("T1", &Model::T1, "T1 field")
+        .def_property_readonly("R1", &Model::R1, "R1 field")
         .def_property_readonly("T2", &Model::T2, "T2 field")
+        .def_property_readonly("R2", &Model::R2, "R2 field")
         .def_property_readonly("M0", &Model::M0, "M0 field")
         .def_property_readonly(
             "delta_omega", &Model::delta_omega, "Off-resonance field")

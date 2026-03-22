@@ -388,7 +388,7 @@ getitem(T const & q, pybind11::object index)
             q, normalize_index(q.shape(0), index.cast<std::ptrdiff_t>()));
         return view.size() == 1
             ? pybind11::cast(sycomore::Quantity(view.unchecked(0)))
-            : pybind11::cast(view.operator sycomore::ArrayQ());
+            : pybind11::cast(sycomore::ArrayQ(view));
     }
     else 
     {
@@ -490,7 +490,7 @@ getitem(T const & q, pybind11::object index)
         auto const view = sycomore::strided_view(q, slices);
         return view.size() == 1
             ? pybind11::cast(sycomore::Quantity(view.unchecked(0)))
-            : pybind11::cast(view.operator sycomore::ArrayQ());
+            : pybind11::cast(sycomore::ArrayQ(view));
     }
 }
 
@@ -537,7 +537,7 @@ QuantityConstIteratorAdapter<T>
         else
         {
             return pybind11::cast(
-                sycomore::view(this->q, this->index++).operator sycomore::ArrayQ());
+                sycomore::ArrayQ(sycomore::view(this->q, this->index++)));
         }
     }
 }

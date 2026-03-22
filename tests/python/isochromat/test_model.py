@@ -10,9 +10,26 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from test_case import TestCase
 
 class TestModel(TestCase):
+    def test_T1R1_constructor(self):
+        model1 = sycomore.isochromat.Model(2*s, 1*s, [0, 0, 1], [3*[0*m]])
+        self.assertEqual(model1.T1, sycomore.TensorQ1([2*s]))
+        self.assertEqual(model1.R1, sycomore.TensorQ1([0.5*Hz]))
+        
+        model2 = sycomore.isochromat.Model(0.5*Hz, 1*s, [0, 0, 1], [3*[0*m]])
+        self.assertEqual(model2.T1, sycomore.TensorQ1([2*s]))
+        self.assertEqual(model2.R1, sycomore.TensorQ1([0.5*Hz]))
+    
+    def test_T2R2_constructor(self):
+        model1 = sycomore.isochromat.Model(1*s, 2*s, [0, 0, 1], [3*[0*m]])
+        self.assertEqual(model1.T2, sycomore.TensorQ1([2*s]))
+        self.assertEqual(model1.R2, sycomore.TensorQ1([0.5*Hz]))
+        
+        model2 = sycomore.isochromat.Model(1*s, 0.5*Hz, [0, 0, 1], [3*[0*m]])
+        self.assertEqual(model2.T2, sycomore.TensorQ1([2*s]))
+        self.assertEqual(model2.R2, sycomore.TensorQ1([0.5*Hz]))
+    
     def test_pulse_uniform(self):
-        positions = [[0*m, 0*m, 0*m]]
-        model = sycomore.isochromat.Model(1*s, 0.1*s, [0, 0, 1], positions)
+        model = sycomore.isochromat.Model(1*s, 0.1*s, [0, 0, 1], [3*[0*m]])
         op = model.build_pulse(90*deg, 60*deg)
         pulse = numpy.array([
             [
@@ -27,8 +44,8 @@ class TestModel(TestCase):
             default_phase.array, model.build_pulse(numpy.pi/3*rad, 0*rad).array)
     
     def test_pulse_variable(self):
-        positions = [[-1*m, 0*m, 0*m], [1*m, 0*m, 0*m]]
-        model = sycomore.isochromat.Model(1*s, 0.1*s, [0, 0, 1], positions)
+        model = sycomore.isochromat.Model(
+            1*s, 0.1*s, [0, 0, 1], [[-1*m, 0*m, 0*m], [1*m, 0*m, 0*m]])
         
         op = model.build_pulse([90*deg, 60*deg], [60*deg, 90*deg])
         
@@ -51,9 +68,9 @@ class TestModel(TestCase):
             model.build_pulse([90*deg, 60*deg], [0*deg, 0*deg]).array)
     
     def test_relaxation(self):
-        positions = [[0*m, 0*m, 0*m], [1*m, 0*m, 0*m]]
         model = sycomore.isochromat.Model(
-            [1*s, 2*s], [0.1*s, 0.2*s], [[0, 0, 2], [0, 0, 1]], positions)
+            [1*s, 2*s], [0.1*s, 0.2*s], [[0, 0, 2], [0, 0, 1]],
+            [[0*m, 0*m, 0*m], [1*m, 0*m, 0*m]])
         
         op = model.build_relaxation(1*ms)
         
@@ -74,7 +91,8 @@ class TestModel(TestCase):
     
     def test_phase_accumulation(self):
         positions = [[0*m, 0*m, 0*m], [1*m, 0*m, 0*m]]
-        model = sycomore.isochromat.Model(1*s, 0.1*s, [0, 0, 1], positions)
+        model = sycomore.isochromat.Model(
+            1*s, 0.1*s, [0, 0, 1], [[0*m, 0*m, 0*m], [1*m, 0*m, 0*m]])
         
         op = model.build_phase_accumulation([30*deg, 60*deg])
         
@@ -92,10 +110,11 @@ class TestModel(TestCase):
         numpy.testing.assert_almost_equal(op.array, phase_accumulation)
     
     def test_time_interval_uniform(self):
-        positions = [[0*m, 0*m, 0*m], [1*mm, 2*mm, 3*mm]]
-        model = sycomore.isochromat.Model(1*s, 0.1*s, [0, 0, 1], positions)
+        model = sycomore.isochromat.Model(
+            1*s, 0.1*s, [0, 0, 1], [[0*m, 0*m, 0*m], [1*mm, 2*mm, 3*mm]])
         
-        op = model.build_time_interval(10*ms, 400*Hz, [20*mT/m, 0*mT/m, 10*mT/m])
+        op = model.build_time_interval(
+            10*ms, 400*Hz, [20*mT/m, 0*mT/m, 10*mT/m])
         
         combined = model.build_phase_accumulation(2*numpy.pi*rad*400*10e-3)
         combined.pre_multiply(model.build_relaxation(10*ms))
@@ -114,11 +133,17 @@ class TestModel(TestCase):
         default_gradient = model.build_time_interval(10*ms, 400*Hz)
         numpy.testing.assert_almost_equal(
             default_gradient.array,
-            model.build_time_interval(10*ms, 400*Hz, [0*T/m, 0*T/m, 0*T/m]).array);
+            model.build_time_interval(10*ms, 400*Hz, [0*T/m, 0*T/m, 0*T/m]).array)
+        
+        default_frequency = model.build_time_interval(
+            10*ms, gradient=[20*mT/m, 0*mT/m, 10*mT/m])
+        numpy.testing.assert_almost_equal(
+            default_frequency.array,
+            model.build_time_interval(10*ms, 0*Hz, [20*mT/m, 0*mT/m, 10*mT/m]).array)
     
     def test_time_interval_variable(self):
-        positions = [[-1*mm, 2*mm, 3*mm], [1*mm, 0*mm, 3*mm]]
-        model = sycomore.isochromat.Model(1*s, 0.1*s, [0, 0, 1], positions)
+        model = sycomore.isochromat.Model(
+            1*s, 0.1*s, [0, 0, 1], [[-1*mm, 2*mm, 3*mm], [1*mm, 0*mm, 3*mm]])
         
         op = model.build_time_interval(
             10*ms, [400*Hz, 600*Hz],
@@ -140,6 +165,25 @@ class TestModel(TestCase):
             model.build_time_interval(
                 10*ms, [400*Hz, 600*Hz],
                 [[0*T/m, 0*T/m, 0*T/m], [0*T/m, 0*T/m, 0*T/m]]).array)
+        
+        default_frequency = model.build_time_interval(
+            10*ms, gradient=[[20*mT/m, 0*mT/m, 10*mT/m], [15*mT/m, 17*mT/m, 0*mT/m]])
+        numpy.testing.assert_almost_equal(
+            default_frequency.array,
+            model.build_time_interval(
+                10*ms, [0*Hz, 0*Hz],
+                [[20*mT/m, 0*mT/m, 10*mT/m], [15*mT/m, 17*mT/m, 0*mT/m]]).array)
+    
+    def test_time_interval_object(self):
+        model = sycomore.isochromat.Model(1*s, 0.1*s, [0, 0, 1], [3*[0*m]])
+        
+        time_interval = sycomore.TimeInterval(10*ms, [20*mT/m, 0*mT/m, 10*mT/m])
+        op1 = model.build_time_interval(time_interval)
+        
+        op2 = model.build_time_interval(
+            10*ms, gradient=[20*mT/m, 0*mT/m, 10*mT/m])
+        
+        numpy.testing.assert_almost_equal(op1.array, op2.array)
     
     def test_T1(self):
         model_1 = sycomore.isochromat.Model(
