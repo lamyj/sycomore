@@ -102,10 +102,24 @@ Model
     xt::view(this->_magnetization, xt::all(), xt::range(0, 3)) = M0;
     xt::view(this->_magnetization, xt::all(), 3UL) = 1;
     
+    if(delta_omega.size() > 0 && delta_omega.dimensions != Frequency)
+    {
+        std::ostringstream message;
+        message << "delta_omega must be frequency, not " << delta_omega.dimensions;
+        throw std::runtime_error(message.str());
+    }
+    
     this->_delta_omega = 
         delta_omega.size() == 0
         ? TensorQ<1>{xt::repeat(TensorR<1>{0.}, T1.size(), 0), Frequency}
         : delta_omega;
+    
+    if(positions.size() > 0 && positions.dimensions != Length)
+    {
+        std::ostringstream message;
+        message << "positions must be length, not " << positions.dimensions;
+        throw std::runtime_error(message.str());
+    }
     
     this->_positions = positions;
 }
