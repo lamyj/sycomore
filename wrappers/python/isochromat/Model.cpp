@@ -120,7 +120,7 @@ build_time_interval(
     using sycomore::TensorQ;
     using sycomore::wrappers::as_quantity;
     
-    if(delta_omega.is(pybind11::none()))
+    if(delta_omega.is(pybind11::none()) && gradient.is(pybind11::none()))
     {
         return model.build_time_interval(duration);
     }
@@ -135,6 +135,24 @@ build_time_interval(
         {
             return model.build_time_interval(
                 duration, as_quantity<TensorQ<1>>(delta_omega));
+        }
+    }
+    else if(delta_omega.is(pybind11::none()))
+    {
+        using namespace sycomore::units;
+        
+        try
+        {
+            auto const gradient_ = as_quantity<TensorQ<1>>(gradient);
+            Quantity const delta_omega_ = 0*rad/s;
+            return model.build_time_interval(duration, delta_omega_, gradient_);
+        }
+        catch(pybind11::cast_error &)
+        {
+            auto const gradient_ = as_quantity<TensorQ<2>>(gradient);
+            TensorQ<1> delta_omega_(TensorQ<1>::shape_type{gradient_.shape()[0]});
+            delta_omega_.fill(0*rad/s);
+            return model.build_time_interval(duration, delta_omega_, gradient_);
         }
     }
     else
