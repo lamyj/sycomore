@@ -184,6 +184,16 @@ Model
 
 Operator
 Model
+::build_time_interval(TimeInterval const & time_interval) const
+{
+    using namespace sycomore::units;
+    auto const g = time_interval.gradient_amplitude();
+    return this->build_time_interval(
+        time_interval.duration(), 0*rad/s, {g[0], g[1], g[2]});
+}
+
+Operator
+Model
 ::build_time_interval(
     Quantity const & duration, TensorQ<1> const & delta_omega,
     TensorQ<2> const & gradient) const

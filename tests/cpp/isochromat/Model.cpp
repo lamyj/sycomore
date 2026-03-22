@@ -193,6 +193,21 @@ BOOST_AUTO_TEST_CASE(TimeIntervalVariable)
             {{0*T/m, 0*T/m, 0*T/m}, {0*T/m, 0*T/m, 0*T/m}}).array()));
 }
 
+BOOST_AUTO_TEST_CASE(TimeIntervalObject)
+{
+    using namespace sycomore::units;
+    
+    sycomore::isochromat::Model model(1*s, 0.1*s, {0, 0, 1}, {{0*m, 0*m, 0*m}});
+    
+    sycomore::TimeInterval const time_interval(10_ms, {20*mT/m, 0*mT/m, 10*mT/m});
+    auto const op1 = model.build_time_interval(time_interval);
+        
+    auto const op2 = model.build_time_interval(
+        10_ms, 0*rad/m, {20*mT/m, 0*mT/m, 10*mT/m});
+    
+    BOOST_TEST(xt::allclose(op1.array(), op2.array()));
+}
+
 BOOST_AUTO_TEST_CASE(T1)
 {
     using namespace sycomore::units;

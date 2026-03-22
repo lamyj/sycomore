@@ -198,6 +198,12 @@ void wrap_isochromat_Model(pybind11::module & m)
             "duration"_a, "delta_omega"_a=none(), "gradient"_a=none(),
             "Create a time interval operator")
         .def(
+            "build_time_interval",
+            overload_cast<TimeInterval const &>(
+                &Model::build_time_interval, const_),
+            "time_interval"_a,
+            "Create a time interval operator")
+        .def(
             "build_relaxation", &Model::build_relaxation, "duration"_a,
             "Create a relaxation operator")
         .def(

@@ -48,6 +48,9 @@ public:
         Quantity const & duration, Quantity const & delta_omega=0*units::Hz,
         TensorQ<1> const & gradient={}) const;
     
+    /// @brief Create a spatially constant time interval operator
+    Operator build_time_interval(TimeInterval const & time_interval) const;
+    
     /// @brief Create a spatially-varying time interval operator
     Operator build_time_interval(
         Quantity const & duration, TensorQ<1> const & delta_omega,
